@@ -1,0 +1,40 @@
+{
+  "name": "@slothking-online/slothking-diagram",
+  "version": "0.1.19",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "A slothking diagram",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "grunt",
+    "start": "grunt watch",
+    "prettier": "prettier --write \"src/**/*.{ts,tsx,css}\""
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/classnames": "2.2.3",
+    "@types/history": "4.6.2",
+    "@types/json-schema": "^6.0.1",
+    "@types/node": "9.4.6",
+    "@types/react": "16.0.40",
+    "@types/react-dom": "16.0.4",
+    "grunt": "^1.0.2",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-ts": "^6.0.0-beta.19",
+    "prettier": "^1.11.1",
+    "typescript": "^2.8.0-dev.20180318"
+  },
+  "dependencies": {
+    "classnames": "^2.2.5",
+    "moment": "^2.21.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "typestyle": "^1.7.2",
+    "utility-types": "^1.1.0"
+  }
+}
