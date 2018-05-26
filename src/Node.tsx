@@ -10,6 +10,7 @@ export type NodeType = {
   editable?: boolean;
   name: string;
   type?: string;
+  subType? :string;
   inputs: Array<PortType>;
   outputs: Array<PortType>;
   nodes?: Array<NodeType>;
