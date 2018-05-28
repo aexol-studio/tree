@@ -102,7 +102,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     });
   };
   componentDidMount() {
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keypress', (e) => {
       if (e.keyCode === 32 && !this.state.spacePressed) {
         this.toggleSpace(true);
       }
