@@ -1,22 +1,7 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
-import * as styles from './style'
-export type PortType = {
-  id?: string;
-  name: string;
-  unpluggable?: boolean;
-  connected?: boolean;
-  type?: string;
-  output?: boolean;
-  x?: number;
-  y?: number;
-};
-export type PortActions = {
-  portUp: (x: number, y: number, output: boolean) => void;
-  portDown: (x: number, y: number, output: boolean) => void;
-  portPosition: (x: number, y: number, output: boolean) => void;
-};
-
+import * as styles from './style/Port'
+import { PortActions,PortType } from "./types";
 export class Port extends React.Component<PortType & PortActions> {
   port;
   portPosition = () => {
@@ -37,17 +22,14 @@ export class Port extends React.Component<PortType & PortActions> {
     return (
       <div
         className={classnames({
-          [styles.DependencyNodePort]: true
+          [styles.Port]: true
         })}
         style={{
           flexDirection: output ? 'row' : 'row-reverse'
         }}
       >
         <div
-          className={classnames({
-            [styles.DependencyNodePortName]: true,
-            [styles.DependencyNodePortNameOutput]: output
-          })}
+          className={styles.Name}
         >
           {name}
         </div>
@@ -70,10 +52,10 @@ export class Port extends React.Component<PortType & PortActions> {
               portUp(e.clientX, e.clientY,output);
             }}
             className={classnames({
-              [styles.DependencyNodePortDot]: true,
-              [styles.DependencyNodePortDotOutput]: output,
-              [styles.DependencyNodePortDotInput]: !output,
-              [styles.DependencyNodePortDotConnected]: connected
+              [styles.Dot]: true,
+              [styles.DotOutput]: output,
+              [styles.DotInput]: !output,
+              [styles.DotConnected]: connected
             })}
           />
         )}

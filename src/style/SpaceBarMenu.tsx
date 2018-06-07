@@ -1,57 +1,54 @@
 import { style, classes } from 'typestyle';
 import * as vars from './vars';
-export const SpaceBarMenu = style({
-  background: vars.bg,
-  border: '1px solid #555',
-  color: '#aaa',
-  width: '40px',
-  height: '40px',
-  marginTop: '-20px',
-  marginLeft: '-20px',
-  borderRadius: '20px'
+export const Menu = style({
+  width: 0,
+  height: 0
 });
-export const SpaceBarCategories = style({
+export const Categories = style({
   position: 'absolute',
   textAlign: 'right',
   display: 'flex',
   flexFlow: 'row nowrap',
-  marginTop: '40px'
+  padding: 10,
+  background: vars.bgspace
 });
-export const SpaceBarCategory = style({
+export const Category = style({
   margin: '0 5px',
   display: 'inline-table'
 });
-export const SpaceBarItems = style({
+export const Items = style({
   position: 'absolute',
   maxWidth: '300px',
   display: 'grid',
   gridTemplateColumns: 'repeat(3,auto)',
-  background: '#444',
+  background: vars.bgspace,
   padding: '20px',
   margin: '10px 0',
-  borderRadius: '10px'
 });
-export const SpaceBarCategoryName = style({
-  background: vars.bg,
-  padding: '5px 10px',
+export const CategoryName = style({
+  background: vars.bgcategory,
+  color: vars.text,
+  padding: '10px 15px',
   fontSize: '10px',
   textAlign: 'center',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: '5px',
-  cursor: 'pointer',
-  transition: vars.transition
+  borderRadius: vars.borderRadius,
+  transition: vars.transition,
+  $nest: {
+    '&:hover': {
+      background: vars.selected
+    }
+  }
 });
 
-export const SpaceBarItem = classes(
-  SpaceBarCategoryName,
+export const CategoryNameActive = style({
+  background: vars.selected
+});
+export const Item = classes(
+  CategoryName,
   style({
-    margin: '0 5px 5px 0',
-    $nest: {
-      '&:hover': {
-        color: 'white'
-      }
-    }
+    margin: '0 5px 5px 0'
   })
 );

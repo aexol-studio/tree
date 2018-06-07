@@ -1,6 +1,5 @@
-import { LinkType } from './Link';
-import { NodeType } from './Node';
-import { SpaceBarCategory, SpaceBarAction, Item } from './SpaceBarMenu';
+import { LinkType, NodeType } from '.';
+import { SpaceBarCategory, SpaceBarAction, Item } from './SpaceMenu';
 export type NodeCategory = {
   name: string;
   type: SpaceBarAction.AddNode;
@@ -59,7 +58,8 @@ export enum Action {
   Nothing,
   Pan,
   MoveNode,
-  ConnectPort
+  ConnectPort,
+  Left
 }
 
 export const GraphInitialState: GraphState = {

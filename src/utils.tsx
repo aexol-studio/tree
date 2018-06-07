@@ -1,4 +1,4 @@
-import { NodeType, NodeTypePartial } from '.';
+import { NodeType, NodeTypePartial } from './types';
 export const generateId = () => new Array(crypto.getRandomValues(new Uint8Array(4))).join('-');
 
 type DeepUpdateType = {

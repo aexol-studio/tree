@@ -1,31 +1,38 @@
 import * as React from 'react';
-import * as styles from './style';
-import { SpaceBarMenu, SpaceBarCategory, SpaceBarAction } from './SpaceBarMenu';
-import { NodeType, NodeTypePartial } from './Node';
-import { Node } from './SimpleNode';
-import { GraphProps, GraphState, GraphInitialState, Action } from './GraphDefs';
-import { LinkWidget } from './Link';
-import { Port, PortType } from './Port';
-import { Props } from './Props';
+import * as styles from './style/Graph';
+import { SpaceMenu } from './SpaceMenu';
+import {
+  NodeType,
+  NodeTypePartial,
+  GraphProps,
+  GraphState,
+  GraphInitialState,
+  Action,
+  PortType,
+  SpaceBarCategory,
+  SpaceBarAction
+} from './types';
+import { Node, Port, Props, LinkWidget } from '.';
 import { generateId, deepNodeUpdate, updateClonedNodesNames } from './utils';
 import { renderLinks } from './render';
-
+import { Basic, Move, Connect } from './cursors';
 export class Graph extends React.Component<GraphProps, GraphState> {
   background;
   state = {
     ...GraphInitialState
   };
   get p() {
-    if (this.state.activePort) {
-      const { x, y, endX, endY } = this.state.activePort;
-      return {
+    const { x, y, endX, endY } = this.state.activePort;
+    return {
+      start: {
         x: this.oX(x),
-        y: this.oY(y),
-        endX: this.oX(endX),
-        endY: this.oY(endY)
-      };
-    }
-    return this.state.activePort;
+        y: this.oY(y)
+      },
+      end: {
+        x: this.oX(endX),
+        y: this.oY(endY)
+      }
+    };
   }
   componentDidUpdate(prevProps: GraphProps, prevState: GraphState) {
     if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
@@ -103,7 +110,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   };
   componentDidMount() {
     document.addEventListener('keypress', (e) => {
-      if (e.keyCode === 32 && !this.state.spacePressed) {
+      if (e.charCode === 32 && !this.state.spacePressed) {
         this.toggleSpace(true);
       }
     });
@@ -290,13 +297,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     const { inputs, outputs } = node;
     return (
       <div
-        className={styles.DependencyExpand}
+        className={styles.Expand}
         style={{
           pointerEvents: 'none'
         }}
       >
-        <div className={styles.DependencyInputs}>{this.renderMainPorts(node, inputs, false)}</div>
-        <div className={styles.DependencyOutputs}>{this.renderMainPorts(node, outputs, true)}</div>
+        <div className={styles.Inputs}>{this.renderMainPorts(node, inputs, false)}</div>
+        <div className={styles.Outputs}>{this.renderMainPorts(node, outputs, true)}</div>
       </div>
     );
   };
@@ -329,7 +336,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     ));
   };
   expandNode = (selectedNode) => {
-    console.log('selectedNode');
     this.setState((state) => ({
       expand: selectedNode,
       path: [...state.path, selectedNode],
@@ -371,57 +377,60 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         };
       }
     });
-    spaceBarCategories = [
-      {
-        name: 'node',
-        type: SpaceBarAction.Action,
-        items: this.state.selected
-          ? [
-              {
-                name: 'expand',
-                action: () => {
-                  this.expandNode(this.state.selected);
-                }
-              },
-              {
-                name: 'delete',
-                action: () => {
-                  this.setState((state) => ({
-                    ...this.deleteNode(state.selected),
-                    selected: null
-                  }));
-                }
-              },
-              {
-                name: 'unlink',
-                action: () => {
-                  this.setState((state) => ({
-                    ...this.deleteLinks(state.selected)
-                  }));
-                }
-              },
-              {
-                name: 'duplicate',
-                action: () => {
-                  this.cloneNode(
-                    this.nodes(this.state.nodes).find((n) => n.id === this.state.selected)
-                  );
-                }
-              }
-            ]
-          : this.state.expand
+    console.log(this.state.selected)
+    if (this.state.selected) {
+      spaceBarCategories = [
+        {
+          name: 'node',
+          type: SpaceBarAction.Action,
+          items: this.state.selected
             ? [
                 {
-                  name: 'back',
+                  name: 'expand',
                   action: () => {
-                    this.shrinkNode(this.state.expand);
+                    this.expandNode(this.state.selected);
+                  }
+                },
+                {
+                  name: 'delete',
+                  action: () => {
+                    this.setState((state) => ({
+                      ...this.deleteNode(state.selected),
+                      selected: null
+                    }));
+                  }
+                },
+                {
+                  name: 'unlink',
+                  action: () => {
+                    this.setState((state) => ({
+                      ...this.deleteLinks(state.selected)
+                    }));
+                  }
+                },
+                {
+                  name: 'duplicate',
+                  action: () => {
+                    this.cloneNode(
+                      this.nodes(this.state.nodes).find((n) => n.id === this.state.selected)
+                    );
                   }
                 }
               ]
-            : []
-      },
-      ...spaceBarCategories
-    ];
+            : this.state.expand
+              ? [
+                  {
+                    name: 'back',
+                    action: () => {
+                      this.shrinkNode(this.state.expand);
+                    }
+                  }
+                ]
+              : []
+        },
+        ...spaceBarCategories
+      ];
+    }
     return spaceBarCategories;
   };
   serialize = () => {
@@ -467,7 +476,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         ref={(ref) => {
           this.background = ref;
         }}
-        className={styles.DependencyBackground}
+        className={styles.Background}
         onMouseDown={(e) => {
           this.setState({
             action: Action.Pan
@@ -476,30 +485,32 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         onMouseUp={(e) => {
           this.reset();
         }}
+        onMouseEnter={(e) => {
+          this.setState({
+            action: Action.Nothing
+          });
+        }}
+        onMouseLeave={(e) => {
+          this.setState({
+            action: Action.Left
+          });
+        }}
+        style={{
+          cursor: 'none'
+        }}
       >
-        <div className={styles.DependencyNodes}>
+        <div className={styles.Nodes}>
           {this.renderNodes(nodes)}
           {expand &&
             this.renderExpandedNodePorts(this.nodes(this.state.nodes).find((n) => n.id === expand))}
           <svg
             style={{
               width: '100%',
-              height: '100%',
+              height: '100%', 
               pointerEvents: 'none'
             }}
           >
-            {this.state.activePort && (
-              <LinkWidget
-                start={{
-                  x: this.p.x,
-                  y: this.p.y
-                }}
-                end={{
-                  x: this.p.endX,
-                  y: this.p.endY
-                }}
-              />
-            )}
+            {this.state.activePort && <LinkWidget {...this.p} />}
             {renderLinks(links, nodes, this.oX, this.oY, selectedNode)}
           </svg>
         </div>
@@ -509,7 +520,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           </div>
         )}
         {this.state.spacePressed && (
-          <SpaceBarMenu
+          <SpaceMenu
             x={this.state.spaceX}
             y={this.state.spaceY}
             categories={this.spaceBarCategories()}
@@ -543,6 +554,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             }}
           />
         )}
+        {
+          {
+            [Action.Nothing]: <Basic x={this.state.mouseX} y={this.state.mouseY} />,
+            [Action.MoveNode]: <Move x={this.state.mouseX} y={this.state.mouseY} />,
+            [Action.Pan]: <Move x={this.state.mouseX} y={this.state.mouseY} />,
+            [Action.ConnectPort]: <Connect x={this.state.mouseX} y={this.state.mouseY} />
+          }[this.state.action]
+        }
       </div>
     );
   }

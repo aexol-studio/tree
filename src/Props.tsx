@@ -1,16 +1,7 @@
 import * as React from 'react';
-import { NodeType } from './Node';
-import { PortType } from './Port';
-import * as styles from './style';
+import { PortType, PropsType } from './types';
+import * as styles from './style/Props';
 
-export type PropsType = {
-  node: NodeType;
-  canExpand?: boolean;
-  canShrink?: boolean;
-  onChange: (node: NodeType) => void;
-  onExpand: () => void;
-  onShrink: () => void;
-};
 
 export class Props extends React.Component<PropsType> {
   changePorts = (port: 'inputs' | 'outputs') => {
@@ -34,7 +25,7 @@ export class Props extends React.Component<PropsType> {
     ));
   };
   render() {
-    const {  node, onChange } = this.props;
+    const { node, onChange } = this.props;
     return (
       <div onMouseUp={(e) => e.stopPropagation()} className={styles.Props}>
         <div className={styles.PropsPort}>
@@ -42,6 +33,7 @@ export class Props extends React.Component<PropsType> {
             className={styles.PropsPortInput}
             type="text"
             value={node.name}
+            disabled={!node.editable}
             onChange={(e) => {
               onChange({
                 ...node,
