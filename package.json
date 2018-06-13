@@ -32,8 +32,8 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "moment": "^2.21.0",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
     "typestyle": "^1.7.2",
     "utility-types": "^1.1.0"
   }
