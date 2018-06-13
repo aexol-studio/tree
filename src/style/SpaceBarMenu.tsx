@@ -1,4 +1,4 @@
-import { style, classes } from 'typestyle';
+import { style } from 'typestyle';
 import * as vars from './vars';
 export const Menu = style({
   width: 0,
@@ -9,27 +9,18 @@ export const Categories = style({
   textAlign: 'right',
   display: 'flex',
   flexFlow: 'row nowrap',
-  padding: 10,
-  background: vars.bgspace
+  padding: 5
 });
 export const Category = style({
   margin: '0 5px',
-  display: 'inline-table'
-});
-export const Items = style({
-  position: 'absolute',
-  maxWidth: '300px',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3,auto)',
-  background: vars.bgspace,
-  padding: '20px',
-  margin: '10px 0',
+  display: 'flex',
+  flexFlow: 'column nowrap'
 });
 export const CategoryName = style({
   background: vars.bgcategory,
   color: vars.text,
-  padding: '10px 15px',
-  fontSize: '10px',
+  padding: '10px 30px',
+  fontSize: '12px',
   textAlign: 'center',
   display: 'flex',
   alignItems: 'center',
@@ -38,17 +29,52 @@ export const CategoryName = style({
   transition: vars.transition,
   $nest: {
     '&:hover': {
-      background: vars.selected
+      background: vars.selected,
+      borderBottomLeftRadius:0,
+      borderBottomRightRadius:0
     }
   }
 });
 
+export const TriangleCategoryDown = style({
+  width: 0,
+  height: 0,
+  content: 's',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  marginBottom: 1,
+  borderLeft: '5px solid transparent',
+  borderRight: '5px solid transparent',
+  borderTop: `10px solid ${vars.selected}`,
+  borderTopColor: vars.selected,
+  transition: vars.transition
+});
+export const TriangleHidden = style({
+  borderTopColor: vars.bgcategory
+});
 export const CategoryNameActive = style({
   background: vars.selected
 });
-export const Item = classes(
-  CategoryName,
-  style({
-    margin: '0 5px 5px 0'
-  })
-);
+export const Item = style({
+  background: vars.bgcategory,
+  color: vars.text,
+  fontSize: '11px',
+  padding:5,
+  textAlign: 'center',
+  display: 'flex',
+  borderBottomColor: vars.bgcategoryBorder,
+  borderBottomStyle: 'solid',
+  borderBottomWidth: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: vars.transition,
+  $nest: {
+    '&:last-of-type':{
+      borderBottomLeftRadius:vars.borderRadius,
+      borderBottomRightRadius:vars.borderRadius
+    },
+    '&:hover': {
+      background: vars.selected
+    }
+  }
+});

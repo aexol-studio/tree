@@ -30,7 +30,13 @@ const Categories = ({ categories, category, onMouseOver, style, refFunction }) =
           {c.name}
         </div>
         {category === c.name && (
-          <div className={styles.Items}>
+          <React.Fragment>
+            <div
+              className={cx({
+                [styles.TriangleCategoryDown]: true,
+                [styles.TriangleHidden]: category !== c.name
+              })}
+            />
             {c.items.map((i, index) => (
               <div
                 className={styles.Item}
@@ -42,7 +48,7 @@ const Categories = ({ categories, category, onMouseOver, style, refFunction }) =
                 {i.name}
               </div>
             ))}
-          </div>
+          </React.Fragment>
         )}
       </div>
     ))}

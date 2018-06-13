@@ -6,6 +6,7 @@ export const bg = '#555';
 export const lines = '#eee';
 export const bgspace = '#535353'
 export const bgcategory = '#333'
+export const bgcategoryBorder = '#2a2a2a'
 export const bgradial = '#444';
 export const text = '#eee';
 export const selected = '#62afdb';

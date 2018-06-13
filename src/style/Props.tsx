@@ -9,7 +9,10 @@ export const Props = style({
   top: `0`,
   margin: `20px`,
   padding: `20px`,
-  fontSize: `12px`
+  fontSize: `12px`,
+  opacity:0.0,
+  userSelect:'none',
+  "-moz-user-select":'none'
 });
 export const PropsLabel = style({
   fontWeight: 100,

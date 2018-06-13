@@ -20,6 +20,22 @@ export const Title = style({
   textAlign: 'center',
   padding: '15px 25px'
 });
+export const Rename = style({
+  pointerEvents: 'none',
+  userSelect: 'none',
+  "-moz-user-select":'none',
+  textAlign: 'center',
+  display:'flex',
+  flexFlow:'column nowrap',
+  padding: 0
+});
+export const RenameTitle = style({
+  background:vars.bgcategory
+})
+export const RenameInput = style({
+  background:'transparent',
+  border:0
+})
 export const Name = style({
   fontWeight: 500,
   textTransform: 'unset',

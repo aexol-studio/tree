@@ -12,12 +12,12 @@ import {
   SpaceBarCategory,
   SpaceBarAction
 } from './types';
-import { Node, Port, Props, LinkWidget } from '.';
+import { Node, Port, Props, LinkWidget, Background } from '.';
 import { generateId, deepNodeUpdate, updateClonedNodesNames } from './utils';
 import { renderLinks } from './render';
 import { Basic, Move, Connect } from './cursors';
 export class Graph extends React.Component<GraphProps, GraphState> {
-  background;
+  background: HTMLDivElement;
   state = {
     ...GraphInitialState
   };
@@ -169,14 +169,22 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         y: spaceY,
         nodes: []
       };
-      let updateNodes = {};
+      let updateNodes: any = {
+        selected: newNode.id,
+        renamed: true,
+        action: Action.SelectedNode
+      };
       if (expand) {
         const oldNodeNodes = this.nodes(nodes).find((n) => n.id === expand).nodes;
-        updateNodes = this.updateNode(nodes, expand, {
-          nodes: [...oldNodeNodes, newNode]
-        });
+        updateNodes = {
+          ...updateNodes,
+          ...this.updateNode(nodes, expand, {
+            nodes: [...oldNodeNodes, newNode]
+          })
+        };
       } else {
         updateNodes = {
+          ...updateNodes,
           nodes: [...state.nodes, newNode]
         };
       }
@@ -197,6 +205,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       activePort: null,
       activeNode: null,
       selected: null,
+      renamed: false,
       ...updateState
     });
   };
@@ -243,21 +252,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         ]
       });
     }
-  };
-  addPort = (port: PortType) => {
-    const updatedNode = this.nodes(this.state.nodes).find((n) => n.id === this.state.selected);
-    this.setState((state) => ({
-      ...this.updateNode(state.nodes, state.selected, {
-        ...updatedNode,
-        inputs: [
-          ...updatedNode.inputs,
-          {
-            ...port,
-            id: generateId()
-          }
-        ]
-      })
-    }));
   };
   updatePortPositions = (x, y, portId, id, output: boolean) => {
     this.setState((state) => {
@@ -314,7 +308,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         key={node.id}
         id={node.id}
         selected={this.state.selected === node.id}
-        addPort={this.addPort}
         portDown={this.portDown}
         portUp={this.portUp}
         portPosition={(x, y, portId, id, output) => {
@@ -329,7 +322,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }}
         nodeUp={(id: string) => {
           this.reset({
-            selected: node.id
+            action: Action.SelectedNode,
+            selected: node.id,
+            renamed: true
           });
         }}
       />
@@ -377,7 +372,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         };
       }
     });
-    console.log(this.state.selected)
     if (this.state.selected) {
       spaceBarCategories = [
         {
@@ -448,7 +442,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
   };
   render() {
-    let { nodes, expand, links } = this.state;
+    let { nodes, expand, links, renamed } = this.state;
     let selectedNode = this.state.selected || this.state.expand;
     if (expand) {
       nodes = this.nodes(nodes);
@@ -472,31 +466,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       }))
     }));
     return (
-      <div
-        ref={(ref) => {
-          this.background = ref;
-        }}
-        className={styles.Background}
-        onMouseDown={(e) => {
+      <Background
+        onRef={(ref) => (this.background = ref)}
+        reset={this.reset}
+        switchAction={(action: Action) => {
           this.setState({
-            action: Action.Pan
+            action
           });
-        }}
-        onMouseUp={(e) => {
-          this.reset();
-        }}
-        onMouseEnter={(e) => {
-          this.setState({
-            action: Action.Nothing
-          });
-        }}
-        onMouseLeave={(e) => {
-          this.setState({
-            action: Action.Left
-          });
-        }}
-        style={{
-          cursor: 'none'
         }}
       >
         <div className={styles.Nodes}>
@@ -506,7 +482,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           <svg
             style={{
               width: '100%',
-              height: '100%', 
+              height: '100%',
               pointerEvents: 'none'
             }}
           >
@@ -526,43 +502,46 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             categories={this.spaceBarCategories()}
           />
         )}
-        {selectedNode && (
-          <Props
-            node={this.nodes(this.state.nodes).find((n) => n.id === selectedNode)}
-            onChange={(selected: NodeType) => {
-              this.setState((state) => {
-                return this.updateNode(state.nodes, selected.id, selected);
-              });
-              let clones = this.nodes(this.state.nodes).filter((n) => n.clone === selectedNode);
-              if (clones.length) {
+        {selectedNode &&
+          renamed && (
+            <Props
+              canBlurFocus={this.state.action === Action.SelectedNode}
+              node={this.nodes(this.state.nodes).find((n) => n.id === selectedNode)}
+              onChange={(selected: NodeType) => {
                 this.setState((state) => {
-                  return updateClonedNodesNames({
-                    nodes: state.nodes,
-                    ids: clones.map((c) => c.id),
-                    name: selected.name
-                  });
+                  return this.updateNode(state.nodes, selected.id, selected);
                 });
-              }
-            }}
-            canExpand={!!this.state.selected}
-            canShrink={!this.state.selected && this.state.path.length > 1}
-            onExpand={() => {
-              this.expandNode(selectedNode);
-            }}
-            onShrink={() => {
-              this.shrinkNode(this.state.expand);
-            }}
-          />
-        )}
+                let clones = this.nodes(this.state.nodes).filter((n) => n.clone === selectedNode);
+                if (clones.length) {
+                  this.setState((state) => {
+                    return updateClonedNodesNames({
+                      nodes: state.nodes,
+                      ids: clones.map((c) => c.id),
+                      name: selected.name
+                    });
+                  });
+                }
+              }}
+              canExpand={!!this.state.selected}
+              canShrink={!this.state.selected && this.state.path.length > 1}
+              onExpand={() => {
+                this.expandNode(selectedNode);
+              }}
+              onShrink={() => {
+                this.shrinkNode(this.state.expand);
+              }}
+            />
+          )}
         {
           {
             [Action.Nothing]: <Basic x={this.state.mouseX} y={this.state.mouseY} />,
+            [Action.SelectedNode]: <Basic x={this.state.mouseX} y={this.state.mouseY} />,
             [Action.MoveNode]: <Move x={this.state.mouseX} y={this.state.mouseY} />,
             [Action.Pan]: <Move x={this.state.mouseX} y={this.state.mouseY} />,
             [Action.ConnectPort]: <Connect x={this.state.mouseX} y={this.state.mouseY} />
           }[this.state.action]
         }
-      </div>
+      </Background>
     );
   }
 }

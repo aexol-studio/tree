@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
-import * as styles from './style/Port'
-import { PortActions,PortType } from "./types";
+import * as styles from './style/Port';
+import { PortActions, PortType } from './types';
 export class Port extends React.Component<PortType & PortActions> {
   port;
   portPosition = () => {
@@ -28,11 +28,7 @@ export class Port extends React.Component<PortType & PortActions> {
           flexDirection: output ? 'row' : 'row-reverse'
         }}
       >
-        <div
-          className={styles.Name}
-        >
-          {name}
-        </div>
+        {name && <div className={styles.Name}>{name}</div>}
         {!unpluggable && (
           <div
             ref={(ref) => {
@@ -45,11 +41,11 @@ export class Port extends React.Component<PortType & PortActions> {
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
-              portDown(e.clientX, e.clientY,output);
+              portDown(e.clientX, e.clientY, output);
             }}
             onMouseUp={(e) => {
               e.stopPropagation();
-              portUp(e.clientX, e.clientY,output);
+              portUp(e.clientX, e.clientY, output);
             }}
             className={classnames({
               [styles.Dot]: true,

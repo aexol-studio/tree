@@ -24,6 +24,29 @@ export class Node extends React.Component<NodeType & NodeActions, NodeState> {
       portPosition,
       selected = false
     } = this.props;
+    const renderPorts = (ports, output) =>
+      ports.map((i) => (
+        <Port
+          portUp={(x, y, output) => {
+            portUp(x, y, i.id, id, output);
+          }}
+          portDown={(x, y, output) => {
+            portDown(x, y, i.id, id, output);
+          }}
+          portPosition={(x, y, output) => {
+            portPosition(x, y, i.id, id, output);
+          }}
+          key={i.name}
+          output={output}
+          {...i}
+        />
+      ));
+    const nodeIdentity = () => (
+      <div className={styles.Title}>
+        <div className={styles.Name}>{name}</div>
+        <div className={styles.Type}>{type}</div>
+      </div>
+    );
     return (
       <div
         className={classnames({
@@ -45,41 +68,9 @@ export class Node extends React.Component<NodeType & NodeActions, NodeState> {
           nodeUp(id);
         }}
       >
-        {inputs.map((i) => (
-          <Port
-            portUp={(x, y, output) => {
-              portUp(x, y, i.id, id, output);
-            }}
-            portDown={(x, y, output) => {
-              portDown(x, y, i.id, id, output);
-            }}
-            portPosition={(x, y, output) => {
-              portPosition(x, y, i.id, id, output);
-            }}
-            key={i.name}
-            {...i}
-          />
-        ))}
-        <div className={styles.Title}>
-          <div className={styles.Name}>{name}</div>
-          <div className={styles.Type}>{type}</div>
-        </div>
-        {outputs.map((i) => (
-          <Port
-            portUp={(x, y, output) => {
-              portUp(x, y, i.id, id, output);
-            }}
-            portDown={(x, y, output) => {
-              portDown(x, y, i.id, id, output);
-            }}
-            portPosition={(x, y, output) => {
-              portPosition(x, y, i.id, id, output);
-            }}
-            output={true}
-            key={i.name}
-            {...i}
-          />
-        ))}
+        {renderPorts(inputs, false)}
+        {nodeIdentity()}
+        {renderPorts(outputs, true)}
       </div>
     );
   }

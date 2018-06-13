@@ -7,7 +7,7 @@ export type NodeType = {
   editable?: boolean;
   name: string;
   type?: string;
-  subType? :string;
+  subType?: string;
   inputs: Array<PortType>;
   outputs: Array<PortType>;
   nodes?: Array<NodeType>;
@@ -20,7 +20,6 @@ export type NodeActions = {
   portUp: (x: number, y: number, portId: string, id: string, output: boolean) => void;
   portDown: (x: number, y: number, portId: string, id: string, output: boolean) => void;
   portPosition: (x: number, y: number, portId: string, id: string, output: boolean) => void;
-  addPort: (port: PortType) => void;
 };
 export type NodeState = {
   input: string;

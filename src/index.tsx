@@ -6,3 +6,4 @@ export * from './Props';
 export * from './Link';
 export * from './utils';
 export * from './Node'
+export * from './Background'

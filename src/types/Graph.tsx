@@ -27,6 +27,7 @@ export type GraphProps = {
 };
 export type GraphState = {
   selected?: string;
+  renamed?:boolean;
   expand?: string;
   path?: Array<string | null>;
   nodes: Array<NodeType>;
@@ -58,12 +59,14 @@ export enum Action {
   Nothing,
   Pan,
   MoveNode,
+  SelectedNode,
   ConnectPort,
   Left
 }
 
 export const GraphInitialState: GraphState = {
   selected: null,
+  renamed: null,
   expand: null,
   path: [null],
   nodes: [],
