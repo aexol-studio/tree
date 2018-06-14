@@ -3,19 +3,22 @@ import * as styles from './style/Graph';
 import { SpaceMenu } from './SpaceMenu';
 import {
   NodeType,
-  NodeTypePartial,
   GraphProps,
   GraphState,
   GraphInitialState,
   Action,
   PortType,
   SpaceBarCategory,
-  SpaceBarAction
+  SpaceBarAction,
+  NodeCategory,
+  ActionCategory,
+  GraphUpdateNode
 } from './types';
 import { Node, Port, Props, LinkWidget, Background } from '.';
 import { generateId, deepNodeUpdate, updateClonedNodesNames } from './utils';
 import { renderLinks } from './render';
 import { Basic, Move, Connect } from './cursors';
+import { addEventListeners } from './Events';
 export class Graph extends React.Component<GraphProps, GraphState> {
   background: HTMLDivElement;
   state = {
@@ -38,23 +41,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
       this.serialize();
     }
-    if (
-      prevState.selected !== this.state.selected &&
-      this.props.selectedNode !== this.state.selected
-    ) {
-      this.props.onNodeSelect(this.state.selected);
-    }
   }
   static getDerivedStateFromProps(nextProps: GraphProps, prevState: GraphState) {
-    if (
-      prevState.action === Action.Nothing &&
-      nextProps.selectedNode &&
-      nextProps.selectedNode !== prevState.selected
-    ) {
-      return {
-        selected: nextProps.selectedNode
-      };
-    }
     if (prevState.loaded !== nextProps.loaded) {
       return {
         loaded: nextProps.loaded,
@@ -92,7 +80,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       ...deepNodeUpdate({ nodes: this.state.nodes, id: id, remove: true })
     };
   };
-  updateNode = (nodes: Array<NodeType>, id: string, node: NodeTypePartial) => {
+  updateNode: GraphUpdateNode = (nodes, id, node) => {
     return deepNodeUpdate({ nodes, id, node });
   };
   bX = (x: number): number => -x + this.background.offsetLeft + this.background.offsetWidth;
@@ -101,62 +89,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   aY = (y: number): number => y + this.background.offsetTop;
   oX = (x: number): number => x - this.background.offsetLeft;
   oY = (y: number): number => y - this.background.offsetTop;
-  toggleSpace = (spacePressed: boolean) => {
-    this.setState({
-      spacePressed,
-      spaceX: this.state.mouseX,
-      spaceY: this.state.mouseY
-    });
-  };
   componentDidMount() {
-    document.addEventListener('keypress', (e) => {
-      if (e.charCode === 32 && !this.state.spacePressed) {
-        this.toggleSpace(true);
+    addEventListeners({
+      updateNode: this.updateNode,
+      stateUpdate: (func) => {
+        this.setState((state) => func(state));
       }
-    });
-    document.addEventListener('keyup', (e) => {
-      if (e.keyCode === 32) {
-        this.toggleSpace(false);
-      }
-    });
-    document.addEventListener('mousemove', (e) => {
-      this.setState((state) => {
-        let stateUpdate: {} = {
-          mouseX: e.clientX,
-          mouseY: e.clientY
-        };
-        if (state.action === Action.MoveNode) {
-          stateUpdate = {
-            ...stateUpdate,
-            ...this.updateNode(state.nodes, state.activeNode.id, {
-              x: e.clientX + state.activeNode.x,
-              y: e.clientY + state.activeNode.y
-            })
-          };
-        }
-        if (state.action === Action.ConnectPort) {
-          stateUpdate = {
-            ...stateUpdate,
-            activePort: {
-              ...state.activePort,
-              endX: e.clientX,
-              endY: e.clientY
-            }
-          };
-        }
-        if (state.action === Action.Pan) {
-          let { nodes } = state;
-          stateUpdate = {
-            ...stateUpdate,
-            nodes: nodes.map((n) => ({
-              ...n,
-              x: n.x + e.movementX,
-              y: n.y + e.movementY
-            }))
-          };
-        }
-        return stateUpdate;
-      });
     });
   }
   addNode = (node: NodeType) => {
@@ -349,30 +287,29 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   };
   spaceBarCategories = (): Array<SpaceBarCategory> => {
     const { categories } = this.props;
-    let spaceBarCategories = categories.map((c) => {
-      if (c.type === SpaceBarAction.AddNode) {
-        return {
-          ...c,
-          items: c.items.map((i) => ({
-            name: i.name,
-            action: () => {
-              this.addNode({
-                ...i,
-                id: generateId(),
-                inputs: i.inputs.map((input) => ({ ...input, id: generateId() })),
-                outputs: i.outputs.map((output) => ({ ...output, id: generateId() }))
-              });
-            }
-          }))
-        };
-      }
-      if (c.type === SpaceBarAction.Action) {
-        return {
-          ...c
-        };
-      }
-    });
-    if (this.state.selected) {
+    let spaceBarCategories = categories.map(
+      (c) =>
+        ({
+          [SpaceBarAction.AddNode]: {
+            ...(c as NodeCategory),
+            items: (c as NodeCategory).items.map((i) => ({
+              name: i.name,
+              action: () => {
+                this.addNode({
+                  ...i,
+                  id: generateId(),
+                  inputs: i.inputs.map((input) => ({ ...input, id: generateId() })),
+                  outputs: i.outputs.map((output) => ({ ...output, id: generateId() }))
+                });
+              }
+            }))
+          },
+          [SpaceBarAction.Action]: {
+            ...(c as ActionCategory)
+          }
+        }[c.type])
+    );
+    if (this.state.selected || this.state.expand) {
       spaceBarCategories = [
         {
           name: 'node',
@@ -390,7 +327,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   action: () => {
                     this.setState((state) => ({
                       ...this.deleteNode(state.selected),
-                      selected: null
+                      selected: null,
+                      renamed: null
                     }));
                   }
                 },
@@ -479,13 +417,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           {this.renderNodes(nodes)}
           {expand &&
             this.renderExpandedNodePorts(this.nodes(this.state.nodes).find((n) => n.id === expand))}
-          <svg
-            style={{
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none'
-            }}
-          >
+          <svg className={styles.SVG}>
             {this.state.activePort && <LinkWidget {...this.p} />}
             {renderLinks(links, nodes, this.oX, this.oY, selectedNode)}
           </svg>

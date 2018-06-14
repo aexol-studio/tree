@@ -57,7 +57,7 @@ export class Props extends React.Component<PropsType> {
             disabled={!node.editable}
             onChange={(e) => {
               let name = e.target.value;
-              let pattern = new RegExp(/^[a-zA-Z]+$/);
+              let pattern = new RegExp(/^[a-zA-Z]*$/);
               if (!name.match(pattern)) {
                 return;
               }

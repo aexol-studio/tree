@@ -1,4 +1,4 @@
-import { LinkType, NodeType } from '.';
+import { LinkType, NodeType, NodeTypePartial } from '.';
 import { SpaceBarCategory, SpaceBarAction, Item } from './SpaceMenu';
 export type NodeCategory = {
   name: string;
@@ -21,13 +21,11 @@ export type GraphProps = {
   actions?: Array<SpaceBarCategory>;
   serialize?: (nodes: Array<NodeType>, links: Array<LinkType>) => void;
   load?: () => Array<NodeType>;
-  selectedNode?: string;
   loaded?: LoadedFile;
-  onNodeSelect: (node: string) => void;
 };
 export type GraphState = {
   selected?: string;
-  renamed?:boolean;
+  renamed?: boolean;
   expand?: string;
   path?: Array<string | null>;
   nodes: Array<NodeType>;
@@ -80,4 +78,12 @@ export const GraphInitialState: GraphState = {
   activeNode: null,
   activePort: null,
   loaded: null
+};
+
+export type GraphUpdateNode = (
+  nodes: Array<NodeType>,
+  id: string,
+  node: NodeTypePartial
+) => {
+  nodes: Array<NodeType>;
 };

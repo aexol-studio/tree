@@ -22,21 +22,26 @@ export const Outputs = style({
   marginLeft: `auto`
 });
 export const HelperScreen = style({
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 48,
-    fontWeight: 'bold',
-    pointerEvents:'none',
-    top: 0
-  });
-  export const HelperPhrase = style({
-    width: 640,
-    maxWidth:'80%',
-    color: vars.text,
-    opacity:0.4
-  });
-  
+  position: 'absolute',
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 48,
+  fontWeight: 'bold',
+  pointerEvents: 'none',
+  top: 0
+});
+export const HelperPhrase = style({
+  width: 640,
+  maxWidth: '80%',
+  color: vars.text,
+  opacity: 0.4
+});
+
+export const SVG = style({
+  width: '100%',
+  height: '100%',
+  pointerEvents: 'none'
+})
