@@ -19,7 +19,7 @@
     "@types/history": "4.6.2",
     "@types/json-schema": "^6.0.1",
     "@types/node": "9.4.6",
-    "@types/react": "^16.3.17",
+    "@types/react": "^16.3.18",
     "@types/react-dom": "^16.0.6",
     "grunt": "^1.0.2",
     "grunt-contrib-clean": "^1.1.0",
