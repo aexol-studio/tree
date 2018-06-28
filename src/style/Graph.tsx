@@ -1,4 +1,4 @@
-import { style } from 'typestyle';
+import { style, classes } from 'typestyle';
 import * as vars from './vars';
 export const Nodes = style({
   width: `100%`,
@@ -40,8 +40,11 @@ export const HelperPhrase = style({
   opacity: 0.4
 });
 
-export const SVG = style({
-  width: '100%',
-  height: '100%',
-  pointerEvents: 'none'
-})
+export const SVG = classes(
+  vars.SelectNone,
+  style({
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none'
+  })
+);

@@ -19,6 +19,7 @@ export const Name = style({
 });
 export const Dot = classes(
   vars.portDot,
+  vars.SelectNone,
   style({
     width: vars.dot,
     height: vars.dot,
@@ -29,6 +30,9 @@ export const Dot = classes(
     }
   })
 );
+export const DotHover = style({
+  background: vars.selected
+});
 export const DotOutput = style({
   marginRight: -vars.dot
 });

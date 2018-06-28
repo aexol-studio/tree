@@ -12,7 +12,8 @@ import {
   SpaceBarAction,
   NodeCategory,
   ActionCategory,
-  GraphUpdateNode
+  GraphUpdateNode,
+  GraphDeleteNode
 } from './types';
 import { Node, Port, Props, LinkWidget, Background } from '.';
 import { generateId, deepNodeUpdate, updateClonedNodesNames } from './utils';
@@ -74,7 +75,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     };
     return links;
   };
-  deleteNode = (id: string) => {
+  deleteNode:GraphDeleteNode = (id: string) => {
     return {
       ...this.deleteLinks(id),
       ...deepNodeUpdate({ nodes: this.state.nodes, id: id, remove: true })
@@ -91,10 +92,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   oY = (y: number): number => y - this.background.offsetTop;
   componentDidMount() {
     addEventListeners({
+      deleteNode: this.deleteNode,
       updateNode: this.updateNode,
       stateUpdate: (func) => {
         this.setState((state) => func(state));
-      }
+      },
+      whereToRun: this.background
     });
   }
   addNode = (node: NodeType) => {

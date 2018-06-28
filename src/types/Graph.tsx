@@ -87,3 +87,9 @@ export type GraphUpdateNode = (
 ) => {
   nodes: Array<NodeType>;
 };
+export type GraphDeleteNode = (
+  id: string
+) => {
+  nodes: NodeType[];
+  links: LinkType[];
+};

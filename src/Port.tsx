@@ -2,8 +2,17 @@ import * as React from 'react';
 import * as classnames from 'classnames';
 import * as styles from './style/Port';
 import { PortActions, PortType } from './types';
-export class Port extends React.Component<PortType & PortActions> {
+
+export class Port extends React.Component<
+  PortType & PortActions,
+  {
+    hover: boolean;
+  }
+> {
   port;
+  state = {
+    hover: false
+  };
   portPosition = () => {
     const { portPosition, output = false } = this.props;
     portPosition(
@@ -39,6 +48,16 @@ export class Port extends React.Component<PortType & PortActions> {
             style={{
               pointerEvents: 'all'
             }}
+            onMouseOver={(e) => {
+              this.setState({
+                hover: true
+              });
+            }}
+            onMouseOut={(e) => {
+              this.setState({
+                hover: false
+              });
+            }}
             onMouseDown={(e) => {
               e.stopPropagation();
               portDown(e.clientX, e.clientY, output);
@@ -51,7 +70,8 @@ export class Port extends React.Component<PortType & PortActions> {
               [styles.Dot]: true,
               [styles.DotOutput]: output,
               [styles.DotInput]: !output,
-              [styles.DotConnected]: connected
+              [styles.DotConnected]: connected,
+              [styles.DotHover]: this.state.hover
             })}
           />
         )}

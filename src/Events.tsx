@@ -1,8 +1,44 @@
 import { EventListenerFunctionProps, Action } from './types';
 
-export const addEventListeners = ({ stateUpdate, updateNode }: EventListenerFunctionProps) => {
-  document.addEventListener('keypress', (e) => {
-    if (e.charCode === 32) {
+let isMouseOver = false;
+
+export const addEventListeners = ({
+  stateUpdate,
+  updateNode,
+  whereToRun,
+  deleteNode
+}: EventListenerFunctionProps) => {
+  const eventContainer = document;
+  whereToRun.addEventListener('mouseover', (e) => {
+    isMouseOver = true;
+  });
+  whereToRun.addEventListener('mouseleave', (e) => {
+    isMouseOver = false;
+  });
+  eventContainer.addEventListener('keydown', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
+    const key = e.charCode || e.keyCode || e.key;
+    if (key === 8) {
+      if ((e.target as any).type !== 'text') {
+        e.preventDefault();
+      }
+    }
+    if (key === 46) {
+      stateUpdate((state) => {
+        if (!state.selected) {
+          return {};
+        }
+        const stateUpdate = {
+          ...deleteNode(state.selected),
+          selected: null,
+          renamed: null
+        };
+        return stateUpdate;
+      });
+    }
+    if (key === 32) {
       stateUpdate((state) => {
         if (!state.spacePressed) {
           return {
@@ -15,7 +51,7 @@ export const addEventListeners = ({ stateUpdate, updateNode }: EventListenerFunc
       });
     }
   });
-  document.addEventListener('keyup', (e) => {
+  eventContainer.addEventListener('keyup', (e) => {
     if (e.keyCode === 32) {
       stateUpdate((state) => {
         return {
@@ -24,7 +60,7 @@ export const addEventListeners = ({ stateUpdate, updateNode }: EventListenerFunc
       });
     }
   });
-  document.addEventListener('mousemove', (e) => {
+  eventContainer.addEventListener('mousemove', (e) => {
     stateUpdate((state) => {
       let stateUpdate: {} = {
         mouseX: e.clientX,
