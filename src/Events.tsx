@@ -1,12 +1,13 @@
 import { EventListenerFunctionProps, Action } from './types';
+import { deepNodesUpdate } from './utils';
 
 let isMouseOver = false;
 
 export const addEventListeners = ({
   stateUpdate,
-  updateNode,
+  deleteNodes,
   whereToRun,
-  deleteNode
+  copyNode
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.addEventListener('mouseover', (e) => {
@@ -20,19 +21,34 @@ export const addEventListeners = ({
       return;
     }
     const key = e.charCode || e.keyCode || e.key;
+    const ctrlDown = e.ctrlKey || e.metaKey;
     if (key === 8) {
       if ((e.target as any).type !== 'text') {
         e.preventDefault();
       }
     }
+    if (ctrlDown) {
+      stateUpdate((state) => {
+        if (!state.ctrlPressed) {
+          return {
+            ctrlPressed: true
+          };
+        }
+        return {};
+      });
+      if (key === 68) {
+        e.preventDefault();
+        copyNode();
+      }
+    }
     if (key === 46) {
       stateUpdate((state) => {
-        if (!state.selected) {
+        if (state.activeNodes.length === 0) {
           return {};
         }
         const stateUpdate = {
-          ...deleteNode(state.selected),
-          selected: null,
+          ...deleteNodes(),
+          selected: [],
           renamed: null
         };
         return stateUpdate;
@@ -52,10 +68,18 @@ export const addEventListeners = ({
     }
   });
   eventContainer.addEventListener('keyup', (e) => {
+    const ctrlDown = e.ctrlKey || e.metaKey || e.key === 'Meta' || e.key === 'Ctrl';
     if (e.keyCode === 32) {
       stateUpdate((state) => {
         return {
           spacePressed: false
+        };
+      });
+    }
+    if (ctrlDown) {
+      stateUpdate((state) => {
+        return {
+          ctrlPressed: false
         };
       });
     }
@@ -69,10 +93,21 @@ export const addEventListeners = ({
       if (state.action === Action.MoveNode) {
         stateUpdate = {
           ...stateUpdate,
-          ...updateNode(state.nodes, state.activeNode.id, {
-            x: e.clientX + state.activeNode.x,
-            y: e.clientY + state.activeNode.y
-          })
+          ...deepNodesUpdate({
+            nodes: state.nodes,
+            updated: state.activeNodes.map((n) => ({
+              id: n.id,
+              node: {
+                x: e.movementX + n.x,
+                y: e.movementY + n.y
+              }
+            }))
+          }),
+          activeNodes: state.activeNodes.map((n) => ({
+            ...n,
+            x: n.x + e.movementX,
+            y: n.y + e.movementY
+          }))
         };
       }
       if (state.action === Action.ConnectPort) {

@@ -12,11 +12,10 @@ import {
   SpaceBarAction,
   NodeCategory,
   ActionCategory,
-  GraphUpdateNode,
   GraphDeleteNode
 } from './types';
 import { Node, Port, Props, LinkWidget, Background } from '.';
-import { generateId, deepNodeUpdate, updateClonedNodesNames } from './utils';
+import { generateId, updateClonedNodesNames, deepNodesUpdate } from './utils';
 import { renderLinks } from './render';
 import { Basic, Move, Connect } from './cursors';
 import { addEventListeners } from './Events';
@@ -65,24 +64,32 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     let allNodes = processData(nodes);
     return [...allNodes];
   };
-  deleteLinks = (id: string) => {
-    let { nodes = [] } = this.nodes(this.state.nodes).find((n) => n.id === id);
-    let deletedNodes = [id, ...this.nodes(nodes).map((n) => n.id)];
-    const links = {
-      links: this.state.links.filter(
+  deleteLinks = () => {
+    let links = [...this.state.links];
+    this.state.activeNodes.map((node) => {
+      let deletedNodes = this.nodes(this.state.activeNodes).map((n) => n.id);
+      links = links.filter(
         (l) => !deletedNodes.includes(l.from.nodeId) && !deletedNodes.includes(l.to.nodeId)
-      )
-    };
-    return links;
+      );
+    });
+    return { links };
   };
-  deleteNode:GraphDeleteNode = (id: string) => {
+  deleteNodes: GraphDeleteNode = () => {
+    const deletedNodes = deepNodesUpdate({
+      nodes: this.state.nodes,
+      updated: this.state.activeNodes.map((n) => ({
+        id: n.id,
+        node: {}
+      })),
+      remove: true
+    });
+
     return {
-      ...this.deleteLinks(id),
-      ...deepNodeUpdate({ nodes: this.state.nodes, id: id, remove: true })
+      ...deletedNodes,
+      ...this.deleteLinks(),
+      renamed: null,
+      activeNodes: []
     };
-  };
-  updateNode: GraphUpdateNode = (nodes, id, node) => {
-    return deepNodeUpdate({ nodes, id, node });
   };
   bX = (x: number): number => -x + this.background.offsetLeft + this.background.offsetWidth;
   bY = (y: number): number => -y + this.background.offsetTop + this.background.offsetHeight;
@@ -92,35 +99,43 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   oY = (y: number): number => y - this.background.offsetTop;
   componentDidMount() {
     addEventListeners({
-      deleteNode: this.deleteNode,
-      updateNode: this.updateNode,
+      deleteNodes: this.deleteNodes,
       stateUpdate: (func) => {
         this.setState((state) => func(state));
       },
-      whereToRun: this.background
+      whereToRun: this.background,
+      copyNode: this.cloneNode
     });
   }
   addNode = (node: NodeType) => {
     this.setState((state) => {
       const { expand, nodes, spaceX, spaceY } = state;
       let newNode: NodeType = {
-        ...node,
         id: generateId(),
         x: spaceX,
         y: spaceY,
-        nodes: []
+        nodes: [],
+        ...node
       };
       let updateNodes: any = {
-        selected: newNode.id,
+        activeNodes: [newNode],
         renamed: true,
         action: Action.SelectedNode
       };
       if (expand) {
-        const oldNodeNodes = this.nodes(nodes).find((n) => n.id === expand).nodes;
+        const oldNodeNodes = this.nodes(nodes).find((n) => n.id === expand.id).nodes;
         updateNodes = {
           ...updateNodes,
-          ...this.updateNode(nodes, expand, {
-            nodes: [...oldNodeNodes, newNode]
+          ...deepNodesUpdate({
+            nodes,
+            updated: [
+              {
+                id: expand.id,
+                node: {
+                  nodes: [...oldNodeNodes, newNode]
+                }
+              }
+            ]
           })
         };
       } else {
@@ -132,20 +147,26 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       return updateNodes;
     });
   };
-  cloneNode = (node: NodeType) => {
-    this.addNode({
-      ...node,
-      id: generateId(),
-      inputs: node.inputs.map((i) => ({ ...i, id: generateId() })),
-      outputs: node.outputs.map((i) => ({ ...i, id: generateId() }))
+  cloneNode = () => {
+    if (!this.state.activeNodes.length) {
+      return;
+    }
+    this.state.activeNodes.map((node) => {
+      this.addNode({
+        ...node,
+        id: generateId(),
+        inputs: node.inputs.map((i) => ({ ...i, id: generateId() })),
+        outputs: node.outputs.map((i) => ({ ...i, id: generateId() })),
+        x: this.state.mouseX,
+        y: this.state.mouseY
+      });
     });
   };
   reset = (updateState = {}) => {
     this.setState({
       action: Action.Nothing,
       activePort: null,
-      activeNode: null,
-      selected: null,
+      activeNodes: [],
       renamed: false,
       ...updateState
     });
@@ -192,6 +213,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           }
         ]
       });
+    } else {
+      this.setState({
+        activePort: null,
+        action: Action.Nothing
+      });
     }
   };
   updatePortPositions = (x, y, portId, id, output: boolean) => {
@@ -199,8 +225,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       const modifyState = (portMode: 'inputs' | 'outputs') => {
         let n = this.nodes(state.nodes).find((n) => n.id === id);
         let ports = n[portMode].map((p) => (p.id === portId ? { ...p, x, y } : p));
-        return this.updateNode(state.nodes, id, {
-          [portMode]: ports
+        return deepNodesUpdate({
+          nodes: state.nodes,
+          updated: [
+            {
+              id,
+              node: {
+                [portMode]: ports
+              }
+            }
+          ]
         });
       };
       if (output) {
@@ -242,50 +276,69 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       </div>
     );
   };
+
   renderNodes = (nodes) => {
+    const selectNodes = (node, x, y) => {
+      const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
+      if (alreadyHaveNode && !this.state.ctrlPressed) {
+        this.setState({
+          action: Action.MoveNode,
+          renamed: this.state.activeNodes.length === 1
+        });
+        return;
+      }
+      let activeNodes = [node];
+      if (this.state.ctrlPressed) {
+        if (alreadyHaveNode) {
+          activeNodes = this.state.activeNodes.filter((n) => n.id !== node.id);
+        } else {
+          activeNodes = [...this.state.activeNodes, ...activeNodes];
+        }
+      }
+      this.setState({
+        action: Action.MoveNode,
+        activeNodes,
+        renamed: activeNodes.length === 1
+      });
+    };
     return nodes.filter((node) => node.id !== this.state.expand).map((node) => (
       <Node
         {...node}
         key={node.id}
         id={node.id}
-        selected={this.state.selected === node.id}
+        selected={this.state.activeNodes.find((n) => n.id === node.id)}
         portDown={this.portDown}
         portUp={this.portUp}
         portPosition={(x, y, portId, id, output) => {
           this.updatePortPositions(x, y, portId, id, output);
         }}
         nodeDown={(id: string, x: number, y: number) => {
-          this.setState({
-            action: Action.MoveNode,
-            activeNode: { id, x: x - this.state.mouseX, y: y - this.state.mouseY },
-            selected: node.id
-          });
+          selectNodes(node, x, y);
         }}
         nodeUp={(id: string) => {
-          this.reset({
+          this.setState({
             action: Action.SelectedNode,
-            selected: node.id,
-            renamed: true
+            activePort: null
           });
         }}
       />
     ));
   };
-  expandNode = (selectedNode) => {
+  expandNode = (selectedNode: NodeType) => {
     this.setState((state) => ({
       expand: selectedNode,
-      path: [...state.path, selectedNode],
-      selected: null
+      path: [...state.path, selectedNode.id],
+      activeNodes: []
     }));
   };
-  shrinkNode = (selectedNode) => {
+  shrinkNode = (selectedNode: NodeType) => {
     let path = this.state.path;
     path.pop();
     let expand = path[path.length - 1];
     this.setState({
-      expand,
+      expand: this.nodes(this.state.nodes).find((n) => n.id === expand),
       path,
-      selected: selectedNode
+      activeNodes: [selectedNode]
     });
   };
   spaceBarCategories = (): Array<SpaceBarCategory> => {
@@ -312,59 +365,61 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           }
         }[c.type])
     );
-    if (this.state.selected || this.state.expand) {
+    if (this.state.activeNodes.length > 0 || this.state.expand) {
       spaceBarCategories = [
         {
           name: 'node',
           type: SpaceBarAction.Action,
-          items: this.state.selected
-            ? [
-                {
-                  name: 'expand',
-                  action: () => {
-                    this.expandNode(this.state.selected);
-                  }
-                },
-                {
-                  name: 'delete',
-                  action: () => {
-                    this.setState((state) => ({
-                      ...this.deleteNode(state.selected),
-                      selected: null,
-                      renamed: null
-                    }));
-                  }
-                },
-                {
-                  name: 'unlink',
-                  action: () => {
-                    this.setState((state) => ({
-                      ...this.deleteLinks(state.selected)
-                    }));
-                  }
-                },
-                {
-                  name: 'duplicate',
-                  action: () => {
-                    this.cloneNode(
-                      this.nodes(this.state.nodes).find((n) => n.id === this.state.selected)
-                    );
-                  }
-                }
-              ]
-            : this.state.expand
+          items:
+            this.state.activeNodes.length > 0
               ? [
                   {
-                    name: 'back',
+                    name: 'delete',
                     action: () => {
-                      this.shrinkNode(this.state.expand);
+                      this.setState((state) => ({
+                        ...this.deleteNodes()
+                      }));
+                    }
+                  },
+                  {
+                    name: 'unlink',
+                    action: () => {
+                      this.setState((state) => ({
+                        ...this.deleteLinks()
+                      }));
+                    }
+                  },
+                  {
+                    name: 'duplicate',
+                    action: () => {
+                      this.cloneNode();
                     }
                   }
                 ]
-              : []
+              : this.state.expand
+                ? [
+                    {
+                      name: 'back',
+                      action: () => {
+                        this.shrinkNode(this.state.expand);
+                      }
+                    }
+                  ]
+                : []
         },
         ...spaceBarCategories
       ];
+      if (this.state.activeNodes.length === 1) {
+        spaceBarCategories[0].items = [
+          ...spaceBarCategories[0].items,
+          {
+            name: 'expand',
+            action: () => {
+              this.expandNode(this.state.activeNodes[0]);
+            }
+          }
+        ];
+      }
     }
     return spaceBarCategories;
   };
@@ -384,13 +439,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   };
   render() {
     let { nodes, expand, links, renamed } = this.state;
-    let selectedNode = this.state.selected || this.state.expand;
+    let selectedNode = this.state.activeNodes || [this.state.expand];
     if (expand) {
       nodes = this.nodes(nodes);
-      let expandNode = nodes.find((n) => n.id === expand);
-      nodes = expandNode.nodes;
+      nodes = expand.nodes;
       nodes = nodes || [];
-      nodes = [...nodes, { ...expandNode, x: this.aX(0), y: this.aY(0) }];
+      nodes = [...nodes, { ...expand, x: this.aX(0), y: this.aY(0) }];
     }
     links = links.filter(
       (l) => nodes.find((n) => n.id === l.from.nodeId) && nodes.find((n) => n.id === l.to.nodeId)
@@ -418,8 +472,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       >
         <div className={styles.Nodes}>
           {this.renderNodes(nodes)}
-          {expand &&
-            this.renderExpandedNodePorts(this.nodes(this.state.nodes).find((n) => n.id === expand))}
+          {expand && this.renderExpandedNodePorts(expand)}
           <svg className={styles.SVG}>
             {this.state.activePort && <LinkWidget {...this.p} />}
             {renderLinks(links, nodes, this.oX, this.oY, selectedNode)}
@@ -438,15 +491,22 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           />
         )}
         {selectedNode &&
+          selectedNode.length === 1 &&
           renamed && (
             <Props
               canBlurFocus={this.state.action === Action.SelectedNode}
-              node={this.nodes(this.state.nodes).find((n) => n.id === selectedNode)}
+              node={selectedNode[0]}
               onChange={(selected: NodeType) => {
-                this.setState((state) => {
-                  return this.updateNode(state.nodes, selected.id, selected);
-                });
-                let clones = this.nodes(this.state.nodes).filter((n) => n.clone === selectedNode);
+                this.setState((state) => ({
+                  ...deepNodesUpdate({
+                    nodes: state.nodes,
+                    updated: [{ id: selected.id, node: { name: selected.name } }]
+                  }),
+                  activeNodes:[selected]
+                }));
+                let clones = this.nodes(this.state.nodes).filter(
+                  (n) => n.clone === selectedNode[0].id
+                );
                 if (clones.length) {
                   this.setState((state) => {
                     return updateClonedNodesNames({
@@ -457,10 +517,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   });
                 }
               }}
-              canExpand={!!this.state.selected}
-              canShrink={!this.state.selected && this.state.path.length > 1}
+              canExpand={this.state.activeNodes.length === 1}
+              canShrink={!this.state.activeNodes.length && this.state.path.length > 1}
               onExpand={() => {
-                this.expandNode(selectedNode);
+                this.expandNode(selectedNode[0]);
               }}
               onShrink={() => {
                 this.shrinkNode(this.state.expand);

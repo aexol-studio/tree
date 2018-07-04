@@ -1,17 +1,6 @@
-import { NodeType, NodeTypePartial } from './types';
+import { NodeType, NodeTypePartial, DeepUpdateArrayType, ClonedUpdateType } from './types';
 export const generateId = () => new Array(crypto.getRandomValues(new Uint8Array(4))).join('-');
 
-type DeepUpdateType = {
-  nodes: Array<NodeType>;
-  id: string;
-  node?: NodeTypePartial;
-  remove?: boolean;
-};
-type ClonedUpdateType = {
-  ids: Array<string>;
-  name: string;
-  nodes: Array<NodeType>;
-};
 export const updateClonedNodesNames = ({ ids, name, nodes }: ClonedUpdateType) => {
   const processData = (data: Array<NodeType>, ids: Array<string>) => {
     for (var no = 0; no < data.length; no++) {
@@ -32,26 +21,31 @@ export const updateClonedNodesNames = ({ ids, name, nodes }: ClonedUpdateType) =
     nodes: data
   };
 };
-export const deepNodeUpdate = ({ nodes, id, node, remove }: DeepUpdateType) => {
-  const processData = (data: Array<NodeType>, id: string) => {
-    for (var no = 0; no < data.length; no++) {
+
+export const deepNodesUpdate = ({ nodes, updated, remove }: DeepUpdateArrayType) => {
+  const processData = (
+    data: Array<NodeType>,
+    updated: Array<{ id: string; node?: NodeTypePartial }>
+  ) => {
+    for (var no = data.length - 1; no >= 0; no--) {
       let n = data[no];
-      if (n.id === id) {
+      let up = updated.find((u) => u.id === n.id);
+      if (up) {
         if (remove) {
           data.splice(no, 1);
         } else {
           data[no] = {
             ...n,
-            ...node
+            ...up.node
           };
         }
       } else if (n.nodes) {
-        processData(n.nodes, id);
+        processData(n.nodes, updated);
       }
     }
   };
   let data = [...nodes];
-  processData(data, id);
+  processData(data, updated);
   return {
     nodes: data
   };

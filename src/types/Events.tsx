@@ -1,8 +1,8 @@
-import { GraphState, GraphUpdateNode, GraphDeleteNode } from './Graph';
+import { GraphState, GraphDeleteNode, GraphCloneNode } from './Graph';
 
 export type EventListenerFunctionProps = {
   stateUpdate?: (func: (state: Readonly<GraphState>) => any) => void;
-  updateNode: GraphUpdateNode;
-  deleteNode: GraphDeleteNode;
+  deleteNodes: GraphDeleteNode;
+  copyNode: GraphCloneNode;
   whereToRun: HTMLDivElement;
 };

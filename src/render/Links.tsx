@@ -6,7 +6,7 @@ export const renderLinks = (
   nodes: Array<NodeType>,
   oX: (x: number) => number,
   oY: (y: number) => number,
-  selectedNode?: string
+  selectedNode?: NodeType[]
 ) => {
   const selectedNodes = function*(nodeId: string) {
     yield nodeId;
@@ -17,7 +17,9 @@ export const renderLinks = (
   };
   let withHighlitedLinks = [];
   if (selectedNode) {
-    withHighlitedLinks = [...selectedNodes(selectedNode)];
+    withHighlitedLinks = selectedNode
+      .map((n) => [...selectedNodes(n.id)])
+      .reduce((a, b) => [...a, ...b], []);
   }
   let renderOrderedLinks = [...links];
   renderOrderedLinks.sort(

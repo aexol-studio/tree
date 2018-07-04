@@ -1,4 +1,4 @@
-import { LinkType, NodeType, NodeTypePartial } from '.';
+import { LinkType, NodeType } from '.';
 import { SpaceBarCategory, SpaceBarAction, Item } from './SpaceMenu';
 export type NodeCategory = {
   name: string;
@@ -24,23 +24,19 @@ export type GraphProps = {
   loaded?: LoadedFile;
 };
 export type GraphState = {
-  selected?: string;
   renamed?: boolean;
-  expand?: string;
+  expand?: NodeType;
   path?: Array<string | null>;
   nodes: Array<NodeType>;
   links: Array<LinkType>;
   spacePressed: boolean;
+  ctrlPressed: boolean;
   spaceX: number;
   spaceY: number;
   mouseX: number;
   mouseY: number;
   action: Action;
-  activeNode?: {
-    id: string;
-    x: number;
-    y: number;
-  };
+  activeNodes?: Array<NodeType>;
   activePort?: {
     x: number;
     y: number;
@@ -63,33 +59,25 @@ export enum Action {
 }
 
 export const GraphInitialState: GraphState = {
-  selected: null,
   renamed: null,
   expand: null,
   path: [null],
   nodes: [],
   links: [],
   spacePressed: false,
+  ctrlPressed: false,
   spaceX: 0,
   spaceY: 0,
   mouseX: 0,
   mouseY: 0,
   action: Action.Nothing,
-  activeNode: null,
+  activeNodes: [],
   activePort: null,
   loaded: null
 };
 
-export type GraphUpdateNode = (
-  nodes: Array<NodeType>,
-  id: string,
-  node: NodeTypePartial
-) => {
-  nodes: Array<NodeType>;
-};
-export type GraphDeleteNode = (
-  id: string
-) => {
+export type GraphDeleteNode = () => {
   nodes: NodeType[];
   links: LinkType[];
 };
+export type GraphCloneNode = () => void;
