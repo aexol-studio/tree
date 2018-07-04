@@ -15,7 +15,7 @@ import {
   GraphDeleteNode
 } from './types';
 import { Node, Port, Props, LinkWidget, Background } from '.';
-import { generateId, updateClonedNodesNames, deepNodesUpdate } from './utils';
+import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
 import { renderLinks } from './render';
 import { Basic, Move, Connect } from './cursors';
 import { addEventListeners } from './Events';
@@ -276,7 +276,22 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       </div>
     );
   };
-
+  treeSelect = () => {
+    const nodes=  this.nodes(this.state.nodes)
+    let activeNodes = this.state.activeNodes.map(n=>treeSelection(n,nodes,this.state.links)).reduce((a,b)=>[...a,...b])
+    activeNodes.filter( (a,i) => activeNodes.findIndex(an => an.id === a.id) === i)
+    this.setState({
+      activeNodes
+    })
+  }
+  graphSelect = () => {
+    const nodes=  this.nodes(this.state.nodes)
+    let activeNodes = this.state.activeNodes.map(n=>graphSelection(n,nodes,this.state.links)).reduce((a,b)=>[...a,...b])
+    activeNodes.filter( (a,i) => activeNodes.findIndex(an => an.id === a.id) === i)
+    this.setState({
+      activeNodes
+    })
+  }
   renderNodes = (nodes) => {
     const selectNodes = (node, x, y) => {
       const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
@@ -394,6 +409,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     action: () => {
                       this.cloneNode();
                     }
+                  },
+                  {
+                    name: 'treeSelect',
+                    action: () => {
+                      this.treeSelect();
+                    }
+                  },
+                  {
+                    name: 'graphSelect',
+                    action: () => {
+                      this.graphSelect();
+                    }
                   }
                 ]
               : this.state.expand
@@ -497,25 +524,19 @@ export class Graph extends React.Component<GraphProps, GraphState> {
               canBlurFocus={this.state.action === Action.SelectedNode}
               node={selectedNode[0]}
               onChange={(selected: NodeType) => {
+                const clones = this.nodes(this.state.nodes).filter(
+                  (n) => n.clone === selectedNode[0].id
+                );
                 this.setState((state) => ({
                   ...deepNodesUpdate({
                     nodes: state.nodes,
-                    updated: [{ id: selected.id, node: { name: selected.name } }]
+                    updated: [...clones, selected].map((n) => ({
+                      id: n.id,
+                      node: { name: selected.name }
+                    }))
                   }),
-                  activeNodes:[selected]
+                  activeNodes: [selected]
                 }));
-                let clones = this.nodes(this.state.nodes).filter(
-                  (n) => n.clone === selectedNode[0].id
-                );
-                if (clones.length) {
-                  this.setState((state) => {
-                    return updateClonedNodesNames({
-                      nodes: state.nodes,
-                      ids: clones.map((c) => c.id),
-                      name: selected.name
-                    });
-                  });
-                }
               }}
               canExpand={this.state.activeNodes.length === 1}
               canShrink={!this.state.activeNodes.length && this.state.path.length > 1}

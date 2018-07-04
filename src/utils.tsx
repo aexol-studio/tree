@@ -1,26 +1,5 @@
-import { NodeType, NodeTypePartial, DeepUpdateArrayType, ClonedUpdateType } from './types';
+import { NodeType, NodeTypePartial, DeepUpdateArrayType, LinkType } from './types';
 export const generateId = () => new Array(crypto.getRandomValues(new Uint8Array(4))).join('-');
-
-export const updateClonedNodesNames = ({ ids, name, nodes }: ClonedUpdateType) => {
-  const processData = (data: Array<NodeType>, ids: Array<string>) => {
-    for (var no = 0; no < data.length; no++) {
-      let n = data[no];
-      if (ids.includes(n.id)) {
-        data[no] = {
-          ...n,
-          name
-        };
-      } else if (n.nodes) {
-        processData(n.nodes, ids);
-      }
-    }
-  };
-  let data = [...nodes];
-  processData(data, ids);
-  return {
-    nodes: data
-  };
-};
 
 export const deepNodesUpdate = ({ nodes, updated, remove }: DeepUpdateArrayType) => {
   const processData = (
@@ -49,4 +28,35 @@ export const deepNodesUpdate = ({ nodes, updated, remove }: DeepUpdateArrayType)
   return {
     nodes: data
   };
+};
+
+export const treeSelection = (node: NodeType, nodes: NodeType[], links: LinkType[]) => {
+  const selectedNodes = function*(nodeId: string) {
+    yield nodeId;
+    const linked = links.filter((l: LinkType) => l.to.nodeId === nodeId).map((l) => l.from.nodeId);
+    for (var l of linked) {
+      yield* selectedNodes(l);
+    }
+  };
+  return [...selectedNodes(node.id)].map((n) => nodes.find((nf) => nf.id === n));
+};
+
+export const graphSelection = (node: NodeType, nodes: NodeType[], links: LinkType[]) => {
+  const yielded = [];
+  const selectedNodes = function*(nodeId: string) {
+    yielded.push(nodeId);
+    yield nodeId;
+    const linked = links
+      .filter((l: LinkType) => l.to.nodeId === nodeId && !yielded.includes(l.from.nodeId))
+      .map((l) => l.from.nodeId)
+      .concat(
+        links
+          .filter((l: LinkType) => l.from.nodeId === nodeId && !yielded.includes(l.to.nodeId))
+          .map((l) => l.to.nodeId)
+      );
+    for (var l of linked) {
+      yield* selectedNodes(l);
+    }
+  };
+  return [...selectedNodes(node.id)].map((n) => nodes.find((nf) => nf.id === n));
 };
