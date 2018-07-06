@@ -1,23 +1,20 @@
+import { ActionCategory } from './Graph';
+import { NodeType } from './Node';
+
 export type Item = {
   name: string;
-  action: Function;
-};
-
-export type SpaceBarCategory = {
-  name: string;
-  items: Array<Item>;
+  action?: Function;
+  items?: Array<Item>;
+  node?: NodeType;
 };
 
 export type SpaceBarProps = {
   x: number;
   y: number;
-  categories: Array<SpaceBarCategory>;
+  categories: Array<ActionCategory>;
+  addNode: (n: NodeType) => () => void;
 };
 export type SpaceBarState = {
   category?: string;
   menuWidth: number;
 };
-export enum SpaceBarAction {
-  AddNode,
-  Action
-}

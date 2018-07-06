@@ -28,3 +28,4 @@ export const SelectNone = style({
   '-ms-user-select': 'none',
   '-webkit-user-drag': 'none'
 });
+export const spaceItemWidth = 120

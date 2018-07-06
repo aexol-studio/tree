@@ -9,12 +9,14 @@ export const Categories = style({
   textAlign: 'right',
   display: 'flex',
   flexFlow: 'row nowrap',
+  alignItems:'flex-start',
   padding: 5
 });
 export const Category = style({
   margin: '0 5px',
   display: 'flex',
-  flexFlow: 'column nowrap'
+  flexFlow: 'column nowrap',
+  width: vars.spaceItemWidth
 });
 export const CategoryName = style({
   background: vars.bgcategory,
@@ -30,8 +32,8 @@ export const CategoryName = style({
   $nest: {
     '&:hover': {
       background: vars.selected,
-      borderBottomLeftRadius:0,
-      borderBottomRightRadius:0
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0
     }
   }
 });
@@ -59,22 +61,28 @@ export const Item = style({
   background: vars.bgcategory,
   color: vars.text,
   fontSize: '11px',
-  padding:5,
+  padding: 5,
   textAlign: 'center',
   display: 'flex',
   borderBottomColor: vars.bgcategoryBorder,
   borderBottomStyle: 'solid',
   borderBottomWidth: 1,
+  width:vars.spaceItemWidth,
   alignItems: 'center',
   justifyContent: 'center',
   transition: vars.transition,
+  wordBreak:'break-all',
   $nest: {
-    '&:last-of-type':{
-      borderBottomLeftRadius:vars.borderRadius,
-      borderBottomRightRadius:vars.borderRadius
+    '&:last-of-type': {
+      borderBottomLeftRadius: vars.borderRadius,
+      borderBottomRightRadius: vars.borderRadius
     },
     '&:hover': {
       background: vars.selected
     }
   }
+});
+export const ItemName = style({});
+export const ExpandedItems = style({
+  position: 'relative',
 });

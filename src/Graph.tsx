@@ -8,11 +8,8 @@ import {
   GraphInitialState,
   Action,
   PortType,
-  SpaceBarCategory,
-  SpaceBarAction,
-  NodeCategory,
-  ActionCategory,
-  GraphDeleteNode
+  GraphDeleteNode,
+  ActionCategory
 } from './types';
 import { Node, Port, Props, LinkWidget, Background } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
@@ -277,21 +274,25 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     );
   };
   treeSelect = () => {
-    const nodes=  this.nodes(this.state.nodes)
-    let activeNodes = this.state.activeNodes.map(n=>treeSelection(n,nodes,this.state.links)).reduce((a,b)=>[...a,...b])
-    activeNodes.filter( (a,i) => activeNodes.findIndex(an => an.id === a.id) === i)
+    const nodes = this.nodes(this.state.nodes);
+    let activeNodes = this.state.activeNodes
+      .map((n) => treeSelection(n, nodes, this.state.links))
+      .reduce((a, b) => [...a, ...b]);
+    activeNodes.filter((a, i) => activeNodes.findIndex((an) => an.id === a.id) === i);
     this.setState({
       activeNodes
-    })
-  }
+    });
+  };
   graphSelect = () => {
-    const nodes=  this.nodes(this.state.nodes)
-    let activeNodes = this.state.activeNodes.map(n=>graphSelection(n,nodes,this.state.links)).reduce((a,b)=>[...a,...b])
-    activeNodes.filter( (a,i) => activeNodes.findIndex(an => an.id === a.id) === i)
+    const nodes = this.nodes(this.state.nodes);
+    let activeNodes = this.state.activeNodes
+      .map((n) => graphSelection(n, nodes, this.state.links))
+      .reduce((a, b) => [...a, ...b]);
+    activeNodes.filter((a, i) => activeNodes.findIndex((an) => an.id === a.id) === i);
     this.setState({
       activeNodes
-    })
-  }
+    });
+  };
   renderNodes = (nodes) => {
     const selectNodes = (node, x, y) => {
       const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
@@ -356,35 +357,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       activeNodes: [selectedNode]
     });
   };
-  spaceBarCategories = (): Array<SpaceBarCategory> => {
+  spaceBarCategories = (): Array<ActionCategory> => {
     const { categories } = this.props;
-    let spaceBarCategories = categories.map(
-      (c) =>
-        ({
-          [SpaceBarAction.AddNode]: {
-            ...(c as NodeCategory),
-            items: (c as NodeCategory).items.map((i) => ({
-              name: i.name,
-              action: () => {
-                this.addNode({
-                  ...i,
-                  id: generateId(),
-                  inputs: i.inputs.map((input) => ({ ...input, id: generateId() })),
-                  outputs: i.outputs.map((output) => ({ ...output, id: generateId() }))
-                });
-              }
-            }))
-          },
-          [SpaceBarAction.Action]: {
-            ...(c as ActionCategory)
-          }
-        }[c.type])
-    );
+    let spaceBarCategories = [...categories];
     if (this.state.activeNodes.length > 0 || this.state.expand) {
       spaceBarCategories = [
         {
           name: 'node',
-          type: SpaceBarAction.Action,
           items:
             this.state.activeNodes.length > 0
               ? [
@@ -515,6 +494,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             x={this.state.spaceX}
             y={this.state.spaceY}
             categories={this.spaceBarCategories()}
+            addNode={(i: NodeType) => {
+              return () =>
+                this.addNode({
+                  ...i,
+                  id: generateId(),
+                  inputs: i.inputs.map((input) => ({ ...input, id: generateId() })),
+                  outputs: i.outputs.map((output) => ({ ...output, id: generateId() }))
+                });
+            }}
           />
         )}
         {selectedNode &&

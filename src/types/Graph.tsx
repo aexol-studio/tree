@@ -1,15 +1,8 @@
 import { LinkType, NodeType } from '.';
-import { SpaceBarCategory, SpaceBarAction, Item } from './SpaceMenu';
-export type NodeCategory = {
-  name: string;
-  type: SpaceBarAction.AddNode;
-  items: Array<NodeType>;
-  editable?: boolean;
-};
+import { Item } from './SpaceMenu';
 export type ActionCategory = {
   name: string;
-  type: SpaceBarAction.Action;
-  items: Array<Item>;
+  items?: Array<Item>;
 };
 export type LoadedFile = {
   nodes: Array<NodeType>;
@@ -17,8 +10,7 @@ export type LoadedFile = {
 };
 
 export type GraphProps = {
-  categories?: Array<NodeCategory | ActionCategory>;
-  actions?: Array<SpaceBarCategory>;
+  categories?: Array<ActionCategory>;
   serialize?: (nodes: Array<NodeType>, links: Array<LinkType>) => void;
   load?: () => Array<NodeType>;
   loaded?: LoadedFile;
