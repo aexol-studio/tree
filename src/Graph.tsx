@@ -9,15 +9,25 @@ import {
   Action,
   PortType,
   GraphDeleteNode,
-  ActionCategory
+  ActionCategory,
+  Snapshot,
+  GraphUndo,
+  GraphSnapshot
 } from './types';
-import { Node, Port, Props, LinkWidget, Background } from '.';
+import { Node, Port, Props, LinkWidget, Background, MiniMap } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
 import { renderLinks } from './render';
 import { Basic, Move, Connect } from './cursors';
 import { addEventListeners } from './Events';
 export class Graph extends React.Component<GraphProps, GraphState> {
   background: HTMLDivElement;
+  past: Snapshot[] = [
+    {
+      nodes: [],
+      links: []
+    }
+  ];
+  future: Snapshot[] = [];
   state = {
     ...GraphInitialState
   };
@@ -101,16 +111,20 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.setState((state) => func(state));
       },
       whereToRun: this.background,
-      copyNode: this.cloneNode
+      copyNode: this.cloneNode,
+      undo: this.undo,
+      redo: this.redo,
+      snapshot: this.snapshot
     });
   }
   addNode = (node: NodeType) => {
+    this.snapshot('past', 'future');
     this.setState((state) => {
-      const { expand, nodes, spaceX, spaceY } = state;
+      const { expand, nodes, spaceX, spaceY, pan } = state;
       let newNode: NodeType = {
         id: generateId(),
-        x: spaceX,
-        y: spaceY,
+        x: spaceX - pan.x,
+        y: spaceY - pan.y,
         nodes: [],
         ...node
       };
@@ -169,16 +183,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     });
   };
   portDown = (x: number, y: number, portId: string, id: string, output: boolean) => {
+    const startX = x - this.state.pan.x;
+    const startY = y - this.state.pan.y;
     this.setState({
       action: Action.ConnectPort,
       activePort: {
-        x,
-        y,
+        x: startX,
+        y: startY,
         id,
         portId,
         output,
-        endX: x,
-        endY: y
+        endX: startX,
+        endY: startY
       }
     });
   };
@@ -199,6 +215,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.reset();
         return;
       }
+      this.snapshot('past', 'future');
       let from = activePort.output ? ports[0] : ports[1];
       let to = activePort.output ? ports[1] : ports[0];
       this.reset({
@@ -293,12 +310,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       activeNodes
     });
   };
-  renderNodes = (nodes) => {
+  renderNodes = (nodes: Array<NodeType>) => {
     const selectNodes = (node, x, y) => {
       const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
       if (alreadyHaveNode && !this.state.ctrlPressed) {
         this.setState({
-          action: Action.MoveNode,
+          action: Action.SelectedNode,
           renamed: this.state.activeNodes.length === 1
         });
         return;
@@ -312,17 +329,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }
       }
       this.setState({
-        action: Action.MoveNode,
+        action: Action.SelectedNode,
         activeNodes,
         renamed: activeNodes.length === 1
       });
     };
-    return nodes.filter((node) => node.id !== this.state.expand).map((node) => (
+    const expandId = this.state.expand ? this.state.expand.id : null;
+    return nodes.filter((node) => node.id !== expandId).map((node) => (
       <Node
         {...node}
         key={node.id}
         id={node.id}
-        selected={this.state.activeNodes.find((n) => n.id === node.id)}
+        selected={!!this.state.activeNodes.find((n) => n.id === node.id)}
         portDown={this.portDown}
         portUp={this.portUp}
         portPosition={(x, y, portId, id, output) => {
@@ -370,6 +388,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   {
                     name: 'delete',
                     action: () => {
+                      this.snapshot('past', 'future');
                       this.setState((state) => ({
                         ...this.deleteNodes()
                       }));
@@ -378,6 +397,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   {
                     name: 'unlink',
                     action: () => {
+                      this.snapshot('past', 'future');
                       this.setState((state) => ({
                         ...this.deleteLinks()
                       }));
@@ -443,8 +463,42 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       });
     }
   };
+  snapshot: GraphSnapshot = (where, clear?) => {
+    if (clear) {
+      delete this[clear];
+      this[clear] = [];
+    }
+    this.setState((state) => {
+      if(this[where].length > 50){
+        this[where].shift()
+      }
+      this[where].push({
+        nodes: state.nodes,
+        links: state.links
+      });
+      return {};
+    });
+  };
+  undo: GraphUndo = () => {
+    if (this.past.length > 1) {
+      const oldState = this.past.pop();
+      this.snapshot('future');
+      this.setState((state) => ({
+        ...oldState
+      }));
+    }
+  };
+  redo: GraphUndo = () => {
+    if (this.future.length > 0) {
+      const newState = this.future.pop();
+      this.snapshot('past');
+      this.setState((state) => ({
+        ...newState
+      }));
+    }
+  };
   render() {
-    let { nodes, expand, links, renamed } = this.state;
+    let { nodes, expand, links, renamed, pan } = this.state;
     let selectedNode = this.state.activeNodes || [this.state.expand];
     if (expand) {
       nodes = this.nodes(nodes);
@@ -476,7 +530,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           });
         }}
       >
-        <div className={styles.Nodes}>
+        <div
+          className={styles.Nodes}
+          style={{
+            top: pan.y,
+            left: pan.x,
+            position: 'relative'
+          }}
+        >
           {this.renderNodes(nodes)}
           {expand && this.renderExpandedNodePorts(expand)}
           <svg className={styles.SVG}>
@@ -545,6 +606,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             [Action.ConnectPort]: <Connect x={this.state.mouseX} y={this.state.mouseY} />
           }[this.state.action]
         }
+        <MiniMap
+          height={200}
+          width={200}
+          nodes={nodes}
+          pan={pan}
+          graphWidth={this.background ? this.background.clientWidth : 0}
+          graphHeight={this.background ? this.background.clientHeight : 0}
+        />
       </Background>
     );
   }

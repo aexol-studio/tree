@@ -21,6 +21,9 @@ export class Port extends React.Component<
       output
     );
   };
+  shouldComponentUpdate(nextProps,nextState){
+    return nextProps.connected !== this.props.connected
+  }
   componentDidMount() {
     if (!this.props.unpluggable) {
       this.portPosition();

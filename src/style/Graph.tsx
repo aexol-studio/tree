@@ -1,8 +1,9 @@
 import { style, classes } from 'typestyle';
 import * as vars from './vars';
 export const Nodes = style({
-  width: `100%`,
-  height: `100%`,
+  width:0,
+  height: 0,
+  overflow:'visible',
   display: `flex`
 });
 export const Expand = style({
@@ -45,6 +46,7 @@ export const SVG = classes(
   style({
     width: '100%',
     height: '100%',
-    pointerEvents: 'none'
+    pointerEvents: 'none',
+    overflow:'visible'
   })
 );

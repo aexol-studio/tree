@@ -2,18 +2,18 @@ import { style } from 'typestyle';
 
 export const transition = 'all 0.25s;';
 export const off = '#eeeeff';
-export const bg = '#555';
-export const lines = '#eee';
+export const bg = '#555555';
+export const lines = '#eeeeee';
 export const bgspace = '#535353';
-export const bgcategory = '#333';
+export const bgcategory = '#333333';
 export const bgcategoryBorder = '#2a2a2a';
-export const bgradial = '#444';
-export const text = '#eee';
+export const bgradial = '#444444';
+export const text = '#eeeeee';
 export const selected = '#62afdb';
-export const input = '#ae0';
+export const input = '#aaee00';
 export const dot = 12;
 export const borderRadius = 5;
-export const cursorColor = '#fff';
+export const cursorColor = '#ffffff';
 export const portDot = style({
   background: 'transparent',
   borderWidth: '1px',
@@ -28,4 +28,4 @@ export const SelectNone = style({
   '-ms-user-select': 'none',
   '-webkit-user-drag': 'none'
 });
-export const spaceItemWidth = 120
+export const spaceItemWidth = 120;

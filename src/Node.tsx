@@ -1,13 +1,21 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
 import { Port } from './Port';
-import { NodeType, NodeActions, NodeState } from './types';
+import { NodeType, NodeActions } from './types';
 import * as styles from './style/Node';
-export class Node extends React.Component<NodeType & NodeActions, NodeState> {
+export class Node extends React.Component<NodeType & NodeActions, {}> {
   private node;
-  state = {
-    input: ''
-  };
+  shouldComponentUpdate(nextProps: NodeType & NodeActions, nextState) {
+    if (
+      this.props.name !== nextProps.name ||
+      this.props.x !== nextProps.x ||
+      this.props.y !== nextProps.y ||
+      this.props.selected !== nextProps.selected
+    ) {
+      return true;
+    }
+    return false;
+  }
   render() {
     const {
       id,
@@ -29,9 +37,11 @@ export class Node extends React.Component<NodeType & NodeActions, NodeState> {
         <Port
           portUp={(x, y, output) => {
             portUp(x, y, i.id, id, output);
+            this.forceUpdate();
           }}
           portDown={(x, y, output) => {
             portDown(x, y, i.id, id, output);
+            this.forceUpdate();
           }}
           portPosition={(x, y, output) => {
             portPosition(x, y, i.id, id, output);

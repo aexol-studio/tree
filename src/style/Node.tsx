@@ -1,15 +1,18 @@
-import { style,classes } from 'typestyle';
+import { style, classes } from 'typestyle';
 import * as vars from './vars';
-export const Node = classes(vars.SelectNone,style({
-  color: vars.text,
-  background: vars.bg,
-  borderRadius: 5,
-  fontSize: '10px',
-  position: 'absolute',
-  display: 'flex',
-  flexFlow: 'row nowrap',
-  alignItems: 'center'
-}));
+export const Node = classes(
+  vars.SelectNone,
+  style({
+    color: vars.text,
+    background: vars.bg,
+    borderRadius: 5,
+    fontSize: '10px',
+    position: 'absolute',
+    display: 'flex',
+    flexFlow: 'row nowrap',
+    alignItems: 'center'
+  })
+);
 export const Selected = style({
   background: vars.selected
 });
@@ -25,5 +28,5 @@ export const Name = style({
 });
 export const Type = style({
   fontWeight: 300,
-  textTransform: 'uppercase',
+  textTransform: 'uppercase'
 });

@@ -1,13 +1,22 @@
-import { EventListenerFunctionProps, Action } from './types';
+import { EventListenerFunctionProps, Action, GraphState } from './types';
 import { deepNodesUpdate } from './utils';
 
 let isMouseOver = false;
+
+let mouseDown = {
+  down: false,
+  x: 0,
+  y: 0
+};
 
 export const addEventListeners = ({
   stateUpdate,
   deleteNodes,
   whereToRun,
-  copyNode
+  copyNode,
+  undo,
+  redo,
+  snapshot
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.addEventListener('mouseover', (e) => {
@@ -39,6 +48,14 @@ export const addEventListeners = ({
       if (key === 68) {
         e.preventDefault();
         copyNode();
+      }
+      if (key === 90) {
+        e.preventDefault();
+        undo();
+      }
+      if (key === 89) {
+        e.preventDefault();
+        redo();
       }
     }
     if (key === 46) {
@@ -84,13 +101,42 @@ export const addEventListeners = ({
       });
     }
   });
+  eventContainer.addEventListener('mouseup', (e) => {
+    mouseDown = {
+      ...mouseDown,
+      down: false
+    };
+  });
+  eventContainer.addEventListener('mousedown', (e) => {
+    mouseDown = {
+      x: e.clientX,
+      y: e.clientY,
+      down: true
+    };
+  });
   eventContainer.addEventListener('mousemove', (e) => {
     stateUpdate((state) => {
-      let stateUpdate: {} = {
+      let stateUpdate: Partial<GraphState> = {
         mouseX: e.clientX,
         mouseY: e.clientY
       };
-      if (state.action === Action.MoveNode) {
+      let m = {
+        x: e.clientX - mouseDown.x,
+        y: e.clientY - mouseDown.y
+      };
+      mouseDown = {
+        x: e.clientX,
+        y: e.clientY,
+        down: mouseDown.down
+      };
+      if (state.action === Action.SelectedNode && (m.x || m.y)) {
+        stateUpdate.action = Action.MoveNode;
+        snapshot('past','future')
+      }
+      if (
+        mouseDown.down &&
+        (state.action === Action.MoveNode || stateUpdate.action === Action.MoveNode)
+      ) {
         stateUpdate = {
           ...stateUpdate,
           ...deepNodesUpdate({
@@ -98,15 +144,15 @@ export const addEventListeners = ({
             updated: state.activeNodes.map((n) => ({
               id: n.id,
               node: {
-                x: e.movementX + n.x,
-                y: e.movementY + n.y
+                x: m.x + n.x,
+                y: m.y + n.y
               }
             }))
           }),
           activeNodes: state.activeNodes.map((n) => ({
             ...n,
-            x: n.x + e.movementX,
-            y: n.y + e.movementY
+            x: n.x + m.x,
+            y: n.y + m.y
           }))
         };
       }
@@ -115,19 +161,18 @@ export const addEventListeners = ({
           ...stateUpdate,
           activePort: {
             ...state.activePort,
-            endX: e.clientX,
-            endY: e.clientY
+            endX: e.clientX - state.pan.x,
+            endY: e.clientY - state.pan.y
           }
         };
       }
       if (state.action === Action.Pan) {
         stateUpdate = {
           ...stateUpdate,
-          nodes: state.nodes.map((n) => ({
-            ...n,
-            x: n.x + e.movementX,
-            y: n.y + e.movementY
-          }))
+          pan: {
+            x: state.pan.x + m.x,
+            y: state.pan.y + m.y
+          }
         };
       }
       return stateUpdate;

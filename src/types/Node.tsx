@@ -21,6 +21,3 @@ export type NodeActions = {
   portDown: (x: number, y: number, portId: string, id: string, output: boolean) => void;
   portPosition: (x: number, y: number, portId: string, id: string, output: boolean) => void;
 };
-export type NodeState = {
-  input: string;
-};

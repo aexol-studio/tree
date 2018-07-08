@@ -19,8 +19,8 @@ export type GraphState = {
   renamed?: boolean;
   expand?: NodeType;
   path?: Array<string | null>;
-  nodes: Array<NodeType>;
-  links: Array<LinkType>;
+  nodes: NodeType[];
+  links: LinkType[];
   spacePressed: boolean;
   ctrlPressed: boolean;
   spaceX: number;
@@ -37,6 +37,10 @@ export type GraphState = {
     id: string;
     portId: string;
     output: boolean;
+  };
+  pan: {
+    x: number;
+    y: number;
   };
   loaded?: LoadedFile;
 };
@@ -65,9 +69,19 @@ export const GraphInitialState: GraphState = {
   action: Action.Nothing,
   activeNodes: [],
   activePort: null,
-  loaded: null
+  loaded: null,
+  pan: {
+    x: 0,
+    y: 0
+  }
 };
 
+export type Snapshot = {
+  nodes: NodeType[];
+  links: LinkType[];
+};
+export type GraphUndo = () => void;
+export type GraphSnapshot = (where: 'past' | 'future', clear?: 'past' | 'future') => void;
 export type GraphDeleteNode = () => {
   nodes: NodeType[];
   links: LinkType[];

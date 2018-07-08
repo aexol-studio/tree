@@ -5,3 +5,9 @@ export type BackgroundProps = {
   reset: (props?: any) => void;
   switchAction: (action: Action) => void;
 };
+export type NodeHolderProps = {
+  pan: {
+    x: number;
+    y: number;
+  };
+}
