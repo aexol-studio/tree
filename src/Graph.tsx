@@ -168,8 +168,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         id: generateId(),
         inputs: node.inputs.map((i) => ({ ...i, id: generateId() })),
         outputs: node.outputs.map((i) => ({ ...i, id: generateId() })),
-        x: this.state.mouseX,
-        y: this.state.mouseY
+        x: this.state.mouseX - this.state.pan.x,
+        y: this.state.mouseY - this.state.pan.y
       });
     });
   };
@@ -222,7 +222,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       const node = allNodes.find((n) => n.id === (!activePort.output ? portId : activePort.id));
 
       if (port.accepted && port.accepted.length) {
-        console.log(port.accepted);
         let accepted = false;
         for (var a of port.accepted) {
           let isAccepted = false;
