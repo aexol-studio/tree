@@ -1,3 +1,11 @@
+export type AcceptedConnection = {
+  node: {
+    type?:string;
+    subType?:string;
+  },
+  count?:number
+}
+
 export type PortType = {
   id?: string;
   name: string;
@@ -7,6 +15,7 @@ export type PortType = {
   output?: boolean;
   x?: number;
   y?: number;
+  accepted?: AcceptedConnection[]
 };
 export type PortActions = {
   portUp: (x: number, y: number, output: boolean) => void;

@@ -215,6 +215,39 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.reset();
         return;
       }
+      const allNodes = this.nodes(this.state.nodes);
+      const port = allNodes
+        .find((n) => n.id === (activePort.output ? id : activePort.id))
+        .inputs.find((p) => p.id === (activePort.output ? portId : activePort.portId));
+      const node = allNodes.find((n) => n.id === (!activePort.output ? portId : activePort.id));
+
+      if (port.accepted && port.accepted.length) {
+        console.log(port.accepted);
+        let accepted = false;
+        for (var a of port.accepted) {
+          let isAccepted = false;
+          if (a.node.type) {
+            if (a.node.type === node.type) {
+              isAccepted = true;
+            }
+          }
+          if (a.node.subType) {
+            if (a.node.subType === node.subType) {
+              isAccepted = true;
+            } else {
+              isAccepted = false;
+            }
+          }
+          if (isAccepted) {
+            accepted = true;
+          }
+        }
+        if (!accepted) {
+          this.reset();
+          return;
+        }
+      }
+
       this.snapshot('past', 'future');
       let from = activePort.output ? ports[0] : ports[1];
       let to = activePort.output ? ports[1] : ports[0];
@@ -469,8 +502,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       this[clear] = [];
     }
     this.setState((state) => {
-      if(this[where].length > 50){
-        this[where].shift()
+      if (this[where].length > 50) {
+        this[where].shift();
       }
       this[where].push({
         nodes: state.nodes,

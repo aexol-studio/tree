@@ -44,8 +44,8 @@ export const HelperPhrase = style({
 export const SVG = classes(
   vars.SelectNone,
   style({
-    width: '100%',
-    height: '100%',
+    width: '100vw',
+    height: '100vh',
     pointerEvents: 'none',
     overflow:'visible'
   })
