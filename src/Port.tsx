@@ -21,8 +21,8 @@ export class Port extends React.Component<
       output
     );
   };
-  shouldComponentUpdate(nextProps,nextState){
-    return nextProps.connected !== this.props.connected
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.connected !== this.props.connected || this.state.hover !== nextState.hover;
   }
   componentDidMount() {
     if (!this.props.unpluggable) {

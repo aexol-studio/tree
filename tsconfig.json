@@ -9,10 +9,10 @@
     "declaration": true,
     "removeComments": true,
     "noUnusedLocals": true,
-    "outDir": "lib",
-    "rootDir": "src",
-    "lib": ["es6", "es7", "dom"],
-    "baseUrl": "src"
+    "outDir": "./lib",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "lib": ["es6", "es7", "dom"]
   },
   "exclude": ["lib", "build", "node_modules"]
 }

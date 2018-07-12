@@ -2,12 +2,13 @@ import * as React from 'react';
 import * as classnames from 'classnames';
 import { Port } from './Port';
 import { NodeType, NodeActions } from './types';
-import * as styles from './style/Node';
+import * as NodeStyles from './style/Node';
 export class Node extends React.Component<NodeType & NodeActions, {}> {
   private node;
   shouldComponentUpdate(nextProps: NodeType & NodeActions, nextState) {
     if (
       this.props.name !== nextProps.name ||
+      this.props.kind !== nextProps.kind ||
       this.props.x !== nextProps.x ||
       this.props.y !== nextProps.y ||
       this.props.selected !== nextProps.selected
@@ -30,8 +31,11 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       portUp,
       portDown,
       portPosition,
+      kind,
+      styles: overrideStyles,
       selected = false
     } = this.props;
+    let styles = overrideStyles || NodeStyles;
     const renderPorts = (ports, output) =>
       ports.map((i) => (
         <Port
@@ -54,7 +58,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
     const nodeIdentity = () => (
       <div className={styles.Title}>
         <div className={styles.Name}>{name}</div>
-        <div className={styles.Type}>{type}</div>
+        <div className={styles.Type}>{kind || type}</div>
       </div>
     );
     return (

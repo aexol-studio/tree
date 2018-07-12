@@ -1,10 +1,9 @@
+import { NodeType } from './Node';
+
 export type AcceptedConnection = {
-  node: {
-    type?:string;
-    subType?:string;
-  },
-  count?:number
-}
+  node: Pick<NodeType, 'type' | 'subType' | 'kind'>;
+  count?: number;
+};
 
 export type PortType = {
   id?: string;
@@ -15,7 +14,7 @@ export type PortType = {
   output?: boolean;
   x?: number;
   y?: number;
-  accepted?: AcceptedConnection[]
+  accepted?: AcceptedConnection[];
 };
 export type PortActions = {
   portUp: (x: number, y: number, output: boolean) => void;

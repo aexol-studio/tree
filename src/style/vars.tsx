@@ -13,6 +13,7 @@ export const selected = '#62afdb';
 export const input = '#aaee00';
 export const dot = 12;
 export const borderRadius = 5;
+export const minimapBorder = '#383838'
 export const cursorColor = '#ffffff';
 export const portDot = style({
   background: 'transparent',

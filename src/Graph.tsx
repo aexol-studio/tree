@@ -12,7 +12,8 @@ import {
   ActionCategory,
   Snapshot,
   GraphUndo,
-  GraphSnapshot
+  GraphSnapshot,
+  LinkType
 } from './types';
 import { Node, Port, Props, LinkWidget, Background, MiniMap } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
@@ -28,7 +29,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
   ];
   future: Snapshot[] = [];
-  state = {
+  state: GraphState = {
     ...GraphInitialState
   };
   get p() {
@@ -49,7 +50,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       this.serialize();
     }
   }
-  static getDerivedStateFromProps(nextProps: GraphProps, prevState: GraphState) {
+  static getDerivedStateFromProps(
+    nextProps: GraphProps,
+    prevState: GraphState
+  ): Partial<GraphState> {
     if (prevState.loaded !== nextProps.loaded) {
       return {
         loaded: nextProps.loaded,
@@ -71,7 +75,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     let allNodes = processData(nodes);
     return [...allNodes];
   };
-  deleteLinks = () => {
+  deleteLinks = (): { links: LinkType[] } => {
     let links = [...this.state.links];
     this.state.activeNodes.map((node) => {
       let deletedNodes = this.nodes(this.state.activeNodes).map((n) => n.id);
@@ -237,6 +241,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
               isAccepted = false;
             }
           }
+          if (a.node.kind) {
+            if (a.node.kind === node.kind) {
+              isAccepted = true;
+            } else {
+              isAccepted = false;
+            }
+          }
           if (isAccepted) {
             accepted = true;
           }
@@ -371,8 +382,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       <Node
         {...node}
         key={node.id}
-        id={node.id}
-        selected={!!this.state.activeNodes.find((n) => n.id === node.id)}
         portDown={this.portDown}
         portUp={this.portUp}
         portPosition={(x, y, portId, id, output) => {
@@ -550,7 +559,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       outputs: n.outputs.map((i) => ({
         ...i,
         connected: !!links.find((l) => l.from.portId === i.id || l.to.portId === i.id)
-      }))
+      })),
+      selected: !!this.state.activeNodes.find((node) => n.id === node.id)
     }));
     return (
       <Background
@@ -611,10 +621,17 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 this.setState((state) => ({
                   ...deepNodesUpdate({
                     nodes: state.nodes,
-                    updated: [...clones, selected].map((n) => ({
-                      id: n.id,
-                      node: { name: selected.name }
-                    }))
+                    updated: [...clones]
+                      .map((n) => ({
+                        id: n.id,
+                        node: { kind: selected.name, name: n.name, type: n.type }
+                      }))
+                      .concat([
+                        {
+                          id: selected.id,
+                          node: { name: selected.name, type: selected.type, kind: selected.kind }
+                        }
+                      ])
                   }),
                   activeNodes: [selected]
                 }));

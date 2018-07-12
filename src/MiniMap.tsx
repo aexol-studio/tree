@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { MiniMapType } from './types/MiniMap';
 import * as styles from './style/MiniMap';
+import * as cx from 'classnames';
 export class MiniMap extends React.Component<MiniMapType> {
   render() {
     const {
@@ -54,7 +55,10 @@ export class MiniMap extends React.Component<MiniMapType> {
         {this.props.nodes.map((n) => (
           <div
             key={n.id}
-            className={styles.MiniMapElement}
+            className={cx({
+              [styles.MiniMapElementSelected]: n.selected,
+              [styles.MiniMapElement]: true
+            })}
             style={{
               left: padding + Math.abs(boundingBox.x.min - n.x) / xWidth * mainWidth,
               top: padding + Math.abs(boundingBox.y.min - n.y) / yWidth * mainHeight
@@ -66,8 +70,8 @@ export class MiniMap extends React.Component<MiniMapType> {
           style={{
             width: areaWidth,
             height: areaHeight,
-            left: panPositionX-areaWidth/2.0,
-            top: panPositionY-areaHeight/2.0
+            left: panPositionX - areaWidth / 2.0,
+            top: panPositionY - areaHeight / 2.0
           }}
         />
       </div>

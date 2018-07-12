@@ -1,4 +1,5 @@
 import { PortType } from './Port';
+import * as styles from "../style/Node";
 export type NodeType = {
   id?: string;
   x?: number;
@@ -8,10 +9,12 @@ export type NodeType = {
   name: string;
   type?: string;
   subType?: string;
+  kind?: string;
   inputs: Array<PortType>;
   outputs: Array<PortType>;
   nodes?: Array<NodeType>;
   clone?: string;
+  styles?: typeof styles;
 };
 export type NodeTypePartial = { [P in keyof NodeType]?: NodeType[P] };
 export type NodeActions = {
