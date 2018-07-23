@@ -22,9 +22,12 @@ export type GraphState = {
   nodes: NodeType[];
   links: LinkType[];
   spacePressed: boolean;
+  contextMenuActive: boolean;
   ctrlPressed: boolean;
   spaceX: number;
   spaceY: number;
+  contextX: number;
+  contextY: number;
   mouseX: number;
   mouseY: number;
   action: Action;
@@ -61,9 +64,12 @@ export const GraphInitialState: GraphState = {
   nodes: [],
   links: [],
   spacePressed: false,
+  contextMenuActive: false,
   ctrlPressed: false,
   spaceX: 0,
   spaceY: 0,
+  contextX: 0,
+  contextY: 0,
   mouseX: 0,
   mouseY: 0,
   action: Action.Nothing,

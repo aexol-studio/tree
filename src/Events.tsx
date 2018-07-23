@@ -19,6 +19,12 @@ export const addEventListeners = ({
   snapshot
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
+  whereToRun.oncontextmenu = () => {
+    return false;
+  };
+  whereToRun.addEventListener('wheel',e=>{
+    //TODO: add zoomin here
+  })
   whereToRun.addEventListener('mouseover', (e) => {
     isMouseOver = true;
   });
@@ -131,7 +137,7 @@ export const addEventListeners = ({
       };
       if (state.action === Action.SelectedNode && (m.x || m.y)) {
         stateUpdate.action = Action.MoveNode;
-        snapshot('past','future')
+        snapshot('past', 'future');
       }
       if (
         mouseDown.down &&

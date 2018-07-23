@@ -5,6 +5,7 @@ import { NodeType, NodeActions } from './types';
 import * as NodeStyles from './style/Node';
 export class Node extends React.Component<NodeType & NodeActions, {}> {
   private node;
+  private ports: Port[] = [];
   shouldComponentUpdate(nextProps: NodeType & NodeActions, nextState) {
     if (
       this.props.name !== nextProps.name ||
@@ -13,6 +14,9 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       this.props.y !== nextProps.y ||
       this.props.selected !== nextProps.selected
     ) {
+      if (this.props.kind !== nextProps.kind || this.props.name !== nextProps.name) {
+        this.ports.map((p) => p.forceUpdate());
+      }
       return true;
     }
     return false;
@@ -27,6 +31,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       x = 0,
       y = 0,
       nodeDown,
+      contextMenu,
       nodeUp,
       portUp,
       portDown,
@@ -39,6 +44,9 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
     const renderPorts = (ports, output) =>
       ports.map((i) => (
         <Port
+          ref={(ref) => {
+            ref && this.ports.push(ref);
+          }}
           portUp={(x, y, output) => {
             portUp(x, y, i.id, id, output);
             this.forceUpdate();
@@ -75,11 +83,17 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
         ref={(ref) => (this.node = ref)}
         onMouseDown={(e) => {
           e.stopPropagation();
-          nodeDown(id, x, y);
+          if (e.button === 0 || 2) {
+            nodeDown(id, x, y);
+          }
         }}
         onMouseUp={(e) => {
           e.stopPropagation();
           nodeUp(id);
+          if (e.button === 2) {
+            e.preventDefault();
+            contextMenu(id, x, y);
+          }
         }}
       >
         {renderPorts(inputs, false)}

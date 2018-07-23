@@ -2,7 +2,7 @@ import * as styles from './style';
 export * from './Port';
 export * from './Graph';
 export * from './types';
-export * from './SpaceMenu';
+export * from './menu';
 export * from './Props';
 export * from './Link';
 export * from './utils';

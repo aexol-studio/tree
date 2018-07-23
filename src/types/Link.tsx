@@ -18,4 +18,5 @@ export type LinkWidgetProps = {
     y: number;
   };
   selected?: boolean;
+  required?: boolean;
 };

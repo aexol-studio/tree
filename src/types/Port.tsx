@@ -1,7 +1,7 @@
 import { NodeType } from './Node';
 
 export type AcceptedConnection = {
-  node: Pick<NodeType, 'type' | 'subType' | 'kind'>;
+  node: Partial<Pick<NodeType, 'type' | 'subType' | 'kind'>>;
   count?: number;
 };
 

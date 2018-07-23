@@ -1,5 +1,6 @@
 import { PortType } from './Port';
-import * as styles from "../style/Node";
+import * as styles from '../style/Node';
+import { Item } from './SpaceMenu';
 export type NodeType = {
   id?: string;
   x?: number;
@@ -7,12 +8,14 @@ export type NodeType = {
   selected?: boolean;
   editable?: boolean;
   name: string;
-  type?: string;
+  type: string;
   subType?: string;
   kind?: string;
+  required?:boolean;
   inputs: Array<PortType>;
   outputs: Array<PortType>;
   nodes?: Array<NodeType>;
+  items?: Array<Item>;
   clone?: string;
   styles?: typeof styles;
 };
@@ -23,4 +26,5 @@ export type NodeActions = {
   portUp: (x: number, y: number, portId: string, id: string, output: boolean) => void;
   portDown: (x: number, y: number, portId: string, id: string, output: boolean) => void;
   portPosition: (x: number, y: number, portId: string, id: string, output: boolean) => void;
+  contextMenu: (id: string, x: number, y: number) => void;
 };

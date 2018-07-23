@@ -24,6 +24,9 @@ export class Port extends React.Component<
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.connected !== this.props.connected || this.state.hover !== nextState.hover;
   }
+  componentDidUpdate(){
+    this.portPosition()
+  }
   componentDidMount() {
     if (!this.props.unpluggable) {
       this.portPosition();

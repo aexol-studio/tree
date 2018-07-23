@@ -64,7 +64,6 @@ export class Props extends React.Component<PropsType> {
               if (e.target.defaultValue === node.type) {
                 name = name.substr(node.type.length);
               }
-              console.log(name)
               onChange({
                 ...node,
                 name

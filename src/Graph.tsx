@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as styles from './style/Graph';
-import { SpaceMenu } from './SpaceMenu';
+import { SpaceMenu, ContextMenu } from './menu';
 import {
   NodeType,
   GraphProps,
@@ -86,9 +86,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     return { links };
   };
   deleteNodes: GraphDeleteNode = () => {
+    const allNodes = this.nodes(this.state.nodes)
+    const nodes = allNodes.filter(n=> this.state.activeNodes.find(an=> an.id === n.clone)).concat(this.state.activeNodes)
     const deletedNodes = deepNodesUpdate({
       nodes: this.state.nodes,
-      updated: this.state.activeNodes.map((n) => ({
+      updated: nodes.map((n) => ({
         id: n.id,
         node: {}
       })),
@@ -181,6 +183,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     this.setState({
       action: Action.Nothing,
       activePort: null,
+      contextMenuActive: false,
       activeNodes: [],
       renamed: false,
       ...updateState
@@ -357,11 +360,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     const selectNodes = (node, x, y) => {
       const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
       if (alreadyHaveNode && !this.state.ctrlPressed) {
-        this.setState({
+        return {
           action: Action.SelectedNode,
           renamed: this.state.activeNodes.length === 1
-        });
-        return;
+        };
       }
       let activeNodes = [node];
       if (this.state.ctrlPressed) {
@@ -371,11 +373,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           activeNodes = [...this.state.activeNodes, ...activeNodes];
         }
       }
-      this.setState({
+      return {
         action: Action.SelectedNode,
         activeNodes,
         renamed: activeNodes.length === 1
-      });
+      };
     };
     const expandId = this.state.expand ? this.state.expand.id : null;
     return nodes.filter((node) => node.id !== expandId).map((node) => (
@@ -388,7 +390,17 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           this.updatePortPositions(x, y, portId, id, output);
         }}
         nodeDown={(id: string, x: number, y: number) => {
-          selectNodes(node, x, y);
+          this.setState(selectNodes(node, x, y));
+        }}
+        contextMenu={(id: string, x: number, y: number) => {
+          if (this.state.activeNodes.length > 0) {
+            this.setState({
+              ...selectNodes(node, x, y),
+              contextMenuActive: true,
+              contextX: this.state.mouseX,
+              contextY: this.state.mouseY
+            });
+          }
         }}
         nodeUp={(id: string) => {
           this.setState({
@@ -419,75 +431,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   spaceBarCategories = (): Array<ActionCategory> => {
     const { categories } = this.props;
     let spaceBarCategories = [...categories];
-    if (this.state.activeNodes.length > 0 || this.state.expand) {
-      spaceBarCategories = [
-        {
-          name: 'node',
-          items:
-            this.state.activeNodes.length > 0
-              ? [
-                  {
-                    name: 'delete',
-                    action: () => {
-                      this.snapshot('past', 'future');
-                      this.setState((state) => ({
-                        ...this.deleteNodes()
-                      }));
-                    }
-                  },
-                  {
-                    name: 'unlink',
-                    action: () => {
-                      this.snapshot('past', 'future');
-                      this.setState((state) => ({
-                        ...this.deleteLinks()
-                      }));
-                    }
-                  },
-                  {
-                    name: 'duplicate',
-                    action: () => {
-                      this.cloneNode();
-                    }
-                  },
-                  {
-                    name: 'treeSelect',
-                    action: () => {
-                      this.treeSelect();
-                    }
-                  },
-                  {
-                    name: 'graphSelect',
-                    action: () => {
-                      this.graphSelect();
-                    }
-                  }
-                ]
-              : this.state.expand
-                ? [
-                    {
-                      name: 'back',
-                      action: () => {
-                        this.shrinkNode(this.state.expand);
-                      }
-                    }
-                  ]
-                : []
-        },
-        ...spaceBarCategories
-      ];
-      if (this.state.activeNodes.length === 1) {
-        spaceBarCategories[0].items = [
-          ...spaceBarCategories[0].items,
-          {
-            name: 'expand',
-            action: () => {
-              this.expandNode(this.state.activeNodes[0]);
-            }
-          }
-        ];
-      }
-    }
     return spaceBarCategories;
   };
   serialize = () => {
@@ -537,6 +480,131 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         ...newState
       }));
     }
+  };
+  nodeCategory = () => {
+    let category: ActionCategory = {
+      name: 'node',
+      items:
+        this.state.activeNodes.length > 0
+          ? [
+              {
+                name: 'delete',
+                action: () => {
+                  this.snapshot('past', 'future');
+                  this.setState((state) => ({
+                    ...this.deleteNodes(),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'unlink',
+                action: () => {
+                  this.snapshot('past', 'future');
+                  this.setState((state) => ({
+                    ...this.deleteLinks(),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'duplicate',
+                action: () => {
+                  this.cloneNode();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'treeSelect',
+                action: () => {
+                  this.treeSelect();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'graphSelect',
+                action: () => {
+                  this.graphSelect();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'optional',
+                action: () => {
+                  this.setState((state) => ({
+                    ...deepNodesUpdate({
+                      nodes: this.nodes(state.nodes),
+                      updated: this.state.activeNodes.map((n) => ({
+                        id: n.id,
+                        node: {
+                          required: false
+                        } as Partial<NodeType>
+                      }))
+                    }),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'required',
+                action: () => {
+                  this.setState((state) => ({
+                    ...deepNodesUpdate({
+                      nodes: this.nodes(state.nodes),
+                      updated: this.state.activeNodes.map((n) => ({
+                        id: n.id,
+                        node: {
+                          required: true
+                        } as Partial<NodeType>
+                      }))
+                    }),
+                    contextMenuActive: false
+                  }));
+                }
+              }
+            ]
+          : this.state.expand
+            ? [
+                {
+                  name: 'back',
+                  action: () => {
+                    this.shrinkNode(this.state.expand);
+                    this.setState((state) => ({
+                      contextMenuActive: false
+                    }));
+                  }
+                }
+              ]
+            : []
+    };
+    if (this.state.activeNodes.length === 1) {
+      const [activeNode] = this.state.activeNodes;
+      category = {
+        ...category,
+        items: [
+          ...category.items,
+          {
+            name: 'expand',
+            action: () => {
+              this.expandNode(activeNode);
+            }
+          }
+        ]
+      };
+      if (activeNode.items) {
+        category = {
+          ...category,
+          items: [...category.items, ...activeNode.items]
+        };
+      }
+    }
+    return category;
   };
   render() {
     let { nodes, expand, links, renamed, pan } = this.state;
@@ -608,6 +676,22 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             }}
           />
         )}
+        {this.state.contextMenuActive && (
+          <ContextMenu
+            x={this.state.contextX}
+            y={this.state.contextY}
+            addNode={(i: NodeType) => {
+              return () =>
+                this.addNode({
+                  ...i,
+                  id: generateId(),
+                  inputs: i.inputs.map((input) => ({ ...input, id: generateId() })),
+                  outputs: i.outputs.map((output) => ({ ...output, id: generateId() }))
+                });
+            }}
+            category={this.nodeCategory()}
+          />
+        )}
         {selectedNode &&
           selectedNode.length === 1 &&
           renamed && (
@@ -655,14 +739,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             [Action.ConnectPort]: <Connect x={this.state.mouseX} y={this.state.mouseY} />
           }[this.state.action]
         }
-        <MiniMap
-          height={200}
-          width={200}
-          nodes={nodes}
-          pan={pan}
-          graphWidth={this.background ? this.background.clientWidth : 0}
-          graphHeight={this.background ? this.background.clientHeight : 0}
-        />
+        {nodes.length > 1 && (
+          <MiniMap
+            height={200}
+            width={200}
+            nodes={nodes}
+            pan={pan}
+            graphWidth={this.background ? this.background.clientWidth : 1}
+            graphHeight={this.background ? this.background.clientHeight : 1}
+          />
+        )}
       </Background>
     );
   }

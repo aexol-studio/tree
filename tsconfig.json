@@ -11,7 +11,7 @@
     "noUnusedLocals": true,
     "outDir": "./lib",
     "rootDir": "./src",
-    "baseUrl": "./src",
+    "baseUrl": "./src/",
     "lib": ["es6", "es7", "dom"]
   },
   "exclude": ["lib", "build", "node_modules"]

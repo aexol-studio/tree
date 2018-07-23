@@ -28,7 +28,7 @@ export const renderLinks = (
   );
 
   return renderOrderedLinks.map((l: LinkType) => {
-    let { x: startX, y: startY, inputs: startInputs, outputs: startOutputs } = nodes.find(
+    let { x: startX, y: startY, inputs: startInputs, outputs: startOutputs, required } = nodes.find(
       (n: NodeType) => n.id === l.from.nodeId
     );
     let { x: startPortX, y: startPortY } = [...startInputs, ...startOutputs].find(
@@ -43,6 +43,7 @@ export const renderLinks = (
     return (
       <LinkWidget
         key={`${l.from.portId}-${l.to.portId}`}
+        required={required}
         start={{
           x: oX(startX + startPortX),
           y: oY(startY + startPortY)
