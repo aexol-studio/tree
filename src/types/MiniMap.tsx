@@ -10,5 +10,6 @@ export type MiniMapType = {
   height?:number;
   graphWidth?:number;
   graphHeight?:number;
+  scale:number;
   padding?:number;
 };

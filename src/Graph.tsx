@@ -13,7 +13,8 @@ import {
   Snapshot,
   GraphUndo,
   GraphSnapshot,
-  LinkType
+  LinkType,
+  GraphScale
 } from './types';
 import { Node, Port, Props, LinkWidget, Background, MiniMap } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
@@ -63,6 +64,29 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     return null;
   }
+  scale: GraphScale = (fn) => {
+    this.setState((state) => {
+      const { scale, x, y } = fn(state.scale);
+      if (scale < 0.1 || scale > 1.0) {
+        return {
+          scale: this.state.scale,
+          pan: this.state.pan
+        };
+      }
+      const scaleChange = scale - state.scale;
+      const zoom = {
+        x: x - this.state.pan.x,
+        y: y - this.state.pan.y
+      };
+      return {
+        scale,
+        pan: {
+          x: this.state.pan.x - zoom.x * scaleChange * 1.0 / scale,
+          y: this.state.pan.y - zoom.y * scaleChange * 1.0 / scale
+        }
+      };
+    });
+  };
   nodes = (nodes: Array<NodeType>): Array<NodeType> => {
     const processData = function*(data) {
       for (var n of data) {
@@ -86,8 +110,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     return { links };
   };
   deleteNodes: GraphDeleteNode = () => {
-    const allNodes = this.nodes(this.state.nodes)
-    const nodes = allNodes.filter(n=> this.state.activeNodes.find(an=> an.id === n.clone)).concat(this.state.activeNodes)
+    const allNodes = this.nodes(this.state.nodes);
+    const nodes = allNodes
+      .filter((n) => this.state.activeNodes.find((an) => an.id === n.clone))
+      .concat(this.state.activeNodes);
     const deletedNodes = deepNodesUpdate({
       nodes: this.state.nodes,
       updated: nodes.map((n) => ({
@@ -120,17 +146,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       copyNode: this.cloneNode,
       undo: this.undo,
       redo: this.redo,
-      snapshot: this.snapshot
+      snapshot: this.snapshot,
+      scale: this.scale
     });
   }
   addNode = (node: NodeType) => {
     this.snapshot('past', 'future');
     this.setState((state) => {
-      const { expand, nodes, spaceX, spaceY, pan } = state;
+      const { expand, nodes, spaceX, spaceY, pan,scale } = state;
       let newNode: NodeType = {
         id: generateId(),
-        x: spaceX - pan.x,
-        y: spaceY - pan.y,
+        x: (spaceX - pan.x)/scale,
+        y: (spaceY - pan.y)/scale,
         nodes: [],
         ...node
       };
@@ -174,8 +201,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         id: generateId(),
         inputs: node.inputs.map((i) => ({ ...i, id: generateId() })),
         outputs: node.outputs.map((i) => ({ ...i, id: generateId() })),
-        x: this.state.mouseX - this.state.pan.x,
-        y: this.state.mouseY - this.state.pan.y
+        x: (this.state.mouseX - this.state.pan.x)/this.state.scale,
+        y: (this.state.mouseY - this.state.pan.y)/this.state.scale
       });
     });
   };
@@ -190,8 +217,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     });
   };
   portDown = (x: number, y: number, portId: string, id: string, output: boolean) => {
-    const startX = x - this.state.pan.x;
-    const startY = y - this.state.pan.y;
+    const startX = (x - this.state.pan.x) / this.state.scale;
+    const startY = (y - this.state.pan.y) / this.state.scale;
     this.setState({
       action: Action.ConnectPort,
       activePort: {
@@ -607,7 +634,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     return category;
   };
   render() {
-    let { nodes, expand, links, renamed, pan } = this.state;
+    let { nodes, expand, links, renamed, pan, scale } = this.state;
     let selectedNode = this.state.activeNodes || [this.state.expand];
     if (expand) {
       nodes = this.nodes(nodes);
@@ -645,7 +672,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           style={{
             top: pan.y,
             left: pan.x,
-            position: 'relative'
+            position: 'relative',
+            transform: `scale(${scale})`
           }}
         >
           {this.renderNodes(nodes)}
@@ -743,6 +771,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           <MiniMap
             height={200}
             width={200}
+            scale={scale}
             nodes={nodes}
             pan={pan}
             graphWidth={this.background ? this.background.clientWidth : 1}

@@ -11,7 +11,8 @@ export class MiniMap extends React.Component<MiniMapType> {
       padding = 10,
       pan,
       graphWidth,
-      graphHeight
+      graphHeight,
+      scale
     } = this.props;
     const boundingBoxXValues = nodes.map((n) => n.x);
     const boundingBoxYValues = nodes.map((n) => n.y);
@@ -38,11 +39,11 @@ export class MiniMap extends React.Component<MiniMapType> {
     const panX = center.x - pan.x;
     const panY = center.y - pan.y;
 
-    let panPositionX = padding + Math.abs(boundingBox.x.min - panX) / xWidth * mainWidth;
-    let panPositionY = padding + Math.abs(boundingBox.y.min - panY) / yWidth * mainHeight;
+    let panPositionX = padding + Math.abs(boundingBox.x.min - panX/scale) / xWidth * mainWidth;
+    let panPositionY = padding + Math.abs(boundingBox.y.min - panY/scale) / yWidth * mainHeight;
 
-    let areaWidth = Math.min(graphWidth / xWidth, 1.0) * mainWidth;
-    let areaHeight = Math.min(graphHeight / yWidth, 1.0) * mainHeight;
+    let areaWidth = Math.min(graphWidth / xWidth, 1.0) * mainWidth * 1.0/scale;
+    let areaHeight = Math.min(graphHeight / yWidth, 1.0) * mainHeight * 1.0/scale;
 
     return (
       <div

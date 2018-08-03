@@ -24,6 +24,7 @@ export type GraphState = {
   spacePressed: boolean;
   contextMenuActive: boolean;
   ctrlPressed: boolean;
+  scale: number;
   spaceX: number;
   spaceY: number;
   contextX: number;
@@ -66,6 +67,7 @@ export const GraphInitialState: GraphState = {
   spacePressed: false,
   contextMenuActive: false,
   ctrlPressed: false,
+  scale: 1,
   spaceX: 0,
   spaceY: 0,
   contextX: 0,
@@ -93,3 +95,13 @@ export type GraphDeleteNode = () => {
   links: LinkType[];
 };
 export type GraphCloneNode = () => void;
+
+export type GraphScale = (
+  fn: (
+    delta: number
+  ) => {
+    scale: number;
+    x: number;
+    y: number;
+  }
+) => void;

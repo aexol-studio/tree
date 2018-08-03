@@ -1,4 +1,4 @@
-import { GraphState, GraphDeleteNode, GraphCloneNode, GraphUndo, GraphSnapshot } from './Graph';
+import { GraphState, GraphDeleteNode, GraphCloneNode, GraphUndo, GraphSnapshot, GraphScale } from './Graph';
 
 export type EventListenerFunctionProps = {
   stateUpdate?: (func: (state: Readonly<GraphState>) => any) => void;
@@ -7,5 +7,6 @@ export type EventListenerFunctionProps = {
   undo: GraphUndo;
   redo: GraphUndo;
   snapshot: GraphSnapshot;
+  scale: GraphScale;
   whereToRun: HTMLDivElement;
 };

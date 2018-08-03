@@ -16,15 +16,16 @@ export const addEventListeners = ({
   copyNode,
   undo,
   redo,
-  snapshot
+  snapshot,
+  scale
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.oncontextmenu = () => {
     return false;
   };
-  whereToRun.addEventListener('wheel',e=>{
-    //TODO: add zoomin here
-  })
+  whereToRun.addEventListener('wheel', (e) => {
+    scale((s) => ({ scale: s + e.deltaY / 200.0, x: e.clientX, y: e.clientY }));
+  });
   whereToRun.addEventListener('mouseover', (e) => {
     isMouseOver = true;
   });
@@ -167,8 +168,8 @@ export const addEventListeners = ({
           ...stateUpdate,
           activePort: {
             ...state.activePort,
-            endX: e.clientX - state.pan.x,
-            endY: e.clientY - state.pan.y
+            endX: (e.clientX - state.pan.x)/state.scale,
+            endY: (e.clientY - state.pan.y)/state.scale
           }
         };
       }
