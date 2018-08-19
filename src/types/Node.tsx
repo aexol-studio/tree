@@ -16,6 +16,7 @@ export type NodeType = {
   outputs: Array<PortType>;
   nodes?: Array<NodeType>;
   items?: Array<Item>;
+  tab?:string;
   clone?: string;
   styles?: typeof styles;
 };

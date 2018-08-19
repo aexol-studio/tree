@@ -14,9 +14,10 @@ import {
   GraphUndo,
   GraphSnapshot,
   LinkType,
-  GraphScale
+  GraphScale,
+  MAIN_TAB_NAME
 } from './types';
-import { Node, Port, Props, LinkWidget, Background, MiniMap } from '.';
+import { Node, Port, Props, LinkWidget, Background, MiniMap, Search, Tabs } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
 import { renderLinks } from './render';
 import { Basic, Move, Connect } from './cursors';
@@ -59,6 +60,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       return {
         loaded: nextProps.loaded,
         nodes: nextProps.loaded.nodes,
+        tabs: nextProps.loaded.tabs || prevState.tabs,
         links: nextProps.loaded.links
       };
     }
@@ -153,12 +155,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   addNode = (node: NodeType) => {
     this.snapshot('past', 'future');
     this.setState((state) => {
-      const { expand, nodes, spaceX, spaceY, pan,scale } = state;
+      const { expand, nodes, spaceX, spaceY, pan, scale, activeTab } = state;
       let newNode: NodeType = {
         id: generateId(),
-        x: (spaceX - pan.x)/scale,
-        y: (spaceY - pan.y)/scale,
+        x: (spaceX - pan.x) / scale,
+        y: (spaceY - pan.y) / scale,
         nodes: [],
+        tab: activeTab,
         ...node
       };
       let updateNodes: any = {
@@ -201,8 +204,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         id: generateId(),
         inputs: node.inputs.map((i) => ({ ...i, id: generateId() })),
         outputs: node.outputs.map((i) => ({ ...i, id: generateId() })),
-        x: (this.state.mouseX - this.state.pan.x)/this.state.scale,
-        y: (this.state.mouseY - this.state.pan.y)/this.state.scale
+        x: (this.state.mouseX - this.state.pan.x) / this.state.scale,
+        y: (this.state.mouseY - this.state.pan.y) / this.state.scale
       });
     });
   };
@@ -383,29 +386,29 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       activeNodes
     });
   };
-  renderNodes = (nodes: Array<NodeType>) => {
-    const selectNodes = (node, x, y) => {
-      const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
-      if (alreadyHaveNode && !this.state.ctrlPressed) {
-        return {
-          action: Action.SelectedNode,
-          renamed: this.state.activeNodes.length === 1
-        };
-      }
-      let activeNodes = [node];
-      if (this.state.ctrlPressed) {
-        if (alreadyHaveNode) {
-          activeNodes = this.state.activeNodes.filter((n) => n.id !== node.id);
-        } else {
-          activeNodes = [...this.state.activeNodes, ...activeNodes];
-        }
-      }
+  selectNodes = (node) => {
+    const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
+    if (alreadyHaveNode && !this.state.ctrlPressed) {
       return {
         action: Action.SelectedNode,
-        activeNodes,
-        renamed: activeNodes.length === 1
+        renamed: this.state.activeNodes.length === 1
       };
+    }
+    let activeNodes = [node];
+    if (this.state.ctrlPressed) {
+      if (alreadyHaveNode) {
+        activeNodes = this.state.activeNodes.filter((n) => n.id !== node.id);
+      } else {
+        activeNodes = [...this.state.activeNodes, ...activeNodes];
+      }
+    }
+    return {
+      action: Action.SelectedNode,
+      activeNodes,
+      renamed: activeNodes.length === 1
     };
+  };
+  renderNodes = (nodes: Array<NodeType>) => {
     const expandId = this.state.expand ? this.state.expand.id : null;
     return nodes.filter((node) => node.id !== expandId).map((node) => (
       <Node
@@ -417,12 +420,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           this.updatePortPositions(x, y, portId, id, output);
         }}
         nodeDown={(id: string, x: number, y: number) => {
-          this.setState(selectNodes(node, x, y));
+          if (this.state.altPressed) {
+            this.goToDefinition(node);
+            return;
+          }
+          this.setState(this.selectNodes(node));
         }}
         contextMenu={(id: string, x: number, y: number) => {
           if (this.state.activeNodes.length > 0) {
             this.setState({
-              ...selectNodes(node, x, y),
+              ...this.selectNodes(node),
               contextMenuActive: true,
               contextX: this.state.mouseX,
               contextY: this.state.mouseY
@@ -454,6 +461,22 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       path,
       activeNodes: [selectedNode]
     });
+  };
+  centerNode = (n: NodeType) => {
+    this.setState({
+      pan: {
+        x: -n.x * this.state.scale + this.background.clientWidth / 2.0,
+        y: -n.y * this.state.scale + this.background.clientHeight / 2.0
+      }
+    });
+  };
+  goToDefinition = (n: NodeType) => {
+    if (n.clone) {
+      const definitionNode = this.state.nodes.find((no) => no.id === n.clone);
+      if (definitionNode) {
+        this.centerNode(definitionNode);
+      }
+    }
   };
   spaceBarCategories = (): Array<ActionCategory> => {
     const { categories } = this.props;
@@ -615,13 +638,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       category = {
         ...category,
         items: [
-          ...category.items,
-          {
-            name: 'expand',
-            action: () => {
-              this.expandNode(activeNode);
-            }
-          }
+          ...category.items
+          // {
+          //   name: 'expand',
+          //   action: () => {
+          //     this.expandNode(activeNode);
+          //   }
+          // }
         ]
       };
       if (activeNode.items) {
@@ -634,7 +657,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     return category;
   };
   render() {
-    let { nodes, expand, links, renamed, pan, scale } = this.state;
+    let { nodes, expand, links, renamed, pan, scale, activeTab } = this.state;
     let selectedNode = this.state.activeNodes || [this.state.expand];
     if (expand) {
       nodes = this.nodes(nodes);
@@ -642,11 +665,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       nodes = nodes || [];
       nodes = [...nodes, { ...expand, x: this.aX(0), y: this.aY(0) }];
     }
+    nodes = nodes.filter((n) => (n.tab ? n.tab === activeTab : activeTab === MAIN_TAB_NAME));
     links = links.filter(
       (l) => nodes.find((n) => n.id === l.from.nodeId) && nodes.find((n) => n.id === l.to.nodeId)
     );
     nodes = nodes.map((n) => ({
       ...n,
+      tab: n.tab || MAIN_TAB_NAME,
       inputs: n.inputs.map((i) => ({
         ...i,
         connected: !!links.find((l) => l.from.portId === i.id || l.to.portId === i.id)
@@ -720,6 +745,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             category={this.nodeCategory()}
           />
         )}
+        {this.state.searchMenuActive && (
+          <Search
+            nodes={this.state.nodes}
+            onSearch={(n) => {
+              this.centerNode(n);
+            }}
+          />
+        )}
         {selectedNode &&
           selectedNode.length === 1 &&
           renamed && (
@@ -778,6 +811,43 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             graphHeight={this.background ? this.background.clientHeight : 1}
           />
         )}
+        <Tabs
+          addTab={(name: string) => {
+            if (!this.state.tabs.includes(name)) {
+              this.setState({
+                tabs: [...this.state.tabs, name]
+              });
+            }
+          }}
+          removeTab={(name: string) => {
+            if (this.state.tabs.includes(name)) {
+              this.setState({
+                tabs: this.state.tabs.filter((t) => t !== name),
+                activeTab:
+                  this.state.activeTab === name ? this.state.tabs[0] : this.state.activeTab,
+                nodes: this.state.nodes.filter((n) => n.tab !== name)
+              });
+            }
+          }}
+          renameTab={(name: string, newName: string) => {
+            if (this.state.tabs.includes(name)) {
+              this.setState({
+                tabs: this.state.tabs.map((t) => (t === name ? newName : t)),
+                activeTab: newName,
+                nodes: this.state.nodes.map((n) => (n.tab === name ? { ...n, tab: newName } : n))
+              });
+            }
+          }}
+          onSelect={(name: string) => {
+            if (this.state.tabs.includes(name)) {
+              this.setState({
+                activeTab: name
+              });
+            }
+          }}
+          tabs={this.state.tabs}
+          tab={this.state.activeTab}
+        />
       </Background>
     );
   }

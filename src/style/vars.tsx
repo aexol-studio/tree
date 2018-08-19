@@ -2,6 +2,8 @@ import { style } from 'typestyle';
 
 export const transition = 'all 0.25s;';
 export const off = '#eeeeff';
+export const inActiveTab = '#aaa';
+export const bglight = '#666';
 export const bg = '#555555';
 export const lines = '#eeeeee';
 export const bgspace = '#535353';

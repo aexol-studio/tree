@@ -9,5 +9,6 @@ export * from './utils';
 export * from './Node';
 export * from './Background';
 export * from './MiniMap';
+export * from './Tabs';
 export * from './types';
 export { styles };

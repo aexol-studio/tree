@@ -37,11 +37,22 @@ export const addEventListeners = ({
       return;
     }
     const key = e.charCode || e.keyCode || e.key;
-    const ctrlDown = e.ctrlKey || e.metaKey;
+    const ctrlDown = e.ctrlKey || e.metaKey || e.key === 'Meta' || e.key === 'Ctrl';
+    const altDown = e.altKey
     if (key === 8) {
       if ((e.target as any).type !== 'text') {
         e.preventDefault();
       }
+    }
+    if(altDown){
+      stateUpdate((state) => {
+        if (!state.altPressed) {
+          return {
+            altPressed: true
+          };
+        }
+        return {};
+      });
     }
     if (ctrlDown) {
       stateUpdate((state) => {
@@ -55,6 +66,14 @@ export const addEventListeners = ({
       if (key === 68) {
         e.preventDefault();
         copyNode();
+      }
+      if (key === 70) {
+        e.preventDefault();
+        stateUpdate((state) => {
+          return {
+            searchMenuActive: !state.searchMenuActive
+          } as Partial<typeof state>;
+        });
       }
       if (key === 90) {
         e.preventDefault();
@@ -92,11 +111,19 @@ export const addEventListeners = ({
     }
   });
   eventContainer.addEventListener('keyup', (e) => {
-    const ctrlDown = e.ctrlKey || e.metaKey || e.key === 'Meta' || e.key === 'Ctrl';
+    const ctrlDown = e.ctrlKey || e.metaKey || e.key === 'Meta' || e.key === 'Ctrl'|| e.keyCode === 224 || e.keyCode === 17;
+    const altDown = e.altKey || e.key === 'Alt' || e.keyCode === 18
     if (e.keyCode === 32) {
       stateUpdate((state) => {
         return {
           spacePressed: false
+        };
+      });
+    }
+    if (altDown) {
+      stateUpdate((state) => {
+        return {
+          altPressed: false
         };
       });
     }
@@ -151,15 +178,15 @@ export const addEventListeners = ({
             updated: state.activeNodes.map((n) => ({
               id: n.id,
               node: {
-                x: m.x + n.x,
-                y: m.y + n.y
+                x: m.x/state.scale + n.x,
+                y: m.y/state.scale + n.y
               }
             }))
           }),
           activeNodes: state.activeNodes.map((n) => ({
             ...n,
-            x: n.x + m.x,
-            y: n.y + m.y
+            x: n.x + m.x/state.scale,
+            y: n.y + m.y/state.scale
           }))
         };
       }
@@ -168,8 +195,8 @@ export const addEventListeners = ({
           ...stateUpdate,
           activePort: {
             ...state.activePort,
-            endX: (e.clientX - state.pan.x)/state.scale,
-            endY: (e.clientY - state.pan.y)/state.scale
+            endX: (e.clientX - state.pan.x) / state.scale,
+            endY: (e.clientY - state.pan.y) / state.scale
           }
         };
       }

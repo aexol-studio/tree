@@ -1,10 +1,12 @@
 import { LinkType, NodeType } from '.';
 import { Item } from './SpaceMenu';
+import { MAIN_TAB_NAME } from './Tabs';
 export type ActionCategory = {
   name: string;
   items?: Array<Item>;
 };
 export type LoadedFile = {
+  tabs?: Array<string>;
   nodes: Array<NodeType>;
   links: Array<LinkType>;
 };
@@ -23,7 +25,9 @@ export type GraphState = {
   links: LinkType[];
   spacePressed: boolean;
   contextMenuActive: boolean;
+  searchMenuActive: boolean;
   ctrlPressed: boolean;
+  altPressed: boolean;
   scale: number;
   spaceX: number;
   spaceY: number;
@@ -32,6 +36,8 @@ export type GraphState = {
   mouseX: number;
   mouseY: number;
   action: Action;
+  tabs?:string[];
+  activeTab?: string;
   activeNodes?: Array<NodeType>;
   activePort?: {
     x: number;
@@ -67,6 +73,8 @@ export const GraphInitialState: GraphState = {
   spacePressed: false,
   contextMenuActive: false,
   ctrlPressed: false,
+  altPressed: false,
+  searchMenuActive: false,
   scale: 1,
   spaceX: 0,
   spaceY: 0,
@@ -78,6 +86,8 @@ export const GraphInitialState: GraphState = {
   activeNodes: [],
   activePort: null,
   loaded: null,
+  tabs:[MAIN_TAB_NAME],
+  activeTab:MAIN_TAB_NAME,
   pan: {
     x: 0,
     y: 0
