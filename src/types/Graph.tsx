@@ -13,7 +13,7 @@ export type LoadedFile = {
 
 export type GraphProps = {
   categories?: Array<ActionCategory>;
-  serialize?: (nodes: Array<NodeType>, links: Array<LinkType>) => void;
+  serialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
   load?: () => Array<NodeType>;
   loaded?: LoadedFile;
 };
@@ -36,7 +36,7 @@ export type GraphState = {
   mouseX: number;
   mouseY: number;
   action: Action;
-  tabs?:string[];
+  tabs?: string[];
   activeTab?: string;
   activeNodes?: Array<NodeType>;
   activePort?: {
@@ -86,8 +86,8 @@ export const GraphInitialState: GraphState = {
   activeNodes: [],
   activePort: null,
   loaded: null,
-  tabs:[MAIN_TAB_NAME],
-  activeTab:MAIN_TAB_NAME,
+  tabs: [MAIN_TAB_NAME],
+  activeTab: MAIN_TAB_NAME,
   pan: {
     x: 0,
     y: 0

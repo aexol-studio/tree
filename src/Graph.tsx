@@ -486,7 +486,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   serialize = () => {
     const { serialize } = this.props;
     if (serialize) {
-      serialize(this.nodes(this.state.nodes), this.state.links);
+      serialize(this.nodes(this.state.nodes), this.state.links, this.state.tabs);
     }
   };
   load = () => {
