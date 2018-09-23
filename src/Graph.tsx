@@ -256,29 +256,31 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       const port = allNodes
         .find((n) => n.id === (activePort.output ? id : activePort.id))
         .inputs.find((p) => p.id === (activePort.output ? portId : activePort.portId));
-      const node = allNodes.find((n) => n.id === (!activePort.output ? portId : activePort.id));
+      const node = allNodes.find((n) => n.id === (!activePort.output ? id : activePort.id));
 
-      if (port.accepted && port.accepted.length) {
+      if (port.accepted && port.accepted.length > 0) {
         let accepted = false;
         for (var a of port.accepted) {
           let isAccepted = false;
-          if (a.node.type) {
-            if (a.node.type === node.type) {
-              isAccepted = true;
+          if (a.node) {
+            if (a.node.type) {
+              if (a.node.type === node.type) {
+                isAccepted = true;
+              }
             }
-          }
-          if (a.node.subType) {
-            if (a.node.subType === node.subType) {
-              isAccepted = true;
-            } else {
-              isAccepted = false;
+            if (a.node.subType) {
+              if (a.node.subType === node.subType) {
+                isAccepted = true;
+              } else {
+                isAccepted = false;
+              }
             }
-          }
-          if (a.node.kind) {
-            if (a.node.kind === node.kind) {
-              isAccepted = true;
-            } else {
-              isAccepted = false;
+            if (a.node.kind) {
+              if (a.node.kind === node.kind) {
+                isAccepted = true;
+              } else {
+                isAccepted = false;
+              }
             }
           }
           if (isAccepted) {
@@ -416,6 +418,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         key={node.id}
         portDown={this.portDown}
         portUp={this.portUp}
+        renamed={this.state.renamed}
         portPosition={(x, y, portId, id, output) => {
           this.updatePortPositions(x, y, portId, id, output);
         }}

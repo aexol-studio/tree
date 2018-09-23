@@ -7,16 +7,38 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
   private node;
   private ports: Port[] = [];
   shouldComponentUpdate(nextProps: NodeType & NodeActions, nextState) {
+    let connectionUpdate;
+    if (nextProps.inputs) {
+      nextProps.inputs.map((inp, index) => {
+        if (this.props.inputs[index].connected !== inp.connected) {
+          connectionUpdate = true;
+        }
+      });
+    }
+    if (nextProps.outputs) {
+      nextProps.outputs.map((inp, index) => {
+        if (this.props.outputs[index].connected !== inp.connected) {
+          connectionUpdate = true;
+        }
+      });
+    }
     if (
       this.props.name !== nextProps.name ||
       this.props.kind !== nextProps.kind ||
       this.props.x !== nextProps.x ||
       this.props.y !== nextProps.y ||
-      this.props.selected !== nextProps.selected
+      this.props.renamed !== nextProps.renamed ||
+      this.props.selected !== nextProps.selected ||
+      connectionUpdate
     ) {
-      if (this.props.kind !== nextProps.kind || this.props.name !== nextProps.name) {
+      if (
+        this.props.kind !== nextProps.kind ||
+        this.props.name !== nextProps.name ||
+        connectionUpdate
+      ) {
         this.ports.map((p) => p.forceUpdate());
       }
+      console.log('update');
       return true;
     }
     return false;
@@ -37,6 +59,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       portDown,
       portPosition,
       kind,
+      renamed,
       styles: overrideStyles,
       selected = false
     } = this.props;
@@ -65,7 +88,10 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       ));
     const nodeIdentity = () => (
       <div className={styles.Title}>
-        <div className={styles.Name}>{name}</div>
+        <div className={styles.Name}>
+          {name}
+          {selected && renamed && <div className={styles.BlinkingCursor}>{'|'}</div>}
+        </div>
         <div className={styles.Type}>{kind || type}</div>
       </div>
     );
