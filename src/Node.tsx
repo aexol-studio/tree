@@ -38,7 +38,6 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       ) {
         this.ports.map((p) => p.forceUpdate());
       }
-      console.log('update');
       return true;
     }
     return false;
