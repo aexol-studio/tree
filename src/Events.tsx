@@ -17,7 +17,9 @@ export const addEventListeners = ({
   undo,
   redo,
   snapshot,
-  scale
+  autoPosition,
+  scale,
+  validate
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.oncontextmenu = () => {
@@ -38,13 +40,13 @@ export const addEventListeners = ({
     }
     const key = e.charCode || e.keyCode || e.key;
     const ctrlDown = e.ctrlKey || e.metaKey || e.key === 'Meta' || e.key === 'Ctrl';
-    const altDown = e.altKey
+    const altDown = e.altKey;
     if (key === 8) {
       if ((e.target as any).type !== 'text') {
         e.preventDefault();
       }
     }
-    if(altDown){
+    if (altDown) {
       stateUpdate((state) => {
         if (!state.altPressed) {
           return {
@@ -53,6 +55,9 @@ export const addEventListeners = ({
         }
         return {};
       });
+      if(key === 86){
+        validate()
+      }
     }
     if (ctrlDown) {
       stateUpdate((state) => {
@@ -74,6 +79,10 @@ export const addEventListeners = ({
             searchMenuActive: !state.searchMenuActive
           } as Partial<typeof state>;
         });
+      }
+      if (key === 76) {
+        e.preventDefault();
+        autoPosition();
       }
       if (key === 90) {
         e.preventDefault();
@@ -111,8 +120,14 @@ export const addEventListeners = ({
     }
   });
   eventContainer.addEventListener('keyup', (e) => {
-    const ctrlDown = e.ctrlKey || e.metaKey || e.key === 'Meta' || e.key === 'Ctrl'|| e.keyCode === 224 || e.keyCode === 17;
-    const altDown = e.altKey || e.key === 'Alt' || e.keyCode === 18
+    const ctrlDown =
+      e.ctrlKey ||
+      e.metaKey ||
+      e.key === 'Meta' ||
+      e.key === 'Ctrl' ||
+      e.keyCode === 224 ||
+      e.keyCode === 17;
+    const altDown = e.altKey || e.key === 'Alt' || e.keyCode === 18;
     if (e.keyCode === 32) {
       stateUpdate((state) => {
         return {
@@ -178,15 +193,15 @@ export const addEventListeners = ({
             updated: state.activeNodes.map((n) => ({
               id: n.id,
               node: {
-                x: m.x/state.scale + n.x,
-                y: m.y/state.scale + n.y
+                x: m.x / state.scale + n.x,
+                y: m.y / state.scale + n.y
               }
             }))
           }),
           activeNodes: state.activeNodes.map((n) => ({
             ...n,
-            x: n.x + m.x/state.scale,
-            y: n.y + m.y/state.scale
+            x: n.x + m.x / state.scale,
+            y: n.y + m.y / state.scale
           }))
         };
       }

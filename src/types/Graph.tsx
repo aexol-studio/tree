@@ -15,6 +15,7 @@ export type GraphProps = {
   categories?: Array<ActionCategory>;
   serialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
   load?: () => Array<NodeType>;
+  validate?: (n1:NodeType,n2:NodeType) => boolean;
   loaded?: LoadedFile;
 };
 export type GraphState = {
@@ -115,3 +116,5 @@ export type GraphScale = (
     y: number;
   }
 ) => void;
+export type GraphAutoPosition = () => void;
+export type GraphValidate = () => void;

@@ -11,4 +11,5 @@ export * from './Background';
 export * from './MiniMap';
 export * from './Tabs';
 export * from './types';
+export * from './ForceDirected'
 export { styles };

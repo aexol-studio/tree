@@ -12,6 +12,7 @@ export const bgcategoryBorder = '#2a2a2a';
 export const bgradial = '#444444';
 export const text = '#eeeeee';
 export const selected = '#62afdb';
+export const invalid = '#dbaf62'
 export const input = '#aaee00';
 export const dot = 12;
 export const borderRadius = 5;

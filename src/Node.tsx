@@ -29,6 +29,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       this.props.y !== nextProps.y ||
       this.props.renamed !== nextProps.renamed ||
       this.props.selected !== nextProps.selected ||
+      this.props.invalid !== nextProps.invalid ||
       connectionUpdate
     ) {
       if (
@@ -60,7 +61,8 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       kind,
       renamed,
       styles: overrideStyles,
-      selected = false
+      selected = false,
+      invalid = false
     } = this.props;
     let styles = overrideStyles || NodeStyles;
     const renderPorts = (ports, output) =>
@@ -98,7 +100,8 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       <div
         className={classnames({
           [styles.Node]: true,
-          [styles.Selected]: selected
+          [styles.Selected]: selected,
+          [styles.Invalid]: invalid
         })}
         style={{
           top: y,

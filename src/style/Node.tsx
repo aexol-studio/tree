@@ -32,6 +32,9 @@ export const Node = classes(
 export const Selected = style({
   background: vars.selected
 });
+export const Invalid = style({
+  background: vars.invalid
+});
 export const Title = style({
   pointerEvents: 'none',
   textAlign: 'center',

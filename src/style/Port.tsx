@@ -17,6 +17,13 @@ export const Name = style({
   color: `${vars.off}`,
   fontSize: `10px`
 });
+export const DotWrapper = style({
+  width: vars.dot * 2,
+  height: vars.dot * 2,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+});
 export const Dot = classes(
   vars.portDot,
   vars.SelectNone,
@@ -34,10 +41,12 @@ export const DotHover = style({
   background: vars.selected
 });
 export const DotOutput = style({
-  marginRight: -vars.dot
+  marginRight: -vars.dot * 3 / 2,
+  marginLeft: -vars.dot
 });
 export const DotInput = style({
-  marginLeft: -vars.dot
+  marginLeft: -vars.dot * 3 / 2,
+  marginRight: -vars.dot
 });
 export const DotConnected = style({
   background: vars.lines

@@ -29,8 +29,16 @@ export const deepNodesUpdate = ({ nodes, updated, remove }: DeepUpdateArrayType)
     nodes: data
   };
 };
+export const inputsSelection = (
+  node: NodeType,
+  nodes: NodeType[],
+  links: LinkType[]
+): NodeType[] => {
+  const linked = links.filter((l: LinkType) => l.to.nodeId === node.id).map((l) => l.from.nodeId);
+  return linked.map((l) => nodes.find((n) => n.id === l));
+};
 
-export const treeSelection = (node: NodeType, nodes: NodeType[], links: LinkType[]) => {
+export const treeSelection = (node: NodeType, nodes: NodeType[], links: LinkType[]): NodeType[] => {
   const selectedNodes = function*(nodeId: string) {
     yield nodeId;
     const linked = links.filter((l: LinkType) => l.to.nodeId === nodeId).map((l) => l.from.nodeId);
@@ -41,7 +49,11 @@ export const treeSelection = (node: NodeType, nodes: NodeType[], links: LinkType
   return [...selectedNodes(node.id)].map((n) => nodes.find((nf) => nf.id === n));
 };
 
-export const graphSelection = (node: NodeType, nodes: NodeType[], links: LinkType[]) => {
+export const graphSelection = (
+  node: NodeType,
+  nodes: NodeType[],
+  links: LinkType[]
+): NodeType[] => {
   const yielded = [];
   const selectedNodes = function*(nodeId: string) {
     yielded.push(nodeId);

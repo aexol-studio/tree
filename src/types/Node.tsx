@@ -20,6 +20,7 @@ export type NodeType = {
   tab?:string;
   clone?: string;
   styles?: typeof styles;
+  invalid?: boolean;
 };
 export type NodeTypePartial = { [P in keyof NodeType]?: NodeType[P] };
 export type NodeActions = {

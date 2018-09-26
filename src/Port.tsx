@@ -24,8 +24,8 @@ export class Port extends React.Component<
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.connected !== this.props.connected || this.state.hover !== nextState.hover;
   }
-  componentDidUpdate(){
-    this.portPosition()
+  componentDidUpdate() {
+    this.portPosition();
   }
   componentDidMount() {
     if (!this.props.unpluggable) {
@@ -73,13 +73,19 @@ export class Port extends React.Component<
               portUp(e.clientX, e.clientY, output);
             }}
             className={classnames({
-              [styles.Dot]: true,
+              [styles.DotWrapper]: true,
               [styles.DotOutput]: output,
-              [styles.DotInput]: !output,
-              [styles.DotConnected]: connected,
-              [styles.DotHover]: this.state.hover
+              [styles.DotInput]: !output
             })}
-          />
+          >
+            <div
+              className={classnames({
+                [styles.Dot]: true,
+                [styles.DotConnected]: connected,
+                [styles.DotHover]: this.state.hover
+              })}
+            />
+          </div>
         )}
       </div>
     );

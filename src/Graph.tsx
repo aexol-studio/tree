@@ -15,9 +15,11 @@ import {
   GraphSnapshot,
   LinkType,
   GraphScale,
-  MAIN_TAB_NAME
+  MAIN_TAB_NAME,
+  GraphAutoPosition,
+  GraphValidate
 } from './types';
-import { Node, Port, Props, LinkWidget, Background, MiniMap, Search, Tabs } from '.';
+import { Node, Port, Props, LinkWidget, Background, MiniMap, Search, Tabs, ForceDirected } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
 import { renderLinks } from './render';
 import { Basic, Move, Connect } from './cursors';
@@ -46,6 +48,23 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         y: this.oY(endY)
       }
     };
+  }
+
+  componentDidMount() {
+    addEventListeners({
+      deleteNodes: this.deleteNodes,
+      stateUpdate: (func) => {
+        this.setState((state) => func(state));
+      },
+      whereToRun: this.background,
+      copyNode: this.cloneNode,
+      undo: this.undo,
+      redo: this.redo,
+      snapshot: this.snapshot,
+      autoPosition: this.autoPosition,
+      scale: this.scale,
+      validate: this.validate
+    });
   }
   componentDidUpdate(prevProps: GraphProps, prevState: GraphState) {
     if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
@@ -88,6 +107,52 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }
       };
     });
+  };
+  autoPosition: GraphAutoPosition = () => {
+    const forceDirect = new ForceDirected(this.state.nodes, this.state.links);
+    forceDirect.simulateRec((nodes) => {
+      this.setState({
+        nodes
+      });
+    });
+  };
+  validate: GraphValidate = () => {
+    let invalidNodes: { id: string; node: Partial<NodeType> }[] = [];
+    for (const node of this.state.nodes) {
+      if (node.clone && !this.state.nodes.find((n) => n.id === node.clone)) {
+        invalidNodes.push({
+          id: node.id,
+          node: {
+            invalid: true
+          }
+        });
+      }
+      for (const node2 of this.state.nodes) {
+        if (this.props.validate) {
+          const valid = this.props.validate(node, node2);
+          if (!valid) {
+            invalidNodes.push({
+              id: node.id,
+              node: {
+                invalid: true
+              }
+            });
+            invalidNodes.push({
+              id: node2.id,
+              node: {
+                invalid: true
+              }
+            });
+          }
+        }
+      }
+    }
+    invalidNodes = invalidNodes.filter(
+      (n, i) => i === invalidNodes.findIndex((inode) => inode.id === n.id)
+    );
+    this.setState((state) => ({
+      ...deepNodesUpdate({ nodes: state.nodes, updated: invalidNodes })
+    }));
   };
   nodes = (nodes: Array<NodeType>): Array<NodeType> => {
     const processData = function*(data) {
@@ -138,20 +203,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   aY = (y: number): number => y + this.background.offsetTop;
   oX = (x: number): number => x - this.background.offsetLeft;
   oY = (y: number): number => y - this.background.offsetTop;
-  componentDidMount() {
-    addEventListeners({
-      deleteNodes: this.deleteNodes,
-      stateUpdate: (func) => {
-        this.setState((state) => func(state));
-      },
-      whereToRun: this.background,
-      copyNode: this.cloneNode,
-      undo: this.undo,
-      redo: this.redo,
-      snapshot: this.snapshot,
-      scale: this.scale
-    });
-  }
   addNode = (node: NodeType) => {
     this.snapshot('past', 'future');
     this.setState((state) => {
@@ -247,6 +298,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         portId
       }
     ];
+    let from = activePort.output ? ports[0] : ports[1];
+    let to = activePort.output ? ports[1] : ports[0];
+    if (this.state.links.find((l) => l.from.portId === from.portId && l.to.portId === to.portId)) {
+      this.reset();
+      return;
+    }
     if (activePort && activePort.portId !== portId) {
       if (activePort.output === output) {
         this.reset();
@@ -294,8 +351,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       }
 
       this.snapshot('past', 'future');
-      let from = activePort.output ? ports[0] : ports[1];
-      let to = activePort.output ? ports[1] : ports[0];
       this.reset({
         links: [
           ...this.state.links,
@@ -470,7 +525,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       pan: {
         x: -n.x * this.state.scale + this.background.clientWidth / 2.0,
         y: -n.y * this.state.scale + this.background.clientHeight / 2.0
-      }
+      },
+      activeNodes: [n]
     });
   };
   goToDefinition = (n: NodeType) => {
@@ -498,6 +554,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       this.setState({
         nodes: load()
       });
+      console.log('LOADING');
     }
   };
   snapshot: GraphSnapshot = (where, clear?) => {
@@ -659,6 +716,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     return category;
   };
+  //Small util to dedupe unwanted links
+  dedupeLinks = () => {
+    this.setState({
+      links: this.state.links.filter(
+        (l, i) =>
+          i ===
+          this.state.links.findIndex(
+            (link) => link.from.portId === l.from.portId && link.to.portId === l.to.portId
+          )
+      )
+    });
+  };
   render() {
     let { nodes, expand, links, renamed, pan, scale, activeTab } = this.state;
     let selectedNode = this.state.activeNodes || [this.state.expand];
@@ -750,9 +819,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         )}
         {this.state.searchMenuActive && (
           <Search
-            nodes={this.state.nodes}
+            nodes={nodes}
             onSearch={(n) => {
-              this.centerNode(n);
+              if (n) {
+                this.centerNode(n);
+              }
             }}
           />
         )}
