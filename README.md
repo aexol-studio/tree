@@ -24,45 +24,45 @@ $ npm run start
 
 ## Define spacebar menu actions
 
-```jsx
-let allCategories = [{
-  name: 'middlewares',
-  items: [
-    {
-      name: 'middleware',
-      type: 'middleware',
-      inputs: [
-        {
-          name: ''
-        }
-      ],
-      outputs: [
-        {
-          name: ''
-        }
-      ]
-    }
-  ]
-}]
-```
+```tsx
+import { Graph } from '@slothking-online/diagram';
+import * as React from 'react';
+let allCategories = [
+  {
+    name: 'middlewares',
+    items: [
+      {
+        name: 'middleware',
+        type: 'middleware',
+        inputs: [
+          {
+            name: ''
+          }
+        ],
+        outputs: [
+          {
+            name: ''
+          }
+        ]
+      }
+    ]
+  }
+];
 
-
-```jsx
-<Graph
-  categories={allCategories}
-/>
+export const MyGraphComponent = () => <Graph categories={allCategories} />;
 ```
 
 Now if you press spacebar when mouse is on the graph you get this menu, which creates nodes.
 
 ## Serialization of data
+
 ```jsx
 <Graph
   categories={allCategories}
   serialize={(nodes, links) => {
     //here you receive nodes and links after every graph change
   }}
-  validate={(node1,node2)=>{
+  validate={(node1, node2) => {
     // not necessary but you can add custom validation function between every node
   }}
 />
@@ -70,28 +70,27 @@ Now if you press spacebar when mouse is on the graph you get this menu, which cr
 
 ### Controls
 
-- Create - press and hold Spacebar and choose category -> node and Left Mouse Button click
-- Pan - press and hold Left Mouse Button and move mouse
-- Move - press and hold Left Mouse Button on node
-- Rename - To rename node simply start typing when one node is selected
-- Connect - Click and hold desired node output and move it to other node's output then release mouse button
+* Create - press and hold Spacebar and choose category -> node and Left Mouse Button click
+* Pan - press and hold Left Mouse Button and move mouse
+* Move - press and hold Left Mouse Button on node
+* Rename - To rename node simply start typing when one node is selected
+* Connect - Click and hold desired node output and move it to other node's output then release mouse button
   IMPORTANT: Every node is connectable only if it creates valid schema. Experiment to test
-- Node Properties - Click right mouse button on node
-- CMD/CTRL + Left Mouse Button Click - select multiple nodes
-- Delete - Click delete button when node/nodes are selected or right click -> delete
+* Node Properties - Click right mouse button on node
+* CMD/CTRL + Left Mouse Button Click - select multiple nodes
+* Delete - Click delete button when node/nodes are selected or right click -> delete
 
-## Keyboard  shortcuts
+## Keyboard shortcuts
 
-- CMD/CTRL + Mouse Click - Select multiple nodes
-- CMD/CTRL + L - Beautify diagram
-- CMD/CTRL + Z - Undo
-- CMD/CTRL + Y - Redo
-- CMD/CTRL + D - Duplicate Nodes
-- CMD/CTRL + F - Find nodes
-- ALT/OPTION + V - Find duplicate definitions(Validate)
-- ALT/OPTION + LMB on cloned node - navigate to definition
-- RIGHT MOUSE CLICK on node - node actions
-
+* CMD/CTRL + Mouse Click - Select multiple nodes
+* CMD/CTRL + L - Beautify diagram
+* CMD/CTRL + Z - Undo
+* CMD/CTRL + Y - Redo
+* CMD/CTRL + D - Duplicate Nodes
+* CMD/CTRL + F - Find nodes
+* ALT/OPTION + V - Find duplicate definitions(Validate)
+* ALT/OPTION + LMB on cloned node - navigate to definition
+* RIGHT MOUSE CLICK on node - node actions
 
 ## Contribute
 
@@ -102,6 +101,5 @@ Feel free to contact us and contribute in graphql editor project. aexol@aexol.co
 3.  Commit your changes: git commit -am 'Add some feature'
 4.  Push to the branch: git push origin my-new-feature
 5.  Submit a pull request
-
 
 ![](assets/roadmap-100.jpg)
