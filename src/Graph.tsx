@@ -75,7 +75,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     nextProps: GraphProps,
     prevState: GraphState
   ): Partial<GraphState> {
-    if (prevState.loaded !== nextProps.loaded) {
+    if (nextProps.loaded && prevState.loaded !== nextProps.loaded) {
       return {
         loaded: nextProps.loaded,
         nodes: nextProps.loaded.nodes,
