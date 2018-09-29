@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as styles from '../style/Search';
-import { NodeType } from 'types';
+import { NodeType } from '../types';
 export type SearchState = {
   query: string;
   current: number;

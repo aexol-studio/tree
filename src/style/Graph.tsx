@@ -1,10 +1,16 @@
 import { style, classes } from 'typestyle';
 import * as vars from './vars';
 export const Nodes = style({
-  width:0,
+  width: 0,
   height: 0,
-  overflow:'visible',
+  overflow: 'visible',
   display: `flex`
+});
+export const NodesZooming = style({
+  transition: 'transform 0.16s linear',
+});
+export const BodyWithoutOverscrolling = style({
+  overflow: 'hidden',
 });
 export const Expand = style({
   position: `relative`,

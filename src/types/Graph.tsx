@@ -12,11 +12,12 @@ export type LoadedFile = {
 };
 
 export type GraphProps = {
-  categories: Array<ActionCategory>;
+  categories?: Array<ActionCategory>;
   serialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
   load?: () => Array<NodeType>;
   validate?: (n1:NodeType,n2:NodeType) => boolean;
   loaded?: LoadedFile;
+  preventOverscrolling?: boolean;
 };
 export type GraphState = {
   renamed?: boolean;
@@ -108,13 +109,12 @@ export type GraphDeleteNode = () => {
 export type GraphCloneNode = () => void;
 
 export type GraphScale = (
-  fn: (
-    delta: number
-  ) => {
-    scale: number;
-    x: number;
-    y: number;
-  }
+  delta: number,
+  x: number,
+  y: number
 ) => void;
 export type GraphAutoPosition = () => void;
 export type GraphValidate = () => void;
+export type GraphPan = (x: number, y: number) => void;
+export type GraphDrawConnectors = (mouseX: number, mouseY: number) => void;
+export type GraphMoveNodes = (mouseX: number, mouseY: number) => void;
