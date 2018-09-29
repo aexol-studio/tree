@@ -1,5 +1,5 @@
 import { EventListenerFunctionProps, Action, GraphState } from './types';
-import { deepNodesUpdate } from './utils';
+// import { deepNodesUpdate } from './utils';
 
 let isMouseOver = false;
 
@@ -19,14 +19,18 @@ export const addEventListeners = ({
   snapshot,
   autoPosition,
   scale,
-  validate
+  validate,
+  pan,
+  drawConnectors,
+  moveNodes
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.oncontextmenu = () => {
     return false;
   };
   whereToRun.addEventListener('wheel', (e) => {
-    scale((s) => ({ scale: s + e.deltaY / 200.0, x: e.clientX, y: e.clientY }));
+    const delta = e.deltaMode === 1 ? e.deltaY * 24 : e.deltaY;
+    scale(delta, e.clientX, e.clientY);
   });
   whereToRun.addEventListener('mouseover', (e) => {
     isMouseOver = true;
@@ -186,43 +190,13 @@ export const addEventListeners = ({
         mouseDown.down &&
         (state.action === Action.MoveNode || stateUpdate.action === Action.MoveNode)
       ) {
-        stateUpdate = {
-          ...stateUpdate,
-          ...deepNodesUpdate({
-            nodes: state.nodes,
-            updated: state.activeNodes.map((n) => ({
-              id: n.id,
-              node: {
-                x: m.x / state.scale + n.x,
-                y: m.y / state.scale + n.y
-              }
-            }))
-          }),
-          activeNodes: state.activeNodes.map((n) => ({
-            ...n,
-            x: n.x + m.x / state.scale,
-            y: n.y + m.y / state.scale
-          }))
-        };
+        moveNodes(m.x, m.y);
       }
       if (state.action === Action.ConnectPort) {
-        stateUpdate = {
-          ...stateUpdate,
-          activePort: {
-            ...state.activePort,
-            endX: (e.clientX - state.pan.x) / state.scale,
-            endY: (e.clientY - state.pan.y) / state.scale
-          }
-        };
+        drawConnectors(e.clientX, e.clientY);
       }
       if (state.action === Action.Pan) {
-        stateUpdate = {
-          ...stateUpdate,
-          pan: {
-            x: state.pan.x + m.x,
-            y: state.pan.y + m.y
-          }
-        };
+        pan(m.x, m.y);
       }
       return stateUpdate;
     });
