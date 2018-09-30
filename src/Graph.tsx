@@ -77,7 +77,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       scale: this.scale,
       pan: this.zoomPan.panBy,
       drawConnectors: this.drawConnectors,
-      moveNodes: this.moveNodes,
+      moveNodes: this.moveNodes
     });
 
     if (this.props.preventOverscrolling) {
@@ -114,7 +114,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         endX: (mouseX - position.x) / scale,
         endY: (mouseY - position.y) / scale
       }
-    })
+    });
   };
 
   moveNodes: GraphMoveNodes = (mouseX: number, mouseY: number) => {
@@ -244,7 +244,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   addNode = (node: NodeType) => {
     this.snapshot('past', 'future');
     this.setState((state) => {
-      const { expand, nodes, spaceX, spaceY, pan, scale, activeTab } = state;
+      const { expand, nodes, spaceX, spaceY, activeTab } = state;
+      const pan = this.zoomPan.getPosition();
+      const scale = this.zoomPan.getScale();
       let newNode: NodeType = {
         id: generateId(),
         x: (spaceX - pan.x) / scale,
@@ -641,100 +643,100 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       items:
         this.state.activeNodes.length > 0
           ? [
-            {
-              name: 'delete',
-              action: () => {
-                this.snapshot('past', 'future');
-                this.setState((state) => ({
-                  ...this.deleteNodes(),
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'unlink',
-              action: () => {
-                this.snapshot('past', 'future');
-                this.setState((state) => ({
-                  ...this.deleteLinks(),
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'duplicate',
-              action: () => {
-                this.cloneNode();
-                this.setState((state) => ({
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'treeSelect',
-              action: () => {
-                this.treeSelect();
-                this.setState((state) => ({
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'graphSelect',
-              action: () => {
-                this.graphSelect();
-                this.setState((state) => ({
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'optional',
-              action: () => {
-                this.setState((state) => ({
-                  ...deepNodesUpdate({
-                    nodes: this.nodes(state.nodes),
-                    updated: this.state.activeNodes.map((n) => ({
-                      id: n.id,
-                      node: {
-                        required: false
-                      } as Partial<NodeType>
-                    }))
-                  }),
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'required',
-              action: () => {
-                this.setState((state) => ({
-                  ...deepNodesUpdate({
-                    nodes: this.nodes(state.nodes),
-                    updated: this.state.activeNodes.map((n) => ({
-                      id: n.id,
-                      node: {
-                        required: true
-                      } as Partial<NodeType>
-                    }))
-                  }),
-                  contextMenuActive: false
-                }));
-              }
-            }
-          ]
-          : this.state.expand
-            ? [
               {
-                name: 'back',
+                name: 'delete',
                 action: () => {
-                  this.shrinkNode(this.state.expand);
+                  this.snapshot('past', 'future');
                   this.setState((state) => ({
+                    ...this.deleteNodes(),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'unlink',
+                action: () => {
+                  this.snapshot('past', 'future');
+                  this.setState((state) => ({
+                    ...this.deleteLinks(),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'duplicate',
+                action: () => {
+                  this.cloneNode();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'treeSelect',
+                action: () => {
+                  this.treeSelect();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'graphSelect',
+                action: () => {
+                  this.graphSelect();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'optional',
+                action: () => {
+                  this.setState((state) => ({
+                    ...deepNodesUpdate({
+                      nodes: this.nodes(state.nodes),
+                      updated: this.state.activeNodes.map((n) => ({
+                        id: n.id,
+                        node: {
+                          required: false
+                        } as Partial<NodeType>
+                      }))
+                    }),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'required',
+                action: () => {
+                  this.setState((state) => ({
+                    ...deepNodesUpdate({
+                      nodes: this.nodes(state.nodes),
+                      updated: this.state.activeNodes.map((n) => ({
+                        id: n.id,
+                        node: {
+                          required: true
+                        } as Partial<NodeType>
+                      }))
+                    }),
                     contextMenuActive: false
                   }));
                 }
               }
             ]
+          : this.state.expand
+            ? [
+                {
+                  name: 'back',
+                  action: () => {
+                    this.shrinkNode(this.state.expand);
+                    this.setState((state) => ({
+                      contextMenuActive: false
+                    }));
+                  }
+                }
+              ]
             : []
     };
     if (this.state.activeNodes.length === 1) {
