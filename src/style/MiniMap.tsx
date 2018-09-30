@@ -11,13 +11,13 @@ export const MiniMap = style({
   backgroundImage: `linear-gradient(to right, ${vars.minimapBorder}88 1px, transparent 1px), linear-gradient(to bottom, ${vars.minimapBorder}88 1px, transparent 1px)`
 });
 export const MiniMapHolder = style({
-  
+
 })
 export const MiniMapElement = style({
   width: 6,
   height: 3,
   borderRadius: 1,
-  background: vars.minimapBorder,
+  background: vars.minimapElement,
   position: 'absolute'
 });
 export const MiniMapElementSelected = style({
