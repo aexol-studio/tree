@@ -20,7 +20,8 @@ import {
   GraphValidate,
   GraphScale,
   GraphDrawConnectors,
-  GraphMoveNodes
+  GraphMoveNodes,
+  GraphPan
 } from './types';
 import { Node, Port, Props, LinkWidget, Background, MiniMap, Search, Tabs, ForceDirected } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
@@ -75,7 +76,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       autoPosition: this.autoPosition,
       validate: this.validate,
       scale: this.scale,
-      pan: this.zoomPan.panBy,
+      pan: this.panBy,
       drawConnectors: this.drawConnectors,
       moveNodes: this.moveNodes
     });
@@ -142,7 +143,26 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   scale: GraphScale = (delta: number, x: number, y: number) => {
     const newScale = this.zoomPan.zoomChanged(delta, x, y);
     this.setState({
-      scale: newScale
+      scale: newScale,
+      pan: this.zoomPan.getPosition()
+    });
+  };
+
+  panBy: GraphPan = (x: number, y: number) => {
+    const newPanPosition = this.zoomPan.panBy(x, y);
+    this.setState({
+      pan: newPanPosition,
+    });
+  };
+
+  miniMapPanStarted = () => this.setState({ miniMapPanning: true });
+  miniMapPanFinished = () => this.setState({ miniMapPanning: false });
+
+  panTo: GraphPan = (x: number, y: number) => {
+    this.zoomPan.panTo(x, y);
+
+    this.setState({
+      pan: {x, y},
     });
   };
 
@@ -813,7 +833,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }}
       >
         <div
-          className={cx(styles.Nodes, { [styles.NodesZooming]: this.state.action !== Action.Pan })}
+          className={cx(styles.Nodes, { [styles.NodesZooming]: this.state.action !== Action.Pan && !this.state.miniMapPanning })}
           ref={this.zoomPan.registerContainerElement}
         >
           {this.renderNodes(nodes)}
@@ -917,17 +937,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             [Action.ConnectPort]: <Connect x={this.state.mouseX} y={this.state.mouseY} />
           }[this.state.action]
         }
-        {nodes.length > 1 && (
-          <MiniMap
-            height={200}
-            width={200}
-            scale={scale}
-            nodes={nodes}
-            pan={pan}
-            graphWidth={this.background ? this.background.clientWidth : 1}
-            graphHeight={this.background ? this.background.clientHeight : 1}
-          />
-        )}
         <Tabs
           addTab={(name: string) => {
             if (!this.state.tabs.includes(name)) {
@@ -965,6 +974,20 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           tabs={this.state.tabs}
           tab={this.state.activeTab}
         />
+        {nodes.length > 1 && (
+          <MiniMap
+            height={200}
+            width={200}
+            scale={scale}
+            nodes={nodes}
+            pan={pan}
+            graphWidth={this.background ? this.background.clientWidth : 1}
+            graphHeight={this.background ? this.background.clientHeight : 1}
+            onPanEvent={(x, y) => this.panTo(x, y)}
+            onPanStart={this.miniMapPanStarted}
+            onPanFinish={this.miniMapPanFinished}
+          />
+        )}
       </Background>
     );
   }

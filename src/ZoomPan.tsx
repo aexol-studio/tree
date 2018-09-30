@@ -8,11 +8,19 @@ export class ZoomPanManager {
   private position: Position = { x: 0, y: 0 };
   private scale = 1.0;
 
-  constructor() {
+  constructor(initialPosition?: Position, initialScale?: number) {
     this.registerContainerElement = this.registerContainerElement.bind(this);
     this.panBy = this.panBy.bind(this);
     this.zoomChanged = this.zoomChanged.bind(this);
     this.applyTransformationMatrix = this.applyTransformationMatrix.bind(this);
+
+    if (initialPosition) {
+      this.position = initialPosition;
+    }
+
+    if (initialScale) {
+      this.scale = initialScale;
+    }
   }
 
   registerContainerElement(elementRef: HTMLDivElement) {
@@ -65,11 +73,12 @@ export class ZoomPanManager {
 
     return newScale;
   }
-  public panBy(dx: number, dy: number) {
+  public panBy(dx: number, dy: number): Position {
     this.setPosition(
       this.position.x + dx,
       this.position.y + dy,
     );
+    return this.position;
   }
   public panTo(x: number, y: number) {
     this.setPosition(
