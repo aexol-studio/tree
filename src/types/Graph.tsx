@@ -30,7 +30,6 @@ export type GraphState = {
   searchMenuActive: boolean;
   ctrlPressed: boolean;
   altPressed: boolean;
-  scale: number;
   spaceX: number;
   spaceY: number;
   contextX: number;
@@ -50,10 +49,6 @@ export type GraphState = {
     id: string;
     portId: string;
     output: boolean;
-  };
-  pan: {
-    x: number;
-    y: number;
   };
   loaded?: LoadedFile;
 };
@@ -78,7 +73,6 @@ export const GraphInitialState: GraphState = {
   ctrlPressed: false,
   altPressed: false,
   searchMenuActive: false,
-  scale: 1,
   spaceX: 0,
   spaceY: 0,
   contextX: 0,
@@ -91,11 +85,7 @@ export const GraphInitialState: GraphState = {
   loaded: null,
   tabs: [MAIN_TAB_NAME],
   activeTab: MAIN_TAB_NAME,
-  miniMapPanning: false,
-  pan: {
-    x: 0,
-    y: 0
-  }
+  miniMapPanning: false
 };
 
 export type Snapshot = {

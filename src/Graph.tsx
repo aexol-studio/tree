@@ -90,6 +90,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
       this.serialize();
     }
+    if (
+      this.state.nodes.length !== prevState.nodes.length ||
+      this.state.links.length !== prevState.links.length
+    ) {
+      console.log('Checking connections');
+      this.checkConnections();
+    }
   }
   static getDerivedStateFromProps(
     nextProps: GraphProps,
@@ -140,31 +147,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     });
   };
 
-  scale: GraphScale = (delta: number, x: number, y: number) => {
-    const newScale = this.zoomPan.zoomChanged(delta, x, y);
-    this.setState({
-      scale: newScale,
-      pan: this.zoomPan.getPosition()
-    });
-  };
+  scale: GraphScale = (delta: number, x: number, y: number) =>
+    this.zoomPan.zoomChanged(delta, x, y);
 
-  panBy: GraphPan = (x: number, y: number) => {
-    const newPanPosition = this.zoomPan.panBy(x, y);
-    this.setState({
-      pan: newPanPosition,
-    });
-  };
+  panBy: GraphPan = (x: number, y: number) => this.zoomPan.panBy(x, y);
 
   miniMapPanStarted = () => this.setState({ miniMapPanning: true });
   miniMapPanFinished = () => this.setState({ miniMapPanning: false });
 
-  panTo: GraphPan = (x: number, y: number) => {
-    this.zoomPan.panTo(x, y);
-
-    this.setState({
-      pan: {x, y},
-    });
-  };
+  panTo: GraphPan = (x: number, y: number) => this.zoomPan.panTo(x, y);
 
   autoPosition: GraphAutoPosition = () => {
     const forceDirect = new ForceDirected(this.state.nodes, this.state.links);
@@ -603,11 +594,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       }
     }
   };
-  spaceBarCategories = (): Array<ActionCategory> => {
-    const { categories } = this.props;
-    let spaceBarCategories = [...categories];
-    return spaceBarCategories;
-  };
   serialize = () => {
     const { serialize } = this.props;
     if (serialize) {
@@ -794,9 +780,38 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       )
     });
   };
+  checkConnections = () => {
+    const allNodes = this.nodes(this.state.nodes);
+    const nodes = deepNodesUpdate({
+      nodes: allNodes,
+      updated: allNodes
+        .map((n) => ({
+          ...n,
+          inputs: n.inputs.map((i) => ({
+            ...i,
+            connected: !!this.state.links.find(
+              (l) => l.from.portId === i.id || l.to.portId === i.id
+            )
+          })),
+          outputs: n.outputs.map((i) => ({
+            ...i,
+            connected: !!this.state.links.find(
+              (l) => l.from.portId === i.id || l.to.portId === i.id
+            )
+          }))
+        }))
+        .map((node) => ({
+          id: node.id,
+          node
+        }))
+    });
+    this.setState((state) => ({
+      ...nodes
+    }));
+  };
 
   render() {
-    let { nodes, expand, links, renamed, pan, scale, activeTab } = this.state;
+    let { nodes, expand, links, renamed, activeTab } = this.state;
     let selectedNode = this.state.activeNodes || [this.state.expand];
     if (expand) {
       nodes = this.nodes(nodes);
@@ -811,14 +826,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     nodes = nodes.map((n) => ({
       ...n,
       tab: n.tab || MAIN_TAB_NAME,
-      inputs: n.inputs.map((i) => ({
-        ...i,
-        connected: !!links.find((l) => l.from.portId === i.id || l.to.portId === i.id)
-      })),
-      outputs: n.outputs.map((i) => ({
-        ...i,
-        connected: !!links.find((l) => l.from.portId === i.id || l.to.portId === i.id)
-      })),
       selected: !!this.state.activeNodes.find((node) => n.id === node.id)
     }));
 
@@ -833,7 +840,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }}
       >
         <div
-          className={cx(styles.Nodes, { [styles.NodesZooming]: this.state.action !== Action.Pan && !this.state.miniMapPanning })}
+          className={cx(styles.Nodes, {
+            [styles.NodesZooming]: this.state.action !== Action.Pan && !this.state.miniMapPanning
+          })}
           ref={this.zoomPan.registerContainerElement}
         >
           {this.renderNodes(nodes)}
@@ -852,7 +861,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           <SpaceMenu
             x={this.state.spaceX}
             y={this.state.spaceY}
-            categories={this.spaceBarCategories()}
+            categories={this.props.categories}
             addNode={(i: NodeType) => {
               return () =>
                 this.addNode({
@@ -978,9 +987,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           <MiniMap
             height={200}
             width={200}
-            scale={scale}
+            scale={this.zoomPan.getScale()}
             nodes={nodes}
-            pan={pan}
+            pan={this.zoomPan.getPosition()}
             graphWidth={this.background ? this.background.clientWidth : 1}
             graphHeight={this.background ? this.background.clientHeight : 1}
             onPanEvent={(x, y) => this.panTo(x, y)}
