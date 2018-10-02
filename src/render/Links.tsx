@@ -21,7 +21,7 @@ export const renderLinks = (
       .map((n) => [...selectedNodes(n.id)])
       .reduce((a, b) => [...a, ...b], []);
   }
-  let renderOrderedLinks = [...links];
+  let renderOrderedLinks = links.filter((l) => !l.noDraw);
   renderOrderedLinks.sort(
     (a, b) =>
       withHighlitedLinks.includes(a.to.nodeId) > withHighlitedLinks.includes(b.to.nodeId) ? 1 : 0

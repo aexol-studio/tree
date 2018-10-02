@@ -4,7 +4,7 @@ import { Port } from './Port';
 import { NodeType, NodeActions } from './types';
 import * as NodeStyles from './style/Node';
 export class Node extends React.Component<NodeType & NodeActions, {}> {
-  private node;
+  private node: HTMLDivElement;
   private ports: Port[] = [];
   shouldComponentUpdate(nextProps: NodeType & NodeActions, nextState) {
     let connectionUpdate;
@@ -62,8 +62,12 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       renamed,
       styles: overrideStyles,
       selected = false,
-      invalid = false
+      invalid = false,
+      noDraw
     } = this.props;
+    if (noDraw) {
+      return <div />;
+    }
     let styles = overrideStyles || NodeStyles;
     const renderPorts = (ports, output) =>
       ports.map((i) => (

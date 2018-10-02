@@ -21,7 +21,6 @@ export type GraphProps = {
 };
 export type GraphState = {
   renamed?: boolean;
-  expand?: NodeType;
   path?: Array<string | null>;
   nodes: NodeType[];
   links: LinkType[];
@@ -64,7 +63,6 @@ export enum Action {
 
 export const GraphInitialState: GraphState = {
   renamed: null,
-  expand: null,
   path: [null],
   nodes: [],
   links: [],

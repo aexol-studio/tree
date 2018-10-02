@@ -94,8 +94,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       this.state.nodes.length !== prevState.nodes.length ||
       this.state.links.length !== prevState.links.length
     ) {
-      console.log('Checking connections');
       this.checkConnections();
+    }
+    if (this.state.activeNodes.length !== prevState.activeNodes.length) {
+      this.setState((state) => ({
+        nodes: state.nodes.map((n) => ({
+          ...n,
+          selected: !!this.state.activeNodes.find((node) => n.id === node.id)
+        }))
+      }));
     }
   }
   static getDerivedStateFromProps(
@@ -105,7 +112,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     if (nextProps.loaded && prevState.loaded !== nextProps.loaded) {
       return {
         loaded: nextProps.loaded,
-        nodes: nextProps.loaded.nodes,
+        nodes: nextProps.loaded.nodes.map((n) => ({
+          ...n,
+          tab: n.tab || MAIN_TAB_NAME
+        })),
         tabs: nextProps.loaded.tabs || prevState.tabs,
         links: nextProps.loaded.links
       };
@@ -255,7 +265,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   addNode = (node: NodeType) => {
     this.snapshot('past', 'future');
     this.setState((state) => {
-      const { expand, nodes, spaceX, spaceY, activeTab } = state;
+      const { spaceX, spaceY, activeTab } = state;
       const pan = this.zoomPan.getPosition();
       const scale = this.zoomPan.getScale();
       let newNode: NodeType = {
@@ -271,28 +281,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         renamed: true,
         action: Action.SelectedNode
       };
-      if (expand) {
-        const oldNodeNodes = this.nodes(nodes).find((n) => n.id === expand.id).nodes;
-        updateNodes = {
-          ...updateNodes,
-          ...deepNodesUpdate({
-            nodes,
-            updated: [
-              {
-                id: expand.id,
-                node: {
-                  nodes: [...oldNodeNodes, newNode]
-                }
-              }
-            ]
-          })
-        };
-      } else {
-        updateNodes = {
-          ...updateNodes,
-          nodes: [...state.nodes, newNode]
-        };
-      }
+      updateNodes = {
+        ...updateNodes,
+        nodes: [...state.nodes, newNode]
+      };
       return updateNodes;
     });
   };
@@ -465,20 +457,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       />
     ));
   };
-  renderExpandedNodePorts = (node: NodeType) => {
-    const { inputs, outputs } = node;
-    return (
-      <div
-        className={styles.Expand}
-        style={{
-          pointerEvents: 'none'
-        }}
-      >
-        <div className={styles.Inputs}>{this.renderMainPorts(node, inputs, false)}</div>
-        <div className={styles.Outputs}>{this.renderMainPorts(node, outputs, true)}</div>
-      </div>
-    );
-  };
   treeSelect = () => {
     const nodes = this.nodes(this.state.nodes);
     let activeNodes = this.state.activeNodes
@@ -522,8 +500,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     };
   };
   renderNodes = (nodes: Array<NodeType>) => {
-    const expandId = this.state.expand ? this.state.expand.id : null;
-    return nodes.filter((node) => node.id !== expandId).map((node) => (
+    return nodes.map((node) => (
       <Node
         {...node}
         key={node.id}
@@ -558,23 +535,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }}
       />
     ));
-  };
-  expandNode = (selectedNode: NodeType) => {
-    this.setState((state) => ({
-      expand: selectedNode,
-      path: [...state.path, selectedNode.id],
-      activeNodes: []
-    }));
-  };
-  shrinkNode = (selectedNode: NodeType) => {
-    let path = this.state.path;
-    path.pop();
-    let expand = path[path.length - 1];
-    this.setState({
-      expand: this.nodes(this.state.nodes).find((n) => n.id === expand),
-      path,
-      activeNodes: [selectedNode]
-    });
   };
   centerNode = (n: NodeType) => {
     this.zoomPan.panTo(
@@ -731,33 +691,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 }
               }
             ]
-          : this.state.expand
-            ? [
-                {
-                  name: 'back',
-                  action: () => {
-                    this.shrinkNode(this.state.expand);
-                    this.setState((state) => ({
-                      contextMenuActive: false
-                    }));
-                  }
-                }
-              ]
-            : []
+          : []
     };
     if (this.state.activeNodes.length === 1) {
       const [activeNode] = this.state.activeNodes;
       category = {
         ...category,
-        items: [
-          ...category.items
-          // {
-          //   name: 'expand',
-          //   action: () => {
-          //     this.expandNode(activeNode);
-          //   }
-          // }
-        ]
+        items: [...category.items]
       };
       if (activeNode.items) {
         category = {
@@ -780,6 +720,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       )
     });
   };
+
   checkConnections = () => {
     const allNodes = this.nodes(this.state.nodes);
     const nodes = deepNodesUpdate({
@@ -809,26 +750,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       ...nodes
     }));
   };
-
+  ń;
   render() {
-    let { nodes, expand, links, renamed, activeTab } = this.state;
-    let selectedNode = this.state.activeNodes || [this.state.expand];
-    if (expand) {
-      nodes = this.nodes(nodes);
-      nodes = expand.nodes;
-      nodes = nodes || [];
-      nodes = [...nodes, { ...expand, x: this.aX(0), y: this.aY(0) }];
-    }
+    let { nodes, links, renamed, activeTab } = this.state;
+    let selectedNode = this.state.activeNodes;
     nodes = nodes.filter((n) => (n.tab ? n.tab === activeTab : activeTab === MAIN_TAB_NAME));
     links = links.filter(
       (l) => nodes.find((n) => n.id === l.from.nodeId) && nodes.find((n) => n.id === l.to.nodeId)
     );
-    nodes = nodes.map((n) => ({
-      ...n,
-      tab: n.tab || MAIN_TAB_NAME,
-      selected: !!this.state.activeNodes.find((node) => n.id === node.id)
-    }));
-
     return (
       <Background
         onRef={(ref) => (this.background = ref)}
@@ -846,7 +775,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           ref={this.zoomPan.registerContainerElement}
         >
           {this.renderNodes(nodes)}
-          {expand && this.renderExpandedNodePorts(expand)}
           <svg className={styles.SVG}>
             {this.state.activePort && <LinkWidget {...this.p} />}
             {renderLinks(links, nodes, this.oX, this.oY, selectedNode)}
@@ -926,14 +854,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   }),
                   activeNodes: [selected]
                 }));
-              }}
-              canExpand={this.state.activeNodes.length === 1}
-              canShrink={!this.state.activeNodes.length && this.state.path.length > 1}
-              onExpand={() => {
-                this.expandNode(selectedNode[0]);
-              }}
-              onShrink={() => {
-                this.shrinkNode(this.state.expand);
               }}
             />
           )}
