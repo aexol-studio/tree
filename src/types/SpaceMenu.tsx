@@ -13,6 +13,7 @@ export type SpaceBarProps = {
   y: number;
   categories: Array<ActionCategory>;
   addNode: (n: NodeType) => () => void;
+  setCurrentHover: (currentHover: Item | null) => void;
 };
 export type SpaceBarState = {
   category?: string;

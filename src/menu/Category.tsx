@@ -10,6 +10,7 @@ export type CategoryProps = {
   hide?: boolean;
   mouseOver: (name: string) => void;
   addNode: (n: NodeType) => () => void;
+  setCurrentHover: (currentHover: Item | null) => void;
 };
 export class Category extends React.Component<
   CategoryProps,
@@ -34,7 +35,7 @@ export class Category extends React.Component<
     });
   }
   render() {
-    const { categoryName, category, mouseOver, addNode, hide } = this.props;
+    const { categoryName, category, mouseOver, addNode, hide, setCurrentHover } = this.props;
     return (
       <div
         style={{
@@ -70,16 +71,21 @@ export class Category extends React.Component<
             {category.items.map((i, index) => (
               <ItemComponent
                 addNode={addNode}
+                setCurrentHover={setCurrentHover}
                 key={index}
                 level={0}
                 i={i}
                 over={this.state.over}
-                mouseOver={(o: string, level: number) => {
+                mouseOver={(o: string, level: number, hoveredItem: Item) => {
                   let over = this.state.over.slice(0, level);
                   over[level] = o;
                   this.setState({
                     over: over
                   });
+                  setCurrentHover(hoveredItem);
+                }}
+                mouseOut={(o: string, level: number, thisItem: Item) => {
+                  setCurrentHover(null);
                 }}
               />
             ))}
