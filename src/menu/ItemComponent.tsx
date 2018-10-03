@@ -4,14 +4,15 @@ import { Item, NodeType } from '../types';
 
 export class ItemComponent extends React.Component<{
   i: Item;
-  mouseOver: (name: string, level: number) => void;
+  mouseOver: (name: string, level: number, i: Item) => void;
+  mouseOut: (name: string, level: number, i: Item) => void;
   over: string[];
   level: number;
   addNode: (n: NodeType) => () => void;
 }> {
   item: HTMLDivElement;
   render() {
-    const { i, mouseOver, over, addNode, level } = this.props;
+    const { i, mouseOver, mouseOut, over, addNode, level } = this.props;
     return (
       <React.Fragment>
         <div
@@ -28,7 +29,10 @@ export class ItemComponent extends React.Component<{
             }
           }}
           onMouseOver={() => {
-            mouseOver(i.name, level);
+            mouseOver(i.name, level, i);
+          }}
+          onMouseOut={() => {
+            mouseOut(i.name, level, i);
           }}
         >
           <div className={styles.ItemName}>{i.name}</div>
@@ -52,6 +56,7 @@ export class ItemComponent extends React.Component<{
                   i={i}
                   key={index}
                   mouseOver={mouseOver}
+                  mouseOut={mouseOut}
                   level={level + 1}
                   over={over}
                   addNode={addNode}
