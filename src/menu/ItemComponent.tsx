@@ -9,10 +9,11 @@ export class ItemComponent extends React.Component<{
   over: string[];
   level: number;
   addNode: (n: NodeType) => () => void;
+  setCurrentHover: (currentHover: Item | null) => void;
 }> {
   item: HTMLDivElement;
   render() {
-    const { i, mouseOver, mouseOut, over, addNode, level } = this.props;
+    const { i, mouseOver, mouseOut, over, addNode, level, setCurrentHover } = this.props;
     return (
       <React.Fragment>
         <div
@@ -22,9 +23,11 @@ export class ItemComponent extends React.Component<{
           className={styles.Item}
           onClick={() => {
             if (i.action) {
+              setCurrentHover(null);
               i.action();
             }
             if (i.node) {
+              setCurrentHover(null);
               addNode(i.node)();
             }
           }}
@@ -53,6 +56,7 @@ export class ItemComponent extends React.Component<{
             >
               {i.items.map((i, index) => (
                 <ItemComponent
+                  setCurrentHover={setCurrentHover}
                   i={i}
                   key={index}
                   mouseOver={mouseOver}

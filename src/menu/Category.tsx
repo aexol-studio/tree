@@ -71,6 +71,7 @@ export class Category extends React.Component<
             {category.items.map((i, index) => (
               <ItemComponent
                 addNode={addNode}
+                setCurrentHover={setCurrentHover}
                 key={index}
                 level={0}
                 i={i}
