@@ -13,7 +13,7 @@ export class SpaceMenu extends React.Component<SpaceBarProps, SpaceBarState> {
     this.setState({ menuWidth: this.menu.offsetWidth });
   }
   render() {
-    const { x, y, categories, addNode } = this.props;
+    const { x, y, categories, addNode, setCurrentHover } = this.props;
     const { category } = this.state;
     return (
       <div
@@ -47,6 +47,7 @@ export class SpaceMenu extends React.Component<SpaceBarProps, SpaceBarState> {
               this.menu = ref;
             }
           }}
+          setCurrentHover={setCurrentHover}
         />
       </div>
     );

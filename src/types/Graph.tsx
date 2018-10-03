@@ -50,6 +50,7 @@ export type GraphState = {
     output: boolean;
   };
   loaded?: LoadedFile;
+  currentHover: Item | null;
 };
 export type GraphStatePartial = { [P in keyof GraphState]?: GraphState[P] };
 export enum Action {
@@ -83,7 +84,8 @@ export const GraphInitialState: GraphState = {
   loaded: null,
   tabs: [MAIN_TAB_NAME],
   activeTab: MAIN_TAB_NAME,
-  miniMapPanning: false
+  miniMapPanning: false,
+  currentHover: null
 };
 
 export type Snapshot = {

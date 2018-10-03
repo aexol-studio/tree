@@ -96,6 +96,22 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     ) {
       this.checkConnections();
     }
+    // reset the last hover
+    if (this.state.spacePressed && !prevState.spacePressed) {
+      this.setState({ currentHover: null });
+    }
+    if (!this.state.spacePressed && prevState.spacePressed && this.state.currentHover !== null) {
+      const i = this.state.currentHover;
+
+      if (i.node) {
+        this.addNode({
+          ...i.node,
+          id: generateId(),
+          inputs: i.node.inputs.map((input) => ({ ...input, id: generateId() })),
+          outputs: i.node.outputs.map((output) => ({ ...output, id: generateId() }))
+        });
+      }
+    }
     if (this.state.activeNodes.length !== prevState.activeNodes.length) {
       this.setState((state) => ({
         nodes: state.nodes.map((n) => ({
@@ -798,6 +814,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   inputs: i.inputs.map((input) => ({ ...input, id: generateId() })),
                   outputs: i.outputs.map((output) => ({ ...output, id: generateId() }))
                 });
+            }}
+            setCurrentHover={(currentHover) => {
+              this.setState({ currentHover });
             }}
           />
         )}
