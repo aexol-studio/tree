@@ -111,9 +111,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         });
       }
     }
-    if (this.state.activeNodes.length !== prevState.activeNodes.length || this.state.activeNodes !== prevState.activeNodes ) {
-      console.log("CHECKING NODE SELECTION")
-      this.checkNodeSelection()
+    if (
+      this.state.activeNodes.length !== prevState.activeNodes.length ||
+      this.state.activeNodes !== prevState.activeNodes
+    ) {
+      console.log('CHECKING NODE SELECTION');
+      this.checkNodeSelection();
     }
   }
   static getDerivedStateFromProps(
@@ -246,9 +249,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   deleteLinks = (nodes: NodeType[]): { links: LinkType[] } => {
     let links = [...this.state.links];
     this.state.activeNodes.map((node) => {
-      let deletedNodes = this.nodes(this.state.activeNodes).map((n) => n.id);
+      let deletedNodes = nodes.map((n) => n.id);
       links = links.filter(
-        (l) => !deletedNodes.includes(l.from.nodeId) && !deletedNodes.includes(l.to.nodeId)
+        (l) => !(deletedNodes.includes(l.from.nodeId) || deletedNodes.includes(l.to.nodeId))
       );
     });
     return { links };
