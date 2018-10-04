@@ -102,7 +102,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     if (!this.state.spacePressed && prevState.spacePressed && this.state.currentHover !== null) {
       const i = this.state.currentHover;
-
       if (i.node) {
         this.addNode({
           ...i.node,
@@ -112,13 +111,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         });
       }
     }
-    if (this.state.activeNodes.length !== prevState.activeNodes.length) {
-      this.setState((state) => ({
-        nodes: state.nodes.map((n) => ({
-          ...n,
-          selected: !!this.state.activeNodes.find((node) => n.id === node.id)
-        }))
-      }));
+    if (this.state.activeNodes.length !== prevState.activeNodes.length || this.state.activeNodes !== prevState.activeNodes ) {
+      console.log("CHECKING NODE SELECTION")
+      this.checkNodeSelection()
     }
   }
   static getDerivedStateFromProps(
@@ -138,7 +133,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     return null;
   }
-
+  checkNodeSelection = () => {
+    this.setState((state) => ({
+      nodes: state.nodes.map((n) => ({
+        ...n,
+        selected: !!this.state.activeNodes.find((node) => n.id === node.id)
+      }))
+    }));
+  };
   drawConnectors: GraphDrawConnectors = (mouseX: number, mouseY: number) => {
     const position = this.zoomPan.getPosition();
     const scale = this.zoomPan.getScale();
@@ -241,7 +243,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     let allNodes = processData(nodes);
     return [...allNodes];
   };
-  deleteLinks = (): { links: LinkType[] } => {
+  deleteLinks = (nodes: NodeType[]): { links: LinkType[] } => {
     let links = [...this.state.links];
     this.state.activeNodes.map((node) => {
       let deletedNodes = this.nodes(this.state.activeNodes).map((n) => n.id);
@@ -267,7 +269,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     return {
       ...deletedNodes,
-      ...this.deleteLinks(),
+      ...this.deleteLinks(nodes),
       renamed: null,
       activeNodes: []
     };
@@ -640,7 +642,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 action: () => {
                   this.snapshot('past', 'future');
                   this.setState((state) => ({
-                    ...this.deleteLinks(),
+                    ...this.deleteLinks(this.state.activeNodes),
                     contextMenuActive: false
                   }));
                 }
@@ -766,7 +768,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       ...nodes
     }));
   };
-  ń;
   render() {
     let { nodes, links, renamed, activeTab } = this.state;
     let selectedNode = this.state.activeNodes;
