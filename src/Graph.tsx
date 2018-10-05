@@ -113,9 +113,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     if (
       this.state.activeNodes.length !== prevState.activeNodes.length ||
-      this.state.activeNodes !== prevState.activeNodes
+      this.state.activeNodes.length === 1 && this.state.activeNodes[0].id !== prevState.activeNodes[0].id
     ) {
-      console.log('CHECKING NODE SELECTION');
       this.checkNodeSelection();
     }
   }
@@ -140,7 +139,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     this.setState((state) => ({
       nodes: state.nodes.map((n) => ({
         ...n,
-        selected: !!this.state.activeNodes.find((node) => n.id === node.id)
+        selected: !!state.activeNodes.find((node) => n.id === node.id)
       }))
     }));
   };
