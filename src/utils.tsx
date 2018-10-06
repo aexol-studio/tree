@@ -18,8 +18,6 @@ export const deepNodesUpdate = ({ nodes, updated, remove }: DeepUpdateArrayType)
             ...up.node
           };
         }
-      } else if (n.nodes) {
-        processData(n.nodes, updated);
       }
     }
   };

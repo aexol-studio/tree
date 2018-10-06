@@ -21,6 +21,7 @@ export type NodeType = {
   clone?: string;
   styles?: typeof styles;
   invalid?: boolean;
+  noDraw?:boolean
 };
 export type NodeTypePartial = { [P in keyof NodeType]?: NodeType[P] };
 export type NodeActions = {

@@ -40,6 +40,7 @@ export class ContextMenu extends React.Component<ContextMenuProps, ContextMenuSt
               category: e
             });
           }}
+          setCurrentHover={() => {}}
         />
       </div>
     );

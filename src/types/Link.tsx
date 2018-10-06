@@ -7,6 +7,7 @@ export type LinkType = {
     nodeId: string;
     portId: string;
   };
+  noDraw?: boolean;
 };
 export type LinkWidgetProps = {
   start: {

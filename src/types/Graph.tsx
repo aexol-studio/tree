@@ -21,7 +21,6 @@ export type GraphProps = {
 };
 export type GraphState = {
   renamed?: boolean;
-  expand?: NodeType;
   path?: Array<string | null>;
   nodes: NodeType[];
   links: LinkType[];
@@ -30,7 +29,6 @@ export type GraphState = {
   searchMenuActive: boolean;
   ctrlPressed: boolean;
   altPressed: boolean;
-  scale: number;
   spaceX: number;
   spaceY: number;
   contextX: number;
@@ -41,6 +39,7 @@ export type GraphState = {
   tabs?: string[];
   activeTab?: string;
   activeNodes?: Array<NodeType>;
+  miniMapPanning: boolean;
   activePort?: {
     x: number;
     y: number;
@@ -50,11 +49,8 @@ export type GraphState = {
     portId: string;
     output: boolean;
   };
-  pan: {
-    x: number;
-    y: number;
-  };
   loaded?: LoadedFile;
+  currentHover: Item | null;
 };
 export type GraphStatePartial = { [P in keyof GraphState]?: GraphState[P] };
 export enum Action {
@@ -68,7 +64,6 @@ export enum Action {
 
 export const GraphInitialState: GraphState = {
   renamed: null,
-  expand: null,
   path: [null],
   nodes: [],
   links: [],
@@ -77,7 +72,6 @@ export const GraphInitialState: GraphState = {
   ctrlPressed: false,
   altPressed: false,
   searchMenuActive: false,
-  scale: 1,
   spaceX: 0,
   spaceY: 0,
   contextX: 0,
@@ -90,10 +84,8 @@ export const GraphInitialState: GraphState = {
   loaded: null,
   tabs: [MAIN_TAB_NAME],
   activeTab: MAIN_TAB_NAME,
-  pan: {
-    x: 0,
-    y: 0
-  }
+  miniMapPanning: false,
+  currentHover: null
 };
 
 export type Snapshot = {

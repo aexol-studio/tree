@@ -1,5 +1,4 @@
 import { EventListenerFunctionProps, Action, GraphState } from './types';
-// import { deepNodesUpdate } from './utils';
 
 let isMouseOver = false;
 
@@ -29,6 +28,7 @@ export const addEventListeners = ({
     return false;
   };
   whereToRun.addEventListener('wheel', (e) => {
+    // Scrolling on e.g. Firefox uses line count as delta, not pixels
     const delta = e.deltaMode === 1 ? e.deltaY * 24 : e.deltaY;
     scale(delta, e.clientX, e.clientY);
   });

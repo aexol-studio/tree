@@ -20,7 +20,8 @@ import {
   GraphValidate,
   GraphScale,
   GraphDrawConnectors,
-  GraphMoveNodes
+  GraphMoveNodes,
+  GraphPan
 } from './types';
 import { Node, Port, Props, LinkWidget, Background, MiniMap, Search, Tabs, ForceDirected } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
@@ -75,9 +76,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       autoPosition: this.autoPosition,
       validate: this.validate,
       scale: this.scale,
-      pan: this.zoomPan.panBy,
+      pan: this.panBy,
       drawConnectors: this.drawConnectors,
-      moveNodes: this.moveNodes,
+      moveNodes: this.moveNodes
     });
 
     if (this.props.preventOverscrolling) {
@@ -89,6 +90,33 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
       this.serialize();
     }
+    if (
+      this.state.nodes.length !== prevState.nodes.length ||
+      this.state.links.length !== prevState.links.length
+    ) {
+      this.checkConnections();
+    }
+    // reset the last hover
+    if (this.state.spacePressed && !prevState.spacePressed) {
+      this.setState({ currentHover: null });
+    }
+    if (!this.state.spacePressed && prevState.spacePressed && this.state.currentHover !== null) {
+      const i = this.state.currentHover;
+      if (i.node) {
+        this.addNode({
+          ...i.node,
+          id: generateId(),
+          inputs: i.node.inputs.map((input) => ({ ...input, id: generateId() })),
+          outputs: i.node.outputs.map((output) => ({ ...output, id: generateId() }))
+        });
+      }
+    }
+    if (
+      this.state.activeNodes.length !== prevState.activeNodes.length ||
+      this.state.activeNodes.length === 1 && this.state.activeNodes[0].id !== prevState.activeNodes[0].id
+    ) {
+      this.checkNodeSelection();
+    }
   }
   static getDerivedStateFromProps(
     nextProps: GraphProps,
@@ -97,14 +125,24 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     if (nextProps.loaded && prevState.loaded !== nextProps.loaded) {
       return {
         loaded: nextProps.loaded,
-        nodes: nextProps.loaded.nodes,
+        nodes: nextProps.loaded.nodes.map((n) => ({
+          ...n,
+          tab: n.tab || MAIN_TAB_NAME
+        })),
         tabs: nextProps.loaded.tabs || prevState.tabs,
         links: nextProps.loaded.links
       };
     }
     return null;
   }
-
+  checkNodeSelection = () => {
+    this.setState((state) => ({
+      nodes: state.nodes.map((n) => ({
+        ...n,
+        selected: !!state.activeNodes.find((node) => n.id === node.id)
+      }))
+    }));
+  };
   drawConnectors: GraphDrawConnectors = (mouseX: number, mouseY: number) => {
     const position = this.zoomPan.getPosition();
     const scale = this.zoomPan.getScale();
@@ -114,7 +152,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         endX: (mouseX - position.x) / scale,
         endY: (mouseY - position.y) / scale
       }
-    })
+    });
   };
 
   moveNodes: GraphMoveNodes = (mouseX: number, mouseY: number) => {
@@ -139,12 +177,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     });
   };
 
-  scale: GraphScale = (delta: number, x: number, y: number) => {
-    const newScale = this.zoomPan.zoomChanged(delta, x, y);
-    this.setState({
-      scale: newScale
-    });
-  };
+  scale: GraphScale = (delta: number, x: number, y: number) =>
+    this.zoomPan.zoomChanged(delta, x, y);
+
+  panBy: GraphPan = (x: number, y: number) => this.zoomPan.panBy(x, y);
+
+  miniMapPanStarted = () => this.setState({ miniMapPanning: true });
+  miniMapPanFinished = () => this.setState({ miniMapPanning: false });
+
+  panTo: GraphPan = (x: number, y: number) => this.zoomPan.panTo(x, y);
 
   autoPosition: GraphAutoPosition = () => {
     const forceDirect = new ForceDirected(this.state.nodes, this.state.links);
@@ -204,12 +245,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     let allNodes = processData(nodes);
     return [...allNodes];
   };
-  deleteLinks = (): { links: LinkType[] } => {
+  deleteLinks = (nodes: NodeType[]): { links: LinkType[] } => {
     let links = [...this.state.links];
     this.state.activeNodes.map((node) => {
-      let deletedNodes = this.nodes(this.state.activeNodes).map((n) => n.id);
+      let deletedNodes = nodes.map((n) => n.id);
       links = links.filter(
-        (l) => !deletedNodes.includes(l.from.nodeId) && !deletedNodes.includes(l.to.nodeId)
+        (l) => !(deletedNodes.includes(l.from.nodeId) || deletedNodes.includes(l.to.nodeId))
       );
     });
     return { links };
@@ -230,7 +271,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     return {
       ...deletedNodes,
-      ...this.deleteLinks(),
+      ...this.deleteLinks(nodes),
       renamed: null,
       activeNodes: []
     };
@@ -244,7 +285,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
   addNode = (node: NodeType) => {
     this.snapshot('past', 'future');
     this.setState((state) => {
-      const { expand, nodes, spaceX, spaceY, pan, scale, activeTab } = state;
+      const { spaceX, spaceY, activeTab } = state;
+      const pan = this.zoomPan.getPosition();
+      const scale = this.zoomPan.getScale();
       let newNode: NodeType = {
         id: generateId(),
         x: (spaceX - pan.x) / scale,
@@ -258,28 +301,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         renamed: true,
         action: Action.SelectedNode
       };
-      if (expand) {
-        const oldNodeNodes = this.nodes(nodes).find((n) => n.id === expand.id).nodes;
-        updateNodes = {
-          ...updateNodes,
-          ...deepNodesUpdate({
-            nodes,
-            updated: [
-              {
-                id: expand.id,
-                node: {
-                  nodes: [...oldNodeNodes, newNode]
-                }
-              }
-            ]
-          })
-        };
-      } else {
-        updateNodes = {
-          ...updateNodes,
-          nodes: [...state.nodes, newNode]
-        };
-      }
+      updateNodes = {
+        ...updateNodes,
+        nodes: [...state.nodes, newNode]
+      };
       return updateNodes;
     });
   };
@@ -452,20 +477,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       />
     ));
   };
-  renderExpandedNodePorts = (node: NodeType) => {
-    const { inputs, outputs } = node;
-    return (
-      <div
-        className={styles.Expand}
-        style={{
-          pointerEvents: 'none'
-        }}
-      >
-        <div className={styles.Inputs}>{this.renderMainPorts(node, inputs, false)}</div>
-        <div className={styles.Outputs}>{this.renderMainPorts(node, outputs, true)}</div>
-      </div>
-    );
-  };
   treeSelect = () => {
     const nodes = this.nodes(this.state.nodes);
     let activeNodes = this.state.activeNodes
@@ -509,8 +520,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     };
   };
   renderNodes = (nodes: Array<NodeType>) => {
-    const expandId = this.state.expand ? this.state.expand.id : null;
-    return nodes.filter((node) => node.id !== expandId).map((node) => (
+    return nodes.map((node) => (
       <Node
         {...node}
         key={node.id}
@@ -546,23 +556,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       />
     ));
   };
-  expandNode = (selectedNode: NodeType) => {
-    this.setState((state) => ({
-      expand: selectedNode,
-      path: [...state.path, selectedNode.id],
-      activeNodes: []
-    }));
-  };
-  shrinkNode = (selectedNode: NodeType) => {
-    let path = this.state.path;
-    path.pop();
-    let expand = path[path.length - 1];
-    this.setState({
-      expand: this.nodes(this.state.nodes).find((n) => n.id === expand),
-      path,
-      activeNodes: [selectedNode]
-    });
-  };
   centerNode = (n: NodeType) => {
     this.zoomPan.panTo(
       -n.x * this.zoomPan.getScale() + this.background.clientWidth / 2.0,
@@ -580,11 +573,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.centerNode(definitionNode);
       }
     }
-  };
-  spaceBarCategories = (): Array<ActionCategory> => {
-    const { categories } = this.props;
-    let spaceBarCategories = [...categories];
-    return spaceBarCategories;
   };
   serialize = () => {
     const { serialize } = this.props;
@@ -641,115 +629,95 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       items:
         this.state.activeNodes.length > 0
           ? [
-            {
-              name: 'delete',
-              action: () => {
-                this.snapshot('past', 'future');
-                this.setState((state) => ({
-                  ...this.deleteNodes(),
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'unlink',
-              action: () => {
-                this.snapshot('past', 'future');
-                this.setState((state) => ({
-                  ...this.deleteLinks(),
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'duplicate',
-              action: () => {
-                this.cloneNode();
-                this.setState((state) => ({
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'treeSelect',
-              action: () => {
-                this.treeSelect();
-                this.setState((state) => ({
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'graphSelect',
-              action: () => {
-                this.graphSelect();
-                this.setState((state) => ({
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'optional',
-              action: () => {
-                this.setState((state) => ({
-                  ...deepNodesUpdate({
-                    nodes: this.nodes(state.nodes),
-                    updated: this.state.activeNodes.map((n) => ({
-                      id: n.id,
-                      node: {
-                        required: false
-                      } as Partial<NodeType>
-                    }))
-                  }),
-                  contextMenuActive: false
-                }));
-              }
-            },
-            {
-              name: 'required',
-              action: () => {
-                this.setState((state) => ({
-                  ...deepNodesUpdate({
-                    nodes: this.nodes(state.nodes),
-                    updated: this.state.activeNodes.map((n) => ({
-                      id: n.id,
-                      node: {
-                        required: true
-                      } as Partial<NodeType>
-                    }))
-                  }),
-                  contextMenuActive: false
-                }));
-              }
-            }
-          ]
-          : this.state.expand
-            ? [
               {
-                name: 'back',
+                name: 'delete',
                 action: () => {
-                  this.shrinkNode(this.state.expand);
+                  this.snapshot('past', 'future');
                   this.setState((state) => ({
+                    ...this.deleteNodes(),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'unlink',
+                action: () => {
+                  this.snapshot('past', 'future');
+                  this.setState((state) => ({
+                    ...this.deleteLinks(this.state.activeNodes),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'duplicate',
+                action: () => {
+                  this.cloneNode();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'treeSelect',
+                action: () => {
+                  this.treeSelect();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'graphSelect',
+                action: () => {
+                  this.graphSelect();
+                  this.setState((state) => ({
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'optional',
+                action: () => {
+                  this.setState((state) => ({
+                    ...deepNodesUpdate({
+                      nodes: this.nodes(state.nodes),
+                      updated: this.state.activeNodes.map((n) => ({
+                        id: n.id,
+                        node: {
+                          required: false
+                        } as Partial<NodeType>
+                      }))
+                    }),
+                    contextMenuActive: false
+                  }));
+                }
+              },
+              {
+                name: 'required',
+                action: () => {
+                  this.setState((state) => ({
+                    ...deepNodesUpdate({
+                      nodes: this.nodes(state.nodes),
+                      updated: this.state.activeNodes.map((n) => ({
+                        id: n.id,
+                        node: {
+                          required: true
+                        } as Partial<NodeType>
+                      }))
+                    }),
                     contextMenuActive: false
                   }));
                 }
               }
             ]
-            : []
+          : []
     };
     if (this.state.activeNodes.length === 1) {
       const [activeNode] = this.state.activeNodes;
       category = {
         ...category,
-        items: [
-          ...category.items
-          // {
-          //   name: 'expand',
-          //   action: () => {
-          //     this.expandNode(activeNode);
-          //   }
-          // }
-        ]
+        items: [...category.items]
       };
       if (activeNode.items) {
         category = {
@@ -773,33 +741,42 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     });
   };
 
+  checkConnections = () => {
+    const allNodes = this.nodes(this.state.nodes);
+    const nodes = deepNodesUpdate({
+      nodes: allNodes,
+      updated: allNodes
+        .map((n) => ({
+          ...n,
+          inputs: n.inputs.map((i) => ({
+            ...i,
+            connected: !!this.state.links.find(
+              (l) => l.from.portId === i.id || l.to.portId === i.id
+            )
+          })),
+          outputs: n.outputs.map((i) => ({
+            ...i,
+            connected: !!this.state.links.find(
+              (l) => l.from.portId === i.id || l.to.portId === i.id
+            )
+          }))
+        }))
+        .map((node) => ({
+          id: node.id,
+          node
+        }))
+    });
+    this.setState((state) => ({
+      ...nodes
+    }));
+  };
   render() {
-    let { nodes, expand, links, renamed, pan, scale, activeTab } = this.state;
-    let selectedNode = this.state.activeNodes || [this.state.expand];
-    if (expand) {
-      nodes = this.nodes(nodes);
-      nodes = expand.nodes;
-      nodes = nodes || [];
-      nodes = [...nodes, { ...expand, x: this.aX(0), y: this.aY(0) }];
-    }
+    let { nodes, links, renamed, activeTab } = this.state;
+    let selectedNode = this.state.activeNodes;
     nodes = nodes.filter((n) => (n.tab ? n.tab === activeTab : activeTab === MAIN_TAB_NAME));
     links = links.filter(
       (l) => nodes.find((n) => n.id === l.from.nodeId) && nodes.find((n) => n.id === l.to.nodeId)
     );
-    nodes = nodes.map((n) => ({
-      ...n,
-      tab: n.tab || MAIN_TAB_NAME,
-      inputs: n.inputs.map((i) => ({
-        ...i,
-        connected: !!links.find((l) => l.from.portId === i.id || l.to.portId === i.id)
-      })),
-      outputs: n.outputs.map((i) => ({
-        ...i,
-        connected: !!links.find((l) => l.from.portId === i.id || l.to.portId === i.id)
-      })),
-      selected: !!this.state.activeNodes.find((node) => n.id === node.id)
-    }));
-
     return (
       <Background
         onRef={(ref) => (this.background = ref)}
@@ -811,11 +788,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }}
       >
         <div
-          className={cx(styles.Nodes, { [styles.NodesZooming]: this.state.action !== Action.Pan })}
+          className={cx(styles.Nodes, {
+            [styles.NodesZooming]: this.state.action !== Action.Pan && !this.state.miniMapPanning
+          })}
           ref={this.zoomPan.registerContainerElement}
         >
           {this.renderNodes(nodes)}
-          {expand && this.renderExpandedNodePorts(expand)}
           <svg className={styles.SVG}>
             {this.state.activePort && <LinkWidget {...this.p} />}
             {renderLinks(links, nodes, this.oX, this.oY, selectedNode)}
@@ -830,7 +808,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           <SpaceMenu
             x={this.state.spaceX}
             y={this.state.spaceY}
-            categories={this.spaceBarCategories()}
+            categories={this.props.categories}
             addNode={(i: NodeType) => {
               return () =>
                 this.addNode({
@@ -839,6 +817,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   inputs: i.inputs.map((input) => ({ ...input, id: generateId() })),
                   outputs: i.outputs.map((output) => ({ ...output, id: generateId() }))
                 });
+            }}
+            setCurrentHover={(currentHover) => {
+              this.setState({ currentHover });
             }}
           />
         )}
@@ -896,14 +877,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   activeNodes: [selected]
                 }));
               }}
-              canExpand={this.state.activeNodes.length === 1}
-              canShrink={!this.state.activeNodes.length && this.state.path.length > 1}
-              onExpand={() => {
-                this.expandNode(selectedNode[0]);
-              }}
-              onShrink={() => {
-                this.shrinkNode(this.state.expand);
-              }}
             />
           )}
         {
@@ -915,17 +888,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             [Action.ConnectPort]: <Connect x={this.state.mouseX} y={this.state.mouseY} />
           }[this.state.action]
         }
-        {nodes.length > 1 && (
-          <MiniMap
-            height={200}
-            width={200}
-            scale={scale}
-            nodes={nodes}
-            pan={pan}
-            graphWidth={this.background ? this.background.clientWidth : 1}
-            graphHeight={this.background ? this.background.clientHeight : 1}
-          />
-        )}
         <Tabs
           addTab={(name: string) => {
             if (!this.state.tabs.includes(name)) {
@@ -963,6 +925,20 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           tabs={this.state.tabs}
           tab={this.state.activeTab}
         />
+        {nodes.length > 1 && (
+          <MiniMap
+            height={200}
+            width={200}
+            scale={this.zoomPan.getScale()}
+            nodes={nodes}
+            pan={this.zoomPan.getPosition()}
+            graphWidth={this.background ? this.background.clientWidth : 1}
+            graphHeight={this.background ? this.background.clientHeight : 1}
+            onPanEvent={(x, y) => this.panTo(x, y)}
+            onPanStart={this.miniMapPanStarted}
+            onPanFinish={this.miniMapPanFinished}
+          />
+        )}
       </Background>
     );
   }

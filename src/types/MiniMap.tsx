@@ -12,4 +12,7 @@ export type MiniMapType = {
   graphHeight?:number;
   scale:number;
   padding?:number;
+  onPanEvent?: (x: number, y: number) => void;
+  onPanStart?: () => void;
+  onPanFinish?: () => void;
 };

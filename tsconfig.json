@@ -12,7 +12,10 @@
     "outDir": "./lib",
     "rootDir": "./src",
     "baseUrl": "./src/",
-    "lib": ["es6", "es7", "dom"]
+    "lib": ["es6", "es7", "dom"],
+    "types": [
+      "react"
+    ]
   },
   "exclude": ["lib", "build", "node_modules"]
 }

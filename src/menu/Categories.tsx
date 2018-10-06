@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as styles from '../style/SpaceBarMenu';
-import { NodeType, ActionCategory } from '../types';
-import { Category } from "./Category";
+import { ActionCategory, Item, NodeType } from '../types';
+import { Category } from './Category';
 export type CategoriesProps = {
   categories: ActionCategory[];
   category: string;
@@ -9,6 +9,7 @@ export type CategoriesProps = {
   refFunction: React.Ref<HTMLDivElement>;
   mouseOver: (name: string) => void;
   addNode: (n: NodeType) => () => void;
+  setCurrentHover: (currentHover: Item | null) => void;
 };
 
 export class Categories extends React.Component<CategoriesProps, { over: string[] }> {
@@ -17,7 +18,15 @@ export class Categories extends React.Component<CategoriesProps, { over: string[
     paddingBottom: 0
   };
   render() {
-    const { categories, category, style, refFunction, mouseOver, addNode } = this.props;
+    const {
+      categories,
+      category,
+      style,
+      refFunction,
+      mouseOver,
+      addNode,
+      setCurrentHover
+    } = this.props;
     return (
       <div
         className={styles.Categories}
@@ -33,6 +42,7 @@ export class Categories extends React.Component<CategoriesProps, { over: string[
             categoryName={category}
             mouseOver={mouseOver}
             addNode={addNode}
+            setCurrentHover={setCurrentHover}
           />
         ))}
       </div>
