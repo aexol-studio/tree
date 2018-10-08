@@ -19,6 +19,13 @@ export const borderRadius = 5;
 export const minimapBorder = '#383838'
 export const minimapElement = '#707070'
 export const cursorColor = '#ffffff';
+
+export const tabBackground = '#00000033';
+export const tabBackgroundStatic = '#00000011';
+export const tabBackgroundActive = '#00000055';
+
+export const mainFontFamily = `'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;`;
+
 export const portDot = style({
   background: 'transparent',
   borderWidth: '1px',

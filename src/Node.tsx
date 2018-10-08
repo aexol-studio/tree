@@ -59,6 +59,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       portPosition,
       kind,
       renamed,
+      nodeDoubleClick,
       styles: overrideStyles,
       selected = false,
       invalid = false,
@@ -111,9 +112,13 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
           left: x,
           pointerEvents: 'all'
         }}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          nodeDoubleClick(id, x, y);
+        }}
         onMouseDown={(e) => {
           e.stopPropagation();
-          if (e.button === 0 || 2) {
+          if (e.button === 0 || e.button === 2) {
             nodeDown(id, x, y);
           }
         }}
