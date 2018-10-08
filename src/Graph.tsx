@@ -113,7 +113,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     if (
       this.state.activeNodes.length !== prevState.activeNodes.length ||
-      this.state.activeNodes.length === 1 && this.state.activeNodes[0].id !== prevState.activeNodes[0].id
+      (this.state.activeNodes.length === 1 &&
+        this.state.activeNodes[0].id !== prevState.activeNodes[0].id)
     ) {
       this.checkNodeSelection();
     }
@@ -129,7 +130,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           ...n,
           tab: n.tab || MAIN_TAB_NAME
         })),
-        tabs: (nextProps.loaded.tabs.length && nextProps.loaded.tabs) || prevState.tabs,
+        tabs: nextProps.loaded.tabs
+          ? (nextProps.loaded.tabs.length && nextProps.loaded.tabs) || prevState.tabs
+          : prevState.tabs,
         links: nextProps.loaded.links
       };
     }
@@ -181,7 +184,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     const backgroundBoundingRect = this.background.getBoundingClientRect();
     const [x, y] = [clientX - backgroundBoundingRect.left, clientY - backgroundBoundingRect.top];
     this.zoomPan.zoomChanged(delta, x, y);
-  }
+  };
 
   panBy: GraphPan = (x: number, y: number) => this.zoomPan.panBy(x, y);
 
@@ -782,8 +785,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     const backgroundBoundingRect = this.background.getBoundingClientRect();
     const [x, y] = [backgroundBoundingRect.left, backgroundBoundingRect.top];
-    return {x, y};
-  }
+    return { x, y };
+  };
   render() {
     let { nodes, links, renamed, activeTab } = this.state;
     let selectedNode = this.state.activeNodes;
@@ -810,7 +813,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           {this.renderNodes(nodes)}
           <svg className={styles.SVG}>
             {this.state.activePort && <LinkWidget {...this.p} />}
-            {renderLinks(links, nodes, this.oX, this.oY, selectedNode, this.getBackgroundBoundingRect())}
+            {renderLinks(
+              links,
+              nodes,
+              this.oX,
+              this.oY,
+              selectedNode,
+              this.getBackgroundBoundingRect()
+            )}
           </svg>
         </div>
         {nodes.length === 0 && (
