@@ -6,7 +6,8 @@ export const renderLinks = (
   nodes: Array<NodeType>,
   oX: (x: number) => number,
   oY: (y: number) => number,
-  selectedNode?: NodeType[]
+  selectedNode?: NodeType[],
+  backgroundElementPosition?: {x: number, y: number}
 ) => {
   const selectedNodes = function*(nodeId: string) {
     yield nodeId;
@@ -40,17 +41,24 @@ export const renderLinks = (
     let { x: endPortX, y: endPortY } = [...endInputs, ...endOutputs].find(
       (i: PortType) => i.id === l.to.portId
     );
+
+    let [deltaX, deltaY] = [0, 0];
+
+    if (backgroundElementPosition) {
+      [deltaX, deltaY] = [backgroundElementPosition.x, backgroundElementPosition.y];
+    }
+
     return (
       <LinkWidget
         key={`${l.from.portId}-${l.to.portId}`}
         required={required}
         start={{
-          x: oX(startX + startPortX),
-          y: oY(startY + startPortY)
+          x: oX(deltaX + startX + startPortX),
+          y: oY(deltaY + startY + startPortY)
         }}
         end={{
-          x: oX(endX + endPortX),
-          y: oY(endY + endPortY)
+          x: oX(deltaX + endX + endPortX),
+          y: oY(deltaY + endY + endPortY)
         }}
         selected={withHighlitedLinks.includes(l.to.nodeId)}
       />
