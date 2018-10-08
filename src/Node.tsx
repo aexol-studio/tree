@@ -4,7 +4,6 @@ import { Port } from './Port';
 import { NodeType, NodeActions } from './types';
 import * as NodeStyles from './style/Node';
 export class Node extends React.Component<NodeType & NodeActions, {}> {
-  private node: HTMLDivElement;
   private ports: Port[] = [];
   shouldComponentUpdate(nextProps: NodeType & NodeActions, nextState) {
     let connectionUpdate;
@@ -60,6 +59,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       portPosition,
       kind,
       renamed,
+      nodeDoubleClick,
       styles: overrideStyles,
       selected = false,
       invalid = false,
@@ -112,10 +112,13 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
           left: x,
           pointerEvents: 'all'
         }}
-        ref={(ref) => (this.node = ref)}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          nodeDoubleClick(id, x, y);
+        }}
         onMouseDown={(e) => {
           e.stopPropagation();
-          if (e.button === 0 || 2) {
+          if (e.button === 0 || e.button === 2) {
             nodeDown(id, x, y);
           }
         }}

@@ -129,7 +129,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           ...n,
           tab: n.tab || MAIN_TAB_NAME
         })),
-        tabs: nextProps.loaded.tabs || prevState.tabs,
+        tabs: (nextProps.loaded.tabs.length && nextProps.loaded.tabs) || prevState.tabs,
         links: nextProps.loaded.links
       };
     }
@@ -177,8 +177,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     });
   };
 
-  scale: GraphScale = (delta: number, x: number, y: number) =>
+  scale: GraphScale = (delta: number, clientX: number, clientY: number) => {
+    const backgroundBoundingRect = this.background.getBoundingClientRect();
+    const [x, y] = [clientX - backgroundBoundingRect.left, clientY - backgroundBoundingRect.top];
     this.zoomPan.zoomChanged(delta, x, y);
+  }
 
   panBy: GraphPan = (x: number, y: number) => this.zoomPan.panBy(x, y);
 
@@ -537,6 +540,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           }
           this.setState(this.selectNodes(node));
         }}
+        nodeDoubleClick={() => {
+          this.graphSelect();
+        }}
         contextMenu={(id: string, x: number, y: number) => {
           if (this.state.activeNodes.length > 0) {
             this.setState({
@@ -770,6 +776,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       ...nodes
     }));
   };
+  getBackgroundBoundingRect = () => {
+    if (!this.background) {
+      return { x: 0, y: 0 };
+    }
+    const backgroundBoundingRect = this.background.getBoundingClientRect();
+    const [x, y] = [backgroundBoundingRect.left, backgroundBoundingRect.top];
+    return {x, y};
+  }
   render() {
     let { nodes, links, renamed, activeTab } = this.state;
     let selectedNode = this.state.activeNodes;
@@ -796,7 +810,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
           {this.renderNodes(nodes)}
           <svg className={styles.SVG}>
             {this.state.activePort && <LinkWidget {...this.p} />}
-            {renderLinks(links, nodes, this.oX, this.oY, selectedNode)}
+            {renderLinks(links, nodes, this.oX, this.oY, selectedNode, this.getBackgroundBoundingRect())}
           </svg>
         </div>
         {nodes.length === 0 && (
