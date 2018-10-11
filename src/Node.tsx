@@ -43,7 +43,6 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
     return false;
   }
   render() {
-    console.log("RNODE")
     const {
       id,
       name,
