@@ -378,6 +378,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     ];
     let from = activePort.output ? ports[0] : ports[1];
     let to = activePort.output ? ports[1] : ports[0];
+    // Remove ability to create circular references
+    if (this.state.links.find(link => link.from.nodeId === to.nodeId && link.to.nodeId === from.nodeId) {
+      this.reset();
+      return;
+    }
     if (this.state.links.find((l) => l.from.portId === from.portId && l.to.portId === to.portId)) {
       this.reset();
       return;
