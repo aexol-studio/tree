@@ -15,7 +15,7 @@ export type GraphProps = {
   categories?: Array<ActionCategory>;
   serialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
   load?: () => Array<NodeType>;
-  validate?: (n1:NodeType,n2:NodeType) => boolean;
+  validate?: (n1: NodeType, n2: NodeType) => boolean;
   loaded?: LoadedFile;
   preventOverscrolling?: boolean;
 };
@@ -100,13 +100,25 @@ export type GraphDeleteNode = () => {
 };
 export type GraphCloneNode = () => void;
 
-export type GraphScale = (
-  delta: number,
-  x: number,
-  y: number
-) => void;
+export type GraphScale = (delta: number, x: number, y: number) => void;
 export type GraphAutoPosition = () => void;
 export type GraphValidate = () => void;
 export type GraphPan = (x: number, y: number) => void;
 export type GraphDrawConnectors = (mouseX: number, mouseY: number) => void;
 export type GraphMoveNodes = (mouseX: number, mouseY: number) => void;
+export type GraphUpdatePortPositions = (
+  x: number,
+  y: number,
+  portId: string,
+  id: string,
+  output: boolean
+) => void;
+export type GraphSelectNodes = (
+  node: NodeType
+) => {
+  action: Action;
+  activeNodes?: NodeType[];
+  renamed: boolean;
+};
+export type GraphGraphSelect = ()=>void
+export type GraphTreeSelect = ()=>void

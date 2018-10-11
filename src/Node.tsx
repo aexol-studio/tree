@@ -43,6 +43,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
     return false;
   }
   render() {
+    console.log("RNODE")
     const {
       id,
       name,
@@ -114,7 +115,9 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
         }}
         onDoubleClick={(e) => {
           e.stopPropagation();
-          nodeDoubleClick(id, x, y);
+          if (e.button === 0) {
+            nodeDoubleClick(id, x, y);
+          }
         }}
         onMouseDown={(e) => {
           e.stopPropagation();

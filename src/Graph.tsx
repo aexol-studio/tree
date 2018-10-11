@@ -21,7 +21,11 @@ import {
   GraphScale,
   GraphDrawConnectors,
   GraphMoveNodes,
-  GraphPan
+  GraphPan,
+  GraphUpdatePortPositions,
+  GraphSelectNodes,
+  GraphTreeSelect,
+  GraphGraphSelect
 } from './types';
 import { Node, Port, Props, LinkWidget, Background, MiniMap, Search, Tabs, ForceDirected } from '.';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from './utils';
@@ -441,7 +445,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       });
     }
   };
-  updatePortPositions = (x, y, portId, id, output: boolean) => {
+  updatePortPositions:GraphUpdatePortPositions = (x, y, portId, id, output) => {
     this.setState((state) => {
       const modifyState = (portMode: 'inputs' | 'outputs') => {
         let n = this.nodes(state.nodes).find((n) => n.id === id);
@@ -483,7 +487,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       />
     ));
   };
-  treeSelect = () => {
+  treeSelect:GraphTreeSelect = () => {
     const nodes = this.nodes(this.state.nodes);
     let activeNodes = this.state.activeNodes
       .map((n) => treeSelection(n, nodes, this.state.links))
@@ -493,7 +497,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       activeNodes
     });
   };
-  graphSelect = () => {
+  graphSelect:GraphGraphSelect = () => {
     const nodes = this.nodes(this.state.nodes);
     let activeNodes = this.state.activeNodes
       .map((n) => graphSelection(n, nodes, this.state.links))
@@ -503,7 +507,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       activeNodes
     });
   };
-  selectNodes = (node) => {
+  selectNodes:GraphSelectNodes = (node) => {
     const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
     if (alreadyHaveNode && !this.state.ctrlPressed) {
       return {
