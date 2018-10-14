@@ -8,13 +8,13 @@ Diagram is the tool for making node based systems. Define your own behaviour of 
 
 Here is [Live Demo](https://app.slothking.online) of diagram used to create node based backend system
 
-## Add to yor project
+## Add to your project
 
 ```sh
 $ npm install @slothking-online/diagram
 ```
 
-## Dvelop & Contribute
+## Develop & Contribute
 
 ```sh
 $ git clone https://github.com/slothking-online/diagram
