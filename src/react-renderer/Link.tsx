@@ -1,6 +1,6 @@
 import * as React from 'react';
-import * as vars from './style/vars';
-import { LinkWidgetProps } from './types';
+import * as vars from '../vars';
+import { LinkWidgetProps } from '../types';
 // const buildSquarePath = (x1: number, y1: number, x2: number, y2: number): Array<number> => {
 //   let centerX = (x1 + x2) / 2.0;
 //   return [x1, y1, centerX, y1, centerX, y2, x2, y2];

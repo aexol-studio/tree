@@ -1,5 +1,5 @@
 import { style, classes, keyframes } from 'typestyle';
-import * as vars from './vars';
+import * as vars from '../../vars';
 
 const blink = keyframes({
   '0%': {

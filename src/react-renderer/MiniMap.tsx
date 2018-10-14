@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MiniMapType } from './types/MiniMap';
+import { MiniMapType } from '../types/MiniMap';
 import * as styles from './style/MiniMap';
 import * as cx from 'classnames';
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as styles from '../style/SpaceBarMenu';
+import * as styles from './style/SpaceBarMenu';
 import { Item, NodeType } from '../types';
 
 export class ItemComponent extends React.Component<{

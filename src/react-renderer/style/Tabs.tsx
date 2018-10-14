@@ -1,5 +1,5 @@
 import { style } from 'typestyle';
-import * as vars from './vars';
+import * as vars from '../../vars';
 
 export const StaticTab = style({
   transition: 'color 0.25s linear',

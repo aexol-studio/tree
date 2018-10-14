@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as styles from '../style/SpaceBarMenu';
+import * as styles from './style/SpaceBarMenu';
 import { ActionCategory, Item, NodeType } from '../types';
 import { Category } from './Category';
 export type CategoriesProps = {

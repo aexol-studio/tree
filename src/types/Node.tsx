@@ -1,5 +1,5 @@
 import { PortType } from './Port';
-import * as styles from '../style/Node';
+import * as styles from '../react-renderer/style/Node';
 import { Item } from './SpaceMenu';
 export type NodeType = {
   id?: string;

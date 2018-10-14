@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as styles from '../style/SpaceBarMenu';
+import * as styles from './style/SpaceBarMenu';
 import { SpaceBarProps, SpaceBarState } from '../types';
 import { Categories } from './Categories';
 

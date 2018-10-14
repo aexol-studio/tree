@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
 import * as styles from './style/Port';
-import { PortActions, PortType } from './types';
+import { PortActions, PortType } from '../types';
 
 export class Port extends React.Component<
   PortType & PortActions,

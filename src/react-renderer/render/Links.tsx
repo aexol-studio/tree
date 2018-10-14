@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { LinkType, NodeType, PortType, LinkWidget } from '..';
+import { LinkType, NodeType, PortType } from '../../types';
+import { LinkWidget } from '../Link';
 
 export const renderLinks = (
   links: Array<LinkType>,

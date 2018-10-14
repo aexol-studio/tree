@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Action } from './types/Graph';
 import * as styles from './style/Background';
-import { BackgroundProps } from './types';
+import { BackgroundProps, Action } from '../types';
 export const Background: React.SFC<BackgroundProps> = (props) => (
   <div
     ref={(ref) => {

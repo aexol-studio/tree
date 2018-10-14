@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as styles from './style/Tabs';
 import * as cx from 'classnames';
-import { TabsProps, TabsState, MAIN_TAB_NAME } from './types';
+import { TabsProps, TabsState, MAIN_TAB_NAME } from '../types';
 export class Tabs extends React.Component<TabsProps, TabsState> {
   state: TabsState = {};
   saveEditedTab = (tab) => {

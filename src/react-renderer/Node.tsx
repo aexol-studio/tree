@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
 import { Port } from './Port';
-import { NodeType, NodeActions } from './types';
+import { NodeType, NodeActions } from '../types/Node';
 import * as NodeStyles from './style/Node';
 export class Node extends React.Component<NodeType & NodeActions, {}> {
   private ports: Port[] = [];

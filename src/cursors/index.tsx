@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { style } from 'typestyle';
-import * as vars from '../style/vars';
+import * as vars from '../vars';
 export enum Cursors {
   Crosshair
 }

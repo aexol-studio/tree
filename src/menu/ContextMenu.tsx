@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as styles from '../style/SpaceBarMenu';
+import * as styles from './style/SpaceBarMenu';
 import { ContextMenuProps, ContextMenuState } from '../types';
 import { Category } from './Category';
 
