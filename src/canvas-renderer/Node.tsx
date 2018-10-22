@@ -1,23 +1,56 @@
 import { NodeType } from '../types/Node';
 import * as vars from '../vars';
-import { Port } from './Port';
+import { RoundedRectangle } from './draw/RoundedRect';
+import { Circle } from './draw/Circle';
 export class Node {
-  static render(ctx: CanvasRenderingContext2D, props: NodeType) {
+  static getNodeFont(ctx: CanvasRenderingContext2D, size: number, weight = 'normal') {
+    return `${weight} ${size}px ${ctx.font.split(' ')[ctx.font.split(' ').length - 1]}`;
+  }
+  static render(
+    ctx: CanvasRenderingContext2D,
+    props: NodeType,
+    visual: {
+      width: number;
+      height: number;
+      port: number;
+    }
+  ) {
     const { x, y, name, type, kind, selected, inputs, outputs } = props;
     ctx.fillStyle = vars.bglight;
     if (selected) {
       ctx.fillStyle = vars.selected;
     }
-    ctx.fillRect(x, y, 150, 80);
+    RoundedRectangle(ctx, {
+      width: visual.width,
+      height: visual.height,
+      x,
+      y,
+      radius: 5
+    });
+    ctx.font = Node.getNodeFont(ctx, 14, 'bold');
     ctx.fillStyle = vars.text;
-    ctx.fillText(name, x + 75, y + 20);
+    ctx.fillText(name, x + visual.width / 2.0, y + visual.height / 2.0 - 5);
+    ctx.font = Node.getNodeFont(ctx, 14, 'normal');
     ctx.fillStyle = vars.text;
-    ctx.fillText(kind || type, x + 75, y + 40);
+    ctx.textAlign = 'center';
+    ctx.fillText(kind || type, x + visual.width / 2.0, y + visual.height / 2.0 + 14);
     for (const i of inputs) {
-      Port.render(ctx, i);
+      Circle(ctx, {
+        x: x - visual.port,
+        y: y + visual.height / 2.0,
+        radius: visual.port,
+        color: i.connected ? vars.cursorColor : 'transparent',
+        stroke: vars.cursorColor
+      });
     }
     for (const o of outputs) {
-      Port.render(ctx, { ...o, output: true });
+      Circle(ctx, {
+        x: x + visual.width + visual.port,
+        y: y + visual.height / 2.0,
+        radius: visual.port,
+        color: o.connected ? vars.cursorColor : 'transparent',
+        stroke: vars.cursorColor
+      });
     }
   }
 }

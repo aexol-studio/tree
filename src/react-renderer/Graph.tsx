@@ -27,17 +27,19 @@ import {
   GraphTreeSelect,
   GraphGraphSelect
 } from '../types';
-import { Node, Port, Props, LinkWidget, Background, MiniMap, Tabs } from '.';
-import { Search, ForceDirected } from '..'
+import { Node, Port, Props, Background, MiniMap, Tabs } from '.';
+import { Search, ForceDirected } from '..';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from '../utils';
-import { renderLinks } from './render';
+// import { renderLinks } from './render';
 import { Basic, Move, Connect } from '../cursors';
 import { addEventListeners } from '../Events';
 import { ZoomPanManager } from '../ZoomPan';
+import { GraphCanvas } from '../canvas-renderer/Graph';
 
 export class GraphReact extends React.Component<GraphProps, GraphState> {
   background: HTMLDivElement;
   zoomPan: ZoomPanManager;
+  canvasRenderer: GraphCanvas;
   past: Snapshot[] = [
     {
       nodes: [],
@@ -65,6 +67,7 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
   constructor(props) {
     super(props);
     this.zoomPan = new ZoomPanManager();
+    this.canvasRenderer = new GraphCanvas();
   }
 
   componentDidMount() {
@@ -189,9 +192,12 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
     const backgroundBoundingRect = this.background.getBoundingClientRect();
     const [x, y] = [clientX - backgroundBoundingRect.left, clientY - backgroundBoundingRect.top];
     this.zoomPan.zoomChanged(delta, x, y);
+    this.renderCanvas();
   };
 
-  panBy: GraphPan = (x: number, y: number) => this.zoomPan.panBy(x, y);
+  panBy: GraphPan = (x: number, y: number) => {
+    this.zoomPan.panBy(x, y);
+  };
 
   miniMapPanStarted = () => this.setState({ miniMapPanning: true });
   miniMapPanFinished = () => this.setState({ miniMapPanning: false });
@@ -798,16 +804,38 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
     const [x, y] = [backgroundBoundingRect.left, backgroundBoundingRect.top];
     return { x, y };
   };
-  render() {
-    let { nodes, links, renamed, activeTab } = this.state;
-    let selectedNode = this.state.activeNodes;
+  currentTabState = () => {
+    let { nodes, links, activeTab } = this.state;
     nodes = nodes.filter((n) => (n.tab ? n.tab === activeTab : activeTab === MAIN_TAB_NAME));
     links = links.filter(
       (l) => nodes.find((n) => n.id === l.from.nodeId) && nodes.find((n) => n.id === l.to.nodeId)
     );
+    return {
+      nodes,
+      links
+    };
+  };
+  renderCanvas = () => {
+    this.canvasRenderer.render(this.currentTabState(), this.zoomPan);
+  };
+  getNodesInViewport = (nodes: NodeType[]) => {
+    const { x, y } = this.zoomPan.getPosition();
+    return nodes.filter(
+      (n) => n.x > x && n.x < window.innerWidth && n.y > y && n.y < window.innerHeight
+    );
+  };
+  render() {
+    let { renamed } = this.state;
+    let selectedNode = this.state.activeNodes;
+    const { nodes } = this.currentTabState();
     return (
       <Background
-        onRef={(ref) => (this.background = ref)}
+        onRef={(ref) => {
+          if (ref) {
+            this.background = ref;
+            this.canvasRenderer.registerContainerElement(ref);
+          }
+        }}
         reset={this.reset}
         switchAction={(action: Action) => {
           this.setState({
@@ -819,9 +847,14 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
           className={cx(styles.Nodes, {
             [styles.NodesZooming]: this.state.action !== Action.Pan && !this.state.miniMapPanning
           })}
-          ref={this.zoomPan.registerContainerElement}
+          ref={(ref) => {
+            if (ref) {
+              this.zoomPan.registerContainerElement(ref);
+            }
+          }}
         >
-          {this.renderNodes(nodes)}
+          {/* {this.renderNodes(this.getNodesInViewport(nodes))} */}
+          {/* {this.renderNodes(nodes)}
           <svg className={styles.SVG}>
             {this.state.activePort && <LinkWidget {...this.p} />}
             {renderLinks(
@@ -832,7 +865,8 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
               selectedNode,
               this.getBackgroundBoundingRect()
             )}
-          </svg>
+          </svg> */}
+          {this.renderCanvas()}
         </div>
         {nodes.length === 0 && (
           <div className={styles.HelperScreen}>
