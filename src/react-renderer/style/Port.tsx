@@ -49,5 +49,5 @@ export const DotInput = style({
   marginRight: -vars.dot
 });
 export const DotConnected = style({
-  background: vars.lines
+  background: 'transparent'
 });

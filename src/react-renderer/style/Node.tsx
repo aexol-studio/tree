@@ -20,7 +20,8 @@ export const Node = classes(
   vars.SelectNone,
   style({
     color: vars.text,
-    background: vars.bg,
+    background: 'transparent',
+    height: 70,
     borderRadius: 5,
     fontSize: '10px',
     position: 'absolute',
@@ -29,23 +30,22 @@ export const Node = classes(
     alignItems: 'center'
   })
 );
-export const Selected = style({
-  background: vars.selected
-});
+export const Selected = style({});
 export const Invalid = style({
   background: vars.invalid
 });
 export const Title = style({
   pointerEvents: 'none',
   textAlign: 'center',
-  padding: '15px 25px',
+  padding: '15px 25px'
 });
 export const Name = style({
   fontWeight: 500,
+  width: 150,
   textTransform: 'unset',
   fontSize: '12px',
   display: 'flex',
-  justifyContent:'center'
+  justifyContent: 'center'
 });
 export const Type = style({
   fontWeight: 300,
@@ -55,5 +55,5 @@ export const BlinkingCursor = style({
   animationName: blink,
   animationIterationCount: 'infinite',
   animationDuration: '1s',
-  width:0
+  width: 0
 });

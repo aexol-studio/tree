@@ -120,5 +120,5 @@ export type GraphSelectNodes = (
   activeNodes?: NodeType[];
   renamed: boolean;
 };
-export type GraphGraphSelect = ()=>void
-export type GraphTreeSelect = ()=>void
+export type GraphGraphSelect = () => void;
+export type GraphTreeSelect = () => void;

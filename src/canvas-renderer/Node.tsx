@@ -16,12 +16,14 @@ export class Node {
     }
   ) {
     const { x, y, name, type, kind, selected, inputs, outputs } = props;
+    let width =
+      20 + 10 * (name.length > (kind || type).length ? name.length : (kind || type).length);
     ctx.fillStyle = vars.bglight;
     if (selected) {
       ctx.fillStyle = vars.selected;
     }
     RoundedRectangle(ctx, {
-      width: visual.width,
+      width: width,
       height: visual.height,
       x,
       y,
@@ -29,11 +31,11 @@ export class Node {
     });
     ctx.font = Node.getNodeFont(ctx, 14, 'bold');
     ctx.fillStyle = vars.text;
-    ctx.fillText(name, x + visual.width / 2.0, y + visual.height / 2.0 - 5);
+    ctx.fillText(name, x + width / 2.0, y + visual.height / 2.0 - 5);
     ctx.font = Node.getNodeFont(ctx, 14, 'normal');
     ctx.fillStyle = vars.text;
     ctx.textAlign = 'center';
-    ctx.fillText(kind || type, x + visual.width / 2.0, y + visual.height / 2.0 + 14);
+    ctx.fillText(kind || type, x + width / 2.0, y + visual.height / 2.0 + 14);
     for (const i of inputs) {
       Circle(ctx, {
         x: x - visual.port,
@@ -45,7 +47,7 @@ export class Node {
     }
     for (const o of outputs) {
       Circle(ctx, {
-        x: x + visual.width + visual.port,
+        x: x + width + visual.port,
         y: y + visual.height / 2.0,
         radius: visual.port,
         color: o.connected ? vars.cursorColor : 'transparent',

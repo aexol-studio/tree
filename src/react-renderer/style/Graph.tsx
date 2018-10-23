@@ -7,7 +7,6 @@ export const Nodes = style({
   display: `flex`
 });
 export const NodesZooming = style({
-  transition: 'transform 0.16s linear',
 });
 export const BodyWithoutOverscrolling = style({
   overflow: 'hidden',

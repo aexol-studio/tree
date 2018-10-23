@@ -1,13 +1,7 @@
-import { GraphState, NodeType } from '../types';
+import { GraphState } from '../types';
 import { Node } from './Node';
 import { Link } from './Link';
 import { ZoomPanManager } from '../ZoomPan';
-
-const NODE = {
-  width: 150,
-  height: 70,
-  port: 6
-};
 
 export class GraphCanvas {
   canvas: HTMLCanvasElement;
@@ -29,7 +23,26 @@ export class GraphCanvas {
     this.containerElement = containerElement;
     this.containerElement.appendChild(this.canvas);
   }
-  render(state: Pick<GraphState, 'nodes' | 'links'>, zoompan: ZoomPanManager) {
+  render(
+    state: Pick<GraphState, 'nodes'> & {
+      links: {
+        start: {
+          x: number;
+          y: number;
+        };
+        end: {
+          x: number;
+          y: number;
+        };
+      }[];
+    },
+    zoompan: ZoomPanManager,
+    NODE = {
+      width: 150,
+      height: 70,
+      port: 6
+    }
+  ) {
     const { nodes, links } = state;
     const { x, y } = zoompan.getPosition();
     const scale = zoompan.getScale();
@@ -40,19 +53,15 @@ export class GraphCanvas {
     for (const node of nodes) {
       Node.render(this.ctx, node, NODE);
     }
-    const nodeMap: { [x: string]: NodeType } = nodes.reduce((a, b) => {
-      a[b.id] = b;
-      return a;
-    }, {});
-    for (const link of links) {
+    for (const { start, end } of links) {
       Link.render(this.ctx, {
         start: {
-          x: nodeMap[link.from.nodeId].x + NODE.width + NODE.port,
-          y: nodeMap[link.from.nodeId].y + NODE.height / 2.0
+          x: start.x + NODE.port,
+          y: start.y + NODE.height / 2.0
         },
         end: {
-          x: nodeMap[link.to.nodeId].x - NODE.port,
-          y: nodeMap[link.to.nodeId].y + NODE.height / 2.0
+          x: end.x - NODE.port,
+          y: end.y + NODE.height / 2.0
         }
       });
     }

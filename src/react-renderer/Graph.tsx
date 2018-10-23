@@ -35,7 +35,13 @@ import { Basic, Move, Connect } from '../cursors';
 import { addEventListeners } from '../Events';
 import { ZoomPanManager } from '../ZoomPan';
 import { GraphCanvas } from '../canvas-renderer/Graph';
+import { LinkWidget } from './Link';
 
+const NodeDimensions = {
+  width: 150,
+  height: 70,
+  port: 6
+};
 export class GraphReact extends React.Component<GraphProps, GraphState> {
   background: HTMLDivElement;
   zoomPan: ZoomPanManager;
@@ -95,6 +101,7 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
   }
 
   componentDidUpdate(prevProps: GraphProps, prevState: GraphState) {
+    this.renderCanvas();
     if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
       this.serialize();
     }
@@ -612,7 +619,6 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
       this.setState({
         nodes: load()
       });
-      console.log('LOADING');
     }
   };
   snapshot: GraphSnapshot = (where, clear?) => {
@@ -816,13 +822,61 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
     };
   };
   renderCanvas = () => {
-    this.canvasRenderer.render(this.currentTabState(), this.zoomPan);
+    const { nodes, links } = this.currentTabState();
+    const viewPortNodes = this.getNodesInViewport(nodes);
+    const nodeIds = viewPortNodes.map((n) => n.id);
+    const viewPortLinks = links.filter(
+      (l) => nodeIds.includes(l.from.nodeId) || nodeIds.includes(l.to.nodeId)
+    );
+
+    const nodeMap: { [x: string]: NodeType } = nodes.reduce((a, b) => {
+      a[b.id] = b;
+      return a;
+    }, {});
+
+    this.canvasRenderer.render(
+      {
+        nodes: viewPortNodes,
+        links: viewPortLinks.map((link) => {
+          const fn = nodeMap[link.from.nodeId];
+          const fnLength =
+            20 +
+            10 *
+              (fn.name.length > (fn.kind || fn.type).length
+                ? fn.name.length
+                : (fn.kind || fn.type).length);
+          const tn = nodeMap[link.to.nodeId];
+          return {
+            start: {
+              x: fn.x+fnLength,
+              y: fn.y
+            },
+            end: {
+              x: tn.x,
+              y: tn.y
+            }
+          };
+        })
+      },
+      this.zoomPan,
+      NodeDimensions
+    );
   };
   getNodesInViewport = (nodes: NodeType[]) => {
     const { x, y } = this.zoomPan.getPosition();
-    return nodes.filter(
-      (n) => n.x > x && n.x < window.innerWidth && n.y > y && n.y < window.innerHeight
-    );
+    const scale = this.zoomPan.getScale();
+    let { innerWidth: w, innerHeight: h } = window;
+    const b = {
+      min: {
+        x: -x / scale - NodeDimensions.width,
+        y: -y / scale - NodeDimensions.height
+      },
+      max: {
+        x: w / scale - x / scale,
+        y: h / scale - y / scale
+      }
+    };
+    return nodes.filter((n) => n.x > b.min.x && n.x < b.max.x && n.y > b.min.y && n.y < b.max.y);
   };
   render() {
     let { renamed } = this.state;
@@ -853,20 +907,12 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
             }
           }}
         >
-          {/* {this.renderNodes(this.getNodesInViewport(nodes))} */}
-          {/* {this.renderNodes(nodes)}
-          <svg className={styles.SVG}>
-            {this.state.activePort && <LinkWidget {...this.p} />}
-            {renderLinks(
-              links,
-              nodes,
-              this.oX,
-              this.oY,
-              selectedNode,
-              this.getBackgroundBoundingRect()
-            )}
-          </svg> */}
-          {this.renderCanvas()}
+          {this.renderNodes(this.getNodesInViewport(nodes))}
+          {this.state.activePort && (
+            <svg className={styles.SVG}>
+              <LinkWidget {...this.p} />
+            </svg>
+          )}
         </div>
         {nodes.length === 0 && (
           <div className={styles.HelperScreen}>

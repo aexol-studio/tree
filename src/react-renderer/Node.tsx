@@ -22,20 +22,12 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       });
     }
     if (
-      this.props.name !== nextProps.name ||
-      this.props.kind !== nextProps.kind ||
       this.props.x !== nextProps.x ||
       this.props.y !== nextProps.y ||
-      this.props.renamed !== nextProps.renamed ||
-      this.props.selected !== nextProps.selected ||
       this.props.invalid !== nextProps.invalid ||
       connectionUpdate
     ) {
-      if (
-        this.props.kind !== nextProps.kind ||
-        this.props.name !== nextProps.name ||
-        connectionUpdate
-      ) {
+      if (connectionUpdate) {
         this.ports.map((p) => p.forceUpdate());
       }
       return true;
@@ -45,20 +37,19 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
   render() {
     const {
       id,
-      name,
-      type,
       inputs,
       outputs,
       x = 0,
       y = 0,
       nodeDown,
       contextMenu,
+      name,
+      kind,
+      type,
       nodeUp,
       portUp,
       portDown,
       portPosition,
-      kind,
-      renamed,
       nodeDoubleClick,
       styles: overrideStyles,
       selected = false,
@@ -91,15 +82,10 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
           {...i}
         />
       ));
-    const nodeIdentity = () => (
-      <div className={styles.Title}>
-        <div className={styles.Name}>
-          {name}
-          {selected && renamed && <div className={styles.BlinkingCursor}>{'|'}</div>}
-        </div>
-        <div className={styles.Type}>{kind || type}</div>
-      </div>
-    );
+    const width =
+      20 + 10 * (name.length > (kind || type).length ? name.length : (kind || type).length);
+    const nodeIdentity = () => <div className={styles.Title} style={{ width }} />;
+
     return (
       <div
         className={classnames({
@@ -110,6 +96,7 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
         style={{
           top: y,
           left: x,
+          width,
           pointerEvents: 'all'
         }}
         onDoubleClick={(e) => {

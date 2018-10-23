@@ -28,9 +28,6 @@ export const mainFontFamily = `'Roboto', 'Helvetica Neue', Helvetica, Arial, san
 
 export const portDot = style({
   background: 'transparent',
-  borderWidth: '1px',
-  borderColor: lines,
-  borderStyle: 'solid',
   borderRadius: '100%'
 });
 export const SelectNone = style({

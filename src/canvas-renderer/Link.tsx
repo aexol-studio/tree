@@ -1,11 +1,7 @@
 import { LinkWidgetProps } from '../types';
-import * as vars from '../vars';
+import { QuadraticPath } from './draw/QuadraticPath';
 export class Link {
   static render(ctx: CanvasRenderingContext2D, l: LinkWidgetProps) {
-    ctx.beginPath();
-    ctx.fillStyle = vars.lines;
-    ctx.moveTo(l.start.x, l.start.y);
-    ctx.lineTo(l.end.x, l.end.y);
-    ctx.stroke();
+    QuadraticPath(ctx, l.start.x, l.start.y, l.end.x, l.end.y, 5);
   }
 }
