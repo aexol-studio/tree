@@ -6,13 +6,20 @@ export type MiniMapType = {
     x: number;
     y: number;
   };
-  width?:number;
-  height?:number;
-  graphWidth?:number;
-  graphHeight?:number;
-  scale:number;
-  padding?:number;
+  width?: number;
+  height?: number;
+  graphWidth?: number;
+  graphHeight?: number;
+  scale: number;
+  padding?: number;
   onPanEvent?: (x: number, y: number) => void;
   onPanStart?: () => void;
   onPanFinish?: () => void;
+};
+
+export type MiniMapNodesType = {
+  nodes: {
+    x: number;
+    y: number;
+  }[];
 };

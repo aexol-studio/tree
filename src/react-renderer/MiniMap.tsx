@@ -1,37 +1,34 @@
 import * as React from 'react';
 import { MiniMapType } from '../types/MiniMap';
 import * as styles from './style/MiniMap';
-import * as cx from 'classnames';
-
-const NODE_WIDTH = 180;
-const NODE_HEIGHT = 60;
+import { MiniMapNodes } from '../canvas-renderer/MiniMapNodes';
 
 const MINIMAP_RANGE = 3000;
 
 export class MiniMap extends React.PureComponent<MiniMapType> {
   minimapRef: HTMLDivElement = null;
   mousePanning: boolean = false;
-
-  private getBoundingBoxViewport = (currentPan: { x: number, y: number }) => ({
+  canvas = new MiniMapNodes(200, 200);
+  private getBoundingBoxViewport = (currentPan: { x: number; y: number }) => ({
     left: -currentPan.x / this.props.scale,
     right: (this.props.graphWidth - currentPan.x) / this.props.scale,
     top: -currentPan.y / this.props.scale,
     bottom: (this.props.graphHeight - currentPan.y) / this.props.scale,
     width: this.props.graphWidth / this.props.scale,
-    height: this.props.graphHeight / this.props.scale,
+    height: this.props.graphHeight / this.props.scale
   });
 
   private getMiniMapBoundaries = (viewportBoundingBox) => ({
     left: Math.max(
-      Math.min(-MINIMAP_RANGE + (this.props.graphWidth / 2), viewportBoundingBox.left),
-      viewportBoundingBox.right - (2 * MINIMAP_RANGE),
+      Math.min(-MINIMAP_RANGE + this.props.graphWidth / 2, viewportBoundingBox.left),
+      viewportBoundingBox.right - 2 * MINIMAP_RANGE
     ),
     top: Math.max(
-      Math.min(-MINIMAP_RANGE + (this.props.graphHeight / 2), viewportBoundingBox.top),
-      viewportBoundingBox.bottom - (2 * MINIMAP_RANGE),
+      Math.min(-MINIMAP_RANGE + this.props.graphHeight / 2, viewportBoundingBox.top),
+      viewportBoundingBox.bottom - 2 * MINIMAP_RANGE
     ),
-    width: (2 * MINIMAP_RANGE),
-    height: (2 * MINIMAP_RANGE),
+    width: 2 * MINIMAP_RANGE,
+    height: 2 * MINIMAP_RANGE
   });
 
   private mouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -40,7 +37,7 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
 
     const mouseCoords = {
       x: e.clientX,
-      y: e.clientY,
+      y: e.clientY
     };
 
     if (this.props.onPanStart) {
@@ -63,7 +60,7 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
     if (this.mousePanning) {
       const mouseCoords = {
         x: e.clientX,
-        y: e.clientY,
+        y: e.clientY
       };
 
       this.panEvent(mouseCoords.x, mouseCoords.y);
@@ -71,15 +68,7 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
   };
 
   private panEvent = (mouseX: number, mouseY: number) => {
-    const {
-      width,
-      height,
-      graphWidth,
-      graphHeight,
-      scale,
-      pan,
-      onPanEvent
-    } = this.props;
+    const { width, height, graphWidth, graphHeight, scale, pan, onPanEvent } = this.props;
 
     // calculate placement of the minimap
     const elementBoundingBox = this.minimapRef.getBoundingClientRect();
@@ -93,23 +82,29 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
     // function converts map coordinates to world coordinates
     const mapToWorldPoint = (px, py) => {
       const delta = {
-        x: (miniMapBoundaries.left + miniMapBoundaries.width / 2) / (miniMapBoundaries.width / width),
-        y: (miniMapBoundaries.top + miniMapBoundaries.height / 2) / (miniMapBoundaries.width / width),
+        x:
+          (miniMapBoundaries.left + miniMapBoundaries.width / 2) /
+          (miniMapBoundaries.width / width),
+        y:
+          (miniMapBoundaries.top + miniMapBoundaries.height / 2) / (miniMapBoundaries.width / width)
       };
       const ratio = miniMapBoundaries.width / width;
       return {
         x: px * ratio - (width / 2 - delta.x) * ratio,
-        y: py * ratio - (height / 2 - delta.y) * ratio,
+        y: py * ratio - (height / 2 - delta.y) * ratio
       };
     };
 
     // calculate world coordinates point from the mouse clock X/Y
-    const worldCoords = mapToWorldPoint(mouseX - elementBoundingBox.left, mouseY - elementBoundingBox.top);
+    const worldCoords = mapToWorldPoint(
+      mouseX - elementBoundingBox.left,
+      mouseY - elementBoundingBox.top
+    );
 
     // calculate potential pan value after the change
     const newPanValue = {
-      x: (-worldCoords.x) * scale + graphWidth / 2,
-      y: (-worldCoords.y) * scale + graphHeight / 2
+      x: -worldCoords.x * scale + graphWidth / 2,
+      y: -worldCoords.y * scale + graphHeight / 2
     };
 
     // calculate potential new viewport after panning
@@ -136,14 +131,8 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
       onPanEvent(newPanValue.x, newPanValue.y);
     }
   };
-
   render() {
-    const {
-      nodes,
-      width,
-      height,
-      pan
-    } = this.props;
+    const { nodes, width, height, pan } = this.props;
 
     // get bounding box of actual viewport in world coordinates
     const boundingBoxViewport = this.getBoundingBoxViewport(pan);
@@ -159,13 +148,13 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
     const worldToMapPoint = (px, py) => {
       const delta = {
         x: worldToMapWidth(miniMapBoundaries.left + miniMapBoundaries.width / 2),
-        y: worldToMapHeight(miniMapBoundaries.top + miniMapBoundaries.height / 2),
+        y: worldToMapHeight(miniMapBoundaries.top + miniMapBoundaries.height / 2)
       };
       const ratio = miniMapBoundaries.width / (width - 1);
       return {
-        x: (width / 2) - delta.x + px / ratio,
-        y: (height / 2) - delta.y + py / ratio,
-      }
+        x: width / 2 - delta.x + px / ratio,
+        y: height / 2 - delta.y + py / ratio
+      };
     };
 
     // calculate X, Y of the viewport in the map coordinate system
@@ -175,7 +164,7 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
       width: worldToMapWidth(boundingBoxViewport.width),
       height: worldToMapHeight(boundingBoxViewport.height),
       left: viewportCoord.x - 1,
-      top: viewportCoord.y - 1,
+      top: viewportCoord.y - 1
     };
 
     return (
@@ -185,34 +174,19 @@ export class MiniMap extends React.PureComponent<MiniMapType> {
         onMouseMove={this.mouseMove}
         onMouseUp={this.mouseUp}
         onMouseLeave={this.mouseUp}
-        ref={ref => this.minimapRef = ref}
+        ref={(ref) => {
+          if (ref) {
+            this.minimapRef = ref;
+            this.canvas.registerContainerElement(ref)
+          }
+        }}
         style={{
           width,
           height
         }}
       >
-        {nodes.map((n) => {
-          const miniMapPoint = worldToMapPoint(n.x, n.y);
-          return (
-            <div
-              key={n.id}
-              className={cx({
-                [styles.MiniMapElementSelected]: n.selected,
-                [styles.MiniMapElement]: true
-              })}
-              style={{
-                width: worldToMapWidth(NODE_WIDTH),
-                height: worldToMapHeight(NODE_HEIGHT),
-                left: miniMapPoint.x,
-                top: miniMapPoint.y,
-              }}
-            />
-          );
-        })}
-        <div
-          className={styles.MiniMapWhere}
-          style={areaCoordinates}
-        />
+        {this.canvas.render({ nodes: nodes.map((n) => worldToMapPoint(n.x, n.y)) })}
+        <div className={styles.MiniMapWhere} style={areaCoordinates} />
       </div>
     );
   }

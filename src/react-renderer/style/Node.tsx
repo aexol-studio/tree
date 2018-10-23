@@ -20,11 +20,11 @@ export const Node = classes(
   vars.SelectNone,
   style({
     color: vars.text,
+    position: 'absolute',
     background: 'transparent',
     height: 70,
     borderRadius: 5,
     fontSize: '10px',
-    position: 'absolute',
     display: 'flex',
     flexFlow: 'row nowrap',
     alignItems: 'center'
@@ -41,7 +41,6 @@ export const Title = style({
 });
 export const Name = style({
   fontWeight: 500,
-  width: 150,
   textTransform: 'unset',
   fontSize: '12px',
   display: 'flex',

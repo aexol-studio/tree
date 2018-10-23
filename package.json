@@ -15,7 +15,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/classnames": "2.2.3",
+    "@types/classnames": "^2.2.3",
     "@types/history": "4.6.2",
     "@types/json-schema": "^6.0.1",
     "@types/node": "9.4.6",
@@ -34,7 +34,7 @@
     "moment": "^2.21.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.0",
-    "typestyle": "^1.7.2",
+    "typestyle": "^2.0.1",
     "utility-types": "^1.1.0"
   }
 }

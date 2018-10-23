@@ -3,6 +3,7 @@ import * as classnames from 'classnames';
 import { Port } from './Port';
 import { NodeType, NodeActions } from '../types/Node';
 import * as NodeStyles from './style/Node';
+import { getNodeWidth, NodeDimensions } from '../viewport';
 export class Node extends React.Component<NodeType & NodeActions, {}> {
   private ports: Port[] = [];
   shouldComponentUpdate(nextProps: NodeType & NodeActions, nextState) {
@@ -43,16 +44,12 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
       y = 0,
       nodeDown,
       contextMenu,
-      name,
-      kind,
-      type,
       nodeUp,
       portUp,
       portDown,
       portPosition,
       nodeDoubleClick,
       styles: overrideStyles,
-      selected = false,
       invalid = false,
       noDraw
     } = this.props;
@@ -82,21 +79,23 @@ export class Node extends React.Component<NodeType & NodeActions, {}> {
           {...i}
         />
       ));
-    const width =
-      20 + 10 * (name.length > (kind || type).length ? name.length : (kind || type).length);
+    const width = getNodeWidth(this.props);
+    const height = NodeDimensions.height;
     const nodeIdentity = () => <div className={styles.Title} style={{ width }} />;
 
     return (
       <div
         className={classnames({
           [styles.Node]: true,
-          [styles.Selected]: selected,
           [styles.Invalid]: invalid
         })}
         style={{
           top: y,
           left: x,
           width,
+          height,
+          position: 'absolute',
+          background: 'transparent',
           pointerEvents: 'all'
         }}
         onDoubleClick={(e) => {
