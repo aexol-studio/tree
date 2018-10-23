@@ -14,6 +14,7 @@ export type LoadedFile = {
 export type GraphProps = {
   categories?: Array<ActionCategory>;
   serialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
+  dataSerialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
   load?: () => Array<NodeType>;
   validate?: (n1: NodeType, n2: NodeType) => boolean;
   loaded?: LoadedFile;

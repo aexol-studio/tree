@@ -103,9 +103,6 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
   }
 
   componentDidUpdate(prevProps: GraphProps, prevState: GraphState) {
-    if (prevState.nodes !== this.state.nodes || prevState.links !== this.state.links) {
-      this.serialize();
-    }
     if (
       this.state.nodes.length !== prevState.nodes.length ||
       this.state.links.length !== prevState.links.length
@@ -341,7 +338,7 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         nodes: [...state.nodes, newNode]
       };
       return updateNodes;
-    }, this.renderCanvas);
+    });
   };
   cloneNode = () => {
     if (!this.state.activeNodes.length) {
@@ -370,7 +367,9 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         renamed: false,
         ...updateState
       },
-      this.renderCanvas
+      () => {
+        this.renderCanvas();
+      }
     );
   };
   portDown = (x: number, y: number, portId: string, id: string, output: boolean) => {
@@ -604,7 +603,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
               action: Action.SelectedNode,
               activePort: null
             },
-            this.renderCanvas
+            () => {
+              this.renderCanvas();
+              this.serialize();
+            }
           );
         }}
       />
@@ -637,6 +639,14 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
       serialize(this.nodes(this.state.nodes), this.state.links, this.state.tabs);
     }
   };
+  dataSerialize = () => {
+    const { dataSerialize, serialize } = this.props;
+    if (dataSerialize) {
+      dataSerialize(this.nodes(this.state.nodes), this.state.links, this.state.tabs);
+    } else if (serialize) {
+      serialize(this.nodes(this.state.nodes), this.state.links, this.state.tabs);
+    }
+  };
   load = () => {
     const { load } = this.props;
     if (load) {
@@ -644,7 +654,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         {
           nodes: load()
         },
-        this.renderCanvas
+        () => {
+          this.renderCanvas();
+          this.dataSerialize();
+        }
       );
     }
   };
@@ -672,7 +685,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         (state) => ({
           ...oldState
         }),
-        this.renderCanvas
+        () => {
+          this.renderCanvas();
+          this.dataSerialize();
+        }
       );
     }
   };
@@ -684,7 +700,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         (state) => ({
           ...newState
         }),
-        this.renderCanvas
+        () => {
+          this.renderCanvas();
+          this.dataSerialize();
+        }
       );
     }
   };
@@ -757,7 +776,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
                       }),
                       contextMenuActive: false
                     }),
-                    this.renderCanvas
+                    () => {
+                      this.renderCanvas();
+                      this.dataSerialize();
+                    }
                   );
                 }
               },
@@ -777,7 +799,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
                       }),
                       contextMenuActive: false
                     }),
-                    this.renderCanvas
+                    () => {
+                      this.renderCanvas();
+                      this.dataSerialize();
+                    }
                   );
                 }
               }
@@ -841,7 +866,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
       (state) => ({
         ...nodes
       }),
-      this.renderCanvas
+      () => {
+        this.renderCanvas();
+        this.dataSerialize();
+      }
     );
   };
   getBackgroundBoundingRect = () => {
@@ -901,8 +929,8 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
     );
     if (this.state.renamed) {
       this.canvasRenderer.caret(this.state.activeNodes[0], NodeDimensions);
-    }else{
-      this.canvasRenderer.clearCaret()
+    } else {
+      this.canvasRenderer.clearCaret();
     }
   };
   render() {
@@ -1021,7 +1049,10 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
                     }),
                     activeNodes: [selected]
                   }),
-                  this.renderCanvas
+                  () => {
+                    this.renderCanvas();
+                    this.dataSerialize();
+                  }
                 );
               }}
             />
@@ -1038,28 +1069,37 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         <Tabs
           addTab={(name: string) => {
             if (!this.state.tabs.includes(name)) {
-              this.setState({
-                tabs: [...this.state.tabs, name]
-              });
+              this.setState(
+                {
+                  tabs: [...this.state.tabs, name]
+                },
+                this.dataSerialize
+              );
             }
           }}
           removeTab={(name: string) => {
             if (this.state.tabs.includes(name)) {
-              this.setState({
-                tabs: this.state.tabs.filter((t) => t !== name),
-                activeTab:
-                  this.state.activeTab === name ? this.state.tabs[0] : this.state.activeTab,
-                nodes: this.state.nodes.filter((n) => n.tab !== name)
-              });
+              this.setState(
+                {
+                  tabs: this.state.tabs.filter((t) => t !== name),
+                  activeTab:
+                    this.state.activeTab === name ? this.state.tabs[0] : this.state.activeTab,
+                  nodes: this.state.nodes.filter((n) => n.tab !== name)
+                },
+                this.dataSerialize
+              );
             }
           }}
           renameTab={(name: string, newName: string) => {
             if (this.state.tabs.includes(name)) {
-              this.setState({
-                tabs: this.state.tabs.map((t) => (t === name ? newName : t)),
-                activeTab: newName,
-                nodes: this.state.nodes.map((n) => (n.tab === name ? { ...n, tab: newName } : n))
-              });
+              this.setState(
+                {
+                  tabs: this.state.tabs.map((t) => (t === name ? newName : t)),
+                  activeTab: newName,
+                  nodes: this.state.nodes.map((n) => (n.tab === name ? { ...n, tab: newName } : n))
+                },
+                this.dataSerialize
+              );
             }
           }}
           onSelect={(name: string) => {
