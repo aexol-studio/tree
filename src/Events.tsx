@@ -1,4 +1,4 @@
-import { EventListenerFunctionProps, Action, GraphState } from './types';
+import { EventListenerFunctionProps, Action } from './types';
 
 let isMouseOver = false;
 
@@ -21,7 +21,9 @@ export const addEventListeners = ({
   validate,
   pan,
   drawConnectors,
-  moveNodes
+  moveNodes,
+  setCursor,
+  getCursor
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.oncontextmenu = () => {
@@ -59,8 +61,8 @@ export const addEventListeners = ({
         }
         return {};
       });
-      if(key === 86){
-        validate()
+      if (key === 86) {
+        validate();
       }
     }
     if (ctrlDown) {
@@ -168,37 +170,37 @@ export const addEventListeners = ({
     };
   });
   eventContainer.addEventListener('mousemove', (e) => {
-    stateUpdate((state) => {
-      let stateUpdate: Partial<GraphState> = {
-        mouseX: e.clientX,
-        mouseY: e.clientY
-      };
-      let m = {
-        x: e.clientX - mouseDown.x,
-        y: e.clientY - mouseDown.y
-      };
-      mouseDown = {
-        x: e.clientX,
-        y: e.clientY,
-        down: mouseDown.down
-      };
-      if (state.action === Action.SelectedNode && (m.x || m.y)) {
-        stateUpdate.action = Action.MoveNode;
-        snapshot('past', 'future');
-      }
-      if (
-        mouseDown.down &&
-        (state.action === Action.MoveNode || stateUpdate.action === Action.MoveNode)
-      ) {
-        moveNodes(m.x, m.y);
-      }
-      if (state.action === Action.ConnectPort) {
-        drawConnectors(e.clientX, e.clientY);
-      }
-      if (state.action === Action.Pan) {
-        pan(m.x, m.y);
-      }
-      return stateUpdate;
-    });
+    const { action } = getCursor();
+    let stateUpdate: {
+      x: number;
+      y: number;
+      action?: Action;
+    } = {
+      x: e.clientX,
+      y: e.clientY
+    };
+    let m = {
+      x: e.clientX - mouseDown.x,
+      y: e.clientY - mouseDown.y
+    };
+    mouseDown = {
+      x: e.clientX,
+      y: e.clientY,
+      down: mouseDown.down
+    };
+    if (action === Action.SelectedNode && (m.x || m.y)) {
+      stateUpdate.action = Action.MoveNode;
+      snapshot('past', 'future');
+    }
+    if (mouseDown.down && (action === Action.MoveNode || stateUpdate.action === Action.MoveNode)) {
+      moveNodes(m.x, m.y);
+    }
+    if (action === Action.ConnectPort) {
+      drawConnectors(e.clientX, e.clientY);
+    }
+    if (action === Action.Pan) {
+      pan(m.x, m.y);
+    }
+    setCursor(stateUpdate);
   });
 };

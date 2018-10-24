@@ -25,13 +25,13 @@ import {
   GraphUpdatePortPositions,
   GraphSelectNodes,
   GraphTreeSelect,
-  GraphGraphSelect
+  GraphGraphSelect,
+  RendererToGraphProps
 } from '../types';
 import { Node, Port, Props, Background, MiniMap, Tabs } from '.';
 import { Search, ForceDirected } from '..';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from '../utils';
 // import { renderLinks } from './render';
-import { Basic, Move, Connect } from '../cursors';
 import { addEventListeners } from '../Events';
 import { ZoomPanManager } from '../ZoomPan';
 import { GraphCanvas } from '../canvas-renderer/Graph';
@@ -43,7 +43,7 @@ import {
   getNodesAroundTheCursor
 } from '../viewport';
 
-export class GraphReact extends React.Component<GraphProps, GraphState> {
+export class GraphReact extends React.Component<GraphProps & RendererToGraphProps, GraphState> {
   background: HTMLDivElement;
   zoomPan: ZoomPanManager;
   canvasRenderer: GraphCanvas;
@@ -94,7 +94,9 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
       pan: this.panBy,
       drawConnectors: this.drawConnectors,
       moveNodes: this.moveNodes,
-      renderCanvas: this.renderCanvas
+      renderCanvas: this.renderCanvas,
+      setCursor: this.props.setCursor,
+      getCursor: this.props.getCursor
     });
 
     if (this.props.preventOverscrolling) {
@@ -330,9 +332,11 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
       };
       let updateNodes: any = {
         activeNodes: [newNode],
-        renamed: true,
-        action: Action.SelectedNode
+        renamed: true
       };
+      this.props.setCursor({
+        action: Action.SelectedNode
+      });
       updateNodes = {
         ...updateNodes,
         nodes: [...state.nodes, newNode]
@@ -358,9 +362,9 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
     });
   };
   reset = (updateState = {}) => {
+    this.props.setCursor({ action: Action.Nothing });
     this.setState(
       {
-        action: Action.Nothing,
         activePort: null,
         contextMenuActive: false,
         activeNodes: [],
@@ -378,8 +382,8 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
 
     const startX = (x - panPosition.x) / scale;
     const startY = (y - panPosition.y) / scale;
+    this.props.setCursor({ action: Action.ConnectPort });
     this.setState({
-      action: Action.ConnectPort,
       activePort: {
         x: startX,
         y: startY,
@@ -472,9 +476,9 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         ]
       });
     } else {
+      this.props.setCursor({ action: Action.Nothing });
       this.setState({
-        activePort: null,
-        action: Action.Nothing
+        activePort: null
       });
     }
     this.renderCanvas();
@@ -544,8 +548,8 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
   selectNodes: GraphSelectNodes = (node) => {
     const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
     if (alreadyHaveNode && !this.state.ctrlPressed) {
+      this.props.setCursor({ action: Action.SelectedNode });
       return {
-        action: Action.SelectedNode,
         renamed: this.state.activeNodes.length === 1
       };
     }
@@ -557,8 +561,8 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         activeNodes = [...this.state.activeNodes, ...activeNodes];
       }
     }
+    this.props.setCursor({ action: Action.SelectedNode });
     return {
-      action: Action.SelectedNode,
       activeNodes,
       renamed: activeNodes.length === 1
     };
@@ -586,21 +590,22 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         }}
         contextMenu={(id: string, x: number, y: number) => {
           if (this.state.activeNodes.length > 0) {
+            const { x, y } = this.props.getCursor();
             this.setState(
               {
                 ...this.selectNodes(node),
                 contextMenuActive: true,
-                contextX: this.state.mouseX,
-                contextY: this.state.mouseY
+                contextX: x,
+                contextY: y
               },
               this.renderCanvas
             );
           }
         }}
         nodeUp={(id: string) => {
+          this.props.setCursor({ action: Action.SelectedNode });
           this.setState(
             {
-              action: Action.SelectedNode,
               activePort: null
             },
             () => {
@@ -935,6 +940,7 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
   };
   render() {
     let { renamed } = this.state;
+    const { action, x, y } = this.props;
     let selectedNode = this.state.activeNodes;
     const { nodes } = this.currentTabState();
     return (
@@ -947,14 +953,12 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
         }}
         reset={this.reset}
         switchAction={(action: Action) => {
-          this.setState({
-            action
-          });
+          this.props.setCursor({ action });
         }}
       >
         <div
           className={cx(styles.Nodes, {
-            [styles.NodesZooming]: this.state.action !== Action.Pan && !this.state.miniMapPanning
+            [styles.NodesZooming]: action !== Action.Pan && !this.state.miniMapPanning
           })}
           ref={(ref) => {
             if (ref) {
@@ -962,9 +966,7 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
             }
           }}
         >
-          {this.renderNodes(
-            getNodesAroundTheCursor(nodes, this.zoomPan, this.state.mouseX, this.state.mouseY)
-          )}
+          {this.renderNodes(getNodesAroundTheCursor(nodes, this.zoomPan, x, y))}
           {this.state.activePort && (
             <svg className={styles.SVG}>
               <LinkWidget {...this.p} />
@@ -1025,7 +1027,7 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
           selectedNode.length === 1 &&
           renamed && (
             <Props
-              canBlurFocus={this.state.action === Action.SelectedNode}
+              canBlurFocus={action === Action.SelectedNode}
               node={selectedNode[0]}
               onChange={(selected: NodeType) => {
                 const clones = this.nodes(this.state.nodes).filter(
@@ -1057,15 +1059,6 @@ export class GraphReact extends React.Component<GraphProps, GraphState> {
               }}
             />
           )}
-        {
-          {
-            [Action.Nothing]: <Basic x={this.state.mouseX} y={this.state.mouseY} />,
-            [Action.SelectedNode]: <Basic x={this.state.mouseX} y={this.state.mouseY} />,
-            [Action.MoveNode]: <Move x={this.state.mouseX} y={this.state.mouseY} />,
-            [Action.Pan]: <Move x={this.state.mouseX} y={this.state.mouseY} />,
-            [Action.ConnectPort]: <Connect x={this.state.mouseX} y={this.state.mouseY} />
-          }[this.state.action]
-        }
         <Tabs
           addTab={(name: string) => {
             if (!this.state.tabs.includes(name)) {

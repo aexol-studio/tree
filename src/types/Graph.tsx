@@ -20,6 +20,20 @@ export type GraphProps = {
   loaded?: LoadedFile;
   preventOverscrolling?: boolean;
 };
+export type RendererState = {
+  x: number;
+  y: number;
+  action: Action;
+};
+export type GraphSetCursor = (props: Partial<RendererState>) => void;
+export type GraphGetCursor = () => { x: number; y: number; action: Action };
+export type RendererToGraphProps = {
+  setCursor: GraphSetCursor;
+  getCursor: GraphGetCursor;
+  x: number;
+  y: number;
+  action: Action;
+};
 export type GraphState = {
   renamed?: boolean;
   path?: Array<string | null>;
@@ -36,7 +50,6 @@ export type GraphState = {
   contextY: number;
   mouseX: number;
   mouseY: number;
-  action: Action;
   tabs?: string[];
   activeTab?: string;
   activeNodes?: Array<NodeType>;
@@ -79,7 +92,6 @@ export const GraphInitialState: GraphState = {
   contextY: 0,
   mouseX: 0,
   mouseY: 0,
-  action: Action.Nothing,
   activeNodes: [],
   activePort: null,
   loaded: null,
@@ -117,7 +129,6 @@ export type GraphUpdatePortPositions = (
 export type GraphSelectNodes = (
   node: NodeType
 ) => {
-  action: Action;
   activeNodes?: NodeType[];
   renamed: boolean;
 };

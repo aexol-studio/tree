@@ -9,7 +9,9 @@ import {
   GraphSnapshot,
   GraphScale,
   GraphAutoPosition,
-  GraphValidate
+  GraphValidate,
+  GraphSetCursor,
+  GraphGetCursor
 } from './Graph';
 
 export type EventListenerFunctionProps = {
@@ -26,5 +28,7 @@ export type EventListenerFunctionProps = {
   pan: GraphPan;
   drawConnectors: GraphDrawConnectors;
   moveNodes: GraphMoveNodes;
+  setCursor: GraphSetCursor;
+  getCursor: GraphGetCursor;
   renderCanvas: () => void;
 };
