@@ -920,7 +920,11 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
           }}
         >
           <Nodes
-            nodes={getNodesAroundTheCursor(nodes, this.zoomPan, x, y)}
+            nodes={
+              this.state.activeNodes.length > 0
+                ? this.state.activeNodes
+                : getNodesAroundTheCursor(nodes, this.zoomPan, x, y)
+            }
             portDown={this.portDown}
             portUp={this.portUp}
             portPosition={(x, y, portId, id, output) => {
