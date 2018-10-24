@@ -32,7 +32,8 @@ export const nodesInViewPort = (nodes: NodeType[], zoomPan: ZoomPanManager): Nod
       y: h / scale - y / scale
     }
   };
-  return nodes.filter((n) => n.x > b.min.x && n.x < b.max.x && n.y > b.min.y && n.y < b.max.y);
+  const nf = nodes.filter((n) => n.x > b.min.x && n.x < b.max.x && n.y > b.min.y && n.y < b.max.y);
+  return nf;
 };
 
 export const getNodesAroundTheCursor = (
@@ -46,7 +47,7 @@ export const getNodesAroundTheCursor = (
   const xScale = cursorX / scale - x / scale;
   const yScale = cursorY / scale - y / scale;
   const nodesRet = nodes.filter(
-    (n) => Math.abs(n.x - xScale) < 300*scale && Math.abs(n.y - yScale) < 300*scale
+    (n) => Math.abs(n.x - xScale) < 300 && Math.abs(n.y - yScale) < 300
   );
   return nodesRet;
 };

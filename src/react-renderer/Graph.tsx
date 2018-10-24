@@ -7,7 +7,6 @@ import {
   GraphProps,
   GraphState,
   GraphInitialState,
-  Action,
   PortType,
   GraphDeleteNode,
   ActionCategory,
@@ -26,9 +25,10 @@ import {
   GraphSelectNodes,
   GraphTreeSelect,
   GraphGraphSelect,
-  RendererToGraphProps
+  RendererToGraphProps,
+  Action
 } from '../types';
-import { Node, Port, Props, Background, MiniMap, Tabs } from '.';
+import { Port, Props, Background, MiniMap, Tabs } from '.';
 import { Search, ForceDirected } from '..';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from '../utils';
 // import { renderLinks } from './render';
@@ -42,6 +42,7 @@ import {
   nodesInViewPort,
   getNodesAroundTheCursor
 } from '../viewport';
+import { Nodes } from './Nodes';
 
 export class GraphReact extends React.Component<GraphProps & RendererToGraphProps, GraphState> {
   background: HTMLDivElement;
@@ -76,7 +77,23 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     this.zoomPan = new ZoomPanManager();
     this.canvasRenderer = new GraphCanvas();
   }
-
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.action === Action.Pan && this.props.action === Action.Pan) {
+      return false;
+    }
+    if (nextProps.action === Action.Left && this.props.action === Action.Left) {
+      return false;
+    }
+    return true;
+  }
+  dataUpdate = () => {
+    this.renderCanvas();
+    this.dataSerialize();
+  };
+  serializeUpdate = () => {
+    this.renderCanvas();
+    this.serialize();
+  };
   componentDidMount() {
     addEventListeners({
       deleteNodes: this.deleteNodes,
@@ -104,7 +121,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     }
   }
 
-  componentDidUpdate(prevProps: GraphProps, prevState: GraphState) {
+  componentDidUpdate(prevProps: GraphProps & RendererToGraphProps, prevState: GraphState) {
     if (
       this.state.nodes.length !== prevState.nodes.length ||
       this.state.links.length !== prevState.links.length
@@ -197,7 +214,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
           y: n.y + mouseY / scale
         }))
       },
-      this.renderCanvas
+      this.serializeUpdate
     );
   };
 
@@ -224,9 +241,12 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
   autoPosition: GraphAutoPosition = () => {
     const forceDirect = new ForceDirected(this.state.nodes, this.state.links);
     forceDirect.simulateRec((nodes) => {
-      this.setState({
-        nodes
-      });
+      this.setState(
+        {
+          nodes
+        },
+        this.dataUpdate
+      );
     });
   };
   validate: GraphValidate = () => {
@@ -348,6 +368,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     if (!this.state.activeNodes.length) {
       return;
     }
+    const { x, y } = this.props;
     this.state.activeNodes.map((node) => {
       const panPosition = this.zoomPan.getPosition();
       const scale = this.zoomPan.getScale();
@@ -356,8 +377,8 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         id: generateId(),
         inputs: node.inputs.map((i) => ({ ...i, id: generateId() })),
         outputs: node.outputs.map((i) => ({ ...i, id: generateId() })),
-        x: (this.state.mouseX - panPosition.x) / scale,
-        y: (this.state.mouseY - panPosition.y) / scale
+        x: (x - panPosition.x) / scale,
+        y: (y - panPosition.y) / scale
       });
     });
   };
@@ -567,56 +588,6 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       renamed: activeNodes.length === 1
     };
   };
-  renderNodes = (nodes: Array<NodeType>) => {
-    return nodes.map((node) => (
-      <Node
-        {...node}
-        key={node.id}
-        portDown={this.portDown}
-        portUp={this.portUp}
-        renamed={this.state.renamed}
-        portPosition={(x, y, portId, id, output) => {
-          this.updatePortPositions(x, y, portId, id, output);
-        }}
-        nodeDown={(id: string, x: number, y: number) => {
-          if (this.state.altPressed) {
-            this.goToDefinition(node);
-            return;
-          }
-          this.setState(this.selectNodes(node), this.renderCanvas);
-        }}
-        nodeDoubleClick={() => {
-          this.graphSelect();
-        }}
-        contextMenu={(id: string, x: number, y: number) => {
-          if (this.state.activeNodes.length > 0) {
-            const { x, y } = this.props.getCursor();
-            this.setState(
-              {
-                ...this.selectNodes(node),
-                contextMenuActive: true,
-                contextX: x,
-                contextY: y
-              },
-              this.renderCanvas
-            );
-          }
-        }}
-        nodeUp={(id: string) => {
-          this.props.setCursor({ action: Action.SelectedNode });
-          this.setState(
-            {
-              activePort: null
-            },
-            () => {
-              this.renderCanvas();
-              this.serialize();
-            }
-          );
-        }}
-      />
-    ));
-  };
   centerNode = (n: NodeType) => {
     this.zoomPan.panTo(
       -n.x * this.zoomPan.getScale() + this.background.clientWidth / 2.0,
@@ -659,10 +630,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         {
           nodes: load()
         },
-        () => {
-          this.renderCanvas();
-          this.dataSerialize();
-        }
+        this.dataUpdate
       );
     }
   };
@@ -690,10 +658,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         (state) => ({
           ...oldState
         }),
-        () => {
-          this.renderCanvas();
-          this.dataSerialize();
-        }
+        this.dataUpdate
       );
     }
   };
@@ -705,10 +670,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         (state) => ({
           ...newState
         }),
-        () => {
-          this.renderCanvas();
-          this.dataSerialize();
-        }
+        this.dataUpdate
       );
     }
   };
@@ -781,10 +743,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                       }),
                       contextMenuActive: false
                     }),
-                    () => {
-                      this.renderCanvas();
-                      this.dataSerialize();
-                    }
+                    this.dataUpdate
                   );
                 }
               },
@@ -804,10 +763,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                       }),
                       contextMenuActive: false
                     }),
-                    () => {
-                      this.renderCanvas();
-                      this.dataSerialize();
-                    }
+                    this.dataUpdate
                   );
                 }
               }
@@ -871,10 +827,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       (state) => ({
         ...nodes
       }),
-      () => {
-        this.renderCanvas();
-        this.dataSerialize();
-      }
+      this.dataUpdate
     );
   };
   getBackgroundBoundingRect = () => {
@@ -966,7 +919,49 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
             }
           }}
         >
-          {this.renderNodes(getNodesAroundTheCursor(nodes, this.zoomPan, x, y))}
+          <Nodes
+            nodes={getNodesAroundTheCursor(nodes, this.zoomPan, x, y)}
+            portDown={this.portDown}
+            portUp={this.portUp}
+            portPosition={(x, y, portId, id, output) => {
+              this.updatePortPositions(x, y, portId, id, output);
+            }}
+            nodeDown={(id: string, x: number, y: number) => {
+              const selectedNode = nodes.find((n) => n.id === id);
+              if (this.state.altPressed) {
+                this.goToDefinition(selectedNode);
+                return;
+              }
+              this.setState(this.selectNodes(selectedNode), this.renderCanvas);
+            }}
+            nodeDoubleClick={() => {
+              this.graphSelect();
+            }}
+            contextMenu={(id: string, x: number, y: number) => {
+              if (this.state.activeNodes.length > 0) {
+                const { x, y } = this.props.getCursor();
+                const selectedNode = nodes.find((n) => n.id === id);
+                this.setState(
+                  {
+                    ...this.selectNodes(selectedNode),
+                    contextMenuActive: true,
+                    contextX: x,
+                    contextY: y
+                  },
+                  this.renderCanvas
+                );
+              }
+            }}
+            nodeUp={(id: string) => {
+              this.props.setCursor({ action: Action.SelectedNode });
+              this.setState(
+                {
+                  activePort: null
+                },
+                () => this.serializeUpdate
+              );
+            }}
+          />
           {this.state.activePort && (
             <svg className={styles.SVG}>
               <LinkWidget {...this.p} />
@@ -1051,10 +1046,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                     }),
                     activeNodes: [selected]
                   }),
-                  () => {
-                    this.renderCanvas();
-                    this.dataSerialize();
-                  }
+                  this.dataUpdate
                 );
               }}
             />
@@ -1066,7 +1058,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                 {
                   tabs: [...this.state.tabs, name]
                 },
-                this.dataSerialize
+                this.dataUpdate
               );
             }
           }}
@@ -1079,7 +1071,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                     this.state.activeTab === name ? this.state.tabs[0] : this.state.activeTab,
                   nodes: this.state.nodes.filter((n) => n.tab !== name)
                 },
-                this.dataSerialize
+                this.dataUpdate
               );
             }
           }}
@@ -1091,7 +1083,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                   activeTab: newName,
                   nodes: this.state.nodes.map((n) => (n.tab === name ? { ...n, tab: newName } : n))
                 },
-                this.dataSerialize
+                this.dataUpdate
               );
             }
           }}

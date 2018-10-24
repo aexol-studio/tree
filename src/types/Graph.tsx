@@ -38,6 +38,7 @@ export type GraphState = {
   renamed?: boolean;
   path?: Array<string | null>;
   nodes: NodeType[];
+  viewPortNodes: NodeType[];
   links: LinkType[];
   spacePressed: boolean;
   contextMenuActive: boolean;
@@ -48,8 +49,6 @@ export type GraphState = {
   spaceY: number;
   contextX: number;
   contextY: number;
-  mouseX: number;
-  mouseY: number;
   tabs?: string[];
   activeTab?: string;
   activeNodes?: Array<NodeType>;
@@ -80,6 +79,7 @@ export const GraphInitialState: GraphState = {
   renamed: null,
   path: [null],
   nodes: [],
+  viewPortNodes: [],
   links: [],
   spacePressed: false,
   contextMenuActive: false,
@@ -90,8 +90,6 @@ export const GraphInitialState: GraphState = {
   spaceY: 0,
   contextX: 0,
   contextY: 0,
-  mouseX: 0,
-  mouseY: 0,
   activeNodes: [],
   activePort: null,
   loaded: null,

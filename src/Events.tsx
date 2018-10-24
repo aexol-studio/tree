@@ -114,11 +114,12 @@ export const addEventListeners = ({
     }
     if (key === 32) {
       stateUpdate((state) => {
+        const { x, y } = getCursor();
         if (!state.spacePressed) {
           return {
             spacePressed: true,
-            spaceX: state.mouseX,
-            spaceY: state.mouseY
+            spaceX: x,
+            spaceY: y
           };
         }
         return {};
