@@ -23,7 +23,10 @@ export const addEventListeners = ({
   drawConnectors,
   moveNodes,
   setCursor,
-  getCursor
+  getCursor,
+  getAction,
+  setAction,
+  castPick
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.oncontextmenu = () => {
@@ -162,6 +165,7 @@ export const addEventListeners = ({
       ...mouseDown,
       down: false
     };
+    castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'up' });
   });
   eventContainer.addEventListener('mousedown', (e) => {
     mouseDown = {
@@ -169,13 +173,17 @@ export const addEventListeners = ({
       y: e.clientY,
       down: true
     };
+    castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'down' });
+  });
+  eventContainer.addEventListener('dblclick', (e) => {
+    castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'dbl' });
   });
   eventContainer.addEventListener('mousemove', (e) => {
-    const { action } = getCursor();
+    const action = getAction();
+    let newAction;
     let stateUpdate: {
       x: number;
       y: number;
-      action?: Action;
     } = {
       x: e.clientX,
       y: e.clientY
@@ -190,10 +198,10 @@ export const addEventListeners = ({
       down: mouseDown.down
     };
     if (action === Action.SelectedNode && (m.x || m.y)) {
-      stateUpdate.action = Action.MoveNode;
+      newAction = Action.MoveNode;
       snapshot('past', 'future');
     }
-    if (mouseDown.down && (action === Action.MoveNode || stateUpdate.action === Action.MoveNode)) {
+    if (mouseDown.down && (action === Action.MoveNode || newAction === Action.MoveNode)) {
       moveNodes(m.x, m.y);
     }
     if (action === Action.ConnectPort) {
@@ -203,5 +211,8 @@ export const addEventListeners = ({
       pan(m.x, m.y);
     }
     setCursor(stateUpdate);
+    if (newAction) {
+      setAction(newAction);
+    }
   });
 };

@@ -7,7 +7,6 @@ import {
   GraphProps,
   GraphState,
   GraphInitialState,
-  PortType,
   GraphDeleteNode,
   ActionCategory,
   Snapshot,
@@ -21,14 +20,14 @@ import {
   GraphDrawConnectors,
   GraphMoveNodes,
   GraphPan,
-  GraphUpdatePortPositions,
   GraphSelectNodes,
   GraphTreeSelect,
   GraphGraphSelect,
   RendererToGraphProps,
-  Action
+  Action,
+  GraphCastPick
 } from '../types';
-import { Port, Props, Background, MiniMap, Tabs } from '.';
+import { Props, Background, MiniMap, Tabs } from '.';
 import { Search, ForceDirected } from '..';
 import { generateId, deepNodesUpdate, treeSelection, graphSelection } from '../utils';
 // import { renderLinks } from './render';
@@ -36,13 +35,7 @@ import { addEventListeners } from '../Events';
 import { ZoomPanManager } from '../ZoomPan';
 import { GraphCanvas } from '../canvas-renderer/Graph';
 import { LinkWidget } from './Link';
-import {
-  getNodeWidth,
-  NodeDimensions,
-  nodesInViewPort,
-  getNodesAroundTheCursor
-} from '../viewport';
-import { Nodes } from './Nodes';
+import { getNodeWidth, NodeDimensions, nodesInViewPort } from '../viewport';
 
 export class GraphReact extends React.Component<GraphProps & RendererToGraphProps, GraphState> {
   background: HTMLDivElement;
@@ -77,15 +70,6 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     this.zoomPan = new ZoomPanManager();
     this.canvasRenderer = new GraphCanvas();
   }
-  shouldComponentUpdate(nextProps) {
-    if (nextProps.action === Action.Pan && this.props.action === Action.Pan) {
-      return false;
-    }
-    if (nextProps.action === Action.Left && this.props.action === Action.Left) {
-      return false;
-    }
-    return true;
-  }
   dataUpdate = () => {
     this.renderCanvas();
     this.dataSerialize();
@@ -113,7 +97,10 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       moveNodes: this.moveNodes,
       renderCanvas: this.renderCanvas,
       setCursor: this.props.setCursor,
-      getCursor: this.props.getCursor
+      getCursor: this.props.getCursor,
+      castPick: this.castPick,
+      setAction: this.props.setAction,
+      getAction: this.props.getAction
     });
 
     if (this.props.preventOverscrolling) {
@@ -236,6 +223,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
   panTo: GraphPan = (x: number, y: number) => {
     this.zoomPan.panTo(x, y);
     this.renderCanvas();
+    this.forceUpdate();
   };
 
   autoPosition: GraphAutoPosition = () => {
@@ -354,9 +342,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         activeNodes: [newNode],
         renamed: true
       };
-      this.props.setCursor({
-        action: Action.SelectedNode
-      });
+      this.props.setAction(Action.SelectedNode);
       updateNodes = {
         ...updateNodes,
         nodes: [...state.nodes, newNode]
@@ -368,7 +354,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     if (!this.state.activeNodes.length) {
       return;
     }
-    const { x, y } = this.props;
+    const { x, y } = this.props.getCursor();
     this.state.activeNodes.map((node) => {
       const panPosition = this.zoomPan.getPosition();
       const scale = this.zoomPan.getScale();
@@ -382,8 +368,9 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       });
     });
   };
+
   reset = (updateState = {}) => {
-    this.props.setCursor({ action: Action.Nothing });
+    this.props.setAction(Action.Nothing);
     this.setState(
       {
         activePort: null,
@@ -397,26 +384,51 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       }
     );
   };
-  portDown = (x: number, y: number, portId: string, id: string, output: boolean) => {
-    const panPosition = this.zoomPan.getPosition();
-    const scale = this.zoomPan.getScale();
 
-    const startX = (x - panPosition.x) / scale;
-    const startY = (y - panPosition.y) / scale;
-    this.props.setCursor({ action: Action.ConnectPort });
+  nodeDown = (selectedNode: NodeType) => {
+    this.props.setAction(Action.SelectedNode);
+    if (this.state.altPressed) {
+      this.goToDefinition(selectedNode);
+      return;
+    }
+    this.setState(this.selectNodes(selectedNode), this.renderCanvas);
+  };
+  contextMenu = (selectedNode: NodeType) => {
+    const { x, y } = this.props.getCursor();
+    this.setState(
+      {
+        ...this.selectNodes(selectedNode),
+        contextMenuActive: true,
+        contextX: x,
+        contextY: y
+      },
+      this.renderCanvas
+    );
+  };
+  nodeUp = () => {
+    this.props.setAction(Action.SelectedNode);
+    this.setState(
+      {
+        activePort: null
+      },
+      () => this.serializeUpdate
+    );
+  };
+  portDown = (x: number, y: number, portId: string, id: string, output: boolean) => {
+    this.props.setAction(Action.ConnectPort);
     this.setState({
       activePort: {
-        x: startX,
-        y: startY,
+        x,
+        y,
         id,
         portId,
         output,
-        endX: startX,
-        endY: startY
+        endX: x,
+        endY: y
       }
     });
   };
-  portUp = (x: number, y: number, portId: string, id: string, output: boolean) => {
+  portUp = (portId: string, id: string, output: boolean) => {
     const { activePort } = this.state;
     const ports = [
       {
@@ -497,54 +509,12 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         ]
       });
     } else {
-      this.props.setCursor({ action: Action.Nothing });
+      this.props.setAction(Action.Nothing);
       this.setState({
         activePort: null
       });
     }
     this.renderCanvas();
-  };
-  updatePortPositions: GraphUpdatePortPositions = (x, y, portId, id, output) => {
-    this.setState((state) => {
-      const modifyState = (portMode: 'inputs' | 'outputs') => {
-        let n = this.nodes(state.nodes).find((n) => n.id === id);
-        let ports = n[portMode].map((p) => (p.id === portId ? { ...p, x, y } : p));
-        return deepNodesUpdate({
-          nodes: state.nodes,
-          updated: [
-            {
-              id,
-              node: {
-                [portMode]: ports
-              }
-            }
-          ]
-        });
-      };
-      if (output) {
-        return modifyState('outputs');
-      } else {
-        return modifyState('inputs');
-      }
-    });
-  };
-  renderMainPorts = (node: NodeType, ports: Array<PortType>, output: boolean) => {
-    return ports.map((i) => (
-      <Port
-        name={i.name}
-        key={i.id}
-        portDown={(x, y) => {
-          this.portDown(x, y, i.id, node.id, i.output);
-        }}
-        portUp={(x, y) => {
-          this.portUp(x, y, i.id, node.id, i.output);
-        }}
-        portPosition={(x, y) => {
-          this.updatePortPositions(x, y, i.id, node.id, output);
-        }}
-        output={!output}
-      />
-    ));
   };
   treeSelect: GraphTreeSelect = () => {
     const nodes = this.nodes(this.state.nodes);
@@ -569,7 +539,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
   selectNodes: GraphSelectNodes = (node) => {
     const alreadyHaveNode = !!this.state.activeNodes.find((n) => n.id === node.id);
     if (alreadyHaveNode && !this.state.ctrlPressed) {
-      this.props.setCursor({ action: Action.SelectedNode });
+      this.props.setAction(Action.SelectedNode);
       return {
         renamed: this.state.activeNodes.length === 1
       };
@@ -582,7 +552,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         activeNodes = [...this.state.activeNodes, ...activeNodes];
       }
     }
-    this.props.setCursor({ action: Action.SelectedNode });
+    this.props.setAction(Action.SelectedNode);
     return {
       activeNodes,
       renamed: activeNodes.length === 1
@@ -891,9 +861,87 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       this.canvasRenderer.clearCaret();
     }
   };
+  castPick: GraphCastPick = ({ x, y, button, direction }) => {
+    if (this.state.contextMenuActive || this.state.spacePressed) {
+      return;
+    }
+    const { action } = this.props;
+    const { nodes } = this.currentTabState();
+    const panPosition = this.zoomPan.getPosition();
+    const panScale = this.zoomPan.getScale();
+    const realX = (x - panPosition.x) / panScale;
+    const realY = (y - panPosition.y) / panScale;
+    let closestX = NodeDimensions.width * 3;
+    let closestY = NodeDimensions.height;
+    let closestNode: NodeType;
+    for (const node of nodes) {
+      const xDistance = realX - node.x;
+      const yDistance = realY - node.y;
+      if (xDistance < -10 || yDistance < 0) {
+        continue;
+      }
+      if (
+        yDistance < NodeDimensions.height &&
+        xDistance < NodeDimensions.width * 3 &&
+        xDistance < closestX &&
+        yDistance < closestY
+      ) {
+        const nodeWidth = getNodeWidth(node);
+        if (xDistance < nodeWidth + 10) {
+          if (xDistance > nodeWidth - 10) {
+            const [port] = node.outputs;
+            if (port && direction === 'down') {
+              this.portDown(realX, realY, port.id, node.id, true);
+              return;
+            }
+            if (port && direction === 'up') {
+              this.portUp(port.id, node.id, true);
+              return;
+            }
+          }
+          if (xDistance < 10) {
+            const [port] = node.inputs;
+            if (port && direction === 'down') {
+              this.portDown(realX, realY, port.id, node.id, false);
+              return;
+            }
+            if (port && direction === 'up') {
+              this.portUp(port.id, node.id, false);
+              return;
+            }
+          }
+          closestX = xDistance;
+          closestY = yDistance;
+          closestNode = node;
+        }
+      }
+    }
+    if (closestNode) {
+      if (button === 1 && direction === 'dbl') {
+        this.graphSelect();
+        return;
+      }
+      if (button === 1 && direction === 'down') {
+        this.nodeDown(closestNode);
+        return;
+      }
+      if (button === 1 && direction === 'up') {
+        this.nodeUp();
+        return;
+      }
+      if (button === 3 && direction === 'up') {
+        this.contextMenu(closestNode);
+        return;
+      }
+    }
+    if (action !== Action.Pan) {
+      this.reset();
+      return;
+    }
+  };
   render() {
     let { renamed } = this.state;
-    const { action, x, y } = this.props;
+    const { action } = this.props;
     let selectedNode = this.state.activeNodes;
     const { nodes } = this.currentTabState();
     return (
@@ -904,9 +952,11 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
             this.canvasRenderer.registerContainerElement(ref);
           }
         }}
-        reset={this.reset}
+        reset={() => {
+          [Action.Pan, Action.Nothing, Action.Left].includes(action) && this.reset();
+        }}
         switchAction={(action: Action) => {
-          this.props.setCursor({ action });
+          this.props.setAction(action);
         }}
       >
         <div
@@ -919,53 +969,6 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
             }
           }}
         >
-          <Nodes
-            nodes={
-              this.state.activeNodes.length > 0
-                ? this.state.activeNodes
-                : getNodesAroundTheCursor(nodes, this.zoomPan, x, y)
-            }
-            portDown={this.portDown}
-            portUp={this.portUp}
-            portPosition={(x, y, portId, id, output) => {
-              this.updatePortPositions(x, y, portId, id, output);
-            }}
-            nodeDown={(id: string, x: number, y: number) => {
-              const selectedNode = nodes.find((n) => n.id === id);
-              if (this.state.altPressed) {
-                this.goToDefinition(selectedNode);
-                return;
-              }
-              this.setState(this.selectNodes(selectedNode), this.renderCanvas);
-            }}
-            nodeDoubleClick={() => {
-              this.graphSelect();
-            }}
-            contextMenu={(id: string, x: number, y: number) => {
-              if (this.state.activeNodes.length > 0) {
-                const { x, y } = this.props.getCursor();
-                const selectedNode = nodes.find((n) => n.id === id);
-                this.setState(
-                  {
-                    ...this.selectNodes(selectedNode),
-                    contextMenuActive: true,
-                    contextX: x,
-                    contextY: y
-                  },
-                  this.renderCanvas
-                );
-              }
-            }}
-            nodeUp={(id: string) => {
-              this.props.setCursor({ action: Action.SelectedNode });
-              this.setState(
-                {
-                  activePort: null
-                },
-                () => this.serializeUpdate
-              );
-            }}
-          />
           {this.state.activePort && (
             <svg className={styles.SVG}>
               <LinkWidget {...this.p} />

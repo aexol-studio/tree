@@ -21,24 +21,23 @@ export type GraphProps = {
   preventOverscrolling?: boolean;
 };
 export type RendererState = {
-  x: number;
-  y: number;
   action: Action;
 };
-export type GraphSetCursor = (props: Partial<RendererState>) => void;
-export type GraphGetCursor = () => { x: number; y: number; action: Action };
+export type GraphSetCursor = (props: { x: number; y: number }) => void;
+export type GraphGetCursor = () => { x: number; y: number };
+export type GraphSetAction = (action: Action) => void;
+export type GraphGetAction = () => Action;
 export type RendererToGraphProps = {
   setCursor: GraphSetCursor;
   getCursor: GraphGetCursor;
-  x: number;
-  y: number;
+  setAction: GraphSetAction;
+  getAction: GraphGetAction;
   action: Action;
 };
 export type GraphState = {
   renamed?: boolean;
   path?: Array<string | null>;
   nodes: NodeType[];
-  viewPortNodes: NodeType[];
   links: LinkType[];
   spacePressed: boolean;
   contextMenuActive: boolean;
@@ -79,7 +78,6 @@ export const GraphInitialState: GraphState = {
   renamed: null,
   path: [null],
   nodes: [],
-  viewPortNodes: [],
   links: [],
   spacePressed: false,
   contextMenuActive: false,
@@ -132,3 +130,6 @@ export type GraphSelectNodes = (
 };
 export type GraphGraphSelect = () => void;
 export type GraphTreeSelect = () => void;
+export type GraphCastPick = (
+  props: { x: number; y: number; button: number; direction: 'up' | 'down' | 'dbl' }
+) => void;

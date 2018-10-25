@@ -11,7 +11,10 @@ import {
   GraphAutoPosition,
   GraphValidate,
   GraphSetCursor,
-  GraphGetCursor
+  GraphGetCursor,
+  GraphCastPick,
+  GraphSetAction,
+  GraphGetAction
 } from './Graph';
 
 export type EventListenerFunctionProps = {
@@ -30,5 +33,8 @@ export type EventListenerFunctionProps = {
   moveNodes: GraphMoveNodes;
   setCursor: GraphSetCursor;
   getCursor: GraphGetCursor;
+  setAction: GraphSetAction;
+  getAction: GraphGetAction;
+  castPick: GraphCastPick;
   renderCanvas: () => void;
 };

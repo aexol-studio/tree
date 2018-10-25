@@ -1,9 +1,7 @@
 import * as styles from './style';
-export * from './Port';
 export * from './Graph';
 export * from './Props';
 export * from './Link';
-export * from './Node';
 export * from './Background';
 export * from './MiniMap';
 export * from './Tabs';

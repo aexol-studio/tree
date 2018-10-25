@@ -8,10 +8,14 @@ export const Background: React.SFC<BackgroundProps> = (props) => (
     }}
     className={styles.Background}
     onMouseDown={(e) => {
-      props.switchAction(Action.Pan);
+      if (e.button === 0) {
+        props.switchAction(Action.Pan);
+      }
     }}
     onMouseUp={(e) => {
-      props.reset();
+      if (e.button === 0) {
+        props.reset();
+      }
     }}
     onMouseEnter={(e) => {
       props.switchAction(Action.Nothing);

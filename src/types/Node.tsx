@@ -1,5 +1,4 @@
 import { PortType } from './Port';
-import * as styles from '../react-renderer/style/Node';
 import { Item } from './SpaceMenu';
 export type NodeType = {
   id?: string;
@@ -11,17 +10,16 @@ export type NodeType = {
   type: string;
   subType?: string;
   kind?: string;
-  required?:boolean;
+  required?: boolean;
   inputs: Array<PortType>;
   outputs: Array<PortType>;
   nodes?: Array<NodeType>;
   items?: Array<Item>;
-  renamed?:boolean;
-  tab?:string;
+  renamed?: boolean;
+  tab?: string;
   clone?: string;
-  styles?: typeof styles;
   invalid?: boolean;
-  noDraw?:boolean
+  noDraw?: boolean;
 };
 export type NodeTypePartial = { [P in keyof NodeType]?: NodeType[P] };
 export type NodeActions = {

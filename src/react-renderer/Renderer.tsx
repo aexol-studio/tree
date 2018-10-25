@@ -1,24 +1,39 @@
 import * as React from 'react';
-import { GraphProps, RendererState, Action } from '../types';
+import {
+  GraphProps,
+  RendererState,
+  Action,
+  GraphGetAction,
+  GraphSetAction,
+  GraphGetCursor,
+  GraphSetCursor
+} from '../types';
 import { GraphReact } from './Graph';
 import { MouseCursor } from './MouseCursor';
 export class Renderer extends React.Component<GraphProps, RendererState> {
   state: RendererState = {
-    x: 0,
-    y: 0,
     action: Action.Nothing
   };
-  background: HTMLDivElement;
-  setCursor = (props: Partial<RendererState>) => {
-    this.setState((state) => props as any);
+  x = 0;
+  y = 0;
+  cursorDiv: HTMLDivElement;
+  setAction: GraphSetAction = (action) => {
+    this.setState({ action });
   };
-  getCursor = () => {
-    const { x, y, action } = this.state;
+  getAction: GraphGetAction = () => {
+    return this.state.action;
+  };
+  getCursor: GraphGetCursor = () => {
     return {
-      x,
-      y,
-      action
+      x: this.x,
+      y: this.y
     };
+  };
+  setCursor: GraphSetCursor = ({ x, y }) => {
+    this.x = x;
+    this.y = y;
+    this.cursorDiv.style.top = `${y}px`;
+    this.cursorDiv.style.left = `${x}px`;
   };
   render() {
     return (
@@ -26,10 +41,25 @@ export class Renderer extends React.Component<GraphProps, RendererState> {
         <GraphReact
           setCursor={this.setCursor}
           getCursor={this.getCursor}
-          {...this.state}
+          setAction={this.setAction}
+          getAction={this.getAction}
+          action={this.state.action}
           {...this.props}
         />
-        {this.state.action !== Action.Left && <MouseCursor {...this.state} />}
+        <div
+          style={{
+            position: 'fixed',
+            zIndex: 1000,
+            pointerEvents: 'none'
+          }}
+          ref={(ref) => {
+            if (ref) {
+              this.cursorDiv = ref;
+            }
+          }}
+        >
+          <MouseCursor action={this.state.action} />
+        </div>
       </React.Fragment>
     );
   }
