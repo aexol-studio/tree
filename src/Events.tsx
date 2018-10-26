@@ -42,6 +42,7 @@ export const addEventListeners = ({
   });
   whereToRun.addEventListener('mouseleave', (e) => {
     isMouseOver = false;
+    setAction(Action.Left);
   });
   eventContainer.addEventListener('keydown', (e) => {
     if (!isMouseOver) {
@@ -130,6 +131,9 @@ export const addEventListeners = ({
     }
   });
   eventContainer.addEventListener('keyup', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     const ctrlDown =
       e.ctrlKey ||
       e.metaKey ||
@@ -161,6 +165,9 @@ export const addEventListeners = ({
     }
   });
   eventContainer.addEventListener('mouseup', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     mouseDown = {
       ...mouseDown,
       down: false
@@ -168,6 +175,9 @@ export const addEventListeners = ({
     castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'up' });
   });
   eventContainer.addEventListener('mousedown', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     mouseDown = {
       x: e.clientX,
       y: e.clientY,
@@ -176,9 +186,15 @@ export const addEventListeners = ({
     castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'down' });
   });
   eventContainer.addEventListener('dblclick', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'dbl' });
   });
   eventContainer.addEventListener('mousemove', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     const action = getAction();
     let newAction;
     let stateUpdate: {
