@@ -552,7 +552,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     };
   };
   centerNode = (n: NodeType) => {
-    this.zoomPan.panTo(
+    this.panTo(
       -n.x * this.zoomPan.getScale() + this.background.clientWidth / 2.0,
       -n.y * this.zoomPan.getScale() + this.background.clientHeight / 2.0
     );
