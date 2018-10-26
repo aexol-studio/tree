@@ -41,6 +41,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
   background: HTMLDivElement;
   zoomPan: ZoomPanManager;
   canvasRenderer: GraphCanvas;
+  viewPortNodes: string[] = [];
   past: Snapshot[] = [
     {
       nodes: [],
@@ -113,6 +114,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       this.state.nodes.length !== prevState.nodes.length ||
       this.state.links.length !== prevState.links.length
     ) {
+      this.calculateViewPortNodes();
       this.checkConnections();
     }
     // reset the last hover
@@ -201,7 +203,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
           y: n.y + mouseY / scale
         }))
       },
-      this.serializeUpdate
+      this.renderCanvas
     );
   };
 
@@ -209,11 +211,13 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     const backgroundBoundingRect = this.background.getBoundingClientRect();
     const [x, y] = [clientX - backgroundBoundingRect.left, clientY - backgroundBoundingRect.top];
     this.zoomPan.zoomChanged(delta, x, y);
+    this.calculateViewPortNodes();
     this.renderCanvas();
   };
 
   panBy: GraphPan = (x: number, y: number) => {
     this.zoomPan.panBy(x, y);
+    this.calculateViewPortNodes();
     this.renderCanvas();
   };
 
@@ -222,6 +226,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
 
   panTo: GraphPan = (x: number, y: number) => {
     this.zoomPan.panTo(x, y);
+    this.calculateViewPortNodes();
     this.renderCanvas();
     this.forceUpdate();
   };
@@ -275,18 +280,6 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       ...deepNodesUpdate({ nodes: state.nodes, updated: invalidNodes })
     }));
   };
-  nodes = (nodes: Array<NodeType>): Array<NodeType> => {
-    const processData = function*(data) {
-      for (var n of data) {
-        yield n;
-        if (n.nodes && n.nodes.length) {
-          yield* processData(n.nodes);
-        }
-      }
-    };
-    let allNodes = processData(nodes);
-    return [...allNodes];
-  };
   deleteLinks = (nodes: NodeType[]): { links: LinkType[] } => {
     let links = [...this.state.links];
     this.state.activeNodes.map((node) => {
@@ -298,7 +291,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     return { links };
   };
   deleteNodes: GraphDeleteNode = () => {
-    const allNodes = this.nodes(this.state.nodes);
+    const allNodes = this.state.nodes;
     const nodes = allNodes
       .filter((n) => this.state.activeNodes.find((an) => an.id === n.clone))
       .concat(this.state.activeNodes);
@@ -411,7 +404,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       {
         activePort: null
       },
-      () => this.serializeUpdate
+      this.serializeUpdate
     );
   };
   portDown = (x: number, y: number, portId: string, id: string, output: boolean) => {
@@ -457,7 +450,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
         this.reset();
         return;
       }
-      const allNodes = this.nodes(this.state.nodes);
+      const allNodes = this.state.nodes;
       const port = allNodes
         .find((n) => n.id === (activePort.output ? id : activePort.id))
         .inputs.find((p) => p.id === (activePort.output ? portId : activePort.portId));
@@ -517,7 +510,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     this.renderCanvas();
   };
   treeSelect: GraphTreeSelect = () => {
-    const nodes = this.nodes(this.state.nodes);
+    const nodes = this.state.nodes;
     let activeNodes = this.state.activeNodes
       .map((n) => treeSelection(n, nodes, this.state.links))
       .reduce((a, b) => [...a, ...b]);
@@ -527,7 +520,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     });
   };
   graphSelect: GraphGraphSelect = () => {
-    const nodes = this.nodes(this.state.nodes);
+    const nodes = this.state.nodes;
     let activeNodes = this.state.activeNodes
       .map((n) => graphSelection(n, nodes, this.state.links))
       .reduce((a, b) => [...a, ...b]);
@@ -582,15 +575,15 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
   serialize = () => {
     const { serialize } = this.props;
     if (serialize) {
-      serialize(this.nodes(this.state.nodes), this.state.links, this.state.tabs);
+      serialize(this.state.nodes, this.state.links, this.state.tabs);
     }
   };
   dataSerialize = () => {
     const { dataSerialize, serialize } = this.props;
     if (dataSerialize) {
-      dataSerialize(this.nodes(this.state.nodes), this.state.links, this.state.tabs);
+      dataSerialize(this.state.nodes, this.state.links, this.state.tabs);
     } else if (serialize) {
-      serialize(this.nodes(this.state.nodes), this.state.links, this.state.tabs);
+      serialize(this.state.nodes, this.state.links, this.state.tabs);
     }
   };
   load = () => {
@@ -703,8 +696,8 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                   this.setState(
                     (state) => ({
                       ...deepNodesUpdate({
-                        nodes: this.nodes(state.nodes),
-                        updated: this.state.activeNodes.map((n) => ({
+                        nodes: state.nodes,
+                        updated: state.activeNodes.map((n) => ({
                           id: n.id,
                           node: {
                             required: false
@@ -723,7 +716,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                   this.setState(
                     (state) => ({
                       ...deepNodesUpdate({
-                        nodes: this.nodes(state.nodes),
+                        nodes: state.nodes,
                         updated: this.state.activeNodes.map((n) => ({
                           id: n.id,
                           node: {
@@ -755,21 +748,9 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     }
     return category;
   };
-  //Small util to dedupe unwanted links
-  dedupeLinks = () => {
-    this.setState({
-      links: this.state.links.filter(
-        (l, i) =>
-          i ===
-          this.state.links.findIndex(
-            (link) => link.from.portId === l.from.portId && link.to.portId === l.to.portId
-          )
-      )
-    });
-  };
 
   checkConnections = () => {
-    const allNodes = this.nodes(this.state.nodes);
+    const allNodes = this.state.nodes;
     const nodes = deepNodesUpdate({
       nodes: allNodes,
       updated: allNodes
@@ -800,14 +781,6 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       this.dataUpdate
     );
   };
-  getBackgroundBoundingRect = () => {
-    if (!this.background) {
-      return { x: 0, y: 0 };
-    }
-    const backgroundBoundingRect = this.background.getBoundingClientRect();
-    const [x, y] = [backgroundBoundingRect.left, backgroundBoundingRect.top];
-    return { x, y };
-  };
   currentTabState = () => {
     let { nodes, links, activeTab } = this.state;
     nodes = nodes.filter((n) => (n.tab ? n.tab === activeTab : activeTab === MAIN_TAB_NAME));
@@ -819,9 +792,13 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
       links
     };
   };
+  calculateViewPortNodes = () => {
+    const { nodes } = this.currentTabState();
+    this.viewPortNodes = nodesInViewPort(nodes, this.zoomPan).map((n) => n.id);
+  };
   renderCanvas = () => {
     const { nodes, links } = this.currentTabState();
-    const viewPortNodes = nodesInViewPort(nodes, this.zoomPan);
+    const viewPortNodes = nodes.filter((n) => this.viewPortNodes.includes(n.id));
     const nodeIds = viewPortNodes.map((n) => n.id);
     const viewPortLinks = links.filter(
       (l) => nodeIds.includes(l.from.nodeId) || nodeIds.includes(l.to.nodeId)
@@ -1032,9 +1009,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
               canBlurFocus={action === Action.SelectedNode}
               node={selectedNode[0]}
               onChange={(selected: NodeType) => {
-                const clones = this.nodes(this.state.nodes).filter(
-                  (n) => n.clone === selectedNode[0].id
-                );
+                const clones = this.state.nodes.filter((n) => n.clone === selectedNode[0].id);
                 this.setState(
                   (state) => ({
                     ...deepNodesUpdate({
