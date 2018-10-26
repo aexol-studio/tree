@@ -21,6 +21,7 @@ export class GraphCanvas {
     this.canvas.style.height = '100vh';
     this.ctx = this.canvas.getContext('2d', { alpha: false });
     this.ctx.font = '10px Helvetica';
+    this.clearCanvas();
   }
   registerContainerElement(containerElement: HTMLDivElement) {
     this.containerElement = containerElement;
@@ -59,6 +60,14 @@ export class GraphCanvas {
       });
     };
     drawCaret(true);
+  };
+  clearCanvas = () => {
+    window.requestAnimationFrame(() => {
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillStyle = vars.bgradial;
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    });
   };
   render(
     state: Pick<GraphState, 'nodes'> & {
