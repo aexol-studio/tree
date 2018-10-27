@@ -2,19 +2,23 @@
 
 Diagram is the tool for making node based systems. Define your own behaviour of this react based diagram system and create your tool. Visual programming is trending right now so this is a good basis.
 
+[Project Page](https://diagram.graphqleditor.com)
+
 ![](assets/features-100.jpg)
 
 ## Live demo
 
-Here is [Live Demo](https://app.slothking.online) of diagram used to create node based backend system
+Here is [Live Demo](https://demo.graphqleditor.com) of diagram used to create node based graphql system
 
-## Add to yor project
+![](assets/gif.gif)
+
+## Add to your project
 
 ```sh
 $ npm install @slothking-online/diagram
 ```
 
-## Dvelop & Contribute
+## Develop & Contribute
 
 ```sh
 $ git clone https://github.com/slothking-online/diagram

@@ -12,18 +12,22 @@ export const bgcategoryBorder = '#2a2a2a';
 export const bgradial = '#444444';
 export const text = '#eeeeee';
 export const selected = '#62afdb';
-export const invalid = '#dbaf62'
+export const invalid = '#dbaf62';
 export const input = '#aaee00';
 export const dot = 12;
 export const borderRadius = 5;
-export const minimapBorder = '#383838'
-export const minimapElement = '#707070'
+export const minimapBorder = '#383838';
+export const minimapElement = '#707070';
 export const cursorColor = '#ffffff';
+
+export const tabBackground = '#00000033';
+export const tabBackgroundStatic = '#00000011';
+export const tabBackgroundActive = '#00000055';
+
+export const mainFontFamily = `'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;`;
+
 export const portDot = style({
   background: 'transparent',
-  borderWidth: '1px',
-  borderColor: lines,
-  borderStyle: 'solid',
   borderRadius: '100%'
 });
 export const SelectNone = style({
@@ -31,6 +35,5 @@ export const SelectNone = style({
   '-moz-user-select': 'none',
   '-webkit-user-select': 'none',
   '-ms-user-select': 'none',
-  '-webkit-user-drag': 'none'
 });
 export const spaceItemWidth = 120;

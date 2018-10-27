@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { style } from 'typestyle';
-import * as vars from '../style/vars';
+import * as vars from '../vars';
 export enum Cursors {
   Crosshair
 }
@@ -91,7 +91,6 @@ const Cursor = ({ className, children, x, y }) => (
   <div
     className={className}
     style={{
-      position: 'fixed',
       zIndex: 1000,
       pointerEvents: 'none',
       top: y,
@@ -104,6 +103,11 @@ const Cursor = ({ className, children, x, y }) => (
 export const Basic = ({ x, y }) => (
   <Cursor x={x} y={y} className={CenterStyle}>
     <Crosshair />
+  </Cursor>
+);
+export const Left = ({ x, y }) => (
+  <Cursor x={x} y={y} className={CenterStyle}>
+    <div style={{ display: 'none' }}>no Cursor</div>
   </Cursor>
 );
 

@@ -1,5 +1,5 @@
 import { style, classes } from 'typestyle';
-import * as vars from './vars';
+import * as vars from '../../vars';
 export const Background = classes(
   vars.SelectNone,
   style({

@@ -14,10 +14,25 @@ export type LoadedFile = {
 export type GraphProps = {
   categories?: Array<ActionCategory>;
   serialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
+  dataSerialize?: (nodes: Array<NodeType>, links: Array<LinkType>, tabs: Array<string>) => void;
   load?: () => Array<NodeType>;
-  validate?: (n1:NodeType,n2:NodeType) => boolean;
+  validate?: (n1: NodeType, n2: NodeType) => boolean;
   loaded?: LoadedFile;
   preventOverscrolling?: boolean;
+};
+export type RendererState = {
+  action: Action;
+};
+export type GraphSetCursor = (props: { x: number; y: number }) => void;
+export type GraphGetCursor = () => { x: number; y: number };
+export type GraphSetAction = (action: Action) => void;
+export type GraphGetAction = () => Action;
+export type RendererToGraphProps = {
+  setCursor: GraphSetCursor;
+  getCursor: GraphGetCursor;
+  setAction: GraphSetAction;
+  getAction: GraphGetAction;
+  action: Action;
 };
 export type GraphState = {
   renamed?: boolean;
@@ -33,9 +48,6 @@ export type GraphState = {
   spaceY: number;
   contextX: number;
   contextY: number;
-  mouseX: number;
-  mouseY: number;
-  action: Action;
   tabs?: string[];
   activeTab?: string;
   activeNodes?: Array<NodeType>;
@@ -76,9 +88,6 @@ export const GraphInitialState: GraphState = {
   spaceY: 0,
   contextX: 0,
   contextY: 0,
-  mouseX: 0,
-  mouseY: 0,
-  action: Action.Nothing,
   activeNodes: [],
   activePort: null,
   loaded: null,
@@ -100,13 +109,27 @@ export type GraphDeleteNode = () => {
 };
 export type GraphCloneNode = () => void;
 
-export type GraphScale = (
-  delta: number,
-  x: number,
-  y: number
-) => void;
+export type GraphScale = (delta: number, x: number, y: number) => void;
 export type GraphAutoPosition = () => void;
 export type GraphValidate = () => void;
 export type GraphPan = (x: number, y: number) => void;
 export type GraphDrawConnectors = (mouseX: number, mouseY: number) => void;
 export type GraphMoveNodes = (mouseX: number, mouseY: number) => void;
+export type GraphUpdatePortPositions = (
+  x: number,
+  y: number,
+  portId: string,
+  id: string,
+  output: boolean
+) => void;
+export type GraphSelectNodes = (
+  node: NodeType
+) => {
+  activeNodes?: NodeType[];
+  renamed: boolean;
+};
+export type GraphGraphSelect = () => void;
+export type GraphTreeSelect = () => void;
+export type GraphCastPick = (
+  props: { x: number; y: number; button: number; direction: 'up' | 'down' | 'dbl' }
+) => void;

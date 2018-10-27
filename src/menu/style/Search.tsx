@@ -1,5 +1,5 @@
 import { style } from "typestyle";
-import * as vars from './vars'
+import * as vars from '../../vars'
 export const Search = style({
     position:'fixed',
     top:200,

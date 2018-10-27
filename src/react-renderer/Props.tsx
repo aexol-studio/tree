@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PortType, PropsType } from './types';
+import { PortType, PropsType } from '../types';
 import * as styles from './style/Props';
 
 export class Props extends React.Component<PropsType> {

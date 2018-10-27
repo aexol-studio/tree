@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Action } from './types/Graph';
 import * as styles from './style/Background';
-import { BackgroundProps } from './types';
+import { BackgroundProps, Action } from '../types';
 export const Background: React.SFC<BackgroundProps> = (props) => (
   <div
     ref={(ref) => {
@@ -9,10 +8,14 @@ export const Background: React.SFC<BackgroundProps> = (props) => (
     }}
     className={styles.Background}
     onMouseDown={(e) => {
-      props.switchAction(Action.Pan);
+      if (e.button === 0) {
+        props.switchAction(Action.Pan);
+      }
     }}
     onMouseUp={(e) => {
-      props.reset();
+      if (e.button === 0) {
+        props.reset();
+      }
     }}
     onMouseEnter={(e) => {
       props.switchAction(Action.Nothing);

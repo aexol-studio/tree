@@ -1,6 +1,6 @@
 {
   "name": "@slothking-online/diagram",
-  "version": "0.2.16",
+  "version": "1.0.9",
   "private": false,
   "publishConfig": {
     "access": "public"
@@ -15,16 +15,16 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/classnames": "2.2.3",
+    "@types/classnames": "^2.2.3",
     "@types/history": "4.6.2",
     "@types/json-schema": "^6.0.1",
     "@types/node": "9.4.6",
     "@types/react": "^16.4.6",
     "@types/react-dom": "^16.0.6",
-    "grunt": "^1.0.2",
+    "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-watch": "^1.1.0",
     "grunt-ts": "^6.0.0-beta.19",
     "prettier": "^1.11.1",
     "typescript": "^2.9.2"
@@ -34,7 +34,7 @@
     "moment": "^2.21.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.0",
-    "typestyle": "^1.7.2",
+    "typestyle": "^2.0.1",
     "utility-types": "^1.1.0"
   }
 }

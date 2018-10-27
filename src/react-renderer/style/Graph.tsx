@@ -1,5 +1,5 @@
 import { style, classes } from 'typestyle';
-import * as vars from './vars';
+import * as vars from '../../vars';
 export const Nodes = style({
   width: 0,
   height: 0,
@@ -7,7 +7,6 @@ export const Nodes = style({
   display: `flex`
 });
 export const NodesZooming = style({
-  transition: 'transform 0.16s linear',
 });
 export const BodyWithoutOverscrolling = style({
   overflow: 'hidden',

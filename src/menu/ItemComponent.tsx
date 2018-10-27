@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as styles from '../style/SpaceBarMenu';
+import * as styles from './style/SpaceBarMenu';
 import { Item, NodeType } from '../types';
 
 export class ItemComponent extends React.Component<{
@@ -49,7 +49,7 @@ export class ItemComponent extends React.Component<{
                   ? {
                       left: 10 + this.item.offsetWidth,
                       top: -this.item.offsetHeight,
-                      marginBottom: (-this.item.offsetHeight + 0.5) * i.items.length
+                      marginBottom: -this.item.offsetHeight * i.items.length
                     }
                   : {}
               }

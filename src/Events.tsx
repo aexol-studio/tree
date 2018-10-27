@@ -1,4 +1,4 @@
-import { EventListenerFunctionProps, Action, GraphState } from './types';
+import { EventListenerFunctionProps, Action } from './types';
 
 let isMouseOver = false;
 
@@ -21,7 +21,12 @@ export const addEventListeners = ({
   validate,
   pan,
   drawConnectors,
-  moveNodes
+  moveNodes,
+  setCursor,
+  getCursor,
+  getAction,
+  setAction,
+  castPick
 }: EventListenerFunctionProps) => {
   const eventContainer = document;
   whereToRun.oncontextmenu = () => {
@@ -37,6 +42,7 @@ export const addEventListeners = ({
   });
   whereToRun.addEventListener('mouseleave', (e) => {
     isMouseOver = false;
+    setAction(Action.Left);
   });
   eventContainer.addEventListener('keydown', (e) => {
     if (!isMouseOver) {
@@ -59,8 +65,8 @@ export const addEventListeners = ({
         }
         return {};
       });
-      if(key === 86){
-        validate()
+      if (key === 86) {
+        validate();
       }
     }
     if (ctrlDown) {
@@ -112,11 +118,12 @@ export const addEventListeners = ({
     }
     if (key === 32) {
       stateUpdate((state) => {
+        const { x, y } = getCursor();
         if (!state.spacePressed) {
           return {
             spacePressed: true,
-            spaceX: state.mouseX,
-            spaceY: state.mouseY
+            spaceX: x,
+            spaceY: y
           };
         }
         return {};
@@ -124,6 +131,9 @@ export const addEventListeners = ({
     }
   });
   eventContainer.addEventListener('keyup', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     const ctrlDown =
       e.ctrlKey ||
       e.metaKey ||
@@ -155,50 +165,70 @@ export const addEventListeners = ({
     }
   });
   eventContainer.addEventListener('mouseup', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     mouseDown = {
       ...mouseDown,
       down: false
     };
+    castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'up' });
   });
   eventContainer.addEventListener('mousedown', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
     mouseDown = {
       x: e.clientX,
       y: e.clientY,
       down: true
     };
+    castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'down' });
+  });
+  eventContainer.addEventListener('dblclick', (e) => {
+    if (!isMouseOver) {
+      return;
+    }
+    castPick({ x: e.clientX, y: e.clientY, button: e.which, direction: 'dbl' });
   });
   eventContainer.addEventListener('mousemove', (e) => {
-    stateUpdate((state) => {
-      let stateUpdate: Partial<GraphState> = {
-        mouseX: e.clientX,
-        mouseY: e.clientY
-      };
-      let m = {
-        x: e.clientX - mouseDown.x,
-        y: e.clientY - mouseDown.y
-      };
-      mouseDown = {
-        x: e.clientX,
-        y: e.clientY,
-        down: mouseDown.down
-      };
-      if (state.action === Action.SelectedNode && (m.x || m.y)) {
-        stateUpdate.action = Action.MoveNode;
-        snapshot('past', 'future');
-      }
-      if (
-        mouseDown.down &&
-        (state.action === Action.MoveNode || stateUpdate.action === Action.MoveNode)
-      ) {
-        moveNodes(m.x, m.y);
-      }
-      if (state.action === Action.ConnectPort) {
-        drawConnectors(e.clientX, e.clientY);
-      }
-      if (state.action === Action.Pan) {
-        pan(m.x, m.y);
-      }
-      return stateUpdate;
-    });
+    if (!isMouseOver) {
+      return;
+    }
+    const action = getAction();
+    let newAction;
+    let stateUpdate: {
+      x: number;
+      y: number;
+    } = {
+      x: e.clientX,
+      y: e.clientY
+    };
+    let m = {
+      x: e.clientX - mouseDown.x,
+      y: e.clientY - mouseDown.y
+    };
+    mouseDown = {
+      x: e.clientX,
+      y: e.clientY,
+      down: mouseDown.down
+    };
+    if (action === Action.SelectedNode && (m.x || m.y)) {
+      newAction = Action.MoveNode;
+      snapshot('past', 'future');
+    }
+    if (mouseDown.down && (action === Action.MoveNode || newAction === Action.MoveNode)) {
+      moveNodes(m.x, m.y);
+    }
+    if (action === Action.ConnectPort) {
+      drawConnectors(e.clientX, e.clientY);
+    }
+    if (action === Action.Pan) {
+      pan(m.x, m.y);
+    }
+    setCursor(stateUpdate);
+    if (newAction) {
+      setAction(newAction);
+    }
   });
 };

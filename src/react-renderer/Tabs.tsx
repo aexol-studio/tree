@@ -1,15 +1,39 @@
 import * as React from 'react';
 import * as styles from './style/Tabs';
 import * as cx from 'classnames';
-import { TabsProps, TabsState, MAIN_TAB_NAME } from './types';
+import { TabsProps, TabsState, MAIN_TAB_NAME } from '../types';
 export class Tabs extends React.Component<TabsProps, TabsState> {
   state: TabsState = {};
+  saveEditedTab = (tab) => {
+    const { renameTab, removeTab } = this.props;
+    const { renamed, renamedString = '' } = this.state;
+    if (renamedString === MAIN_TAB_NAME) {
+      this.setState({
+        renamedString: '',
+        renamed: null
+      });
+      if (renamed === '') {
+        removeTab(tab);
+      }
+      return;
+    }
+    if (renamedString.length === 0) {
+      removeTab(tab);
+      return;
+    }
+    renameTab(tab, renamedString);
+    this.setState({
+      renamedString: '',
+      renamed: null
+    });
+  };
   render() {
-    const { tab, tabs, onSelect, addTab, renameTab, removeTab } = this.props;
+    const { tab, tabs, onSelect, addTab } = this.props;
     const { renamed, renamedString = '' } = this.state;
     const [mainTab, ...restTabs] = tabs;
     return (
       <div className={styles.Tabs}>
+        <div className={styles.StaticTab}>Tabs:</div>
         <div
           className={cx({
             [styles.Tab]: true,
@@ -60,26 +84,11 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
                 }}
                 onKeyDown={(e) => {
                   if (e.keyCode === 13 || e.key === 'Enter') {
-                    if (renamedString === MAIN_TAB_NAME) {
-                      this.setState({
-                        renamedString: '',
-                        renamed: null
-                      });
-                      if (renamed === '') {
-                        removeTab(t);
-                      }
-                      return;
-                    }
-                    if (renamedString.length === 0) {
-                      removeTab(t);
-                      return;
-                    }
-                    renameTab(t, renamedString);
-                    this.setState({
-                      renamedString: '',
-                      renamed: null
-                    });
+                    this.saveEditedTab(t);
                   }
+                }}
+                onBlur={(e) => {
+                  this.saveEditedTab(t);
                 }}
               />
             ) : (

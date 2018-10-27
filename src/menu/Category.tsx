@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as styles from '../style/SpaceBarMenu';
+import * as styles from './style/SpaceBarMenu';
 import { Item, NodeType, ActionCategory } from '../types';
 import * as cx from 'classnames';
 import { ItemComponent } from './ItemComponent';
