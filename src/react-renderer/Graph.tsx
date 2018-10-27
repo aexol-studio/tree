@@ -70,6 +70,9 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     super(props);
     this.zoomPan = new ZoomPanManager();
     this.canvasRenderer = new GraphCanvas();
+    this.canvasRenderer.onResize(() => {
+      this.renderCanvas();
+    });
   }
   dataUpdate = () => {
     this.renderCanvas();
@@ -210,7 +213,8 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
   scale: GraphScale = (delta: number, clientX: number, clientY: number) => {
     const backgroundBoundingRect = this.background.getBoundingClientRect();
     const [x, y] = [clientX - backgroundBoundingRect.left, clientY - backgroundBoundingRect.top];
-    this.zoomPan.zoomChanged(delta, x, y);
+    const newScale = this.zoomPan.zoomChanged(delta, x, y);
+    this.setState({ miniMapScale: newScale });
     this.calculateViewPortNodes();
     this.renderCanvas();
   };
@@ -782,14 +786,14 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
     );
   };
   currentTabState = () => {
-    let { nodes, links, activeTab } = this.state;
-    nodes = nodes.filter((n) => (n.tab ? n.tab === activeTab : activeTab === MAIN_TAB_NAME));
-    links = links.filter(
-      (l) => nodes.find((n) => n.id === l.from.nodeId) && nodes.find((n) => n.id === l.to.nodeId)
-    );
+    let { activeTab, nodes, links } = this.state;
+
     return {
-      nodes,
-      links
+      // filter out nodes only for current tab
+      nodes: nodes.filter((n) => (n.tab ? n.tab === activeTab : activeTab === MAIN_TAB_NAME)),
+
+      // pass all the links and avoid costly filtering here, they're going to be selected in rendering phase
+      links,
     };
   };
   calculateViewPortNodes = () => {
@@ -1075,7 +1079,10 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
                 {
                   activeTab: name
                 },
-                this.renderCanvas
+                () => {
+                  this.calculateViewPortNodes();
+                  this.renderCanvas();
+                }
               );
             }
           }}
@@ -1086,7 +1093,7 @@ export class GraphReact extends React.Component<GraphProps & RendererToGraphProp
           <MiniMap
             height={200}
             width={200}
-            scale={this.zoomPan.getScale()}
+            scale={this.state.miniMapScale}
             nodes={nodes}
             pan={this.zoomPan.getPosition()}
             graphWidth={this.background ? this.background.clientWidth : 1}

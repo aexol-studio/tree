@@ -12,6 +12,15 @@ Here is [Live Demo](https://demo.graphqleditor.com) of diagram used to create no
 
 ![](assets/gif.gif)
 
+## Development using sandbox
+
+```sh
+$ npm run sandbox
+```
+
+Sandbox is a development mode that allows you to review live changes while modifying diagram's code in a hot-reload fashion.
+After running the command above, you can fool around with component's code in `/src/` directory and see immediate results in the browser after navigating to `http://localhost:8080`.
+
 ## Add to your project
 
 ```sh
