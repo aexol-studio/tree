@@ -4,12 +4,14 @@ import { Link } from './Link';
 import { ZoomPanManager } from '../ZoomPan';
 import * as vars from '../vars';
 import { getNodeWidth } from '../viewport';
+import * as throttle from 'lodash/throttle';
 
 export class GraphCanvas {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   containerElement?: HTMLDivElement;
   renamed: number;
+  resizeSubscribers: Array<() => void> = [];
   constructor() {
     this.canvas = document.createElement('canvas');
     this.canvas.style.left = '0px';
@@ -22,11 +24,24 @@ export class GraphCanvas {
     this.ctx = this.canvas.getContext('2d', { alpha: false });
     this.ctx.font = '10px Helvetica';
     this.clearCanvas();
+
+    window.addEventListener('resize', throttle(this.afterResize, 100));
+  }
+  onResize(callback: () => void) {
+    this.resizeSubscribers.push(callback);
+    return () => {
+      this.resizeSubscribers = this.resizeSubscribers.filter(listener => listener !== callback);
+    };
   }
   registerContainerElement(containerElement: HTMLDivElement) {
     this.containerElement = containerElement;
     this.containerElement.appendChild(this.canvas);
   }
+  afterResize = () => {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    this.resizeSubscribers.forEach(listener => listener());
+  };
   transform = (zoomPan: ZoomPanManager) => {
     const { x, y } = zoomPan.getPosition();
     const scale = zoomPan.getScale();

@@ -52,6 +52,7 @@ export type GraphState = {
   activeTab?: string;
   activeNodes?: Array<NodeType>;
   miniMapPanning: boolean;
+  miniMapScale: number;
   activePort?: {
     x: number;
     y: number;
@@ -94,7 +95,8 @@ export const GraphInitialState: GraphState = {
   tabs: [MAIN_TAB_NAME],
   activeTab: MAIN_TAB_NAME,
   miniMapPanning: false,
-  currentHover: null
+  currentHover: null,
+  miniMapScale: 1,
 };
 
 export type Snapshot = {
