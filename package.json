@@ -11,23 +11,32 @@
   "scripts": {
     "build": "grunt",
     "start": "grunt watch",
-    "prettier": "prettier --write \"src/**/*.{ts,tsx,css}\""
+    "prettier": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open"
   },
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.1.2",
     "@types/classnames": "^2.2.3",
     "@types/history": "4.6.2",
     "@types/json-schema": "^6.0.1",
     "@types/node": "9.4.6",
     "@types/react": "^16.4.6",
     "@types/react-dom": "^16.0.6",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-ts": "^6.0.0-beta.19",
     "prettier": "^1.11.1",
-    "typescript": "^2.9.2"
+    "react-hot-loader": "^4.3.11",
+    "ts-loader": "^5.2.2",
+    "typescript": "^2.9.2",
+    "webpack": "^4.23.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
   },
   "dependencies": {
     "classnames": "^2.2.5",

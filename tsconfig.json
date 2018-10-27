@@ -17,5 +17,5 @@
       "react"
     ]
   },
-  "exclude": ["lib", "build", "node_modules"]
+  "exclude": ["lib", "build", "node_modules", "sandbox"]
 }
