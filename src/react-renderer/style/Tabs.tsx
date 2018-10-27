@@ -38,6 +38,9 @@ export const Tab = style({
   borderRightWidth: 1,
   borderRightStyle: 'solid',
   borderRightColor: vars.bg,
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
   transition: vars.transition,
   $nest: {
     '&:nth-child(2)': {
