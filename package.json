@@ -33,7 +33,7 @@
     "prettier": "^1.11.1",
     "react-hot-loader": "^4.3.11",
     "ts-loader": "^5.2.2",
-    "typescript": "^2.9.2",
+    "typescript": "^3.2.2",
     "webpack": "^4.23.1",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10"
