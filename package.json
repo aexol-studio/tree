@@ -1,40 +1,19 @@
 {
-  "name": "@slothking-online/diagram",
-  "version": "0.2.16",
-  "private": false,
-  "publishConfig": {
-    "access": "public"
-  },
-  "description": "A slothking diagram",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "scripts": {
-    "build": "grunt",
-    "start": "grunt watch",
-    "prettier": "prettier --write \"src/**/*.{ts,tsx,css}\""
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "@types/classnames": "2.2.3",
-    "@types/history": "4.6.2",
-    "@types/json-schema": "^6.0.1",
-    "@types/node": "9.4.6",
-    "@types/react": "^16.4.6",
-    "@types/react-dom": "^16.0.6",
-    "grunt": "^1.0.2",
-    "grunt-contrib-clean": "^1.1.0",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-watch": "^1.0.0",
-    "grunt-ts": "^6.0.0-beta.19",
-    "prettier": "^1.11.1",
-    "typescript": "^2.9.2"
-  },
   "dependencies": {
-    "classnames": "^2.2.5",
-    "moment": "^2.21.0",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.0",
-    "typestyle": "^1.7.2",
-    "utility-types": "^1.1.0"
+    "@babel/core": "^7.2.2",
+    "@types/react": "^16.7.18",
+    "@types/react-dom": "^16.0.11",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "ts-loader": "^5.3.2",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.14"
+  },
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open"
   }
 }
