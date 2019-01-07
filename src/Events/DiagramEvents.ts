@@ -5,8 +5,12 @@
  * Used possibly to indicate that diagram state have changed
  */
 export class DiagramEvents {
-  static NodeMoved = 'NodeMoved';
-  static LinkCreated = 'LinkCreated';
-  static FooBar = 'FooBar';
+  static NodeMoved = "NodeMoved";
+  static NodeSelected = "NodeSelected";
+  static NodeHover = "NodeHover";
+  static NodeCreated = "NodeCreated";
+  static LinkCreated = "LinkCreated";
+  static DrawingLink = "DrawingLink";
+  static RenderRequested = "RenderRequested";
   // ...
-};
+}

@@ -16,13 +16,12 @@ export class EventBus {
     this.topics[topic].push(callback);
   }
 
-  publish(topic: string, ...args: any[]) {
+  publish<T>(topic: string, ...args: T[]) {
     if (!this.topics[topic]) {
       return;
     }
-
-    this.topics[topic].forEach(callback => {
+    this.topics[topic].forEach((callback, index) => {
       callback(...args);
-    })
+    });
   }
 }

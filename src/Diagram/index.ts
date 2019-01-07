@@ -1,8 +1,9 @@
 import { Renderer } from "../Renderer";
 import { EventBus } from "../EventBus";
-import { IO } from "../IO";
-import { DiagramState } from "../Models";
 import { StateManager } from "./stateManager";
+import { IO } from "../IO";
+import { DiagramTheme } from "../Models";
+import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 
 /**
  * Diagram:
@@ -12,13 +13,9 @@ import { StateManager } from "./stateManager";
  * - initializing all of the subcomponents: renderer, IO, state manager etc.
  */
 export class Diagram {
-
   private renderer: Renderer;
   private eventBus: EventBus;
   private stateManager: StateManager;
-  private IO: IO;
-
-  private state: DiagramState;
 
   setCategories(categories: any[]) {
     this.stateManager.setCategories(categories);
@@ -29,13 +26,19 @@ export class Diagram {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
 
-  constructor(domElement: HTMLElement) {
-    if (typeof document === 'undefined') {
-      throw new Error('Diagram can work only in DOM-enabled environment (e.g. browser)!');
+  constructor(
+    domElement: HTMLElement,
+    theme: DiagramTheme = DefaultDiagramTheme
+  ) {
+    if (typeof document === "undefined") {
+      throw new Error(
+        "Diagram can work only in DOM-enabled environment (e.g. browser)!"
+      );
     }
 
-    const canvasElement = document.createElement('canvas');
-    const canvasContext = canvasElement.getContext('2d');
+    const canvasElement = document.createElement("canvas");
+    const canvasContext = canvasElement.getContext("2d");
+    canvasContext!.font = "10px Helvetica";
 
     const hostSize = this.calculateElementSize(domElement);
 
@@ -52,22 +55,25 @@ export class Diagram {
     domElement.appendChild(canvasElement);
 
     if (!canvasContext) {
-      throw new Error('Can\'t create canvas context!');
+      throw new Error("Can't create canvas context!");
     }
-
-    this.state = { links: [], nodes: [], categories: [], selectedLinks: [], selectedNodes: []};
 
     // create a main event bus
     this.eventBus = new EventBus();
 
     // initialize IO: mouse/keyboard logic will be there
-    this.IO = new IO(this.eventBus, canvasElement);
+    new IO(this.eventBus, canvasElement);
 
     // initialize state manager
-    this.stateManager = new StateManager(this.eventBus);
+    this.stateManager = new StateManager(this.eventBus, theme);
 
     // initialize renderer
-    this.renderer = new Renderer(this.eventBus, canvasContext, this.stateManager);
+    this.renderer = new Renderer(
+      this.eventBus,
+      canvasContext,
+      this.stateManager,
+      theme
+    );
 
     // ...start the rendering loop
     this.renderer.renderStart();

@@ -1,12 +1,14 @@
 {
   "include": ["./src/**/*"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "sandbox"],
   "compilerOptions": {
     "target": "es5",
     "outDir": "dist",
     "rootDir": "src",
     "jsx": "react",
     "module": "commonjs",
-    "strict": true
+    "lib": ["es6","dom"],
+    "strict": true,
+    "noUnusedLocals": true
   }
 }

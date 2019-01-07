@@ -1,10 +1,13 @@
-import { CursorRenderer } from './cursorRenderer';
-import { MinimapRenderer } from './minimapRenderer';
-import { ZoomPan } from './zoomPan';
-import { MenuRenderer } from './menuRenderer';
-import { EventBus } from '../EventBus';
-import { StateManager } from '../Diagram/stateManager';
-
+import { MinimapRenderer } from "./minimapRenderer";
+// import { ZoomPan } from './zoomPan';
+import { MenuRenderer } from "./menuRenderer";
+import { EventBus } from "../EventBus";
+import { StateManager } from "../Diagram/stateManager";
+import { DiagramEvents } from "../Events";
+import { Colors } from "../Theme/Colors";
+import { DiagramTheme } from "../Models";
+import { NodeRenderer } from "./nodeRenderer";
+import { ActiveLinkRenderer } from "./activeLinkRenderer";
 /**
  * Renderer.
  *
@@ -13,92 +16,101 @@ import { StateManager } from '../Diagram/stateManager';
  * - set up the render loop
  * - render nodes, links and particular subcomponents (cursor, menu, minimap etc.)
  *
- * - IMPORTANT -
- * - Currently, render loop is handled by requestAnimationFrame.
- * - It might be worth considering invoking rerendering
- * - e.g. only when application state has changed.
  */
 export class Renderer {
-  private cursorRenderer = new CursorRenderer();
   private minimapRenderer = new MinimapRenderer();
-  private zoomPan = new ZoomPan();
+  // private zoomPan = new ZoomPan();
   private menuRenderer = new MenuRenderer();
-
-  private context: CanvasRenderingContext2D;
-  private eventBus: EventBus;
-  private stateManager: StateManager;
+  private nodeRenderer: NodeRenderer;
+  private activeLinkRenderer: ActiveLinkRenderer;
 
   /**
    * @param eventBus event bus instance to be used
    * @param context context from the canvas
    * @param stateManager state manager instance to fetch data from
+   * @param theme Color and positional options of diagram
    */
-  constructor(eventBus: EventBus, context: CanvasRenderingContext2D, stateManager: StateManager) {
-    // ...
-    // initialization
-    this.eventBus = eventBus;
-    this.context = context;
-    this.stateManager = stateManager;
+  constructor(
+    private eventBus: EventBus,
+    private context: CanvasRenderingContext2D,
+    private stateManager: StateManager,
+    private theme: DiagramTheme
+  ) {
+    this.nodeRenderer = new NodeRenderer(this.context, this.theme);
+    this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
+    this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
+  }
 
-    // possibility to re-render on particular
-    this.eventBus.subscribe('fooBarXyzAbc', this.render);
+  /**
+   * Render nodes.
+   */
+  renderNodes() {
+    const state = this.stateManager.getState();
+    state.nodes.forEach(node =>
+      this.nodeRenderer.render({
+        node,
+        isHovered: state.hoveredNode === node,
+        isSelected: state.selectedNodes.indexOf(node) !== -1,
+        inputActive: state.hoveredInput === node,
+        outputActive: state.hoveredOutput === node
+      })
+    );
+  }
 
-    this.render = this.render.bind(this);
+  /**
+   * Render active link connection.
+   */
+  renderActiveLink() {
+    const state = this.stateManager.getState();
+    if (state.drawedConnection && state.lastPosition) {
+      this.activeLinkRenderer.render({
+        from: state.lastPosition,
+        to: state.drawedConnection
+      });
+    }
   }
 
   /**
    * Example method!
-   * @param nodes
+   * @param links
    */
-  renderNodes(nodes: any) {
-    const state = this.stateManager.getState();
-    this.context.fillStyle = '#aaa';
-
-    state.nodes.forEach(node => {
-      this.context.fillRect(node.x!, node.y!, 60, 20);
-    });
-  }
-
-  /**
-  * Example method!
-  * @param links
-  */
   renderLinks(links: any) {
     // ...
   }
 
   /**
-  * Example method!
-  * @param something
-  */
+   * Example method!
+   * @param something
+   */
   renderSomething(something: any) {
     // ...
   }
 
   /**
-  * Example method!
-  */
+   * Example method!
+   */
   renderBackground() {
     const { width, height } = this.context.canvas;
-    this.context.fillStyle = '#555';
+    this.context.fillStyle = Colors.grey[6];
     this.context.fillRect(0, 0, width, height);
   }
 
   renderStart() {
     window.requestAnimationFrame(this.render);
   }
+  renderUpdate = () => {
+    window.requestAnimationFrame(this.render);
+  };
 
-  render() {
+  render = () => {
     // (...) render loop
-    const transform = this.zoomPan.calculateTransform();
-    this.cursorRenderer.render(this.context);
+    // const transform = this.zoomPan.calculateTransform();
     this.minimapRenderer.render(this.context);
     this.menuRenderer.render(this.context);
 
     this.renderBackground();
-    this.renderNodes([]);
+    this.renderNodes();
     this.renderLinks([]);
-
-    window.requestAnimationFrame(this.render);
-  }
+    this.renderActiveLink();
+  };
 }

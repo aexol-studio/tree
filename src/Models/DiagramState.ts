@@ -1,6 +1,7 @@
-import { Node } from './Node';
-import { Category } from './Category';
-import { Link } from './Link';
+import { Node } from "./Node";
+import { Category } from "./Category";
+import { Link } from "./Link";
+import { ScreenPosition } from "../IO/ScreenPosition";
 
 export interface DiagramState {
   links: Link[];
@@ -8,4 +9,10 @@ export interface DiagramState {
   categories: Category[];
   selectedLinks: Link[];
   selectedNodes: Node[];
+  hoveredNode?: Node;
+  hoveredLink?: Link;
+  hoveredInput?: Node;
+  hoveredOutput?: Node;
+  drawedConnection?: ScreenPosition;
+  lastPosition: ScreenPosition;
 }

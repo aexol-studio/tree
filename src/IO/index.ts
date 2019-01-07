@@ -1,5 +1,6 @@
 import { EventBus } from "../EventBus";
-import * as Events from '../Events';
+import * as Events from "../Events";
+import { ScreenPosition } from "./ScreenPosition";
 
 /**
  * IO:
@@ -10,8 +11,9 @@ import * as Events from '../Events';
  */
 export class IO {
   private eventBus: EventBus;
-  private currentScreenPosition: { x: number, y: number } = {x: 0, y: 0};
-
+  private currentScreenPosition: ScreenPosition = { x: 0, y: 0 };
+  private lastClick = Date.now();
+  private leftMouseButtonDown: boolean = false;
   /**
    * @param eventBus event bus to be used
    * @param element HTML <canvas> elements to put listeners on
@@ -19,34 +21,81 @@ export class IO {
   constructor(eventBus: EventBus, element: HTMLCanvasElement) {
     this.eventBus = eventBus;
 
-    element.addEventListener('mousemove', (e) => {
+    element.addEventListener("mousemove", e => {
+      e.preventDefault();
       this.currentScreenPosition.x = e.clientX * 2;
       this.currentScreenPosition.y = e.clientY * 2;
+      if (this.leftMouseButtonDown) {
+        this.eventBus.publish(
+          Events.IOEvents.MouseDrag,
+          this.createMouseEventPayload()
+        );
+      } else {
+        this.eventBus.publish(
+          Events.IOEvents.MouseOverMove,
+          this.createMouseEventPayload()
+        );
+      }
     });
     // ...
-    element.addEventListener('mousedown', (e) => {
+    element.addEventListener("mouseup", e => {
       if (e.which === 1) {
-        this.eventBus.publish(Events.IOEvents.LeftMouseClick, this.createMouseEventPayload());
+        this.leftMouseButtonDown = false;
+        this.eventBus.publish(
+          Events.IOEvents.LeftMouseUp,
+          this.createMouseEventPayload()
+        );
       } else if (e.which === 3) {
-        this.eventBus.publish(Events.IOEvents.RightMouseClick, this.createMouseEventPayload());
+        this.eventBus.publish(
+          Events.IOEvents.RightMouseUp,
+          this.createMouseEventPayload()
+        );
       }
-
+    });
+    element.addEventListener("mousedown", e => {
+      if (e.which === 1) {
+        this.leftMouseButtonDown = true;
+        this.eventBus.publish(
+          Events.IOEvents.LeftMouseClick,
+          this.createMouseEventPayload()
+        );
+        const clickTime = Date.now();
+        const diff = clickTime - this.lastClick;
+        if (diff < 250) {
+          this.eventBus.publish(
+            Events.IOEvents.DoubleClick,
+            this.createMouseEventPayload()
+          );
+        }
+        this.lastClick = clickTime;
+      } else if (e.which === 3) {
+        this.eventBus.publish(
+          Events.IOEvents.RightMouseClick,
+          this.createMouseEventPayload()
+        );
+      }
     });
 
-    element.addEventListener('keypress', (e) => {
+    element.addEventListener("keypress", e => {
       if (e.key === " ") {
-        this.eventBus.publish(Events.IOEvents.SpacebarPressed, this.createMouseEventPayload());
+        this.eventBus.publish(
+          Events.IOEvents.SpacebarPressed,
+          this.createMouseEventPayload()
+        );
       }
 
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
+      }
+      if (e.key === "delete") {
+        this.eventBus.publish(Events.IOEvents.DeletePressed);
       }
     });
   }
 
   createMouseEventPayload() {
     return {
-      ...this.currentScreenPosition,
+      ...this.currentScreenPosition
     };
   }
 }
