@@ -8,6 +8,7 @@ import { Colors } from "../Theme/Colors";
 import { DiagramTheme } from "../Models";
 import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
+import { LinkRenderer } from "./linkRenderer";
 /**
  * Renderer.
  *
@@ -22,6 +23,7 @@ export class Renderer {
   // private zoomPan = new ZoomPan();
   private menuRenderer = new MenuRenderer();
   private nodeRenderer: NodeRenderer;
+  private linkRenderer: LinkRenderer;
   private activeLinkRenderer: ActiveLinkRenderer;
 
   /**
@@ -38,6 +40,7 @@ export class Renderer {
   ) {
     this.nodeRenderer = new NodeRenderer(this.context, this.theme);
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
+    this.linkRenderer = new LinkRenderer(this.context, this.theme);
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
   }
 
@@ -71,11 +74,11 @@ export class Renderer {
   }
 
   /**
-   * Example method!
-   * @param links
+   * Render links
    */
-  renderLinks(links: any) {
-    // ...
+  renderLinks() {
+    const state = this.stateManager.getState();
+    state.links.forEach(this.linkRenderer.render);
   }
 
   /**
@@ -109,8 +112,8 @@ export class Renderer {
     this.menuRenderer.render(this.context);
 
     this.renderBackground();
+    this.renderLinks();
     this.renderNodes();
-    this.renderLinks([]);
     this.renderActiveLink();
   };
 }

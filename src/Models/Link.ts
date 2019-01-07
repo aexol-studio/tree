@@ -1,3 +1,7 @@
+import { Node } from "./Node";
+
 export interface Link {
-  name?: string;
+  from: Node;
+  to: Node;
+  centerPoint?: number;
 }

@@ -1,10 +1,9 @@
 /**
  * Utils
  *
- * Various utils. Might not be necessary.
+ * Various utils.
  */
 export class Utils {
-  static FooBar() {
-
-  }
+  static generateId = () =>
+    new Array(crypto.getRandomValues(new Uint8Array(4))).join("-");
 }

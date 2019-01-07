@@ -3,6 +3,7 @@ import { DiagramState } from "../Models/DiagramState";
 import * as Events from "../Events";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { DiagramTheme } from "../Models";
+import { Utils } from "../Utils";
 
 /**
  * StateManager:
@@ -136,11 +137,23 @@ export class StateManager {
       return;
     }
     this.state.drawedConnection = e;
-    this.eventBus.publish(Events.DiagramEvents.DrawingLink,e);
+    this.eventBus.publish(Events.DiagramEvents.DrawingLink, e);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   endDrawingConnector = (e: ScreenPosition) => {
+    if (this.state.hoveredInput && this.state.hoveredOutput) {
+      console.log(
+        `connection between ${this.state.hoveredInput.id} - ${
+          this.state.hoveredOutput.id
+        }`
+      );
+      this.state.links.push({
+        from: this.state.hoveredInput,
+        to: this.state.hoveredOutput
+      });
+    }
     this.state.drawedConnection = undefined;
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   closestNode = (e: ScreenPosition, port?: boolean) => {
     for (const n of this.state.nodes) {
@@ -171,7 +184,7 @@ export class StateManager {
   createNode = (e: ScreenPosition) => {
     this.state.nodes.push({
       name: "XYZ",
-      id: "231231123",
+      id: Utils.generateId(),
       type: "string",
       x: e.x,
       y: e.y
