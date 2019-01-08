@@ -25,16 +25,12 @@ export class IO {
       e.preventDefault();
       this.currentScreenPosition.x = e.clientX * 2;
       this.currentScreenPosition.y = e.clientY * 2;
+      const mpl = this.createMouseEventPayload();
+      this.eventBus.publish(Events.IOEvents.MouseMove, mpl);
       if (this.leftMouseButtonDown) {
-        this.eventBus.publish(
-          Events.IOEvents.MouseDrag,
-          this.createMouseEventPayload()
-        );
+        this.eventBus.publish(Events.IOEvents.MouseDrag, mpl);
       } else {
-        this.eventBus.publish(
-          Events.IOEvents.MouseOverMove,
-          this.createMouseEventPayload()
-        );
+        this.eventBus.publish(Events.IOEvents.MouseOverMove, mpl);
       }
     });
     // ...

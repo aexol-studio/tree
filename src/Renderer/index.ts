@@ -45,6 +45,21 @@ export class Renderer {
   }
 
   /**
+   * Render cursor.
+   */
+  renderCursor() {
+    const state = this.stateManager.getState();
+    if (state.hover.node) {
+      this.context.canvas.style.cursor = "move";
+      if (state.hover.io) {
+        this.context.canvas.style.cursor = "pointer";
+        return
+      }
+      return
+    }
+    this.context.canvas.style.cursor = "auto";
+  }
+  /**
    * Render nodes.
    */
   renderNodes() {
@@ -52,10 +67,10 @@ export class Renderer {
     state.nodes.forEach(node =>
       this.nodeRenderer.render({
         node,
-        isHovered: state.hoveredNode === node,
+        isHovered: state.hover.node === node,
         isSelected: state.selectedNodes.indexOf(node) !== -1,
-        inputActive: state.hoveredInput === node,
-        outputActive: state.hoveredOutput === node
+        inputActive: state.hover.node === node && state.hover.io == "i",
+        outputActive: state.hover.node === node && state.hover.io == "o"
       })
     );
   }
@@ -111,6 +126,7 @@ export class Renderer {
     this.minimapRenderer.render(this.context);
     this.menuRenderer.render(this.context);
 
+    this.renderCursor();
     this.renderBackground();
     this.renderLinks();
     this.renderNodes();

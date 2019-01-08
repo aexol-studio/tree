@@ -9,10 +9,15 @@ export interface DiagramState {
   categories: Category[];
   selectedLinks: Link[];
   selectedNodes: Node[];
-  hoveredNode?: Node;
-  hoveredLink?: Link;
-  hoveredInput?: Node;
-  hoveredOutput?: Node;
+  draw?: {
+    node: Node;
+    io: "i" | "o";
+  };
+  hover: {
+    node?: Node;
+    link?: Link;
+    io?: "i" | "o";
+  };
   drawedConnection?: ScreenPosition;
   lastPosition: ScreenPosition;
 }

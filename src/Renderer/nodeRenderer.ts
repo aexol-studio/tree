@@ -1,5 +1,6 @@
 import { Node, DiagramTheme } from "../Models";
 import { RoundedRectangle } from "./Draw/RoundedRectangle";
+import { Bubble } from "./Draw/Bubble";
 export class NodeRenderer {
   constructor(
     private context: CanvasRenderingContext2D,
@@ -43,16 +44,18 @@ export class NodeRenderer {
       this.context.fillStyle = colors.node.name;
       this.context.font = this.getNodeFont(nameSize, "normal");
       this.context.textAlign = "center";
-      this.context.fillText(node.name, node.x!, node.y! + nameSize / 2.0);
+      this.context.textBaseline = "middle";
+      this.context.fillText(node.name, node.x!, node.y!);
     }
     if (node.type) {
       this.context.fillStyle = colors.node.types[node.type] || colors.node.name;
       this.context.font = this.getNodeFont(typeSize, "normal");
+      this.context.textBaseline = "bottom";
       this.context.textAlign = "end";
       this.context.fillText(
         node.type,
         node.x! + width / 2.0,
-        node.y! - height / 2.0 - typeSize / 2.0
+        node.y! - height / 2.0
       );
     }
     this.context.fillStyle = inputActive
@@ -77,5 +80,36 @@ export class NodeRenderer {
       radiusTopRight: 5,
       radiusBottomRight: 5
     });
+    this.context.fillStyle = colors.port.button;
+    this.context.font = this.getNodeFont(nameSize, "normal");
+    this.context.textAlign = "center";
+    this.context.textBaseline = "middle";
+    this.context.fillText("-", node.x - width / 2.0 - port.width / 2.0, node.y);
+    this.context.fillText("+", node.x + width / 2.0 + port.width / 2.0, node.y);
+    if (isSelected && node.description) {
+      this.context.fillStyle = this.theme.colors.description.background;
+      Bubble(
+        this.context,
+        node.x,
+        node.y - height / 2.0,
+        this.theme.description.width,
+        this.theme.description.height,
+        this.theme.description.triangleWidth,
+        this.theme.description.triangleHeight
+      );
+      this.context.fillStyle = this.theme.colors.description.text;
+      this.context.textAlign = "center";
+      this.context.textBaseline = "middle";
+
+      this.context.fillText(
+        node.description,
+        node.x,
+        node.y -
+          height / 2.0 -
+          this.theme.description.triangleHeight -
+          this.theme.description.height / 2.0,
+        this.theme.description.width
+      );
+    }
   };
 }

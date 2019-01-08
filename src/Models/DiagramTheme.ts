@@ -5,16 +5,26 @@ export interface DiagramTheme {
     nameSize: number;
     typeSize: number;
   };
+  description: {
+    width: number;
+    height: number;
+    triangleWidth: number;
+    triangleHeight: number;
+  };
   port: {
     width: number;
   };
   link: {
     strokeWidth: number;
     cornerRadius: number;
-    defaultCenterPoint:number;
+    defaultCenterPoint: number;
   };
   colors: {
     background: string;
+    description: {
+      background: string;
+      text: string;
+    };
     node: {
       background: string;
       selected: string;
@@ -25,6 +35,7 @@ export interface DiagramTheme {
     port: {
       background: string;
       backgroundActive: string;
+      button: string;
     };
     link: {
       main: string;

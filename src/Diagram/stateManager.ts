@@ -2,7 +2,7 @@ import { EventBus } from "../EventBus";
 import { DiagramState } from "../Models/DiagramState";
 import * as Events from "../Events";
 import { ScreenPosition } from "../IO/ScreenPosition";
-import { DiagramTheme } from "../Models";
+import { DiagramTheme, Node } from "../Models";
 import { Utils } from "../Utils";
 
 /**
@@ -27,34 +27,38 @@ export class StateManager {
     // ... update the data
   }
 
-  constructor(private eventBus: EventBus, private theme: DiagramTheme) {
+  constructor(
+    private eventBus: EventBus,
+    private theme: DiagramTheme,
+    private connectionFunction: (input: Node, output: Node) => boolean
+  ) {
     this.state = {
       links: [],
       nodes: [],
       categories: [],
       selectedLinks: [],
       selectedNodes: [],
+      hover: {},
       lastPosition: {
         x: 0,
         y: 0
       }
     };
-
+    this.eventBus.subscribe(Events.IOEvents.MouseMove, this.hover);
     this.eventBus.subscribe(Events.IOEvents.DoubleClick, this.createNode);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.selectNode);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.LMBPressed);
     this.eventBus.subscribe(
+      Events.IOEvents.LeftMouseClick,
+      this.startDrawingConnector
+    );
+    this.eventBus.subscribe(
       Events.IOEvents.LeftMouseUp,
       this.endDrawingConnector
     );
-    this.eventBus.subscribe(Events.IOEvents.MouseOverMove, this.hoverNode);
-    this.eventBus.subscribe(Events.IOEvents.MouseOverMove, this.hoverPort);
+    this.eventBus.subscribe(Events.IOEvents.LeftMouseUp, this.openPortMenu);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.moveNodes);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.drawConnector);
-    this.eventBus.subscribe(
-      Events.DiagramEvents.DrawingLink,
-      this.dragHoverPort
-    );
     this.eventBus.subscribe(
       Events.IOEvents.RightMouseClick,
       this.showNodeContextMenu
@@ -62,63 +66,6 @@ export class StateManager {
   }
   LMBPressed = (e: ScreenPosition) => {
     this.state.lastPosition = { ...e };
-  };
-  hoverNode = (e: ScreenPosition) => {
-    const hoverNode = this.closestNode(e);
-    if (hoverNode !== this.state.hoveredNode) {
-      this.state.hoveredNode = hoverNode;
-      this.eventBus.publish(Events.DiagramEvents.NodeHover);
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
-  dragHoverPort = (e: ScreenPosition) => {
-    const hoveredNode = this.closestNode(e, true);
-    if (!hoveredNode) {
-      return;
-    }
-    const distance = e.x - hoveredNode.x;
-    if (this.state.hoveredOutput) {
-      if (distance < -this.theme.node.width / 2.0) {
-        if (this.state.hoveredInput !== hoveredNode) {
-          this.state.hoveredInput = hoveredNode;
-          this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-        }
-        return;
-      }
-    }
-    if (this.state.hoveredInput) {
-    }
-  };
-  hoverPort = (e: ScreenPosition) => {
-    const hoveredNode = this.closestNode(e, true);
-    if (!hoveredNode) {
-      if (this.state.hoveredOutput || this.state.hoveredInput) {
-        this.state.hoveredInput = undefined;
-        this.state.hoveredOutput = undefined;
-        this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      }
-      return;
-    }
-    const distance = e.x - hoveredNode.x;
-    if (distance > this.theme.node.width / 2.0) {
-      if (this.state.hoveredOutput !== hoveredNode) {
-        this.state.hoveredOutput = hoveredNode;
-        this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      }
-      return;
-    }
-    if (distance < -this.theme.node.width / 2.0) {
-      if (this.state.hoveredInput !== hoveredNode) {
-        this.state.hoveredInput = hoveredNode;
-        this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      }
-      return;
-    }
-    if (this.state.hoveredInput || this.state.hoveredOutput) {
-      this.state.hoveredInput = undefined;
-      this.state.hoveredOutput = undefined;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
   };
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
@@ -132,43 +79,98 @@ export class StateManager {
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };
+  openPortMenu = (e: ScreenPosition) => {
+    if (!this.state.draw) {
+      return;
+    }
+    const { io, node } = this.state.hover;
+    const { io: ioD, node: nodeD } = this.state.draw;
+    if (nodeD === node && io === ioD) {
+      console.log("Ipen port")
+      //Open Port Menu
+    }
+  };
+  startDrawingConnector = (e: ScreenPosition) => {
+    const { io, node } = this.state.hover;
+    if (io && node) {
+      this.state.draw = {
+        node,
+        io
+      };
+    }
+  };
   drawConnector = (e: ScreenPosition) => {
-    if (!this.state.hoveredInput && !this.state.hoveredOutput) {
+    if (!this.state.draw) {
+      return;
+    }
+    const { io, node } = this.state.draw;
+    if (!io || !node) {
       return;
     }
     this.state.drawedConnection = e;
-    this.eventBus.publish(Events.DiagramEvents.DrawingLink, e);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   endDrawingConnector = (e: ScreenPosition) => {
-    if (this.state.hoveredInput && this.state.hoveredOutput) {
-      console.log(
-        `connection between ${this.state.hoveredInput.id} - ${
-          this.state.hoveredOutput.id
-        }`
-      );
+    if (this.state.hover.io && this.state.hover.io !== this.state.draw!.io) {
+      const input =
+        this.state.hover.io === "i"
+          ? this.state.hover.node!
+          : this.state.draw!.node;
+      const output =
+        this.state.hover.io === "o"
+          ? this.state.hover.node!
+          : this.state.draw!.node;
+      if (
+        !this.connectionFunction(input, output) ||
+        this.state.links.find(l => l.from === output && l.to === input)
+      ) {
+        this.state.drawedConnection = undefined;
+        this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+        return;
+      }
+
+      console.log(`connection between ${output.id} - ${input.id}`);
       this.state.links.push({
-        from: this.state.hoveredInput,
-        to: this.state.hoveredOutput
+        from: output,
+        to: input
       });
     }
     this.state.drawedConnection = undefined;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  closestNode = (e: ScreenPosition, port?: boolean) => {
+  hover = (e: ScreenPosition) => {
     for (const n of this.state.nodes) {
+      const distance = {
+        x: e.x - n.x,
+        y: e.y - n.y
+      };
       if (
-        Math.abs(n.x - e.x) <
-          this.theme.node.width / 2.0 + (port ? this.theme.port.width : 0) &&
-        Math.abs(n.y - e.y) < this.theme.node.height / 2.0
+        Math.abs(distance.x) <
+          this.theme.node.width / 2.0 + this.theme.port.width &&
+        Math.abs(distance.y) < this.theme.node.height / 2.0
       ) {
-        return n;
+        const node = n;
+        const io =
+          distance.x > this.theme.node.width / 2.0
+            ? "o"
+            : distance.x < -this.theme.node.width / 2.0
+            ? "i"
+            : undefined;
+        if (this.state.hover.io !== io || this.state.hover.node !== node) {
+          this.state.hover = { node, io };
+          this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+        }
+        return;
       }
+    }
+    if (this.state.hover.io || this.state.hover.node) {
+      this.state.hover = {};
+      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };
   selectNode = (e: ScreenPosition) => {
-    const node = this.closestNode(e);
-    if (node) {
+    const { node, io } = this.state.hover;
+    if (node && !io) {
       const hasIndex = this.state.selectedNodes.indexOf(node);
       if (hasIndex !== -1) {
         this.state.selectedNodes.splice(hasIndex);
@@ -183,9 +185,11 @@ export class StateManager {
   };
   createNode = (e: ScreenPosition) => {
     this.state.nodes.push({
-      name: "XYZ",
+      name: "Person",
       id: Utils.generateId(),
-      type: "string",
+      type: "type",
+      description:
+        "Person Class - responsible for user profile detatils and extra props.",
       x: e.x,
       y: e.y
     });

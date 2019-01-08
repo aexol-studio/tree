@@ -2,7 +2,7 @@ import { Renderer } from "../Renderer";
 import { EventBus } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
-import { DiagramTheme } from "../Models";
+import { DiagramTheme, Node } from "../Models";
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 
 /**
@@ -16,7 +16,6 @@ export class Diagram {
   private renderer: Renderer;
   private eventBus: EventBus;
   private stateManager: StateManager;
-
   setCategories(categories: any[]) {
     this.stateManager.setCategories(categories);
     // ... update the data
@@ -28,7 +27,11 @@ export class Diagram {
 
   constructor(
     domElement: HTMLElement,
-    theme: DiagramTheme = DefaultDiagramTheme
+    theme: DiagramTheme = DefaultDiagramTheme,
+    connectionFunction: (input: Node, output: Node) => boolean = (
+      input,
+      output
+    ) => true
   ) {
     if (typeof document === "undefined") {
       throw new Error(
@@ -65,7 +68,11 @@ export class Diagram {
     new IO(this.eventBus, canvasElement);
 
     // initialize state manager
-    this.stateManager = new StateManager(this.eventBus, theme);
+    this.stateManager = new StateManager(
+      this.eventBus,
+      theme,
+      connectionFunction
+    );
 
     // initialize renderer
     this.renderer = new Renderer(

@@ -8,6 +8,12 @@ export const DefaultDiagramTheme: DiagramTheme = {
     nameSize: 24,
     typeSize: 20
   },
+  description: {
+    width: 300,
+    height: 120,
+    triangleHeight: 20,
+    triangleWidth: 20
+  },
   port: {
     width: 40
   },
@@ -28,9 +34,14 @@ export const DefaultDiagramTheme: DiagramTheme = {
         type: Colors.main[0]
       }
     },
+    description: {
+      background: Colors.grey[7],
+      text: Colors.grey[1]
+    },
     port: {
       background: Colors.grey[4],
-      backgroundActive: Colors.grey[3]
+      backgroundActive: Colors.grey[3],
+      button: Colors.grey[0]
     },
     link: {
       main: Colors.grey[3],
