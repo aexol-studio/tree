@@ -126,9 +126,12 @@ export class Renderer {
    */
   renderLinks() {
     const state = this.stateManager.getState();
-    state.links.forEach(l =>
-      this.linkRenderer.render(l, state.selectedNodes.indexOf(l.i) !== -1)
-    );
+    state.links
+      .filter(l => state.selectedNodes.indexOf(l.i) === -1)
+      .forEach(l => this.linkRenderer.render(l, false));
+    state.links
+      .filter(l => state.selectedNodes.indexOf(l.i) !== -1)
+      .forEach(l => this.linkRenderer.render(l, true));
   }
 
   /**

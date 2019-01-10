@@ -330,25 +330,19 @@ export class StateManager {
   placeConnectedNode = (node: Node, io: "i" | "o") => {
     let x = node.x,
       y = node.y - this.theme.node.height * 2;
+    const xAdd =
+      this.theme.node.width + this.theme.port.width + this.theme.node.spacing.x;
     if (io === "i") {
       for (const input of node.inputs!) {
         y = input.y > y ? input.y : y;
       }
-      x =
-        node.x -
-        this.theme.node.width / 2.0 -
-        this.theme.port.width -
-        this.theme.node.spacing.x;
+      x -= xAdd;
     }
     if (io === "o") {
       for (const output of node.outputs!) {
         y = output.y > y ? output.y : y;
       }
-      x =
-        node.x +
-        this.theme.node.width / 2.0 +
-        this.theme.port.width +
-        this.theme.node.spacing.x;
+      x += this.theme.node.width + xAdd;
     }
     y += this.theme.node.height + this.theme.node.spacing.y;
     return { x, y };
