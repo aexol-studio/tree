@@ -6,7 +6,11 @@ export const DefaultDiagramTheme: DiagramTheme = {
     width: 180,
     height: 100,
     nameSize: 24,
-    typeSize: 20
+    typeSize: 20,
+    spacing: {
+      x: 100,
+      y: 100
+    }
   },
   description: {
     width: 300,
@@ -28,7 +32,11 @@ export const DefaultDiagramTheme: DiagramTheme = {
     category: {
       height: 50,
       textSize: 25
-    }
+    },
+    spacing: {
+      x: 20,
+      y: 100
+    },
   },
   colors: {
     background: Colors.grey[6],

@@ -9,6 +9,8 @@ import { DiagramTheme } from "../Models";
 import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
+import { Cursor } from "../Models/Cursor";
+import { DescriptionRenderer } from "./descriptionRenderer";
 /**
  * Renderer.
  *
@@ -23,6 +25,7 @@ export class Renderer {
   // private zoomPan = new ZoomPan();
   private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
+  private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private activeLinkRenderer: ActiveLinkRenderer;
 
@@ -39,30 +42,46 @@ export class Renderer {
     private theme: DiagramTheme
   ) {
     this.nodeRenderer = new NodeRenderer(this.context, this.theme);
+    this.nodeRenderer = new NodeRenderer(this.context, this.theme);
+    this.descriptionRenderer = new DescriptionRenderer(
+      this.context,
+      this.theme
+    );
     this.menuRenderer = new MenuRenderer(this.context, this.theme);
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
   }
 
+  setCursor(cursor: Cursor) {
+    this.context.canvas.style.cursor = cursor;
+  }
   /**
    * Render cursor.
    */
   renderCursor() {
     const state = this.stateManager.getState();
+    if (state.drawedConnection) {
+      this.setCursor("grabbing");
+      return;
+    }
     if (state.hover.node) {
-      this.context.canvas.style.cursor = "move";
+      this.setCursor("move");
       if (state.hover.io) {
-        this.context.canvas.style.cursor = "pointer";
+        this.setCursor("crosshair");
         return;
       }
       return;
     }
-    if (state.hover.menu) {
-      this.context.canvas.style.cursor = "pointer";
+    if (state.hover.description) {
+      this.setCursor("text");
       return;
     }
-    this.context.canvas.style.cursor = "auto";
+    if (state.hover.menu) {
+      this.setCursor("pointer");
+      return;
+    }
+    this.setCursor("auto");
   }
   /**
    * Render nodes.
@@ -77,6 +96,15 @@ export class Renderer {
         inputActive: state.hover.node === node && state.hover.io == "i",
         outputActive: state.hover.node === node && state.hover.io == "o"
       })
+    );
+  }
+  /**
+   * Render descriptions.
+   */
+  renderDescriptions() {
+    const state = this.stateManager.getState();
+    state.selectedNodes.forEach(node =>
+      this.descriptionRenderer.render({ node })
     );
   }
 
@@ -98,7 +126,9 @@ export class Renderer {
    */
   renderLinks() {
     const state = this.stateManager.getState();
-    state.links.forEach(this.linkRenderer.render);
+    state.links.forEach(l =>
+      this.linkRenderer.render(l, state.selectedNodes.indexOf(l.i) !== -1)
+    );
   }
 
   /**
@@ -142,6 +172,7 @@ export class Renderer {
     this.renderBackground();
     this.renderLinks();
     this.renderNodes();
+    this.renderDescriptions();
     this.renderMenu();
     this.renderActiveLink();
   };

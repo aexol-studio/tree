@@ -1,6 +1,5 @@
 import { Node, DiagramTheme } from "../Models";
 import { RoundedRectangle } from "./Draw/RoundedRectangle";
-import { Bubble } from "./Draw/Bubble";
 export class NodeRenderer {
   constructor(
     private context: CanvasRenderingContext2D,
@@ -39,8 +38,8 @@ export class NodeRenderer {
     RoundedRectangle(this.context, {
       width,
       height,
-      x: node.x! - width / 2.0,
-      y: node.y! - height / 2.0,
+      x: node.x!,
+      y: node.y!,
       radius: 0,
       radiusBottomLeft: leftRadius,
       radiusTopLeft: leftRadius,
@@ -52,18 +51,18 @@ export class NodeRenderer {
       this.context.font = this.getNodeFont(nameSize, "normal");
       this.context.textAlign = "center";
       this.context.textBaseline = "middle";
-      this.context.fillText(node.name, node.x!, node.y!);
+      this.context.fillText(
+        node.name,
+        node.x! + width / 2.0,
+        node.y! + height / 2.0
+      );
     }
     if (node.type) {
       this.context.fillStyle = colors.node.types[node.type] || colors.node.name;
       this.context.font = this.getNodeFont(typeSize, "normal");
       this.context.textBaseline = "bottom";
       this.context.textAlign = "end";
-      this.context.fillText(
-        node.type,
-        node.x! + width / 2.0,
-        node.y! - height / 2.0
-      );
+      this.context.fillText(node.type, node.x! + width, node.y!);
     }
     this.context.font = this.getNodeFont(nameSize, "normal");
     this.context.textAlign = "center";
@@ -75,16 +74,16 @@ export class NodeRenderer {
       RoundedRectangle(this.context, {
         height,
         width: port.width,
-        x: node.x - width / 2.0 - port.width,
-        y: node.y - height / 2.0,
+        x: node.x - port.width,
+        y: node.y,
         radiusTopLeft: 5,
         radiusBottomLeft: 5
       });
       this.context.fillStyle = colors.port.button;
       this.context.fillText(
         "-",
-        node.x - width / 2.0 - port.width / 2.0,
-        node.y
+        node.x - port.width / 2.0,
+        node.y + height / 2.0
       );
     }
     if (node.outputs) {
@@ -94,41 +93,16 @@ export class NodeRenderer {
       RoundedRectangle(this.context, {
         height,
         width: port.width,
-        x: node.x + width / 2.0,
-        y: node.y - height / 2.0,
+        x: node.x + width,
+        y: node.y,
         radiusTopRight: 5,
         radiusBottomRight: 5
       });
       this.context.fillStyle = colors.port.button;
       this.context.fillText(
         "+",
-        node.x + width / 2.0 + port.width / 2.0,
-        node.y
-      );
-    }
-    if (isSelected && node.description) {
-      this.context.fillStyle = this.theme.colors.description.background;
-      Bubble(
-        this.context,
-        node.x,
-        node.y - height / 2.0,
-        this.theme.description.width,
-        this.theme.description.height,
-        this.theme.description.triangleWidth,
-        this.theme.description.triangleHeight
-      );
-      this.context.fillStyle = this.theme.colors.description.text;
-      this.context.textAlign = "center";
-      this.context.textBaseline = "middle";
-
-      this.context.fillText(
-        node.description,
-        node.x,
-        node.y -
-          height / 2.0 -
-          this.theme.description.triangleHeight -
-          this.theme.description.height / 2.0,
-        this.theme.description.width
+        node.x + width + port.width / 2.0,
+        node.y + height / 2.0
       );
     }
   };

@@ -5,16 +5,19 @@ export class LinkRenderer {
     private context: CanvasRenderingContext2D,
     private theme: DiagramTheme
   ) {}
-  render = (l: Link) => {
+  render = (l: Link, highlight?: boolean) => {
+    const {
+      node: { width, height }
+    } = this.theme;
     QuadraticPath(
       this.context,
-      l.from.x,
-      l.from.y,
-      l.to.x,
-      l.to.y,
+      l.o.x + width / 2.0,
+      l.o.y + height / 2.0,
+      l.i.x + width / 2.0,
+      l.i.y + height / 2.0,
       this.theme.link.cornerRadius,
       this.theme.link.strokeWidth,
-      this.theme.colors.link.main,
+      highlight ? this.theme.colors.link.active : this.theme.colors.link.main,
       l.centerPoint || this.theme.link.defaultCenterPoint
     );
   };

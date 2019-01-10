@@ -4,6 +4,10 @@ export interface DiagramTheme {
     height: number;
     nameSize: number;
     typeSize: number;
+    spacing: {
+      x: number;
+      y: number;
+    };
   };
   description: {
     width: number;
@@ -24,7 +28,11 @@ export interface DiagramTheme {
     maxHeight: number;
     category: {
       height: number;
-      textSize:number;
+      textSize: number;
+    };
+    spacing: {
+      x: number;
+      y: number;
     };
   };
   colors: {

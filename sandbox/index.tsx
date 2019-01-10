@@ -27,6 +27,9 @@ class App extends React.Component {
         acceptsInputs: [
           {
             type: "string"
+          },
+          {
+            type: "ID"
           }
         ]
       },
@@ -39,6 +42,9 @@ class App extends React.Component {
         acceptsInputs: [
           {
             type: "string"
+          },
+          {
+            type: "ID"
           }
         ]
       },
@@ -60,6 +66,21 @@ class App extends React.Component {
             type: "string"
           }
         ]
+      },
+      {
+        node: {
+          type: "ID"
+        },
+        acceptsInputs: [
+          {
+            type: "string"
+          }
+        ]
+      },
+      {
+        node: {
+          type: "dummy"
+        },
       }
     ];
     this.diagram!.setDefinitions(nodeDefinitions);

@@ -2,9 +2,11 @@ import { EventBus } from "../../EventBus";
 import { DiagramState } from "../../Models/DiagramState";
 import * as Events from "../../Events";
 import { ScreenPosition } from "../../IO/ScreenPosition";
-import { DiagramTheme, Node, Category } from "../../Models";
+import { DiagramTheme, Node, Category, Link } from "../../Models";
 import { Utils } from "../../Utils";
 import { NodeDefinition } from "../../Models/NodeDefinition";
+
+const { between } = Utils;
 
 /**
  * StateManager:
@@ -109,13 +111,11 @@ export class StateManager {
             ({
               name: n.node.type,
               action: () =>
-                this.createNode(
-                  {
-                    x: e.x + this.theme.menu.width / 2.0,
-                    y: e.y - this.theme.node.height - 20
-                  },
-                  n.node
-                )
+                this.createNode(e, {
+                  ...n.node,
+                  x: e.x + this.theme.menu.width / 2.0,
+                  y: e.y - this.theme.node.height - 20
+                })
             } as Category)
         );
       this.state.menu = {
@@ -136,34 +136,40 @@ export class StateManager {
           x:
             io === "i"
               ? node.x -
-                this.theme.node.width / 2.0 -
                 this.theme.menu.width -
-                50
-              : node.x + this.theme.node.width / 2.0 + 50,
-          y: node.y - this.theme.node.height / 2.0
+                this.theme.port.width -
+                this.theme.menu.spacing.x
+              : node.x +
+                this.theme.node.width +
+                this.theme.port.width +
+                this.theme.menu.spacing.x,
+          y: node.y
         }
       };
+      const nodeDefinition = this.state.nodeDefinitions.find(
+        n => n.node.type === node.type
+      )!;
       this.state.categories = this.state.nodeDefinitions
         .filter(n => !n.object)
+        .filter(n =>
+          io === "i"
+            ? nodeDefinition.acceptsInputs!.find(ai => ai.type === n.node.type)
+            : n.acceptsInputs &&
+              n.acceptsInputs.find(ai => ai.type === node.type)
+        )
         .map(
           n =>
             ({
               name: n.node.type,
               action: () => {
                 const createdNode = this.createNode(
-                  {
-                    x:
-                      io === "i"
-                        ? node.x - this.theme.node.width * 2
-                        : node.x + this.theme.node.width * 2,
-                    y: node.y
-                  },
+                  this.placeConnectedNode(node, io),
                   n.node
                 );
-                this.state.links.push({
-                  from: io === "o" ? node : createdNode,
-                  to: io === "i" ? node : createdNode
-                });
+                this.makeConnection(
+                  io === "i" ? node : createdNode,
+                  io === "o" ? node : createdNode
+                );
               }
             } as Category)
         );
@@ -193,24 +199,28 @@ export class StateManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   makeConnection = (i: Node, o: Node) => {
+    const inputNodeDefinition = this.state.nodeDefinitions.find(
+      nd => nd.node.type === i.type
+    )!;
     if (
       !this.connectionFunction(i, o) ||
-      this.state.links.find(l => l.from === i && l.to === o) ||
-      !this.state.nodeDefinitions
-        .find(nd => nd.node.type === i.type)!
-        .acceptsInputs.find(ai => ai.type === o.type)
+      this.state.links.find(l => l.i === i && l.o === o) ||
+      (inputNodeDefinition.acceptsInputs &&
+        !inputNodeDefinition.acceptsInputs!.find(ai => ai.type === o.type))
     ) {
       this.state.drawedConnection = undefined;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;
     }
     console.log(`connection between input ${i.type} - output ${o.type}`);
-    this.state.links.push({
-      from: o,
-      to: i
-    });
+    const newLink: Link = {
+      o: o,
+      i: i
+    };
+    this.state.links.push(newLink);
     i.inputs!.push(o);
     o.outputs!.push(i);
+    return newLink;
   };
   endDrawingConnector = (e: ScreenPosition) => {
     if (!this.state.draw) {
@@ -273,16 +283,17 @@ export class StateManager {
         x: e.x - n.x,
         y: e.y - n.y
       };
-      if (
-        Math.abs(distance.x) <
-          this.theme.node.width / 2.0 + this.theme.port.width &&
-        Math.abs(distance.y) < this.theme.node.height / 2.0
-      ) {
+      const xBetween = between(
+        -this.theme.port.width,
+        this.theme.node.width + this.theme.port.width
+      );
+      const yBetween = between(0, this.theme.node.height);
+      if (xBetween(distance.x) && yBetween(distance.y)) {
         const node = n;
         const io =
-          distance.x > this.theme.node.width / 2.0 && node.outputs
+          distance.x > this.theme.node.width && node.outputs
             ? "o"
-            : distance.x < -this.theme.node.width / 2.0 && node.inputs
+            : distance.x < 0 && node.inputs
             ? "i"
             : undefined;
         if (this.state.hover.io !== io || this.state.hover.node !== node) {
@@ -300,7 +311,6 @@ export class StateManager {
   selectNode = (e: ScreenPosition) => {
     const { node, io } = this.state.hover;
     if (node && !io) {
-      console.log(e);
       if (e.shiftKey) {
         const hasIndex = this.state.selectedNodes.indexOf(node);
         if (hasIndex !== -1) {
@@ -317,14 +327,40 @@ export class StateManager {
     this.eventBus.publish(Events.DiagramEvents.NodeSelected);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+  placeConnectedNode = (node: Node, io: "i" | "o") => {
+    let x = node.x,
+      y = node.y - this.theme.node.height * 2;
+    if (io === "i") {
+      for (const input of node.inputs!) {
+        y = input.y > y ? input.y : y;
+      }
+      x =
+        node.x -
+        this.theme.node.width / 2.0 -
+        this.theme.port.width -
+        this.theme.node.spacing.x;
+    }
+    if (io === "o") {
+      for (const output of node.outputs!) {
+        y = output.y > y ? output.y : y;
+      }
+      x =
+        node.x +
+        this.theme.node.width / 2.0 +
+        this.theme.port.width +
+        this.theme.node.spacing.x;
+    }
+    y += this.theme.node.height + this.theme.node.spacing.y;
+    return { x, y };
+  };
   createNode = (e: ScreenPosition, n?: Partial<Node>) => {
     const createdNode: Node = {
       name: "Person",
       id: Utils.generateId(),
       type: "type",
       description: "Enter your description",
-      x: e.x,
-      y: e.y,
+      x: e.x - this.theme.node.width / 2.0,
+      y: e.y - this.theme.node.height / 2.0,
       inputs: [],
       outputs: [],
       ...n
