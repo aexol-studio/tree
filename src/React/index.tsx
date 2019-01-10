@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Diagram } from '../Diagram';
+import { Category } from '../Models';
 
 interface DiagramReactProps {
-  categories: any[];
+  categories: Category[];
   width?: string;
   height?: string;
 }

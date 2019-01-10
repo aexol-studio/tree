@@ -5,4 +5,6 @@ export interface Node {
   description?: string;
   x: number;
   y: number;
+  inputs: Node[];
+  outputs: Node[];
 }

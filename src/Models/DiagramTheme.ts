@@ -19,8 +19,21 @@ export interface DiagramTheme {
     cornerRadius: number;
     defaultCenterPoint: number;
   };
+  menu: {
+    width: number;
+    maxHeight: number;
+    category: {
+      height: number;
+      textSize:number;
+    };
+  };
   colors: {
     background: string;
+    menu: {
+      background: string;
+      hover: string;
+      text: string;
+    };
     description: {
       background: string;
       text: string;

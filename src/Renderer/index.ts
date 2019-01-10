@@ -21,7 +21,7 @@ import { LinkRenderer } from "./linkRenderer";
 export class Renderer {
   private minimapRenderer = new MinimapRenderer();
   // private zoomPan = new ZoomPan();
-  private menuRenderer = new MenuRenderer();
+  private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
   private linkRenderer: LinkRenderer;
   private activeLinkRenderer: ActiveLinkRenderer;
@@ -39,6 +39,7 @@ export class Renderer {
     private theme: DiagramTheme
   ) {
     this.nodeRenderer = new NodeRenderer(this.context, this.theme);
+    this.menuRenderer = new MenuRenderer(this.context, this.theme);
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
@@ -53,9 +54,13 @@ export class Renderer {
       this.context.canvas.style.cursor = "move";
       if (state.hover.io) {
         this.context.canvas.style.cursor = "pointer";
-        return
+        return;
       }
-      return
+      return;
+    }
+    if (state.hover.menu) {
+      this.context.canvas.style.cursor = "pointer";
+      return;
     }
     this.context.canvas.style.cursor = "auto";
   }
@@ -113,6 +118,14 @@ export class Renderer {
     this.context.fillRect(0, 0, width, height);
   }
 
+  renderMenu() {
+    const state = this.stateManager.getState();
+    const index = state.hover.menu ? state.hover.menu.index : undefined;
+    if (state.menu) {
+      this.menuRenderer.render(state.menu.position, state.categories, index);
+    }
+  }
+
   renderStart() {
     window.requestAnimationFrame(this.render);
   }
@@ -124,12 +137,12 @@ export class Renderer {
     // (...) render loop
     // const transform = this.zoomPan.calculateTransform();
     this.minimapRenderer.render(this.context);
-    this.menuRenderer.render(this.context);
 
     this.renderCursor();
     this.renderBackground();
     this.renderLinks();
     this.renderNodes();
+    this.renderMenu();
     this.renderActiveLink();
   };
 }

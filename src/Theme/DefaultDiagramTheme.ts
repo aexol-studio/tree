@@ -22,6 +22,14 @@ export const DefaultDiagramTheme: DiagramTheme = {
     defaultCenterPoint: 0.5,
     strokeWidth: 4
   },
+  menu: {
+    width: 400,
+    maxHeight: 700,
+    category: {
+      height: 50,
+      textSize: 25
+    }
+  },
   colors: {
     background: Colors.grey[6],
     node: {
@@ -46,6 +54,11 @@ export const DefaultDiagramTheme: DiagramTheme = {
     link: {
       main: Colors.grey[3],
       active: Colors.green[0]
+    },
+    menu: {
+      background: Colors.grey[3],
+      text: Colors.grey[6],
+      hover: Colors.grey[1]
     }
   }
 };

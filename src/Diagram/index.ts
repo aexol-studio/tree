@@ -2,8 +2,9 @@ import { Renderer } from "../Renderer";
 import { EventBus } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
-import { DiagramTheme, Node } from "../Models";
+import { DiagramTheme, Node, Category } from "../Models";
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
+import { NodeDefinition } from "../Models/NodeDefinition";
 
 /**
  * Diagram:
@@ -15,10 +16,12 @@ import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 export class Diagram {
   private renderer: Renderer;
   private eventBus: EventBus;
-  private stateManager: StateManager;
-  setCategories(categories: any[]) {
+  public stateManager: StateManager;
+  setCategories(categories: Category[]) {
     this.stateManager.setCategories(categories);
-    // ... update the data
+  }
+  setDefinitions(nodeDefinitions: NodeDefinition[]) {
+    this.stateManager.setDefinitions(nodeDefinitions);
   }
 
   calculateElementSize(domElement: HTMLElement) {
@@ -41,9 +44,12 @@ export class Diagram {
 
     const canvasElement = document.createElement("canvas");
     const canvasContext = canvasElement.getContext("2d");
+
     canvasContext!.font = "10px Helvetica";
 
     const hostSize = this.calculateElementSize(domElement);
+
+    canvasElement.oncontextmenu = () => false;
 
     canvasElement.width = hostSize.width * 2;
     canvasElement.height = hostSize.height * 2;

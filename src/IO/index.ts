@@ -35,6 +35,7 @@ export class IO {
     });
     // ...
     element.addEventListener("mouseup", e => {
+      e.preventDefault()
       if (e.which === 1) {
         this.leftMouseButtonDown = false;
         this.eventBus.publish(
