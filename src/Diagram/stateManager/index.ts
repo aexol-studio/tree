@@ -204,13 +204,13 @@ export class StateManager {
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;
     }
-    console.log(`connection between ${i.id} - ${o.id}`);
+    console.log(`connection between input ${i.type} - output ${o.type}`);
     this.state.links.push({
       from: o,
       to: i
     });
-    i.outputs!.push(o);
-    o.inputs!.push(i);
+    i.inputs!.push(o);
+    o.outputs!.push(i);
   };
   endDrawingConnector = (e: ScreenPosition) => {
     if (!this.state.draw) {
