@@ -40,13 +40,15 @@ export class MenuRenderer {
         e.x + this.theme.menu.width / 2.0,
         categoryY + this.theme.menu.category.height / 2.0
       );
-      this.context.beginPath();
-      this.context.moveTo(e.x, categoryY + this.theme.menu.category.height);
-      this.context.lineTo(
-        e.x + this.theme.menu.width,
-        categoryY + this.theme.menu.category.height
-      );
-      this.context.stroke();
+      if (index !== categories.length - 1) {
+        this.context.beginPath();
+        this.context.moveTo(e.x, categoryY + this.theme.menu.category.height);
+        this.context.lineTo(
+          e.x + this.theme.menu.width,
+          categoryY + this.theme.menu.category.height
+        );
+        this.context.stroke();
+      }
     });
   }
 }

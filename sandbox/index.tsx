@@ -21,7 +21,8 @@ class App extends React.Component {
       {
         object: true,
         node: {
-          type: "type"
+          type: "type",
+          outputs: null
         },
         acceptsInputs: [
           {
@@ -32,7 +33,8 @@ class App extends React.Component {
       {
         object: true,
         node: {
-          type: "input"
+          type: "input",
+          outputs: null
         },
         acceptsInputs: [
           {
@@ -43,7 +45,9 @@ class App extends React.Component {
       {
         object: true,
         node: {
-          type: "scalar"
+          type: "scalar",
+          outputs: null,
+          inputs: null
         },
         acceptsInputs: []
       },

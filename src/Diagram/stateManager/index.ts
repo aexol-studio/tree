@@ -1,10 +1,10 @@
-import { EventBus } from "../EventBus";
-import { DiagramState } from "../Models/DiagramState";
-import * as Events from "../Events";
-import { ScreenPosition } from "../IO/ScreenPosition";
-import { DiagramTheme, Node, Category } from "../Models";
-import { Utils } from "../Utils";
-import { NodeDefinition } from "../Models/NodeDefinition";
+import { EventBus } from "../../EventBus";
+import { DiagramState } from "../../Models/DiagramState";
+import * as Events from "../../Events";
+import { ScreenPosition } from "../../IO/ScreenPosition";
+import { DiagramTheme, Node, Category } from "../../Models";
+import { Utils } from "../../Utils";
+import { NodeDefinition } from "../../Models/NodeDefinition";
 
 /**
  * StateManager:
@@ -66,10 +66,6 @@ export class StateManager {
     this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openMenu);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.moveNodes);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.drawConnector);
-    this.eventBus.subscribe(
-      Events.IOEvents.RightMouseClick,
-      this.showNodeContextMenu
-    );
   }
   LMBPressed = (e: ScreenPosition) => {
     this.state.lastPosition = { ...e };
@@ -123,10 +119,7 @@ export class StateManager {
             } as Category)
         );
       this.state.menu = {
-        position: {
-          x: e.x,
-          y: e.y
-        }
+        position: { ...e }
       };
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
@@ -216,10 +209,13 @@ export class StateManager {
       from: o,
       to: i
     });
-    i.outputs.push(o);
-    o.inputs.push(i);
+    i.outputs!.push(o);
+    o.inputs!.push(i);
   };
   endDrawingConnector = (e: ScreenPosition) => {
+    if (!this.state.draw) {
+      return;
+    }
     if (this.state.hover.io && this.state.hover.io !== this.state.draw!.io) {
       const input =
         this.state.hover.io === "i"
@@ -284,9 +280,9 @@ export class StateManager {
       ) {
         const node = n;
         const io =
-          distance.x > this.theme.node.width / 2.0
+          distance.x > this.theme.node.width / 2.0 && node.outputs
             ? "o"
-            : distance.x < -this.theme.node.width / 2.0
+            : distance.x < -this.theme.node.width / 2.0 && node.inputs
             ? "i"
             : undefined;
         if (this.state.hover.io !== io || this.state.hover.node !== node) {
@@ -304,12 +300,17 @@ export class StateManager {
   selectNode = (e: ScreenPosition) => {
     const { node, io } = this.state.hover;
     if (node && !io) {
-      const hasIndex = this.state.selectedNodes.indexOf(node);
-      if (hasIndex !== -1) {
-        this.state.selectedNodes.splice(hasIndex);
-        return;
+      console.log(e);
+      if (e.shiftKey) {
+        const hasIndex = this.state.selectedNodes.indexOf(node);
+        if (hasIndex !== -1) {
+          this.state.selectedNodes.splice(hasIndex);
+          return;
+        }
+        this.state.selectedNodes.push(node);
+      } else {
+        this.state.selectedNodes = [node];
       }
-      this.state.selectedNodes.push(node);
     } else {
       this.state.selectedNodes = [];
     }
@@ -317,7 +318,7 @@ export class StateManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   createNode = (e: ScreenPosition, n?: Partial<Node>) => {
-    const creadedNode: Node = {
+    const createdNode: Node = {
       name: "Person",
       id: Utils.generateId(),
       type: "type",
@@ -328,13 +329,9 @@ export class StateManager {
       outputs: [],
       ...n
     };
-    this.state.nodes.push(creadedNode);
+    this.state.nodes.push(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    return creadedNode;
+    return createdNode;
   };
-
-  showNodeContextMenu() {
-    // ... something happened, e.g. node was moved
-  }
 }

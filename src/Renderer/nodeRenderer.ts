@@ -34,12 +34,19 @@ export class NodeRenderer {
     if (isSelected || isHovered) {
       this.context.fillStyle = colors.node.selected;
     }
-    this.context.fillRect(
-      node.x! - width / 2.0,
-      node.y! - height / 2.0,
+    const leftRadius = node.inputs ? 0 : 5;
+    const rightRadius = node.outputs ? 0 : 5;
+    RoundedRectangle(this.context, {
       width,
-      height
-    );
+      height,
+      x: node.x! - width / 2.0,
+      y: node.y! - height / 2.0,
+      radius: 0,
+      radiusBottomLeft: leftRadius,
+      radiusTopLeft: leftRadius,
+      radiusBottomRight: rightRadius,
+      radiusTopRight: rightRadius
+    });
     if (node.name) {
       this.context.fillStyle = colors.node.name;
       this.context.font = this.getNodeFont(nameSize, "normal");
@@ -58,34 +65,47 @@ export class NodeRenderer {
         node.y! - height / 2.0
       );
     }
-    this.context.fillStyle = inputActive
-      ? colors.port.backgroundActive
-      : colors.port.background;
-    RoundedRectangle(this.context, {
-      height,
-      width: port.width,
-      x: node.x - width / 2.0 - port.width,
-      y: node.y - height / 2.0,
-      radiusTopLeft: 5,
-      radiusBottomLeft: 5
-    });
-    this.context.fillStyle = outputActive
-      ? colors.port.backgroundActive
-      : colors.port.background;
-    RoundedRectangle(this.context, {
-      height,
-      width: port.width,
-      x: node.x + width / 2.0,
-      y: node.y - height / 2.0,
-      radiusTopRight: 5,
-      radiusBottomRight: 5
-    });
-    this.context.fillStyle = colors.port.button;
     this.context.font = this.getNodeFont(nameSize, "normal");
     this.context.textAlign = "center";
     this.context.textBaseline = "middle";
-    this.context.fillText("-", node.x - width / 2.0 - port.width / 2.0, node.y);
-    this.context.fillText("+", node.x + width / 2.0 + port.width / 2.0, node.y);
+    if (node.inputs) {
+      this.context.fillStyle = inputActive
+        ? colors.port.backgroundActive
+        : colors.port.background;
+      RoundedRectangle(this.context, {
+        height,
+        width: port.width,
+        x: node.x - width / 2.0 - port.width,
+        y: node.y - height / 2.0,
+        radiusTopLeft: 5,
+        radiusBottomLeft: 5
+      });
+      this.context.fillStyle = colors.port.button;
+      this.context.fillText(
+        "-",
+        node.x - width / 2.0 - port.width / 2.0,
+        node.y
+      );
+    }
+    if (node.outputs) {
+      this.context.fillStyle = outputActive
+        ? colors.port.backgroundActive
+        : colors.port.background;
+      RoundedRectangle(this.context, {
+        height,
+        width: port.width,
+        x: node.x + width / 2.0,
+        y: node.y - height / 2.0,
+        radiusTopRight: 5,
+        radiusBottomRight: 5
+      });
+      this.context.fillStyle = colors.port.button;
+      this.context.fillText(
+        "+",
+        node.x + width / 2.0 + port.width / 2.0,
+        node.y
+      );
+    }
     if (isSelected && node.description) {
       this.context.fillStyle = this.theme.colors.description.background;
       Bubble(

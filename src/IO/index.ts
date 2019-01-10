@@ -35,7 +35,7 @@ export class IO {
     });
     // ...
     element.addEventListener("mouseup", e => {
-      e.preventDefault()
+      e.preventDefault();
       if (e.which === 1) {
         this.leftMouseButtonDown = false;
         this.eventBus.publish(
@@ -54,7 +54,9 @@ export class IO {
         this.leftMouseButtonDown = true;
         this.eventBus.publish(
           Events.IOEvents.LeftMouseClick,
-          this.createMouseEventPayload()
+          this.createMouseEventPayload({
+            shiftKey: e.shiftKey
+          })
         );
         const clickTime = Date.now();
         const diff = clickTime - this.lastClick;
@@ -72,15 +74,7 @@ export class IO {
         );
       }
     });
-
-    element.addEventListener("keypress", e => {
-      if (e.key === " ") {
-        this.eventBus.publish(
-          Events.IOEvents.SpacebarPressed,
-          this.createMouseEventPayload()
-        );
-      }
-
+    element.addEventListener("keydown", e => {
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
       }
@@ -90,9 +84,10 @@ export class IO {
     });
   }
 
-  createMouseEventPayload() {
+  createMouseEventPayload(e: Partial<ScreenPosition> = {}) {
     return {
-      ...this.currentScreenPosition
+      ...this.currentScreenPosition,
+      ...e
     };
   }
 }
