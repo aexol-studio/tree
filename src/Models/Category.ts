@@ -1,5 +1,5 @@
 export interface Category {
   name: string;
-  action: Function;
+  action?: Function;
   children?: Category[];
 }

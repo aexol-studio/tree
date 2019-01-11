@@ -21,6 +21,7 @@ class App extends React.Component {
       {
         object: true,
         node: {
+          name:"TypeName",
           type: "type",
           outputs: null
         },
@@ -30,12 +31,16 @@ class App extends React.Component {
           },
           {
             type: "ID"
+          },
+          {
+            type: "type"
           }
         ]
       },
       {
         object: true,
         node: {
+          name:"InputName",
           type: "input",
           outputs: null
         },
@@ -52,6 +57,7 @@ class App extends React.Component {
         object: true,
         node: {
           type: "scalar",
+          name:"ScalarName",
           outputs: null,
           inputs: null
         },
@@ -59,6 +65,7 @@ class App extends React.Component {
       },
       {
         node: {
+          name:"String",
           type: "string"
         },
         acceptsInputs: [
@@ -69,6 +76,7 @@ class App extends React.Component {
       },
       {
         node: {
+          name:"ID",
           type: "ID"
         },
         acceptsInputs: [
@@ -79,6 +87,7 @@ class App extends React.Component {
       },
       {
         node: {
+          name:"dummy",
           type: "dummy"
         },
       }

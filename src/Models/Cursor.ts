@@ -12,4 +12,5 @@ export type Cursor =
   | "grab"
   | "grabbing"
   | "crosshair"
+  | "col-resize"
   | "help";

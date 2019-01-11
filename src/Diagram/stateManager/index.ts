@@ -66,6 +66,7 @@ export class StateManager {
     );
     this.eventBus.subscribe(Events.IOEvents.LeftMouseUp, this.openPortMenu);
     this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openMenu);
+    this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openNodeMenu);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.moveNodes);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.drawConnector);
   }
@@ -86,9 +87,15 @@ export class StateManager {
   };
   clickMenuItem = () => {
     if (this.state.menu && this.state.hover.menu) {
-      this.state.categories[this.state.hover.menu.index].action();
-      this.state.menu = undefined;
-      this.state.hover.menu = undefined;
+      const category = this.state.categories[this.state.hover.menu.index];
+      if (category.action) {
+        category.action!();
+        this.state.menu = undefined;
+        this.state.hover.menu = undefined;
+      } else if (category.children) {
+        this.state.categories = category.children;
+        this.state.hover.menu = undefined;
+      }
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };
@@ -124,6 +131,27 @@ export class StateManager {
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };
+
+  openNodeMenu = (e: ScreenPosition) => {
+    if (this.state.draw) {
+      return;
+    }
+    const { node } = this.state.hover;
+    if (node) {
+      this.state.categories = [
+        {
+          name: "delete",
+          action: () => {
+            this.deleteNodes([node]);
+          }
+        }
+      ];
+      this.state.menu = {
+        position: { ...e }
+      };
+      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    }
+  };
   openPortMenu = (e: ScreenPosition) => {
     if (!this.state.draw) {
       return;
@@ -146,14 +174,20 @@ export class StateManager {
           y: node.y
         }
       };
-      const nodeDefinition = this.state.nodeDefinitions.find(
+      let nodeDefinition = this.state.nodeDefinitions.find(
         n => n.node.type === node.type
-      )!;
+      );
+      if (!nodeDefinition) {
+        const parentNode = this.state.nodes.find(n => n.type === node.name)!;
+        nodeDefinition = this.state.nodeDefinitions.find(
+          n => n.node.type === parentNode.type
+        );
+      }
       this.state.categories = this.state.nodeDefinitions
         .filter(n => !n.object)
         .filter(n =>
           io === "i"
-            ? nodeDefinition.acceptsInputs!.find(ai => ai.type === n.node.type)
+            ? nodeDefinition!.acceptsInputs!.find(ai => ai.type === n.node.type)
             : n.acceptsInputs &&
               n.acceptsInputs.find(ai => ai.type === node.type)
         )
@@ -345,7 +379,30 @@ export class StateManager {
       x += this.theme.node.width + xAdd;
     }
     y += this.theme.node.height + this.theme.node.spacing.y;
+    const tooClose = this.state.nodes.filter(
+      n =>
+        Math.abs(n.y - y) < this.theme.node.height &&
+        Math.abs(n.x - x) < this.theme.node.width
+    );
+    if (tooClose.length) {
+      console.log(tooClose);
+      y = Math.max(...tooClose.map(tc => tc.y));
+      console.log(y);
+      y += this.theme.node.height + this.theme.node.spacing.y;
+    }
     return { x, y };
+  };
+  deleteNodes = (n: Node[]) => {
+    this.state.selectedNodes = this.state.selectedNodes.filter(
+      node => !n.find(nn => nn === node)
+    );
+    this.state.nodes = this.state.nodes.filter(
+      node => !n.find(nn => nn === node)
+    );
+    this.state.links = this.state.links.filter(
+      link => !n.find(nn => nn === link.i || nn === link.o)
+    );
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   createNode = (e: ScreenPosition, n?: Partial<Node>) => {
     const createdNode: Node = {
@@ -359,6 +416,78 @@ export class StateManager {
       outputs: [],
       ...n
     };
+    if (n && n.type) {
+      const nodeDefinition = this.state.nodeDefinitions.find(
+        nd => nd.node.type === n.type
+      );
+      if (nodeDefinition && nodeDefinition.object) {
+        const ObjectInstanceDefinition = this.state.nodeDefinitions.find(
+          nd => nd.node.type === n.name
+        );
+        if (!ObjectInstanceDefinition) {
+          this.state.nodeDefinitions.push({
+            ...nodeDefinition,
+            object: undefined,
+            main: undefined,
+            node: {
+              ...nodeDefinition.node,
+              inputs: [],
+              outputs: [],
+              type: n.name!
+            }
+          });
+          this.state.nodeDefinitions = this.state.nodeDefinitions.map(nd => {
+            let { acceptsInputs } = nd;
+            if (
+              acceptsInputs &&
+              acceptsInputs.find(ai => ai.type === nodeDefinition.node.type)
+            ) {
+              acceptsInputs = [
+                ...acceptsInputs,
+                {
+                  type: n.name!
+                }
+              ];
+            }
+            return {
+              ...nd,
+              acceptsInputs
+            };
+          });
+        }
+      }
+      // if (!this.state.nodeDefinitions.find(nd => nd.node.type === n.type)) {
+      //   const parentNode = this.state.nodes.find(nd => nd.type === n.name)!;
+      //   const parentNodeDefinition = this.state.nodeDefinitions.find(
+      //     nd => nd.node.type === parentNode.type
+      //   )!;
+      //   this.state.nodeDefinitions.push({
+      //     ...parentNode,
+      //     node: {
+      //       ...parentNodeDefinition.node,
+      //       type: n.type!
+      //     }
+      //   });
+      //   this.state.nodeDefinitions = this.state.nodeDefinitions.map(nd => {
+      //     let { acceptsInputs } = nd;
+      //     if (
+      //       acceptsInputs &&
+      //       acceptsInputs.find(ai => ai.type === parentNode.type)
+      //     ) {
+      //       acceptsInputs = [
+      //         ...acceptsInputs,
+      //         {
+      //           type: n.name!
+      //         }
+      //       ];
+      //     }
+      //     return {
+      //       ...nd,
+      //       acceptsInputs
+      //     };
+      //   });
+      // }
+    }
     this.state.nodes.push(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
