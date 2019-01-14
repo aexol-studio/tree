@@ -48,8 +48,8 @@ class App extends React.Component {
       node =>
         ({
           node,
-          acceptsInputs: [...builtInObjectNodes,...builtInScalarsNodes],
-          object:true
+          acceptsInputs: [...builtInObjectNodes, ...builtInScalarsNodes],
+          object: true
         } as NodeDefinition)
     );
 
