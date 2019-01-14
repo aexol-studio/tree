@@ -34,6 +34,14 @@ export class IO {
       }
     });
     // ...
+    element.addEventListener("wheel", e => {
+      const delta = e.deltaMode === 1 ? e.deltaY * 24 : e.deltaY;
+
+      this.eventBus.publish(
+        Events.IOEvents.MouseWheel,
+        delta
+      );
+    });
     element.addEventListener("mouseup", e => {
       e.preventDefault();
       if (e.which === 1) {
@@ -75,7 +83,7 @@ export class IO {
       }
     });
     element.addEventListener("keydown", e => {
-      
+
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
       }

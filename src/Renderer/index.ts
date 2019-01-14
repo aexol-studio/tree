@@ -1,5 +1,5 @@
 import { MinimapRenderer } from "./minimapRenderer";
-// import { ZoomPan } from './zoomPan';
+import { ZoomPan } from './zoomPan';
 import { MenuRenderer } from "./menuRenderer";
 import { EventBus } from "../EventBus";
 import { StateManager } from "../Diagram/stateManager";
@@ -27,6 +27,7 @@ export class Renderer {
   private nodeRenderer: NodeRenderer;
   private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
+  private zoomPan: ZoomPan;
   private activeLinkRenderer: ActiveLinkRenderer;
 
   /**
@@ -51,6 +52,7 @@ export class Renderer {
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
+    this.zoomPan = new ZoomPan;
   }
 
   setCursor(cursor: Cursor) {
@@ -169,15 +171,19 @@ export class Renderer {
 
   render = () => {
     // (...) render loop
-    // const transform = this.zoomPan.calculateTransform();
+    this.zoomPan.setUniformMatrix(this.context);
     this.minimapRenderer.render(this.context);
-
-    this.renderCursor();
     this.renderBackground();
-    this.renderLinks();
+
+    this.zoomPan.setCalculatedMatrix(this.context, this.stateManager.pureState().uiState);
     this.renderNodes();
+    this.renderLinks();
     this.renderDescriptions();
-    this.renderMenu();
     this.renderActiveLink();
+
+    this.zoomPan.setUniformMatrix(this.context);
+    this.renderCursor();
+    this.renderMenu();
+
   };
 }

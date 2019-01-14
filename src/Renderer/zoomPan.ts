@@ -1,3 +1,5 @@
+import { UIState } from "../Models";
+
 /**
  * ZoomPan
  *
@@ -7,8 +9,11 @@
 export class ZoomPan {
   // ...
 
-  calculateTransform() {
-    // ...
-    return {};
+  setCalculatedMatrix(context: CanvasRenderingContext2D, uiState: UIState) {
+    context.setTransform(uiState.scale, 0, 0, uiState.scale, 0, 0);
+  }
+
+  setUniformMatrix(context: CanvasRenderingContext2D) {
+    context.setTransform(1, 0, 0, 1, 0, 0);
   }
 }

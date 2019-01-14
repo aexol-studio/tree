@@ -7,6 +7,7 @@ import { Utils } from "../../Utils";
 import { NodeDefinition } from "../../Models/NodeDefinition";
 import { NodeManager } from "./nodeManager";
 import { ConnectionManager } from "./connectionManager";
+import { ZoomManager } from "./zoomManager";
 
 const { between } = Utils;
 
@@ -23,6 +24,7 @@ export class StateManager {
   private state: DiagramState;
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
+  private zoomManager: ZoomManager;
   getState() {
     return {
       ...this.state
@@ -52,6 +54,12 @@ export class StateManager {
       lastPosition: {
         x: 0,
         y: 0
+      },
+      uiState: {
+        minimapActive: true,
+        panX: 0,
+        panY: 0,
+        scale: 1.0,
       }
     };
     this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
@@ -60,6 +68,8 @@ export class StateManager {
       this.state,
       this.connectionFunction
     );
+    this.zoomManager = new ZoomManager(this.state.uiState, this.eventBus);
+
     this.eventBus.subscribe(Events.IOEvents.MouseMove, this.hover);
     this.eventBus.subscribe(Events.IOEvents.MouseOverMove, this.hoverMenu);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.LMBPressed);
