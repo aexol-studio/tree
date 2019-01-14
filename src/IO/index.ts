@@ -75,6 +75,7 @@ export class IO {
       }
     });
     element.addEventListener("keydown", e => {
+      
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
       }

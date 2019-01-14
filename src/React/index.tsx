@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Diagram } from '../Diagram';
-import { Category } from '../Models';
+import * as React from "react";
+import { Diagram } from "../Diagram";
+import { Category } from "../Models";
 
 interface DiagramReactProps {
   categories: Category[];
@@ -25,13 +25,13 @@ export class DiagramReact extends React.Component<DiagramReactProps> {
     if (this.props.width) {
       this.containerRef.current!.style.width = this.props.width;
     } else {
-      this.containerRef.current!.style.width = '100%';
+      this.containerRef.current!.style.width = "100%";
     }
 
     if (this.props.height) {
       this.containerRef.current!.style.height = this.props.height;
     } else {
-      this.containerRef.current!.style.height = '100%';
+      this.containerRef.current!.style.height = "100%";
     }
   }
   componentDidMount() {
@@ -50,6 +50,6 @@ export class DiagramReact extends React.Component<DiagramReactProps> {
     }
   }
   render() {
-    return (<div ref={this.containerRef}></div>);
+    return <div ref={this.containerRef} />;
   }
 }

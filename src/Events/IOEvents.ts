@@ -13,9 +13,7 @@ export class IOEvents {
   static LeftMouseClick = "LeftMouseClick";
   static DoubleClick = "DoubleClick";
   static RightMouseClick = "RightMouseClick";
-  static CtrlClick = "CtrlClick";
-  static CtrlUp = "CtrlUp";
-  static SpacebarPressed = "SpacebarPressed";
   static MPressed = "MPressed";
   static DeletePressed = "Delete";
+  static RenamerChanged = "RenamerChanged"
 }

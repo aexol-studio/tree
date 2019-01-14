@@ -2,9 +2,11 @@ import { EventBus } from "../../EventBus";
 import { DiagramState } from "../../Models/DiagramState";
 import * as Events from "../../Events";
 import { ScreenPosition } from "../../IO/ScreenPosition";
-import { DiagramTheme, Node, Category, Link } from "../../Models";
+import { DiagramTheme, Node, Category } from "../../Models";
 import { Utils } from "../../Utils";
 import { NodeDefinition } from "../../Models/NodeDefinition";
+import { NodeManager } from "./nodeManager";
+import { ConnectionManager } from "./connectionManager";
 
 const { between } = Utils;
 
@@ -19,6 +21,8 @@ const { between } = Utils;
  */
 export class StateManager {
   private state: DiagramState;
+  private nodeManager: NodeManager;
+  private connectionManager: ConnectionManager;
   getState() {
     return {
       ...this.state
@@ -50,40 +54,22 @@ export class StateManager {
         y: 0
       }
     };
+    this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
+    this.connectionManager = new ConnectionManager(
+      this.eventBus,
+      this.state,
+      this.connectionFunction
+    );
     this.eventBus.subscribe(Events.IOEvents.MouseMove, this.hover);
     this.eventBus.subscribe(Events.IOEvents.MouseOverMove, this.hoverMenu);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.selectNode);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.LMBPressed);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.closeMenu);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.clickMenuItem);
-    this.eventBus.subscribe(
-      Events.IOEvents.LeftMouseClick,
-      this.startDrawingConnector
-    );
-    this.eventBus.subscribe(
-      Events.IOEvents.LeftMouseUp,
-      this.endDrawingConnector
-    );
     this.eventBus.subscribe(Events.IOEvents.LeftMouseUp, this.openPortMenu);
     this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openMenu);
-    this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openNodeMenu);
-    this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.moveNodes);
-    this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.drawConnector);
   }
   LMBPressed = (e: ScreenPosition) => {
     this.state.lastPosition = { ...e };
-  };
-  moveNodes = (e: ScreenPosition) => {
-    const { selectedNodes } = this.state;
-    if (selectedNodes.length > 0) {
-      for (const n of selectedNodes) {
-        n.x += e.x - this.state.lastPosition.x;
-        n.y += e.y - this.state.lastPosition.y;
-      }
-      this.state.lastPosition = { ...e };
-      this.eventBus.publish(Events.DiagramEvents.NodeMoved);
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
   };
   clickMenuItem = () => {
     if (this.state.menu && this.state.hover.menu) {
@@ -118,34 +104,13 @@ export class StateManager {
             ({
               name: n.node.type,
               action: () =>
-                this.createNode(e, {
+                this.nodeManager.createNode(e, {
                   ...n.node,
                   x: e.x + this.theme.menu.width / 2.0,
                   y: e.y - this.theme.node.height - 20
                 })
             } as Category)
         );
-      this.state.menu = {
-        position: { ...e }
-      };
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
-
-  openNodeMenu = (e: ScreenPosition) => {
-    if (this.state.draw) {
-      return;
-    }
-    const { node } = this.state.hover;
-    if (node) {
-      this.state.categories = [
-        {
-          name: "delete",
-          action: () => {
-            this.deleteNodes([node]);
-          }
-        }
-      ];
       this.state.menu = {
         position: { ...e }
       };
@@ -196,11 +161,11 @@ export class StateManager {
             ({
               name: n.node.type,
               action: () => {
-                const createdNode = this.createNode(
-                  this.placeConnectedNode(node, io),
+                const createdNode = this.nodeManager.createNode(
+                  this.nodeManager.placeConnectedNode(node, io),
                   n.node
                 );
-                this.makeConnection(
+                this.connectionManager.makeConnection(
                   io === "i" ? node : createdNode,
                   io === "o" ? node : createdNode
                 );
@@ -209,70 +174,6 @@ export class StateManager {
         );
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
-  };
-  startDrawingConnector = (e: ScreenPosition) => {
-    const { io, node } = this.state.hover;
-    if (io && node) {
-      this.state.draw = {
-        node,
-        io
-      };
-      return;
-    }
-    this.state.draw = undefined;
-  };
-  drawConnector = (e: ScreenPosition) => {
-    if (!this.state.draw) {
-      return;
-    }
-    const { io, node } = this.state.draw;
-    if (!io || !node) {
-      return;
-    }
-    this.state.drawedConnection = e;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  };
-  makeConnection = (i: Node, o: Node) => {
-    const inputNodeDefinition = this.state.nodeDefinitions.find(
-      nd => nd.node.type === i.type
-    )!;
-    if (
-      !this.connectionFunction(i, o) ||
-      this.state.links.find(l => l.i === i && l.o === o) ||
-      (inputNodeDefinition.acceptsInputs &&
-        !inputNodeDefinition.acceptsInputs!.find(ai => ai.type === o.type))
-    ) {
-      this.state.drawedConnection = undefined;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      return;
-    }
-    console.log(`connection between input ${i.type} - output ${o.type}`);
-    const newLink: Link = {
-      o: o,
-      i: i
-    };
-    this.state.links.push(newLink);
-    i.inputs!.push(o);
-    o.outputs!.push(i);
-    return newLink;
-  };
-  endDrawingConnector = (e: ScreenPosition) => {
-    if (!this.state.draw) {
-      return;
-    }
-    if (this.state.hover.io && this.state.hover.io !== this.state.draw!.io) {
-      const input =
-        this.state.hover.io === "i"
-          ? this.state.hover.node!
-          : this.state.draw!.node;
-      const output =
-        this.state.hover.io === "o"
-          ? this.state.hover.node!
-          : this.state.draw!.node;
-      this.makeConnection(input, output);
-    }
-    this.state.drawedConnection = undefined;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   hoverMenu = (e: ScreenPosition) => {
     if (this.state.menu) {
@@ -341,156 +242,5 @@ export class StateManager {
       this.state.hover = {};
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
-  };
-  selectNode = (e: ScreenPosition) => {
-    const { node, io } = this.state.hover;
-    if (node && !io) {
-      if (e.shiftKey) {
-        const hasIndex = this.state.selectedNodes.indexOf(node);
-        if (hasIndex !== -1) {
-          this.state.selectedNodes.splice(hasIndex);
-          return;
-        }
-        this.state.selectedNodes.push(node);
-      } else {
-        this.state.selectedNodes = [node];
-      }
-    } else {
-      this.state.selectedNodes = [];
-    }
-    this.eventBus.publish(Events.DiagramEvents.NodeSelected);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  };
-  placeConnectedNode = (node: Node, io: "i" | "o") => {
-    let x = node.x,
-      y = node.y - this.theme.node.height * 2;
-    const xAdd =
-      this.theme.node.width + this.theme.port.width + this.theme.node.spacing.x;
-    if (io === "i") {
-      for (const input of node.inputs!) {
-        y = input.y > y ? input.y : y;
-      }
-      x -= xAdd;
-    }
-    if (io === "o") {
-      for (const output of node.outputs!) {
-        y = output.y > y ? output.y : y;
-      }
-      x += this.theme.node.width + xAdd;
-    }
-    y += this.theme.node.height + this.theme.node.spacing.y;
-    const tooClose = this.state.nodes.filter(
-      n =>
-        Math.abs(n.y - y) < this.theme.node.height &&
-        Math.abs(n.x - x) < this.theme.node.width
-    );
-    if (tooClose.length) {
-      console.log(tooClose);
-      y = Math.max(...tooClose.map(tc => tc.y));
-      console.log(y);
-      y += this.theme.node.height + this.theme.node.spacing.y;
-    }
-    return { x, y };
-  };
-  deleteNodes = (n: Node[]) => {
-    this.state.selectedNodes = this.state.selectedNodes.filter(
-      node => !n.find(nn => nn === node)
-    );
-    this.state.nodes = this.state.nodes.filter(
-      node => !n.find(nn => nn === node)
-    );
-    this.state.links = this.state.links.filter(
-      link => !n.find(nn => nn === link.i || nn === link.o)
-    );
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  };
-  createNode = (e: ScreenPosition, n?: Partial<Node>) => {
-    const createdNode: Node = {
-      name: "Person",
-      id: Utils.generateId(),
-      type: "type",
-      description: "Enter your description",
-      x: e.x - this.theme.node.width / 2.0,
-      y: e.y - this.theme.node.height / 2.0,
-      inputs: [],
-      outputs: [],
-      ...n
-    };
-    if (n && n.type) {
-      const nodeDefinition = this.state.nodeDefinitions.find(
-        nd => nd.node.type === n.type
-      );
-      if (nodeDefinition && nodeDefinition.object) {
-        const ObjectInstanceDefinition = this.state.nodeDefinitions.find(
-          nd => nd.node.type === n.name
-        );
-        if (!ObjectInstanceDefinition) {
-          this.state.nodeDefinitions.push({
-            ...nodeDefinition,
-            object: undefined,
-            main: undefined,
-            node: {
-              ...nodeDefinition.node,
-              inputs: [],
-              outputs: [],
-              type: n.name!
-            }
-          });
-          this.state.nodeDefinitions = this.state.nodeDefinitions.map(nd => {
-            let { acceptsInputs } = nd;
-            if (
-              acceptsInputs &&
-              acceptsInputs.find(ai => ai.type === nodeDefinition.node.type)
-            ) {
-              acceptsInputs = [
-                ...acceptsInputs,
-                {
-                  type: n.name!
-                }
-              ];
-            }
-            return {
-              ...nd,
-              acceptsInputs
-            };
-          });
-        }
-      }
-      // if (!this.state.nodeDefinitions.find(nd => nd.node.type === n.type)) {
-      //   const parentNode = this.state.nodes.find(nd => nd.type === n.name)!;
-      //   const parentNodeDefinition = this.state.nodeDefinitions.find(
-      //     nd => nd.node.type === parentNode.type
-      //   )!;
-      //   this.state.nodeDefinitions.push({
-      //     ...parentNode,
-      //     node: {
-      //       ...parentNodeDefinition.node,
-      //       type: n.type!
-      //     }
-      //   });
-      //   this.state.nodeDefinitions = this.state.nodeDefinitions.map(nd => {
-      //     let { acceptsInputs } = nd;
-      //     if (
-      //       acceptsInputs &&
-      //       acceptsInputs.find(ai => ai.type === parentNode.type)
-      //     ) {
-      //       acceptsInputs = [
-      //         ...acceptsInputs,
-      //         {
-      //           type: n.name!
-      //         }
-      //       ];
-      //     }
-      //     return {
-      //       ...nd,
-      //       acceptsInputs
-      //     };
-      //   });
-      // }
-    }
-    this.state.nodes.push(createdNode);
-    this.eventBus.publish(Events.DiagramEvents.NodeCreated);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    return createdNode;
   };
 }

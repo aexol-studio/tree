@@ -102,10 +102,10 @@ export class Renderer {
    * Render descriptions.
    */
   renderDescriptions() {
-    const state = this.stateManager.getState();
-    state.selectedNodes.forEach(node =>
-      this.descriptionRenderer.render({ node })
-    );
+    const {
+      hover: { node }
+    } = this.stateManager.getState();
+    node && this.descriptionRenderer.render({ node });
   }
 
   /**

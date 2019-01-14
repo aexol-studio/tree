@@ -1,4 +1,5 @@
 export interface DiagramTheme {
+  snappingGridSize?:number;
   node: {
     width: number;
     height: number;

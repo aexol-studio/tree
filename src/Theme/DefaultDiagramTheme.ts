@@ -2,6 +2,7 @@ import { DiagramTheme } from "../Models";
 import { Colors } from "./Colors";
 
 export const DefaultDiagramTheme: DiagramTheme = {
+  snappingGridSize:20,
   node: {
     width: 180,
     height: 100,

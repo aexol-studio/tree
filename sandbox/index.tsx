@@ -3,6 +3,7 @@ import { render } from "react-dom";
 
 import { Diagram } from "../src/index";
 import { NodeDefinition } from "../src/Models/NodeDefinition";
+import { Node } from "../src/Models";
 
 class App extends React.Component {
   private containerRef = React.createRef<HTMLDivElement>();
@@ -17,80 +18,44 @@ class App extends React.Component {
     }
     this.setupSizes();
     this.diagram = new Diagram(this.containerRef.current);
+    const builtInScalarsNodes = ["string", "ID", "Int", "Float", "Boolean"].map(
+      name =>
+        ({
+          name,
+          description: "Scalar node",
+          inputs: [],
+          outputs: [],
+          type: name
+        } as Node)
+    );
+    const builtInObjectNodes = ["type", "interface", "input"].map(
+      name =>
+        ({
+          name,
+          description: "Object node",
+          inputs: [],
+          type: name
+        } as Node)
+    );
+    const builtInScalars: NodeDefinition[] = builtInScalarsNodes.map(
+      node =>
+        ({
+          node,
+          acceptsInputs: builtInScalarsNodes
+        } as NodeDefinition)
+    );
+    const builtInObjects: NodeDefinition[] = builtInObjectNodes.map(
+      node =>
+        ({
+          node,
+          acceptsInputs: [...builtInObjectNodes,...builtInScalarsNodes],
+          object:true
+        } as NodeDefinition)
+    );
+
     const nodeDefinitions: NodeDefinition[] = [
-      {
-        object: true,
-        node: {
-          name:"TypeName",
-          type: "type",
-          outputs: null
-        },
-        acceptsInputs: [
-          {
-            type: "string"
-          },
-          {
-            type: "ID"
-          },
-          {
-            type: "type"
-          }
-        ]
-      },
-      {
-        object: true,
-        node: {
-          name:"InputName",
-          type: "input",
-          outputs: null
-        },
-        acceptsInputs: [
-          {
-            type: "string"
-          },
-          {
-            type: "ID"
-          }
-        ]
-      },
-      {
-        object: true,
-        node: {
-          type: "scalar",
-          name:"ScalarName",
-          outputs: null,
-          inputs: null
-        },
-        acceptsInputs: []
-      },
-      {
-        node: {
-          name:"String",
-          type: "string"
-        },
-        acceptsInputs: [
-          {
-            type: "string"
-          }
-        ]
-      },
-      {
-        node: {
-          name:"ID",
-          type: "ID"
-        },
-        acceptsInputs: [
-          {
-            type: "string"
-          }
-        ]
-      },
-      {
-        node: {
-          name:"dummy",
-          type: "dummy"
-        },
-      }
+      ...builtInScalars,
+      ...builtInObjects
     ];
     this.diagram!.setDefinitions(nodeDefinitions);
   }
