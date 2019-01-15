@@ -15,6 +15,7 @@ export interface DiagramState {
   draw?: {
     node: Node;
     io: "i" | "o";
+    initialPos: ScreenPosition;
   };
   hover: {
     node?: Node;

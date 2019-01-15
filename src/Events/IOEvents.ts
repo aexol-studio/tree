@@ -5,7 +5,6 @@
  * Used by IO service to put events on a bus
  */
 export class IOEvents {
-  static RawMouseMove = "MouseMove";
   static MouseMove = "MouseMove";
   static MouseDrag = "MouseDrag";
   static MouseOverMove = "MouseOverMove";

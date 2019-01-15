@@ -7,7 +7,7 @@ import { Utils } from "../../Utils";
 import { NodeDefinition } from "../../Models/NodeDefinition";
 import { NodeManager } from "./nodeManager";
 import { ConnectionManager } from "./connectionManager";
-import { ZoomManager } from "./zoomManager";
+import { UIManager } from "./uiManager";
 
 const { between } = Utils;
 
@@ -24,7 +24,7 @@ export class StateManager {
   private state: DiagramState;
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
-  private zoomManager: ZoomManager;
+  private uiManager: UIManager;
   getState() {
     return {
       ...this.state
@@ -68,16 +68,29 @@ export class StateManager {
       this.state,
       this.connectionFunction
     );
-    this.zoomManager = new ZoomManager(this.state.uiState, this.eventBus);
+    this.uiManager = new UIManager(this.state.uiState, this.eventBus);
 
-    this.eventBus.subscribe(Events.IOEvents.MouseMove, this.hover);
+
     this.eventBus.subscribe(Events.IOEvents.MouseOverMove, this.hoverMenu);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.LMBPressed);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.closeMenu);
+    this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openMenu);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.clickMenuItem);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseUp, this.openPortMenu);
-    this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openMenu);
+
+    this.eventBus.subscribe(Events.UIEvents.UILeftMouseClick, this.LMBPressed);
+    this.eventBus.subscribe(Events.UIEvents.UILeftMouseClick, this.closeMenu);
+    this.eventBus.subscribe(Events.UIEvents.UIMouseMove, this.hover);
+    this.eventBus.subscribe(Events.UIEvents.UIMouseDrag, this.mouseDrag);
   }
+  mouseDrag = (e: ScreenPosition) => {
+    const { selectedNodes } = this.state;
+    if (selectedNodes.length > 0) {
+      this.nodeManager.moveNodes(e);
+    } else if (this.state.draw) {
+      this.connectionManager.drawConnector(e, {x: this.state.uiState.panX!, y: this.state.uiState.panY! });
+    } else {
+      this.uiManager.panScreen(e);
+    }
+  };
   LMBPressed = (e: ScreenPosition) => {
     this.state.lastPosition = { ...e };
   };
@@ -113,12 +126,17 @@ export class StateManager {
           n =>
             ({
               name: n.node.type,
-              action: () =>
+              action: () => {
+                const currentPos = {
+                  x: this.state.lastPosition.x - this.theme.node.width / 2.0,
+                  y: this.state.lastPosition.y - this.theme.node.height / 2.0
+                };
                 this.nodeManager.createNode(e, {
                   ...n.node,
-                  x: e.x + this.theme.menu.width / 2.0,
-                  y: e.y - this.theme.node.height - 20
-                })
+                  ...currentPos,
+                });
+                this.hover(currentPos);
+              }
             } as Category)
         );
       this.state.menu = {
@@ -133,22 +151,9 @@ export class StateManager {
     }
     const { io, node } = this.state.hover;
     const { io: ioD, node: nodeD } = this.state.draw;
+
     if (nodeD === node && io === ioD && !this.state.menu) {
-      this.state.menu = {
-        position: {
-          x:
-            io === "i"
-              ? node.x -
-                this.theme.menu.width -
-                this.theme.port.width -
-                this.theme.menu.spacing.x
-              : node.x +
-                this.theme.node.width +
-                this.theme.port.width +
-                this.theme.menu.spacing.x,
-          y: node.y
-        }
-      };
+
       let nodeDefinition = this.state.nodeDefinitions.find(
         n => n.node.type === node.type
       );
@@ -182,6 +187,26 @@ export class StateManager {
               }
             } as Category)
         );
+
+      if (this.state.categories.length) {
+        this.state.menu = {
+          position: { ...e }
+          /* position: {   // to fix later
+            x:
+              io === "i"
+                ? e.x -
+                  this.theme.menu.width -
+                  this.theme.port.width -
+                  this.theme.menu.spacing.x
+                : e.x +
+                  this.theme.node.width +
+                  this.theme.port.width +
+                  this.theme.menu.spacing.x,
+            y: node.y
+          } */
+        };
+      }
+
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };

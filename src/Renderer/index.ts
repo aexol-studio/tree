@@ -115,9 +115,14 @@ export class Renderer {
    */
   renderActiveLink() {
     const state = this.stateManager.getState();
+
+    if (!state.draw) {
+      return;
+    }
+
     if (state.drawedConnection && state.lastPosition) {
       this.activeLinkRenderer.render({
-        from: state.lastPosition,
+        from: state.draw.initialPos,
         to: state.drawedConnection
       });
     }
@@ -176,10 +181,10 @@ export class Renderer {
     this.renderBackground();
 
     this.zoomPan.setCalculatedMatrix(this.context, this.stateManager.pureState().uiState);
-    this.renderNodes();
     this.renderLinks();
-    this.renderDescriptions();
     this.renderActiveLink();
+    this.renderNodes();
+    this.renderDescriptions();
 
     this.zoomPan.setUniformMatrix(this.context);
     this.renderCursor();

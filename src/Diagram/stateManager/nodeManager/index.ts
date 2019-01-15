@@ -21,19 +21,16 @@ export class NodeManager {
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.selectNode);
     this.eventBus.subscribe(Events.IOEvents.DoubleClick, this.graphSelect);
     this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openNodeMenu);
-    this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.moveNodes);
   }
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
-    if (selectedNodes.length > 0) {
-      for (const n of selectedNodes) {
-        n.x += e.x - this.state.lastPosition.x;
-        n.y += e.y - this.state.lastPosition.y;
-      }
-      this.state.lastPosition = { ...e };
-      this.eventBus.publish(Events.DiagramEvents.NodeMoved);
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    for (const n of selectedNodes) {
+      n.x += e.x - this.state.uiState!.lastDragPosition!.x;
+      n.y += e.y - this.state.uiState!.lastDragPosition!.y;
     }
+    this.state.uiState!.lastDragPosition = { ...e };
+    this.eventBus.publish(Events.DiagramEvents.NodeMoved);
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   openNodeMenu = (e: ScreenPosition) => {
     if (this.state.draw) {
@@ -91,7 +88,9 @@ export class NodeManager {
         }
         this.state.selectedNodes.push(node);
       } else {
-        this.state.selectedNodes = [node];
+        if (this.state.selectedNodes.length === 1 || this.state.selectedNodes.indexOf(node) === -1) {
+          this.state.selectedNodes = [node];
+        }
       }
     } else {
       this.state.selectedNodes = [];
@@ -152,7 +151,7 @@ export class NodeManager {
       outputs: [],
       ...n
     };
-    this.renamer.rename(createdNode.name, e => {});
+    this.renamer.rename(createdNode.name, e => { });
     if (n && n.type) {
       const nodeDefinition = this.state.nodeDefinitions.find(
         nd => nd.node.type === n.type
