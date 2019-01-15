@@ -26,11 +26,11 @@ export class IO {
       this.currentScreenPosition.x = e.clientX * 2;
       this.currentScreenPosition.y = e.clientY * 2;
       const mpl = this.createMouseEventPayload();
-      this.eventBus.publish(Events.IOEvents.MouseMove, mpl);
+      this.eventBus.publish(Events.IOEvents.ScreenMouseMove, mpl);
       if (this.leftMouseButtonDown) {
-        this.eventBus.publish(Events.IOEvents.MouseDrag, mpl);
+        this.eventBus.publish(Events.IOEvents.ScreenMouseDrag, mpl);
       } else {
-        this.eventBus.publish(Events.IOEvents.MouseOverMove, mpl);
+        this.eventBus.publish(Events.IOEvents.ScreenMouseOverMove, mpl);
       }
     });
     // ...
@@ -40,7 +40,7 @@ export class IO {
       const coords = this.createMouseEventPayload();
 
       this.eventBus.publish(
-        Events.IOEvents.MouseWheel,
+        Events.IOEvents.ScreenMouseWheel,
         delta,
         coords.x,
         coords.y,
@@ -51,12 +51,12 @@ export class IO {
       if (e.which === 1) {
         this.leftMouseButtonDown = false;
         this.eventBus.publish(
-          Events.IOEvents.LeftMouseUp,
+          Events.IOEvents.ScreenLeftMouseUp,
           this.createMouseEventPayload()
         );
       } else if (e.which === 3) {
         this.eventBus.publish(
-          Events.IOEvents.RightMouseUp,
+          Events.IOEvents.ScreenRightMouseUp,
           this.createMouseEventPayload()
         );
       }
@@ -65,7 +65,7 @@ export class IO {
       if (e.which === 1) {
         this.leftMouseButtonDown = true;
         this.eventBus.publish(
-          Events.IOEvents.LeftMouseClick,
+          Events.IOEvents.ScreenLeftMouseClick,
           this.createMouseEventPayload({
             shiftKey: e.shiftKey
           })
@@ -74,14 +74,14 @@ export class IO {
         const diff = clickTime - this.lastClick;
         if (diff < 250) {
           this.eventBus.publish(
-            Events.IOEvents.DoubleClick,
+            Events.IOEvents.ScreenDoubleClick,
             this.createMouseEventPayload()
           );
         }
         this.lastClick = clickTime;
       } else if (e.which === 3) {
         this.eventBus.publish(
-          Events.IOEvents.RightMouseClick,
+          Events.IOEvents.ScreenRightMouseClick,
           this.createMouseEventPayload()
         );
       }

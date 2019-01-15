@@ -71,15 +71,15 @@ export class StateManager {
     this.uiManager = new UIManager(this.state.uiState, this.eventBus);
 
 
-    this.eventBus.subscribe(Events.IOEvents.MouseOverMove, this.hoverMenu);
-    this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openMenu);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.clickMenuItem);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseUp, this.openPortMenu);
+    this.eventBus.subscribe(Events.IOEvents.ScreenMouseOverMove, this.hoverMenu);
+    this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openMenu);
+    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseClick, this.clickMenuItem);
+    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.openPortMenu);
 
-    this.eventBus.subscribe(Events.UIEvents.UILeftMouseClick, this.LMBPressed);
-    this.eventBus.subscribe(Events.UIEvents.UILeftMouseClick, this.closeMenu);
-    this.eventBus.subscribe(Events.UIEvents.UIMouseMove, this.hover);
-    this.eventBus.subscribe(Events.UIEvents.UIMouseDrag, this.mouseDrag);
+    this.eventBus.subscribe(Events.IOEvents.WorldLeftMouseClick, this.LMBPressed);
+    this.eventBus.subscribe(Events.IOEvents.WorldLeftMouseClick, this.closeMenu);
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseMove, this.hover);
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
   }
   mouseDrag = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;

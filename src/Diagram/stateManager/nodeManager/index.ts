@@ -18,9 +18,9 @@ export class NodeManager {
     private eventBus: EventBus,
     private theme: DiagramTheme
   ) {
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.selectNode);
-    this.eventBus.subscribe(Events.IOEvents.DoubleClick, this.graphSelect);
-    this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openNodeMenu);
+    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseClick, this.selectNode);
+    this.eventBus.subscribe(Events.IOEvents.ScreenDoubleClick, this.graphSelect);
+    this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openNodeMenu);
   }
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;

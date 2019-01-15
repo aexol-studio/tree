@@ -7,10 +7,10 @@
 export class UIEvents {
   static UIMouseMove = "UIMouseMove";
   static UIMouseDrag = "UIMouseDrag";
+  static UILeftMouseClick = "UILeftMouseClick";
   static MouseOverMove = "UIMouseOverMove";
   static LeftMouseUp = "UILeftMouseUp";
   static RightMouseUp = "UIRightMouseUp";
-  static UILeftMouseClick = "UILeftMouseClick";
   static DoubleClick = "UIDoubleClick";
   static RightMouseClick = "UIRightMouseClick";
   static MPressed = "UIMPressed";

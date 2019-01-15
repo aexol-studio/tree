@@ -17,14 +17,13 @@ export class ConnectionManager {
     private connectionFunction: (input: Node, output: Node) => boolean
   ) {
     this.eventBus.subscribe(
-      Events.UIEvents.UILeftMouseClick,
+      Events.IOEvents.WorldLeftMouseClick,
       this.startDrawingConnector
     );
     this.eventBus.subscribe(
-      Events.IOEvents.LeftMouseUp,
+      Events.IOEvents.ScreenLeftMouseUp,
       this.endDrawingConnector
     );
-    // this.eventBus.subscribe(Events.UIEvents.UIMouseDrag, this.drawConnector);
   }
   startDrawingConnector = (e: ScreenPosition) => {
     const { io, node } = this.state.hover;
