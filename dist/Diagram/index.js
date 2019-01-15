@@ -2,8 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Renderer_1 = require("../Renderer");
 var EventBus_1 = require("../EventBus");
-var IO_1 = require("../IO");
 var stateManager_1 = require("./stateManager");
+var IO_1 = require("../IO");
+var DefaultDiagramTheme_1 = require("../Theme/DefaultDiagramTheme");
 /**
  * Diagram:
  *
@@ -12,13 +13,17 @@ var stateManager_1 = require("./stateManager");
  * - initializing all of the subcomponents: renderer, IO, state manager etc.
  */
 var Diagram = /** @class */ (function () {
-    function Diagram(domElement) {
-        if (typeof document === 'undefined') {
-            throw new Error('Diagram can work only in DOM-enabled environment (e.g. browser)!');
+    function Diagram(domElement, theme, connectionFunction) {
+        if (theme === void 0) { theme = DefaultDiagramTheme_1.DefaultDiagramTheme; }
+        if (connectionFunction === void 0) { connectionFunction = function (input, output) { return true; }; }
+        if (typeof document === "undefined") {
+            throw new Error("Diagram can work only in DOM-enabled environment (e.g. browser)!");
         }
-        var canvasElement = document.createElement('canvas');
-        var canvasContext = canvasElement.getContext('2d');
+        var canvasElement = document.createElement("canvas");
+        var canvasContext = canvasElement.getContext("2d");
+        canvasContext.font = "10px Helvetica";
         var hostSize = this.calculateElementSize(domElement);
+        canvasElement.oncontextmenu = function () { return false; };
         canvasElement.width = hostSize.width * 2;
         canvasElement.height = hostSize.height * 2;
         canvasElement.style.width = hostSize.width + "px";
@@ -28,23 +33,24 @@ var Diagram = /** @class */ (function () {
         }
         domElement.appendChild(canvasElement);
         if (!canvasContext) {
-            throw new Error('Can\'t create canvas context!');
+            throw new Error("Can't create canvas context!");
         }
-        this.state = { links: [], nodes: [], categories: [], selectedLinks: [], selectedNodes: [] };
         // create a main event bus
         this.eventBus = new EventBus_1.EventBus();
         // initialize IO: mouse/keyboard logic will be there
-        this.IO = new IO_1.IO(this.eventBus, canvasElement);
+        new IO_1.IO(this.eventBus, canvasElement);
         // initialize state manager
-        this.stateManager = new stateManager_1.StateManager(this.eventBus);
+        this.stateManager = new stateManager_1.StateManager(this.eventBus, theme, connectionFunction);
         // initialize renderer
-        this.renderer = new Renderer_1.Renderer(this.eventBus, canvasContext, this.stateManager);
+        this.renderer = new Renderer_1.Renderer(this.eventBus, canvasContext, this.stateManager, theme);
         // ...start the rendering loop
         this.renderer.renderStart();
     }
     Diagram.prototype.setCategories = function (categories) {
         this.stateManager.setCategories(categories);
-        // ... update the data
+    };
+    Diagram.prototype.setDefinitions = function (nodeDefinitions) {
+        this.stateManager.setDefinitions(nodeDefinitions);
     };
     Diagram.prototype.calculateElementSize = function (domElement) {
         return { width: domElement.clientWidth, height: domElement.clientHeight };

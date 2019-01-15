@@ -41,6 +41,9 @@ export class MenuRenderer {
         categoryY + this.theme.menu.category.height / 2.0
       );
       if (index !== categories.length - 1) {
+        this.context.strokeStyle = this.theme.colors.menu.text
+        this.context.fillStyle = this.theme.colors.menu.text
+        this.context.lineWidth = 1
         this.context.beginPath();
         this.context.moveTo(e.x, categoryY + this.theme.menu.category.height);
         this.context.lineTo(

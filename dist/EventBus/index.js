@@ -25,7 +25,7 @@ var EventBus = /** @class */ (function () {
         if (!this.topics[topic]) {
             return;
         }
-        this.topics[topic].forEach(function (callback) {
+        this.topics[topic].forEach(function (callback, index) {
             callback.apply(void 0, args);
         });
     };

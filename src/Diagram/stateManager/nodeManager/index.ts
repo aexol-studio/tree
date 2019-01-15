@@ -5,6 +5,7 @@ import { ScreenPosition } from "../../../IO/ScreenPosition";
 import { DiagramTheme, Node } from "../../../Models";
 import { Utils } from "../../../Utils";
 import { Renamer } from "../../../IO/Renamer";
+import { NodeDefinition } from "../../../Models/NodeDefinition";
 
 /**
  * NodeManager:
@@ -23,6 +24,9 @@ export class NodeManager {
     this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openNodeMenu);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.moveNodes);
   }
+  definition = <T extends Pick<Node, "type">>(n: T) =>
+    this.state.nodeDefinitions.find(nd => nd.node.type === n.type);
+
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
     if (selectedNodes.length > 0) {
@@ -35,6 +39,7 @@ export class NodeManager {
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };
+
   openNodeMenu = (e: ScreenPosition) => {
     if (this.state.draw) {
       return;
@@ -51,14 +56,23 @@ export class NodeManager {
         {
           name: "rename",
           action: () => {
+            this.state.selectedNodes = [node];
+            this.state.renamed = {
+              node
+            };
             this.renamer.rename(node.name, e => {
-              node.name = e;
-              const nodeDefinition = this.state.nodeDefinitions.find(
-                nd => nd.node.type === node.type
+              const objectNodeDefinition = this.state.nodeDefinitions.find(
+                nd => !!(nd.parent && nd.node.type === node.name)
               );
-              console.log(this.state.nodeDefinitions);
-              if (nodeDefinition && nodeDefinition.object) {
-                nodeDefinition.node.name = e;
+              for (const stateNode of this.state.nodes) {
+                if (stateNode.type === node.name && stateNode !== node) {
+                  stateNode.type = e;
+                }
+              }
+              node.name = e;
+              if (objectNodeDefinition) {
+                objectNodeDefinition.node.name = e;
+                objectNodeDefinition.node.type = e;
               }
               this.eventBus.publish(Events.DiagramEvents.RenderRequested);
             });
@@ -75,7 +89,6 @@ export class NodeManager {
     const { node, io } = this.state.hover;
     if (node && !io) {
       const nodeGraph = Utils.graphFromNode(node);
-      console.log(nodeGraph.nodes);
       this.state.selectedNodes = nodeGraph.nodes;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
@@ -140,7 +153,7 @@ export class NodeManager {
     );
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  createNode = (e: ScreenPosition, n?: Partial<Node>) => {
+  createNode = (e: ScreenPosition, n?: Partial<Node> & Pick<Node, "type">) => {
     const createdNode: Node = {
       name: "Person",
       id: Utils.generateId(),
@@ -153,47 +166,26 @@ export class NodeManager {
       ...n
     };
     this.renamer.rename(createdNode.name, e => {});
-    if (n && n.type) {
-      const nodeDefinition = this.state.nodeDefinitions.find(
-        nd => nd.node.type === n.type
-      );
+    if (n) {
+      const nodeDefinition = this.definition(n);
       if (nodeDefinition && nodeDefinition.object) {
         const ObjectInstanceDefinition = this.state.nodeDefinitions.find(
-          nd => nd.node.type === n.name
+          nd => nd.node.type === n.name && !nd.object
         );
         if (!ObjectInstanceDefinition) {
-          this.state.nodeDefinitions.push({
+          const newDefinition: NodeDefinition = {
             ...nodeDefinition,
             object: undefined,
             main: undefined,
-            parent: this.state.nodeDefinitions.find(
-              nd => nd.node.type === n.type
-            ),
+            parent: nodeDefinition,
             node: {
               ...nodeDefinition.node,
               inputs: [],
               outputs: [],
               type: n.name!
             }
-          });
-          this.state.nodeDefinitions = this.state.nodeDefinitions.map(nd => {
-            let { acceptsInputs } = nd;
-            if (
-              acceptsInputs &&
-              acceptsInputs.find(ai => ai.type === nodeDefinition.node.type)
-            ) {
-              acceptsInputs = [
-                ...acceptsInputs,
-                {
-                  type: n.name!
-                }
-              ];
-            }
-            return {
-              ...nd,
-              acceptsInputs
-            };
-          });
+          };
+          this.state.nodeDefinitions.push(newDefinition);
         }
       }
     }

@@ -9,11 +9,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var IOEvents = /** @class */ (function () {
     function IOEvents() {
     }
-    IOEvents.LeftMouseClick = 'LeftMouseClick';
-    IOEvents.RightMouseClick = 'RightMouseClick';
-    IOEvents.SpacebarPressed = 'SpacebarPressed';
-    IOEvents.MPressed = 'MPressed';
+    IOEvents.MouseMove = "MouseMove";
+    IOEvents.MouseDrag = "MouseDrag";
+    IOEvents.MouseOverMove = "MouseOverMove";
+    IOEvents.LeftMouseUp = "LeftMouseUp";
+    IOEvents.RightMouseUp = "RightMouseUp";
+    IOEvents.LeftMouseClick = "LeftMouseClick";
+    IOEvents.DoubleClick = "DoubleClick";
+    IOEvents.RightMouseClick = "RightMouseClick";
+    IOEvents.MPressed = "MPressed";
+    IOEvents.DeletePressed = "Delete";
+    IOEvents.RenamerChanged = "RenamerChanged";
     return IOEvents;
 }());
 exports.IOEvents = IOEvents;
-;

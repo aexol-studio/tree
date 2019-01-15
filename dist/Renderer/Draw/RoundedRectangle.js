@@ -1,0 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RoundedRectangle = function (context, _a) {
+    var width = _a.width, height = _a.height, x = _a.x, y = _a.y, radius = _a.radius, radiusTopLeft = _a.radiusTopLeft, radiusTopRight = _a.radiusTopRight, radiusBottomRight = _a.radiusBottomRight, radiusBottomLeft = _a.radiusBottomLeft;
+    var r = radius || 0;
+    var rtl = radiusTopLeft || r;
+    var rtr = radiusTopRight || r;
+    var rbr = radiusBottomRight || r;
+    var rbl = radiusBottomLeft || r;
+    context.beginPath();
+    context.moveTo(x + rtl, y);
+    context.lineTo(x + width - rtr, y);
+    context.arcTo(x + width, y, x + width, y + rtr, rtr);
+    context.lineTo(x + width, y + height - rbr);
+    context.arcTo(x + width, y + height, x + width - rbr, y + height, rbr);
+    context.lineTo(x + rbl, y + height);
+    context.arcTo(x, y + height, x, y + height - rbl, rbl);
+    context.lineTo(x, y + rtl);
+    context.arcTo(x, y, x + rtl, y, rtl);
+    context.fill();
+};

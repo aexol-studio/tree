@@ -38,13 +38,13 @@ var DiagramReact = /** @class */ (function (_super) {
             this.containerRef.current.style.width = this.props.width;
         }
         else {
-            this.containerRef.current.style.width = '100%';
+            this.containerRef.current.style.width = "100%";
         }
         if (this.props.height) {
             this.containerRef.current.style.height = this.props.height;
         }
         else {
-            this.containerRef.current.style.height = '100%';
+            this.containerRef.current.style.height = "100%";
         }
     };
     DiagramReact.prototype.componentDidMount = function () {
@@ -61,7 +61,7 @@ var DiagramReact = /** @class */ (function (_super) {
         }
     };
     DiagramReact.prototype.render = function () {
-        return (React.createElement("div", { ref: this.containerRef }));
+        return React.createElement("div", { ref: this.containerRef });
     };
     return DiagramReact;
 }(React.Component));

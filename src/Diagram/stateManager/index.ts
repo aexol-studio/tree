@@ -141,20 +141,23 @@ export class StateManager {
       };
       let nodeDefinition = this.state.nodeDefinitions.find(
         n => n.node.type === node.type
-      );
-      if (!nodeDefinition) {
-        const parentNode = this.state.nodes.find(n => n.type === node.name)!;
-        nodeDefinition = this.state.nodeDefinitions.find(
-          n => n.node.type === parentNode.type
-        );
-      }
+      )!;
+      console.log(this.state.nodeDefinitions);
       this.state.categories = this.state.nodeDefinitions
         .filter(n => !n.object)
         .filter(n =>
           io === "i"
-            ? nodeDefinition!.acceptsInputs!.find(ai => ai.type === n.node.type)
+            ? nodeDefinition!.acceptsInputs!.find(
+                ai =>
+                  ai.node.type === n.node.type ||
+                  !!(n.parent && n.parent.node.type === ai.node.type)
+              )
             : n.acceptsInputs &&
-              n.acceptsInputs.find(ai => ai.type === node.type)
+              n.acceptsInputs.find(
+                ai =>
+                  ai.node.type === node.type ||
+                  !!(ai.parent && ai.parent.node.type === node.type)
+              )
         )
         .map(
           n =>

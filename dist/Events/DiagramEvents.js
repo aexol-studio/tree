@@ -9,10 +9,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var DiagramEvents = /** @class */ (function () {
     function DiagramEvents() {
     }
-    DiagramEvents.NodeMoved = 'NodeMoved';
-    DiagramEvents.LinkCreated = 'LinkCreated';
-    DiagramEvents.FooBar = 'FooBar';
+    DiagramEvents.NodeMoved = "NodeMoved";
+    DiagramEvents.NodeSelected = "NodeSelected";
+    DiagramEvents.NodeHover = "NodeHover";
+    DiagramEvents.NodeCreated = "NodeCreated";
+    DiagramEvents.LinkCreated = "LinkCreated";
+    DiagramEvents.DrawingLink = "DrawingLink";
+    DiagramEvents.RenderRequested = "RenderRequested";
     return DiagramEvents;
 }());
 exports.DiagramEvents = DiagramEvents;
-;

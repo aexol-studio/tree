@@ -2,7 +2,7 @@ import { EventBus } from "../../../EventBus";
 import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { Node,  Link } from "../../../Models";
+import { Node, Link } from "../../../Models";
 
 /**
  * ConnectionManager:
@@ -10,7 +10,6 @@ import { Node,  Link } from "../../../Models";
  * Connection Manager is for connections:
  */
 export class ConnectionManager {
-
   constructor(
     private eventBus: EventBus,
     private state: DiagramState,
@@ -52,12 +51,28 @@ export class ConnectionManager {
     const inputNodeDefinition = this.state.nodeDefinitions.find(
       nd => nd.node.type === i.type
     )!;
-    if (
-      !this.connectionFunction(i, o) ||
-      this.state.links.find(l => l.i === i && l.o === o) ||
-      (inputNodeDefinition.acceptsInputs &&
-        !inputNodeDefinition.acceptsInputs!.find(ai => ai.type === o.type))
-    ) {
+    const outputNodeDefinition = this.state.nodeDefinitions.find(
+      nd => nd.node.type === o.type
+    )!;
+    const linkExists = () =>
+      !!this.state.links.find(l => l.i === i && l.o === o);
+    const correctType = () => {
+      if (!inputNodeDefinition.acceptsInputs) {
+        return false;
+      }
+      for (const ai of inputNodeDefinition.acceptsInputs) {
+        if (ai.node.type === o.type) {
+          return true;
+        }
+        if (outputNodeDefinition.parent) {
+          if (ai.node.type === outputNodeDefinition.parent.node.type) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    if (!this.connectionFunction(i, o) || linkExists() || !correctType()) {
       this.state.drawedConnection = undefined;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;

@@ -28,6 +28,7 @@ export class Renderer {
   private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private activeLinkRenderer: ActiveLinkRenderer;
+  private caret: string = " ";
 
   /**
    * @param eventBus event bus instance to be used
@@ -51,8 +52,14 @@ export class Renderer {
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
+    this.renameNode()
   }
 
+  renameNode = () => {
+    this.caret = this.caret === "|" ? " " : "|";
+    this.eventBus.publish(DiagramEvents.RenderRequested);
+    setTimeout(this.renameNode, 500);
+  };
   setCursor(cursor: Cursor) {
     this.context.canvas.style.cursor = cursor;
   }
@@ -88,15 +95,26 @@ export class Renderer {
    */
   renderNodes() {
     const state = this.stateManager.getState();
-    state.nodes.forEach(node =>
+    for (const n of state.nodes) {
+      const isSelected = state.selectedNodes.indexOf(n) !== -1;
+      const isRenamed = !!(state.renamed && state.renamed.node === n);
+      const isHovered = state.hover.node === n;
+      const inputActive = state.hover.node === n && state.hover.io == "i";
+      const outputActive = state.hover.node === n && state.hover.io == "o";
+      const node = {
+        ...n
+      };
+      if (isRenamed && isSelected && state.selectedNodes.length === 1) {
+        node.name = node.name + this.caret;
+      }
       this.nodeRenderer.render({
         node,
-        isHovered: state.hover.node === node,
-        isSelected: state.selectedNodes.indexOf(node) !== -1,
-        inputActive: state.hover.node === node && state.hover.io == "i",
-        outputActive: state.hover.node === node && state.hover.io == "o"
-      })
-    );
+        isSelected,
+        isHovered,
+        inputActive,
+        outputActive
+      });
+    }
   }
   /**
    * Render descriptions.

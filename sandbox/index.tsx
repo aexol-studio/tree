@@ -3,7 +3,6 @@ import { render } from "react-dom";
 
 import { Diagram } from "../src/index";
 import { NodeDefinition } from "../src/Models/NodeDefinition";
-import { Node } from "../src/Models";
 
 class App extends React.Component {
   private containerRef = React.createRef<HTMLDivElement>();
@@ -26,7 +25,7 @@ class App extends React.Component {
           inputs: [],
           outputs: [],
           type: name
-        } as Node)
+        } as NodeDefinition["node"])
     );
     const builtInObjectNodes = ["type", "interface", "input"].map(
       name =>
@@ -34,24 +33,31 @@ class App extends React.Component {
           name,
           description: "Object node",
           inputs: [],
+          outputs: null,
           type: name
-        } as Node)
+        } as NodeDefinition["node"])
     );
     const builtInScalars: NodeDefinition[] = builtInScalarsNodes.map(
       node =>
         ({
           node,
-          acceptsInputs: builtInScalarsNodes
+          acceptsInputs: []
         } as NodeDefinition)
-    );
+    )
     const builtInObjects: NodeDefinition[] = builtInObjectNodes.map(
       node =>
         ({
           node,
-          acceptsInputs: [...builtInObjectNodes, ...builtInScalarsNodes],
+          acceptsInputs: [],
           object: true
         } as NodeDefinition)
     );
+    for(const scalar of builtInScalars){
+      scalar.acceptsInputs = builtInScalars.concat(builtInObjects)
+    }
+    for(const object of builtInObjects){
+      object.acceptsInputs = builtInScalars.concat(builtInObjects)
+    }
 
     const nodeDefinitions: NodeDefinition[] = [
       ...builtInScalars,

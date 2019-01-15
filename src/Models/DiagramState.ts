@@ -11,6 +11,10 @@ export interface DiagramState {
   nodeDefinitions: NodeDefinition[];
   selectedLinks: Link[];
   selectedNodes: Node[];
+  renamed?:{
+    node?:Node;
+    description?:boolean;
+  }
   draw?: {
     node: Node;
     io: "i" | "o";

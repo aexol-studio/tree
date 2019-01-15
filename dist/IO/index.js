@@ -27,31 +27,62 @@ var IO = /** @class */ (function () {
     function IO(eventBus, element) {
         var _this = this;
         this.currentScreenPosition = { x: 0, y: 0 };
+        this.lastClick = Date.now();
+        this.leftMouseButtonDown = false;
         this.eventBus = eventBus;
-        element.addEventListener('mousemove', function (e) {
+        element.addEventListener("mousemove", function (e) {
+            e.preventDefault();
             _this.currentScreenPosition.x = e.clientX * 2;
             _this.currentScreenPosition.y = e.clientY * 2;
+            var mpl = _this.createMouseEventPayload();
+            _this.eventBus.publish(Events.IOEvents.MouseMove, mpl);
+            if (_this.leftMouseButtonDown) {
+                _this.eventBus.publish(Events.IOEvents.MouseDrag, mpl);
+            }
+            else {
+                _this.eventBus.publish(Events.IOEvents.MouseOverMove, mpl);
+            }
         });
         // ...
-        element.addEventListener('mousedown', function (e) {
+        element.addEventListener("mouseup", function (e) {
+            e.preventDefault();
             if (e.which === 1) {
-                _this.eventBus.publish(Events.IOEvents.LeftMouseClick, _this.createMouseEventPayload());
+                _this.leftMouseButtonDown = false;
+                _this.eventBus.publish(Events.IOEvents.LeftMouseUp, _this.createMouseEventPayload());
+            }
+            else if (e.which === 3) {
+                _this.eventBus.publish(Events.IOEvents.RightMouseUp, _this.createMouseEventPayload());
+            }
+        });
+        element.addEventListener("mousedown", function (e) {
+            if (e.which === 1) {
+                _this.leftMouseButtonDown = true;
+                _this.eventBus.publish(Events.IOEvents.LeftMouseClick, _this.createMouseEventPayload({
+                    shiftKey: e.shiftKey
+                }));
+                var clickTime = Date.now();
+                var diff = clickTime - _this.lastClick;
+                if (diff < 250) {
+                    _this.eventBus.publish(Events.IOEvents.DoubleClick, _this.createMouseEventPayload());
+                }
+                _this.lastClick = clickTime;
             }
             else if (e.which === 3) {
                 _this.eventBus.publish(Events.IOEvents.RightMouseClick, _this.createMouseEventPayload());
             }
         });
-        element.addEventListener('keypress', function (e) {
-            if (e.key === " ") {
-                _this.eventBus.publish(Events.IOEvents.SpacebarPressed, _this.createMouseEventPayload());
-            }
+        element.addEventListener("keydown", function (e) {
             if (e.key === "m") {
                 _this.eventBus.publish(Events.IOEvents.MPressed);
             }
+            if (e.key === "delete") {
+                _this.eventBus.publish(Events.IOEvents.DeletePressed);
+            }
         });
     }
-    IO.prototype.createMouseEventPayload = function () {
-        return __assign({}, this.currentScreenPosition);
+    IO.prototype.createMouseEventPayload = function (e) {
+        if (e === void 0) { e = {}; }
+        return __assign({}, this.currentScreenPosition, e);
     };
     return IO;
 }());
