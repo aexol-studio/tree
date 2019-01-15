@@ -17,22 +17,27 @@ export class UIManager {
     this.eventBus.subscribe(Events.IOEvents.MouseWheel, this.mouseWheel);
     this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.mouseDrag);
     this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.LMBPressed);
-    /*this.eventBus.subscribe(Events.IOEvents.MouseOverMove, this.hoverMenu);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.LMBPressed);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.closeMenu);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseClick, this.clickMenuItem);
-    this.eventBus.subscribe(Events.IOEvents.LeftMouseUp, this.openPortMenu);
-    this.eventBus.subscribe(Events.IOEvents.RightMouseUp, this.openMenu); */
   }
 
-  mouseWheel = (delta: number) => {
-    this.state.scale! -= delta / 1000.0;
-    if (this.state.scale < 0.5) {
-      this.state.scale = 0.5;
+  mouseWheel = (delta: number, mouseX: number, mouseY: number) => {
+
+    let scaleChange = delta / -800.0;
+
+    let newScale = this.state.scale + scaleChange;
+
+    if (newScale < 0.2) {
+      newScale = 0.2;
     }
-    if (this.state.scale > 2.0) {
-      this.state.scale = 2.0;
+
+    if (newScale > 1.0) {
+      newScale = 1.0;
     }
+
+    this.state.panX! = this.state.panX! + (mouseX / newScale) - (mouseX / this.state.scale);
+    this.state.panY! = this.state.panY! + (mouseY / newScale) - (mouseY / this.state.scale);
+
+    this.state.scale = newScale;
+
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   }
 

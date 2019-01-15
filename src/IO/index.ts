@@ -37,9 +37,13 @@ export class IO {
     element.addEventListener("wheel", e => {
       const delta = e.deltaMode === 1 ? e.deltaY * 24 : e.deltaY;
 
+      const coords = this.createMouseEventPayload();
+
       this.eventBus.publish(
         Events.IOEvents.MouseWheel,
-        delta
+        delta,
+        coords.x,
+        coords.y,
       );
     });
     element.addEventListener("mouseup", e => {
