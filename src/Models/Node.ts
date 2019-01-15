@@ -1,3 +1,5 @@
+import { NodeDefinition } from "./NodeDefinition";
+
 export interface Node {
   id: string;
   name: string;
@@ -7,4 +9,5 @@ export interface Node {
   y: number;
   inputs?: Node[] | null;
   outputs?: Node[] | null;
+  definition?: NodeDefinition;
 }

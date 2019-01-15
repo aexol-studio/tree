@@ -19,9 +19,18 @@ export class NodeManager {
     private eventBus: EventBus,
     private theme: DiagramTheme
   ) {
-    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseClick, this.selectNode);
-    this.eventBus.subscribe(Events.IOEvents.ScreenDoubleClick, this.graphSelect);
-    this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openNodeMenu);
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenLeftMouseClick,
+      this.selectNode
+    );
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenDoubleClick,
+      this.graphSelect
+    );
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenRightMouseUp,
+      this.openNodeMenu
+    );
   }
   definition = <T extends Pick<Node, "type">>(n: T) =>
     this.state.nodeDefinitions.find(nd => nd.node.type === n.type);
@@ -61,13 +70,16 @@ export class NodeManager {
               const objectNodeDefinition = this.state.nodeDefinitions.find(
                 nd => !!(nd.parent && nd.node.type === node.name)
               );
-              for (const stateNode of this.state.nodes) {
-                if (stateNode.type === node.name && stateNode !== node) {
-                  stateNode.type = e;
-                }
-              }
               node.name = e;
+
               if (objectNodeDefinition) {
+                for (const stateNode of this.state.nodes) {
+                  console.log(stateNode);
+                  if (stateNode.definition === objectNodeDefinition) {
+                    console.log("OK");
+                    stateNode.type = e;
+                  }
+                }
                 objectNodeDefinition.node.name = e;
                 objectNodeDefinition.node.type = e;
               }
@@ -101,7 +113,10 @@ export class NodeManager {
         }
         this.state.selectedNodes.push(node);
       } else {
-        if (this.state.selectedNodes.length === 1 || this.state.selectedNodes.indexOf(node) === -1) {
+        if (
+          this.state.selectedNodes.length === 1 ||
+          this.state.selectedNodes.indexOf(node) === -1
+        ) {
           this.state.selectedNodes = [node];
         }
       }
@@ -164,18 +179,13 @@ export class NodeManager {
       outputs: [],
       ...n
     };
-<<<<<<< HEAD
-    this.renamer.rename(createdNode.name, e => {});
+    console.log(n);
     if (n) {
       const nodeDefinition = this.definition(n);
-=======
-    this.renamer.rename(createdNode.name, e => { });
-    if (n && n.type) {
-      const nodeDefinition = this.state.nodeDefinitions.find(
-        nd => nd.node.type === n.type
-      );
->>>>>>> 5bfda63a44cb7998fe10aa79086d37a423ba29fa
       if (nodeDefinition && nodeDefinition.object) {
+        if (!n.definition) {
+          createdNode.definition = nodeDefinition;
+        }
         const ObjectInstanceDefinition = this.state.nodeDefinitions.find(
           nd => nd.node.type === n.name && !nd.object
         );
@@ -192,6 +202,7 @@ export class NodeManager {
               type: n.name!
             }
           };
+          newDefinition.node.definition = newDefinition;
           this.state.nodeDefinitions.push(newDefinition);
         }
       }
