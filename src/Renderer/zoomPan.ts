@@ -11,7 +11,6 @@ export class ZoomPan {
 
   setCalculatedMatrix(context: CanvasRenderingContext2D, uiState: UIState) {
     this.setUniformMatrix(context);
-    // context.setTransform(uiState.scale, 0, 0, uiState.scale, 0, 0);
     context.scale(uiState.scale, uiState.scale);
     context.translate(uiState.panX!, uiState.panY!);
   }

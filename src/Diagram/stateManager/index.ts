@@ -191,7 +191,11 @@ export class StateManager {
       if (this.state.categories.length) {
         this.state.menu = {
           position: { ...e }
-          /* position: {   // to fix later
+        };
+      }
+
+      // TODO: Code below can be used to draw the port menu in a better place
+      /* position: {
             x:
               io === "i"
                 ? e.x -
@@ -204,8 +208,6 @@ export class StateManager {
                   this.theme.menu.spacing.x,
             y: node.y
           } */
-        };
-      }
 
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
