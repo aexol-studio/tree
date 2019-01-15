@@ -16,27 +16,27 @@ export class ConnectionManager {
     private connectionFunction: (input: Node, output: Node) => boolean
   ) {
     this.eventBus.subscribe(
-      Events.IOEvents.LeftMouseClick,
+      Events.IOEvents.WorldLeftMouseClick,
       this.startDrawingConnector
     );
     this.eventBus.subscribe(
-      Events.IOEvents.LeftMouseUp,
+      Events.IOEvents.ScreenLeftMouseUp,
       this.endDrawingConnector
     );
-    this.eventBus.subscribe(Events.IOEvents.MouseDrag, this.drawConnector);
   }
   startDrawingConnector = (e: ScreenPosition) => {
     const { io, node } = this.state.hover;
     if (io && node) {
       this.state.draw = {
         node,
-        io
+        io,
+        initialPos: e,
       };
       return;
     }
     this.state.draw = undefined;
   };
-  drawConnector = (e: ScreenPosition) => {
+  drawConnector = (e: ScreenPosition, pan: ScreenPosition) => {
     if (!this.state.draw) {
       return;
     }
@@ -44,7 +44,7 @@ export class ConnectionManager {
     if (!io || !node) {
       return;
     }
-    this.state.drawedConnection = e;
+    this.state.drawedConnection = {x: e.x - pan.x, y: e.y - pan.y};
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   makeConnection = (i: Node, o: Node) => {

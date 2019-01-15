@@ -15,7 +15,7 @@
     "start": "tsc --watch",
     "build": "tsc",
     "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open",
-    "docs":"typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html"
+    "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",

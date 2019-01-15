@@ -3,6 +3,7 @@ import { Category } from "./Category";
 import { Link } from "./Link";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { NodeDefinition } from "./NodeDefinition";
+import { UIState } from "./UIState";
 
 export interface DiagramState {
   links: Link[];
@@ -18,6 +19,7 @@ export interface DiagramState {
   draw?: {
     node: Node;
     io: "i" | "o";
+    initialPos: ScreenPosition;
   };
   hover: {
     node?: Node;
@@ -33,4 +35,5 @@ export interface DiagramState {
   };
   drawedConnection?: ScreenPosition;
   lastPosition: ScreenPosition;
+  uiState: UIState;
 }
