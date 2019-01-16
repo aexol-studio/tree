@@ -35,6 +35,7 @@ export class IO {
     });
     // ...
     element.addEventListener("wheel", e => {
+      e.preventDefault();
       const delta = e.deltaMode === 1 ? e.deltaY * 24 : e.deltaY;
 
       const coords = this.createMouseEventPayload();

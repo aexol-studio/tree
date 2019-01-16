@@ -25,8 +25,8 @@ export class UIManager {
 
     let newScale = this.state.scale + scaleChange;
 
-    if (newScale < 0.2) {
-      newScale = 0.2;
+    if (newScale < 0.3) {
+      newScale = 0.3;
     }
 
     if (newScale > 1.0) {

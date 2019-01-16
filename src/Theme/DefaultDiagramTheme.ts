@@ -51,8 +51,15 @@ export const DefaultDiagramTheme: DiagramTheme = {
         type: Colors.main[0]
       }
     },
-    description: {
+    minimap: {
+      alpha: 0.85,
       background: Colors.grey[7],
+      visibleArea: Colors.grey[5],
+      node: Colors.grey[0],
+      borders: Colors.grey[4],
+    },
+    description: {
+      background: Colors.grey[8],
       text: Colors.grey[1]
     },
     port: {

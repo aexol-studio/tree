@@ -38,6 +38,13 @@ export interface DiagramTheme {
   };
   colors: {
     background: string;
+    minimap: {
+      alpha: number;
+      background: string;
+      visibleArea: string;
+      borders: string;
+      node: string;
+    }
     menu: {
       background: string;
       hover: string;

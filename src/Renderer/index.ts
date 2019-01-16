@@ -11,6 +11,7 @@ import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
 import { DescriptionRenderer } from "./descriptionRenderer";
+
 /**
  * Renderer.
  *
@@ -199,6 +200,19 @@ export class Renderer {
     }
   }
 
+  renderMinimap() {
+    this.minimapRenderer.render(this.context, this.theme, this.stateManager.getState());
+  }
+
+  setScreenTransform() {
+    this.zoomPan.setUniformMatrix(this.context);
+  }
+
+  setWorldTransform() {
+    const uiState = this.stateManager.pureState().uiState;
+    this.zoomPan.setCalculatedMatrix(this.context, uiState);
+  }
+
   renderStart() {
     window.requestAnimationFrame(this.render);
   }
@@ -207,21 +221,18 @@ export class Renderer {
   };
 
   render = () => {
-    // (...) render loop
-    this.zoomPan.setUniformMatrix(this.context);
-    this.minimapRenderer.render(this.context);
+    // render loop
+    this.setScreenTransform();
     this.renderBackground();
 
-    this.zoomPan.setCalculatedMatrix(
-      this.context,
-      this.stateManager.pureState().uiState
-    );
+    this.setWorldTransform();
     this.renderLinks();
     this.renderActiveLink();
     this.renderNodes();
     this.renderDescriptions();
 
-    this.zoomPan.setUniformMatrix(this.context);
+    this.setScreenTransform();
+    this.renderMinimap();
     this.renderCursor();
     this.renderMenu();
   };
