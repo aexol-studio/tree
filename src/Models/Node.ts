@@ -10,4 +10,5 @@ export interface Node {
   inputs?: Node[] | null;
   outputs?: Node[] | null;
   definition?: NodeDefinition;
+  readonly?: boolean;
 }

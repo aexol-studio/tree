@@ -17,6 +17,13 @@ class App extends React.Component {
     }
     this.setupSizes();
     this.diagram = new Diagram(this.containerRef.current);
+    const createOND = (name: string): NodeDefinition["node"] => ({
+      name: `${name}Node`,
+      description: `${name} object node`,
+      inputs: [],
+      outputs: null,
+      type: name
+    });
     const builtInScalarsNodes = ["string", "ID", "Int", "Float", "Boolean"].map(
       name =>
         ({
@@ -27,24 +34,25 @@ class App extends React.Component {
           type: name
         } as NodeDefinition["node"])
     );
-    const builtInObjectNodes = ["type", "interface", "input"].map(
+    const builtInObjectTypeNodes = ["type", "interface"].map(createOND);
+    const builtInObjectInputNodes = ["input"].map(createOND);
+    const builtInScalarObjectNodes = ["scalar"].map(
       name =>
         ({
-          name,
-          description: "Object node",
-          inputs: [],
-          outputs: null,
-          type: name
+          ...createOND(name),
+          inputs: null
         } as NodeDefinition["node"])
     );
+    const builtInUnionObjectNodes = ["union"].map(createOND);
+    const builtInEnumObjectNodes = ["enum"].map(createOND);
     const builtInScalars: NodeDefinition[] = builtInScalarsNodes.map(
       node =>
         ({
           node,
           acceptsInputs: []
         } as NodeDefinition)
-    )
-    const builtInObjects: NodeDefinition[] = builtInObjectNodes.map(
+    );
+    const builtInTypeObjects: NodeDefinition[] = builtInObjectTypeNodes.map(
       node =>
         ({
           node,
@@ -52,16 +60,62 @@ class App extends React.Component {
           object: true
         } as NodeDefinition)
     );
-    for(const scalar of builtInScalars){
-      scalar.acceptsInputs = builtInScalars.concat(builtInObjects)
+    const builtInInputObjects: NodeDefinition[] = builtInObjectInputNodes.map(
+      node =>
+        ({
+          node,
+          acceptsInputs: [],
+          object: true
+        } as NodeDefinition)
+    );
+    const builtInScalarObjects: NodeDefinition[] = builtInScalarObjectNodes.map(
+      node =>
+        ({
+          node,
+          acceptsInputs: undefined,
+          object: true
+        } as NodeDefinition)
+    );
+    const builtInUnionObjects: NodeDefinition[] = builtInUnionObjectNodes.map(
+      node =>
+        ({
+          node,
+          acceptsInputs: [
+            builtInTypeObjects.find(bi => bi.node.type === "type")
+          ],
+          object: true
+        } as NodeDefinition)
+    );
+    const builtInEnumObjects: NodeDefinition[] = builtInEnumObjectNodes.map(
+      node =>
+        ({
+          node,
+          acceptsInputs: [builtInScalars.find(bi => bi.node.type === "string")],
+          object: true
+        } as NodeDefinition)
+    );
+    const acceptedArguments = builtInScalars
+      .concat(builtInTypeObjects)
+      .concat(builtInEnumObjects)
+      .concat(builtInScalarObjects)
+      .concat(builtInUnionObjects);
+    for (const scalar of builtInScalars) {
+      scalar.acceptsInputs = [...acceptedArguments];
     }
-    for(const object of builtInObjects){
-      object.acceptsInputs = builtInScalars.concat(builtInObjects)
+    for (const object of builtInTypeObjects) {
+      object.acceptsInputs = acceptedArguments.concat(builtInInputObjects);
+    }
+    for (const object of builtInInputObjects) {
+      object.acceptsInputs = [...acceptedArguments];
     }
 
     const nodeDefinitions: NodeDefinition[] = [
       ...builtInScalars,
-      ...builtInObjects
+      ...builtInTypeObjects,
+      ...builtInInputObjects,
+      ...builtInScalarObjects,
+      ...builtInEnumObjects,
+      ...builtInUnionObjects
     ];
     this.diagram!.setDefinitions(nodeDefinitions);
   }

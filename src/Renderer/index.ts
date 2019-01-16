@@ -89,7 +89,7 @@ export class Renderer {
       this.setCursor("pointer");
       return;
     }
-    this.setCursor("auto");
+    this.setCursor("grab");
   }
   /**
    * Render nodes.
@@ -98,7 +98,11 @@ export class Renderer {
     const state = this.stateManager.getState();
     for (const n of state.nodes) {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
-      const isRenamed = !!(state.renamed && state.renamed.node === n);
+      const isRenamed = !!(
+        state.renamed &&
+        state.renamed.node === n &&
+        !state.renamed.description
+      );
       const isHovered = state.hover.node === n;
       const inputActive = state.hover.node === n && state.hover.io == "i";
       const outputActive = state.hover.node === n && state.hover.io == "o";
@@ -122,9 +126,20 @@ export class Renderer {
    */
   renderDescriptions() {
     const {
-      hover: { node }
+      hover: { node },
+      renamed,
+      selectedNodes
     } = this.stateManager.getState();
-    node && this.descriptionRenderer.render({ node });
+    if (node || selectedNodes.length === 1) {
+      let dNode = node || selectedNodes[0];
+      if (renamed && renamed.description) {
+        dNode = {
+          ...dNode,
+          description: dNode.description + this.caret
+        };
+      }
+      this.descriptionRenderer.render({ node: dNode });
+    }
   }
 
   /**

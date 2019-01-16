@@ -59,7 +59,7 @@ export class StateManager {
         minimapActive: true,
         panX: 0,
         panY: 0,
-        scale: 1.0,
+        scale: 1.0
       }
     };
     this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
@@ -70,14 +70,28 @@ export class StateManager {
     );
     this.uiManager = new UIManager(this.state.uiState, this.eventBus);
 
-
-    this.eventBus.subscribe(Events.IOEvents.ScreenMouseOverMove, this.hoverMenu);
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenMouseOverMove,
+      this.hoverMenu
+    );
     this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openMenu);
-    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseClick, this.clickMenuItem);
-    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.openPortMenu);
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenLeftMouseClick,
+      this.clickMenuItem
+    );
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenLeftMouseUp,
+      this.openPortMenu
+    );
 
-    this.eventBus.subscribe(Events.IOEvents.WorldLeftMouseClick, this.LMBPressed);
-    this.eventBus.subscribe(Events.IOEvents.WorldLeftMouseClick, this.closeMenu);
+    this.eventBus.subscribe(
+      Events.IOEvents.WorldLeftMouseClick,
+      this.LMBPressed
+    );
+    this.eventBus.subscribe(
+      Events.IOEvents.WorldLeftMouseClick,
+      this.closeMenu
+    );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseMove, this.hover);
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
   }
@@ -86,7 +100,10 @@ export class StateManager {
     if (selectedNodes.length > 0) {
       this.nodeManager.moveNodes(e);
     } else if (this.state.draw) {
-      this.connectionManager.drawConnector(e, {x: this.state.uiState.panX!, y: this.state.uiState.panY! });
+      this.connectionManager.drawConnector(e, {
+        x: this.state.uiState.panX!,
+        y: this.state.uiState.panY!
+      });
     } else {
       this.uiManager.panScreen(e);
     }
@@ -133,7 +150,7 @@ export class StateManager {
                 };
                 this.nodeManager.createNode(e, {
                   ...n.node,
-                  ...currentPos,
+                  ...currentPos
                 });
                 this.hover(currentPos);
               }
@@ -153,7 +170,6 @@ export class StateManager {
     const { io: ioD, node: nodeD } = this.state.draw;
 
     if (nodeD === node && io === ioD && !this.state.menu) {
-
       let nodeDefinition = this.state.nodeDefinitions.find(
         n => n.node.type === node.type
       )!;
@@ -192,26 +208,25 @@ export class StateManager {
         );
 
       if (this.state.categories.length) {
+        const { menu, port } = this.theme;
+        const NodeScreenPosition = this.uiManager.worldToScreen({
+          ...e,
+          x:
+            io === "i"
+              ? node.x - port.width - menu.spacing.x
+              : node.x + this.theme.node.width + port.width + menu.spacing.x,
+          y: node.y
+        });
         this.state.menu = {
-          position: { ...e }
-        };
-      }
-
-      // TODO: Code below can be used to draw the port menu in a better place
-      /* position: {
+          position: {
             x:
               io === "i"
-                ? e.x -
-                  this.theme.menu.width -
-                  this.theme.port.width -
-                  this.theme.menu.spacing.x
-                : e.x +
-                  this.theme.node.width +
-                  this.theme.port.width +
-                  this.theme.menu.spacing.x,
-            y: node.y
-          } */
-
+                ? NodeScreenPosition.x - menu.width
+                : NodeScreenPosition.x,
+            y: NodeScreenPosition.y
+          }
+        };
+      }
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };

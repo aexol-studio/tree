@@ -41,6 +41,13 @@ export class UIManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   }
 
+  worldToScreen = (e: ScreenPosition): ScreenPosition => {
+    return {
+      x: (e.x + this.state.panX!) * this.state.scale,
+      y: (e.y + this.state.panY!) * this.state.scale,
+      shiftKey: e.shiftKey
+    };
+  };
   calculateMousePosition = (e: ScreenPosition): ScreenPosition => {
     return {
       x: (e.x) / this.state.scale - this.state.panX!,

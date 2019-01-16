@@ -5,8 +5,6 @@ export interface NodeDefinition {
   acceptsInputs?: NodeDefinition[];
   object?: boolean;
   main?: boolean;
-  hidden?: boolean;
   parent?: NodeDefinition;
-  readonly?: boolean;
   maxInputDepth?: number;
 }

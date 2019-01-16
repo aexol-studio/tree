@@ -86,6 +86,20 @@ export class NodeManager {
               this.eventBus.publish(Events.DiagramEvents.RenderRequested);
             });
           }
+        },
+        {
+          name: "renameDescription",
+          action: () => {
+            this.state.selectedNodes = [node];
+            this.state.renamed = {
+              node,
+              description: true
+            };
+            this.renamer.rename(node.description, e => {
+              node.description = e;
+              this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+            });
+          }
         }
       ];
       this.state.menu = {
@@ -155,7 +169,8 @@ export class NodeManager {
     }
     return { x, y };
   };
-  deleteNodes = (n: Node[]) => {
+  deleteNodes = (nodes: Node[]) => {
+    const n = nodes.filter(node => !node.readonly);
     this.state.selectedNodes = this.state.selectedNodes.filter(
       node => !n.find(nn => nn === node)
     );
