@@ -1,6 +1,7 @@
 import { Node } from "../Models";
 import { Graph } from "../Models/Graph";
 import { ScreenPosition } from "../IO/ScreenPosition";
+import { NodeDefinition } from "../Models/NodeDefinition";
 
 /**
  * Utils
@@ -17,6 +18,10 @@ export class Utils {
     x: Math.floor(e.x / snappingGridSize)*snappingGridSize,
     y: Math.floor(e.y / snappingGridSize)*snappingGridSize
   });
+  static getDefinitionAcceptedInputs = (definition: NodeDefinition) =>
+    (definition.parent
+      ? definition.instanceAcceptsInputs || definition.acceptsInputs
+      : definition.acceptsInputs) || [];
   static graphFromNode = (n: Node, together: Node[] = []): Graph => {
     let graphNodes: Node[] = [n, ...together];
     const notInNodes = (nodes: Node[]) => (n: Node) =>

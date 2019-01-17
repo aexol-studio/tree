@@ -3,6 +3,7 @@ import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
 import { Node, Link } from "../../../Models";
+import { Utils } from "../../../Utils";
 
 /**
  * ConnectionManager:
@@ -51,10 +52,11 @@ export class ConnectionManager {
     const linkExists = () =>
       !!this.state.links.find(l => l.i === i && l.o === o);
     const correctType = () => {
-      if (!i.definition.acceptsInputs) {
+      const acceptsInputs = Utils.getDefinitionAcceptedInputs(i.definition)
+      if (!acceptsInputs) {
         return false;
       }
-      for (const ai of i.definition.acceptsInputs) {
+      for (const ai of acceptsInputs) {
         if (ai.node.type === o.type) {
           return true;
         }

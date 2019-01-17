@@ -169,40 +169,66 @@ export class StateManager {
     const { io: ioD, node: nodeD } = this.state.draw;
 
     if (nodeD === node && io === ioD && !this.state.menu) {
+      const createConnectedNodesCategory = (n: NodeDefinition) => ({
+        name: n.node.type,
+        action: () => {
+          const createdNode = this.nodeManager.createNode(
+            this.nodeManager.placeConnectedNode(node, io),
+            n
+          );
+          this.connectionManager.makeConnection(
+            io === "i" ? node : createdNode,
+            io === "o" ? node : createdNode
+          );
+        }
+      });
       let { definition } = node;
-      this.state.categories = this.state.nodeDefinitions
-        .filter(n => !n.object)
-        .filter(n =>
-          io === "i"
-            ? definition!.acceptsInputs!.find(
-                ai =>
-                  ai.node.type === n.node.type ||
-                  !!(n.parent && n.parent.node.type === ai.node.type)
-              )
-            : n.acceptsInputs &&
-              n.acceptsInputs.find(
-                ai =>
-                  ai.node.type === node.type ||
-                  !!(ai.parent && ai.parent.node.type === node.type)
-              )
-        )
-        .map(
-          n =>
-            ({
-              name: n.node.type,
-              action: () => {
-                const createdNode = this.nodeManager.createNode(
-                  this.nodeManager.placeConnectedNode(node, io),
-                  n
-                );
-                this.connectionManager.makeConnection(
-                  io === "i" ? node : createdNode,
-                  io === "o" ? node : createdNode
-                );
-              }
-            } as Category)
-        );
-
+      let staticCategories: Category[] = [];
+      let dynamicCategories: Category[] = [];
+      if (io === "i" && definition.acceptsInputs) {
+        staticCategories = Utils.getDefinitionAcceptedInputs(definition)
+          .filter(n => !n.object)
+          .map(createConnectedNodesCategory);
+        dynamicCategories = Utils.getDefinitionAcceptedInputs(definition)
+          .filter(n => n.object)
+          .map(
+            n =>
+              ({
+                name: `${n.node.type} →`,
+                children: this.state.nodeDefinitions
+                  .filter(nd => nd.parent === n)
+                  .map(createConnectedNodesCategory)
+              } as Category)
+          )
+          .filter(c => c.children!.length > 0);
+      } else if (io === "o") {
+        staticCategories = this.state.nodeDefinitions
+          .filter(n => !n.object && !(n.parent && n.parent.object))
+          .filter(nd =>
+            Utils.getDefinitionAcceptedInputs(nd).find(
+              ai => ai === definition || ai === definition.parent
+            )
+          )
+          .map(createConnectedNodesCategory);
+        dynamicCategories = this.state.nodeDefinitions
+          .filter(n => n.object)
+          .map(
+            n =>
+              ({
+                name: `${n.node.type} →`,
+                children: this.state.nodeDefinitions
+                  .filter(nd =>
+                    Utils.getDefinitionAcceptedInputs(nd).find(
+                      ai => ai === definition || ai === definition.parent
+                    )
+                  )
+                  .filter(nd => nd.parent === n)
+                  .map(createConnectedNodesCategory)
+              } as Category)
+          )
+          .filter(c => c.children!.length > 0);
+      }
+      this.state.categories = staticCategories.concat(dynamicCategories);
       if (this.state.categories.length) {
         const { menu, port } = this.theme;
         const NodeScreenPosition = this.uiManager.worldToScreen({

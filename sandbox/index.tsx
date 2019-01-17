@@ -27,15 +27,13 @@ class App extends React.Component {
     const builtInScalarsNodes = ["string", "ID", "Int", "Float", "Boolean"].map(
       name =>
         ({
-          name,
+          ...createOND(name),
           description: "Scalar node",
-          inputs: [],
-          outputs: [],
-          type: name
+          outputs: []
         } as NodeDefinition["node"])
     );
-    const builtInObjectTypeNodes = ["type", "interface"].map(createOND);
-    const builtInObjectInputNodes = ["input"].map(createOND);
+    const builtInTypeObjectNodes = ["type", "interface"].map(createOND);
+    const builtInInputObjectNodes = ["input"].map(createOND);
     const builtInScalarObjectNodes = ["scalar"].map(
       name =>
         ({
@@ -52,7 +50,7 @@ class App extends React.Component {
           acceptsInputs: []
         } as NodeDefinition)
     );
-    const builtInTypeObjects: NodeDefinition[] = builtInObjectTypeNodes.map(
+    const builtInTypeObjects: NodeDefinition[] = builtInTypeObjectNodes.map(
       node =>
         ({
           node,
@@ -60,7 +58,7 @@ class App extends React.Component {
           object: true
         } as NodeDefinition)
     );
-    const builtInInputObjects: NodeDefinition[] = builtInObjectInputNodes.map(
+    const builtInInputObjects: NodeDefinition[] = builtInInputObjectNodes.map(
       node =>
         ({
           node,
@@ -107,6 +105,15 @@ class App extends React.Component {
     }
     for (const object of builtInInputObjects) {
       object.acceptsInputs = [...acceptedArguments];
+    }
+    for (const object of builtInScalarObjects) {
+      object.instanceAcceptsInputs = [...acceptedArguments];
+    }
+    for (const object of builtInEnumObjects) {
+      object.instanceAcceptsInputs = [...acceptedArguments];
+    }
+    for (const object of builtInUnionObjects) {
+      object.instanceAcceptsInputs = [...acceptedArguments];
     }
 
     const nodeDefinitions: NodeDefinition[] = [
