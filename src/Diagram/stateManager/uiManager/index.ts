@@ -19,6 +19,7 @@ export class UIManager {
     this.eventBus.subscribe(Events.IOEvents.ScreenMouseWheel, this.mouseWheel);
     this.eventBus.subscribe(Events.IOEvents.ScreenMouseDrag, this.mouseDrag);
     this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseClick, this.LMBPressed);
+    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.LMBUp);
   }
 
   mouseWheel = (delta: number, mouseX: number, mouseY: number) => {
@@ -82,7 +83,7 @@ export class UIManager {
   mouseMove = (e: ScreenPosition) => {
     const minimapPosition = this.calculateMinimapPosition(e);
 
-    if (minimapPosition) {
+    if (minimapPosition && !this.state.draggingWorld) {
       this.eventBus.publish(Events.IOEvents.MinimapMouseMove, minimapPosition);
       return;
     }
@@ -97,7 +98,7 @@ export class UIManager {
   mouseDrag = (e: ScreenPosition) => {
     const isInsideMinimap = this.calculateMinimapPosition(e);
 
-    if (isInsideMinimap) {
+    if (isInsideMinimap && !this.state.draggingWorld) {
       return;
     }
 
@@ -108,10 +109,16 @@ export class UIManager {
     });
   };
 
-  LMBPressed = (e: ScreenPosition) => {
-    const isInsideMinimap = this.calculateMinimapPosition(e);
+  LMBUp = () => {
+    this.state.draggingWorld = false;
+    this.state.draggingMinimap = false;
+  };
 
-    if (isInsideMinimap) {
+  LMBPressed = (e: ScreenPosition) => {
+    const coordsInsideMinimap = this.calculateMinimapPosition(e);
+
+    if (coordsInsideMinimap) {
+      this.eventBus.publish(Events.IOEvents.MinimapLeftMouseClick, coordsInsideMinimap);
       return;
     }
 
@@ -128,6 +135,8 @@ export class UIManager {
   };
 
   panScreen = (e: ScreenPosition) => {
+    this.state.draggingWorld = true;
+
     this.state.panX! -= (this.state.lastDragPosition!.x) - e.x;
     this.state.panY! -= (this.state.lastDragPosition!.y) - e.y;
     this.state.lastDragPosition = { ...e };

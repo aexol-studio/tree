@@ -26,7 +26,7 @@ export class StateManager {
   private state: DiagramState;
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
-  private minimapManager: MinimapManager;
+          minimapManager: MinimapManager;
   private uiManager: UIManager;
   getState() {
     return {
@@ -45,7 +45,7 @@ export class StateManager {
     private eventBus: EventBus,
     private theme: DiagramTheme,
     private connectionFunction: (input: Node, output: Node) => boolean,
-    private areaSize: { width: number, height: number },
+            areaSize: { width: number, height: number },
   ) {
     this.state = {
       links: [],
@@ -66,7 +66,9 @@ export class StateManager {
         panY: 0,
         scale: 1.0,
         areaSize,
-      }
+        draggingWorld: false,
+        draggingMinimap: false,
+      },
     };
     this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
     this.connectionManager = new ConnectionManager(
@@ -103,6 +105,10 @@ export class StateManager {
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
   }
   mouseDrag = (e: ScreenPosition) => {
+    if (this.state.uiState.draggingMinimap) {
+      return;
+    }
+
     const { selectedNodes } = this.state;
     if (selectedNodes.length > 0) {
       this.nodeManager.moveNodes(e);

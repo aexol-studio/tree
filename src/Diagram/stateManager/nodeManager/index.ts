@@ -37,6 +37,13 @@ export class NodeManager {
 
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
+
+    if (!selectedNodes.length) {
+      return;
+    }
+
+    this.state.uiState.draggingWorld = true;
+
     for (const n of selectedNodes) {
       n.x += e.x - this.state.uiState!.lastDragPosition!.x;
       n.y += e.y - this.state.uiState!.lastDragPosition!.y;
