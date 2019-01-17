@@ -3,6 +3,7 @@ import { EventBus } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
 import { DiagramTheme, Node, Category, Size } from "../Models";
+
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 import { NodeDefinition } from "../Models/NodeDefinition";
 
@@ -22,6 +23,7 @@ export class Diagram {
   setCategories(categories: Category[]) {
     this.stateManager.setCategories(categories);
   }
+
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
   }

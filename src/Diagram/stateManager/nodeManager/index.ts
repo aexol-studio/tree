@@ -79,11 +79,9 @@ export class NodeManager {
               );
               node.name = e;
 
-              if (objectNodeDefinition) {
+              if (node.definition.object && objectNodeDefinition) {
                 for (const stateNode of this.state.nodes) {
-                  console.log(stateNode);
                   if (stateNode.definition === objectNodeDefinition) {
-                    console.log("OK");
                     stateNode.type = e;
                   }
                 }
@@ -177,7 +175,16 @@ export class NodeManager {
     return { x, y };
   };
   deleteNodes = (nodes: Node[]) => {
-    const n = nodes.filter(node => !node.readonly);
+    let n = nodes.filter(node => !node.readonly);
+    const definitions = n.map(n => n.definition);
+    for (const nodeDefinition of definitions.filter(d => d.object)) {
+      n = n.concat(
+        this.state.nodes.filter(
+          node => node.definition.parent === nodeDefinition
+        )
+      );
+    }
+
     this.state.selectedNodes = this.state.selectedNodes.filter(
       node => !n.find(nn => nn === node)
     );
@@ -189,45 +196,38 @@ export class NodeManager {
     );
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  createNode = (e: ScreenPosition, n?: Partial<Node> & Pick<Node, "type">) => {
+  createNode = (e: ScreenPosition, nodeDefinition: NodeDefinition) => {
+    const { node: nodeSettings } = nodeDefinition;
+    const node: NodeDefinition["node"] = JSON.parse(
+      JSON.stringify(nodeSettings)
+    );
     const createdNode: Node = {
       name: "Person",
       id: Utils.generateId(),
       type: "type",
       description: "Enter your description",
-      x: e.x - this.theme.node.width / 2.0,
-      y: e.y - this.theme.node.height / 2.0,
+      x: e.x,
+      y: e.y,
       inputs: [],
       outputs: [],
-      ...n
+      definition: nodeDefinition,
+      ...node
     };
-    console.log(n);
-    if (n) {
-      const nodeDefinition = this.definition(n);
-      if (nodeDefinition && nodeDefinition.object) {
-        if (!n.definition) {
-          createdNode.definition = nodeDefinition;
+    if (nodeDefinition.object) {
+      const newDefinition: NodeDefinition = {
+        ...nodeDefinition,
+        object: undefined,
+        main: undefined,
+        parent: nodeDefinition,
+        id: Utils.generateId(),
+        node: {
+          ...nodeDefinition.node,
+          inputs: [],
+          outputs: [],
+          type: node.name!
         }
-        const ObjectInstanceDefinition = this.state.nodeDefinitions.find(
-          nd => nd.node.type === n.name && !nd.object
-        );
-        if (!ObjectInstanceDefinition) {
-          const newDefinition: NodeDefinition = {
-            ...nodeDefinition,
-            object: undefined,
-            main: undefined,
-            parent: nodeDefinition,
-            node: {
-              ...nodeDefinition.node,
-              inputs: [],
-              outputs: [],
-              type: n.name!
-            }
-          };
-          newDefinition.node.definition = newDefinition;
-          this.state.nodeDefinitions.push(newDefinition);
-        }
-      }
+      };
+      this.state.nodeDefinitions.push(newDefinition);
     }
     this.state.nodes.push(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated);

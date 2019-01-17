@@ -9,6 +9,6 @@ export interface Node {
   y: number;
   inputs?: Node[] | null;
   outputs?: Node[] | null;
-  definition?: NodeDefinition;
+  definition: NodeDefinition;
   readonly?: boolean;
 }
