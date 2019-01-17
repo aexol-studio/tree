@@ -31,11 +31,13 @@ export class StateManager {
     };
   }
   pureState = () => this.state;
-  setCategories(categories: Category[]) {
-    this.state.categories = categories;
-  }
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.state.nodeDefinitions = nodeDefinitions;
+    for (const nd of this.state.nodeDefinitions) {
+      if (!nd.id) {
+        nd.id = Utils.generateId();
+      }
+    }
   }
 
   constructor(
@@ -148,10 +150,7 @@ export class StateManager {
                   x: this.state.lastPosition.x - this.theme.node.width / 2.0,
                   y: this.state.lastPosition.y - this.theme.node.height / 2.0
                 };
-                this.nodeManager.createNode(e, {
-                  ...n.node,
-                  ...currentPos
-                });
+                this.nodeManager.createNode(currentPos, n);
                 this.hover(currentPos);
               }
             } as Category)
@@ -170,15 +169,12 @@ export class StateManager {
     const { io: ioD, node: nodeD } = this.state.draw;
 
     if (nodeD === node && io === ioD && !this.state.menu) {
-      let nodeDefinition = this.state.nodeDefinitions.find(
-        n => n.node.type === node.type
-      )!;
-      console.log(this.state.nodeDefinitions);
+      let { definition } = node;
       this.state.categories = this.state.nodeDefinitions
         .filter(n => !n.object)
         .filter(n =>
           io === "i"
-            ? nodeDefinition!.acceptsInputs!.find(
+            ? definition!.acceptsInputs!.find(
                 ai =>
                   ai.node.type === n.node.type ||
                   !!(n.parent && n.parent.node.type === ai.node.type)
@@ -197,7 +193,7 @@ export class StateManager {
               action: () => {
                 const createdNode = this.nodeManager.createNode(
                   this.nodeManager.placeConnectedNode(node, io),
-                  n.node
+                  n
                 );
                 this.connectionManager.makeConnection(
                   io === "i" ? node : createdNode,

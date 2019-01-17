@@ -30,7 +30,7 @@ export class ConnectionManager {
       this.state.draw = {
         node,
         io,
-        initialPos: e,
+        initialPos: e
       };
       return;
     }
@@ -44,28 +44,22 @@ export class ConnectionManager {
     if (!io || !node) {
       return;
     }
-    this.state.drawedConnection = {x: e.x - pan.x, y: e.y - pan.y};
+    this.state.drawedConnection = { x: e.x - pan.x, y: e.y - pan.y };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   makeConnection = (i: Node, o: Node) => {
-    const inputNodeDefinition = this.state.nodeDefinitions.find(
-      nd => nd.node.type === i.type
-    )!;
-    const outputNodeDefinition = this.state.nodeDefinitions.find(
-      nd => nd.node.type === o.type
-    )!;
     const linkExists = () =>
       !!this.state.links.find(l => l.i === i && l.o === o);
     const correctType = () => {
-      if (!inputNodeDefinition.acceptsInputs) {
+      if (!i.definition.acceptsInputs) {
         return false;
       }
-      for (const ai of inputNodeDefinition.acceptsInputs) {
+      for (const ai of i.definition.acceptsInputs) {
         if (ai.node.type === o.type) {
           return true;
         }
-        if (outputNodeDefinition.parent) {
-          if (ai.node.type === outputNodeDefinition.parent.node.type) {
+        if (o.definition.parent) {
+          if (ai.node.type === o.definition.parent.node.type) {
             return true;
           }
         }

@@ -42,11 +42,9 @@ export class DiagramReact extends React.Component<DiagramReactProps> {
     this.setupSizes();
 
     this.diagram = new Diagram(this.containerRef.current);
-    this.diagram.setCategories(this.props.categories);
   }
   componentDidUpdate(prevProps: DiagramReactProps) {
     if (prevProps.categories !== this.props.categories && this.diagram) {
-      this.diagram.setCategories(this.props.categories);
     }
   }
   render() {

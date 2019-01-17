@@ -2,7 +2,7 @@ import { Renderer } from "../Renderer";
 import { EventBus } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
-import { DiagramTheme, Node, Category } from "../Models";
+import { DiagramTheme, Node } from "../Models";
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 import { NodeDefinition } from "../Models/NodeDefinition";
 
@@ -17,9 +17,6 @@ export class Diagram {
   private renderer: Renderer;
   private eventBus: EventBus;
   public stateManager: StateManager;
-  setCategories(categories: Category[]) {
-    this.stateManager.setCategories(categories);
-  }
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
   }
