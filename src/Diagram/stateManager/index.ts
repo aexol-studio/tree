@@ -8,8 +8,10 @@ import { NodeDefinition } from "../../Models/NodeDefinition";
 import { NodeManager } from "./nodeManager";
 import { ConnectionManager } from "./connectionManager";
 import { UIManager } from "./uiManager";
+import { MinimapManager } from "./minimapManager";
 
 const { between } = Utils;
+
 
 /**
  * StateManager:
@@ -24,6 +26,7 @@ export class StateManager {
   private state: DiagramState;
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
+  private minimapManager: MinimapManager;
   private uiManager: UIManager;
   getState() {
     return {
@@ -41,7 +44,8 @@ export class StateManager {
   constructor(
     private eventBus: EventBus,
     private theme: DiagramTheme,
-    private connectionFunction: (input: Node, output: Node) => boolean
+    private connectionFunction: (input: Node, output: Node) => boolean,
+    private areaSize: { width: number, height: number },
   ) {
     this.state = {
       links: [],
@@ -51,6 +55,7 @@ export class StateManager {
       selectedLinks: [],
       selectedNodes: [],
       hover: {},
+      hoverMinimap: false,
       lastPosition: {
         x: 0,
         y: 0
@@ -59,7 +64,8 @@ export class StateManager {
         minimapActive: true,
         panX: 0,
         panY: 0,
-        scale: 1.0
+        scale: 1.0,
+        areaSize,
       }
     };
     this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
@@ -68,7 +74,8 @@ export class StateManager {
       this.state,
       this.connectionFunction
     );
-    this.uiManager = new UIManager(this.state.uiState, this.eventBus);
+    this.uiManager = new UIManager(this.state.uiState, this.eventBus, this.theme);
+    this.minimapManager = new MinimapManager(this.state, this.eventBus, this.theme);
 
     this.eventBus.subscribe(
       Events.IOEvents.ScreenMouseOverMove,

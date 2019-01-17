@@ -51,8 +51,13 @@ export class Diagram {
 
     canvasElement.oncontextmenu = () => false;
 
-    canvasElement.width = hostSize.width * 2;
-    canvasElement.height = hostSize.height * 2;
+    const areaSize = {
+      width: hostSize.width * 2,
+      height: hostSize.height * 2,
+    };
+
+    canvasElement.width = areaSize.width;
+    canvasElement.height = areaSize.height;
 
     canvasElement.style.width = `${hostSize.width}px`;
     canvasElement.style.height = `${hostSize.height}px`;
@@ -77,7 +82,8 @@ export class Diagram {
     this.stateManager = new StateManager(
       this.eventBus,
       theme,
-      connectionFunction
+      connectionFunction,
+      areaSize,
     );
 
     // initialize renderer

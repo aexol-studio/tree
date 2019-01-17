@@ -5,6 +5,10 @@
  * Used by IO service to put events on a bus
  */
 export class IOEvents {
+  static LeftMouseClick = "LeftMouseClick";
+  static DoubleClick = "DoubleClick";
+  static RightMouseClick = "RightMouseClick";
+
   static ScreenMouseMove = "ScreenMouseMove";
   static ScreenMouseDrag = "ScreenMouseDrag";
   static ScreenMouseOverMove = "ScreenMouseOverMove";
@@ -17,6 +21,8 @@ export class IOEvents {
   static WorldMouseMove = "WorldMouseMove";
   static WorldMouseDrag = "WorldMouseDrag";
   static WorldLeftMouseClick = "WorldLeftMouseClick";
+
+  static MinimapMouseMove = "MinimapMouseMove";
 
   static ScreenRightMouseClick = "ScreenRightMouseClick";
   static MPressed = "MPressed";

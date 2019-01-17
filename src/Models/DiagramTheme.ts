@@ -10,6 +10,12 @@ export interface DiagramTheme {
       y: number;
     };
   };
+  minimap: {
+    alpha: number;
+    hoverAlpha: number;
+    size: number;
+    margin: number;
+  };
   description: {
     width: number;
     height: number;
@@ -39,7 +45,6 @@ export interface DiagramTheme {
   colors: {
     background: string;
     minimap: {
-      alpha: number;
       background: string;
       visibleArea: string;
       borders: string;

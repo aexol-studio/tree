@@ -58,7 +58,7 @@ export class MinimapRenderer {
     }
 
     context.save();
-    context.globalAlpha = theme.colors.minimap.alpha;
+    context.globalAlpha = state.hoverMinimap ? theme.minimap.hoverAlpha : theme.minimap.alpha;
 
     const graphWidth = context.canvas.width;
     const graphHeight = context.canvas.height;

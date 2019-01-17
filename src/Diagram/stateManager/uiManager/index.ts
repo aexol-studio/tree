@@ -2,6 +2,7 @@ import { EventBus } from "../../../EventBus";
 import { UIState } from "../../../Models/UIState";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
 import * as Events from "../../../Events";
+import { DiagramTheme } from "../../../Models";
 
 /**
  * UIManager:
@@ -12,6 +13,7 @@ export class UIManager {
   constructor(
     private state: UIState,
     private eventBus: EventBus,
+    private theme: DiagramTheme,
   ) {
     this.eventBus.subscribe(Events.IOEvents.ScreenMouseMove, this.mouseMove);
     this.eventBus.subscribe(Events.IOEvents.ScreenMouseWheel, this.mouseWheel);
@@ -56,7 +58,35 @@ export class UIManager {
     };
   }
 
+  calculateMinimapPosition = (e: ScreenPosition) => {
+    const minimapConstraints = {
+      left: this.state.areaSize.width - this.theme.minimap.size - this.theme.minimap.margin,
+      right: this.state.areaSize.width - this.theme.minimap.margin,
+      top: this.theme.minimap.margin,
+      bottom: this.theme.minimap.margin + this.theme.minimap.size,
+    };
+
+    if (
+      e.x > minimapConstraints.left && e.x < minimapConstraints.right &&
+      e.y > minimapConstraints.top && e.y < minimapConstraints.bottom
+    ) {
+      return {
+        x: e.x - minimapConstraints.left,
+        y: e.y - minimapConstraints.top,
+      };
+    }
+
+    return null;
+  };
+
   mouseMove = (e: ScreenPosition) => {
+    const minimapPosition = this.calculateMinimapPosition(e);
+
+    if (minimapPosition) {
+      this.eventBus.publish(Events.IOEvents.MinimapMouseMove, minimapPosition);
+      return;
+    }
+
     this.eventBus.publish(Events.IOEvents.WorldMouseMove, {
       x: (e.x) / this.state.scale - this.state.panX!,
       y: (e.y) / this.state.scale - this.state.panY!,
@@ -65,6 +95,12 @@ export class UIManager {
   };
 
   mouseDrag = (e: ScreenPosition) => {
+    const isInsideMinimap = this.calculateMinimapPosition(e);
+
+    if (isInsideMinimap) {
+      return;
+    }
+
     this.eventBus.publish(Events.IOEvents.WorldMouseDrag, {
       x: e.x / this.state.scale,
       y: e.y / this.state.scale,
@@ -73,6 +109,12 @@ export class UIManager {
   };
 
   LMBPressed = (e: ScreenPosition) => {
+    const isInsideMinimap = this.calculateMinimapPosition(e);
+
+    if (isInsideMinimap) {
+      return;
+    }
+
     this.state.lastDragPosition = { x: e.x / this.state.scale, y: e.y / this.state.scale };
 
     this.eventBus.publish(Events.IOEvents.WorldLeftMouseClick, {

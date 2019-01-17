@@ -13,6 +13,12 @@ export const DefaultDiagramTheme: DiagramTheme = {
       y: 100
     }
   },
+  minimap: {
+    alpha: 0.8,
+    hoverAlpha: 0.9,
+    size: 500,
+    margin: 20,
+  },
   description: {
     width: 300,
     height: 120,
@@ -52,7 +58,6 @@ export const DefaultDiagramTheme: DiagramTheme = {
       }
     },
     minimap: {
-      alpha: 0.85,
       background: Colors.grey[7],
       visibleArea: Colors.grey[5],
       node: Colors.grey[0],
