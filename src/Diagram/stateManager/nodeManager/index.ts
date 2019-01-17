@@ -198,9 +198,7 @@ export class NodeManager {
   };
   createNode = (e: ScreenPosition, nodeDefinition: NodeDefinition) => {
     const { node: nodeSettings } = nodeDefinition;
-    const node: NodeDefinition["node"] = JSON.parse(
-      JSON.stringify(nodeSettings)
-    );
+    const node: NodeDefinition["node"] = Utils.deepCopy(nodeSettings)
     const createdNode: Node = {
       name: "Person",
       id: Utils.generateId(),
