@@ -2,7 +2,7 @@ import { EventBus } from "../../EventBus";
 import { DiagramState } from "../../Models/DiagramState";
 import * as Events from "../../Events";
 import { ScreenPosition } from "../../IO/ScreenPosition";
-import { DiagramTheme, Node, Category } from "../../Models";
+import { DiagramTheme, Node, Category, Size } from "../../Models";
 import { Utils } from "../../Utils";
 import { NodeDefinition } from "../../Models/NodeDefinition";
 import { NodeManager } from "./nodeManager";
@@ -310,5 +310,9 @@ export class StateManager {
       this.state.hover = {};
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
+  };
+  areaResized = (newSize: Size) => {
+    this.state.uiState.areaSize = newSize;
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
 }

@@ -17,6 +17,12 @@ export class Diagram {
   private renderer: Renderer;
   private eventBus: EventBus;
   public stateManager: StateManager;
+
+  private currentHostSize: {
+    width: number,
+    height: number,
+  };
+
   setCategories(categories: Category[]) {
     this.stateManager.setCategories(categories);
   }
@@ -26,6 +32,31 @@ export class Diagram {
 
   calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
+  }
+
+  wireUpResizer(domElement: HTMLElement, canvasElement: HTMLCanvasElement) {
+    window.addEventListener('resize', () => {
+      const newHostSize = this.calculateElementSize(domElement);
+      if (
+        newHostSize.width !== this.currentHostSize.width ||
+        newHostSize.height !== this.currentHostSize.height
+      ) {
+        this.currentHostSize = newHostSize;
+
+        const areaSize = {
+          width: newHostSize.width * 2,
+          height: newHostSize.height * 2,
+        };
+
+        canvasElement.width = areaSize.width;
+        canvasElement.height = areaSize.height;
+
+        canvasElement.style.width = `${newHostSize.width}px`;
+        canvasElement.style.height = `${newHostSize.height}px`;
+
+        this.stateManager.areaResized({ width: canvasElement.width, height: canvasElement.height });
+      }
+    });
   }
 
   constructor(
@@ -49,6 +80,8 @@ export class Diagram {
 
     const hostSize = this.calculateElementSize(domElement);
 
+    this.currentHostSize = hostSize;
+
     canvasElement.oncontextmenu = () => false;
 
     const areaSize = {
@@ -67,6 +100,8 @@ export class Diagram {
     }
 
     domElement.appendChild(canvasElement);
+
+    this.wireUpResizer(domElement, canvasElement);
 
     if (!canvasContext) {
       throw new Error("Can't create canvas context!");
