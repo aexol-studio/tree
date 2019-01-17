@@ -7,4 +7,10 @@ export interface UIState {
     x: number,
     y: number,
   },
+  areaSize: {
+    width: number,
+    height: number,
+  },
+  draggingWorld: boolean;
+  draggingMinimap: boolean;
 }

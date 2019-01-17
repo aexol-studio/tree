@@ -3,6 +3,7 @@ import { Graph } from "../Models/Graph";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { NodeDefinition } from "../Models/NodeDefinition";
 
+export { MinimapUtils } from './minimapUtils';
 /**
  * Utils
  *

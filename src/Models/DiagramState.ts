@@ -21,6 +21,7 @@ export interface DiagramState {
     io: "i" | "o";
     initialPos: ScreenPosition;
   };
+  hoverMinimap: boolean;
   hover: {
     node?: Node;
     link?: Link;

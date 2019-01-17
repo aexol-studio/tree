@@ -1,55 +1,7 @@
 import { DiagramTheme, DiagramState } from "../Models";
-
-const MINIMAP_RANGE = 7000;
-const MINIMAP_SIZE = 500;
-const MINIMAP_MARGIN = 20;
-
-interface MinimapBoundaries {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-  width: number;
-  height: number;
-};
+import { MinimapUtils } from "../Utils/index";
 
 export class MinimapRenderer {
-  static getBoundingBoxViewport(
-    panX: number,
-    panY: number,
-    scale: number,
-    graphWidth: number,
-    graphHeight: number,
-  ): MinimapBoundaries {
-    return {
-      left: -panX,
-      right: (graphWidth / scale) - panX,
-      top: -panY,
-      bottom: (graphHeight / scale) - panY,
-      width: graphWidth / scale,
-      height: graphHeight / scale,
-    };
-  };
-
-  static getMiniMapBoundaries(
-    viewportBoundingBox: MinimapBoundaries,
-    graphWidth: number,
-    graphHeight: number,
-  ) {
-    return {
-      left: Math.max(
-        Math.min(-MINIMAP_RANGE + graphWidth / 2, viewportBoundingBox.left),
-        viewportBoundingBox.right - 2 * MINIMAP_RANGE
-      ),
-      top: Math.max(
-        Math.min(-MINIMAP_RANGE + graphHeight / 2, viewportBoundingBox.top),
-        viewportBoundingBox.bottom - 2 * MINIMAP_RANGE
-      ),
-      width: 2 * MINIMAP_RANGE,
-      height: 2 * MINIMAP_RANGE
-    };
-  };
-
   render(context: CanvasRenderingContext2D, theme: DiagramTheme, state: DiagramState) {
     const uiState = state.uiState;
 
@@ -58,60 +10,49 @@ export class MinimapRenderer {
     }
 
     context.save();
-    context.globalAlpha = theme.colors.minimap.alpha;
+    context.globalAlpha = state.hoverMinimap ? theme.minimap.hoverAlpha : theme.minimap.alpha;
 
-    const graphWidth = context.canvas.width;
-    const graphHeight = context.canvas.height;
+    const minimapStartX = context.canvas.width - theme.minimap.size - theme.minimap.margin;
+    const minimapStartY = theme.minimap.margin;
 
-    const minimapStartX = context.canvas.width - MINIMAP_SIZE - MINIMAP_MARGIN;
-    const minimapStartY = MINIMAP_MARGIN;
-
-    const boundingBoxViewport = MinimapRenderer.getBoundingBoxViewport(
-      uiState.panX!,
-      uiState.panY!,
+    const boundingBoxViewport = MinimapUtils.getBoundingBoxViewport(
+      {
+        x: uiState.panX!,
+        y: uiState.panY!,
+      },
       uiState.scale,
-      graphWidth,
-      graphHeight,
+      state.uiState.areaSize,
     );
 
-    const miniMapBoundaries = MinimapRenderer.getMiniMapBoundaries(
+    const miniMapBoundaries = MinimapUtils.getMiniMapBoundaries(
       boundingBoxViewport,
-      graphWidth,
-      graphHeight,
+      state.uiState.areaSize,
     );
 
-    const worldToMapWidth = (size: number) => size / (miniMapBoundaries.width / (MINIMAP_SIZE - 1));
-    const worldToMapHeight = (size: number) => size / (miniMapBoundaries.height / (MINIMAP_SIZE - 1));
 
-    const worldToMapPoint = (px: number, py: number) => {
-      const delta = {
-        x: worldToMapWidth(miniMapBoundaries.left + miniMapBoundaries.width / 2),
-        y: worldToMapHeight(miniMapBoundaries.top + miniMapBoundaries.height / 2)
-      };
-      const ratio = miniMapBoundaries.width / (MINIMAP_SIZE - 1);
-      return {
-        x: MINIMAP_SIZE / 2 - delta.x + px / ratio,
-        y: MINIMAP_SIZE / 2 - delta.y + py / ratio
-      };
-    };
-
-    const viewportCoord = worldToMapPoint(boundingBoxViewport.left, boundingBoxViewport.top);
+    const viewportCoord = MinimapUtils.worldToMapPoint(
+      {
+        x: boundingBoxViewport.left,
+        y: boundingBoxViewport.top,
+      },
+      theme.minimap.size,
+      miniMapBoundaries,
+    );
 
     const areaCoordinates = {
-      width: worldToMapWidth(boundingBoxViewport.width),
-      height: worldToMapHeight(boundingBoxViewport.height),
+      width: MinimapUtils.worldToMapWidth(boundingBoxViewport.width, miniMapBoundaries, theme.minimap.size),
+      height: MinimapUtils.worldToMapHeight(boundingBoxViewport.height, miniMapBoundaries, theme.minimap.size),
       left: viewportCoord.x - 1,
       top: viewportCoord.y - 1
     };
 
-
     context.fillStyle = theme.colors.minimap.background;
-    context.fillRect(minimapStartX, minimapStartY, MINIMAP_SIZE, MINIMAP_SIZE);
+    context.fillRect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
     context.strokeStyle = theme.colors.minimap.borders;
     context.lineWidth = 1;
-    context.strokeRect(minimapStartX, minimapStartY, MINIMAP_SIZE, MINIMAP_SIZE);
+    context.strokeRect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
 
-    context.rect(minimapStartX, minimapStartY, MINIMAP_SIZE, MINIMAP_SIZE);
+    context.rect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
     context.clip();
 
     context.fillStyle = theme.colors.minimap.visibleArea;
@@ -131,7 +72,12 @@ export class MinimapRenderer {
 
     context.fillStyle = theme.colors.minimap.node;
     state.nodes.forEach(n => {
-      const nodePos = worldToMapPoint(n.x, n.y);
+      const nodePos = MinimapUtils.worldToMapPoint(
+        n,
+        theme.minimap.size,
+        miniMapBoundaries,
+      );
+
       context.fillRect(
         minimapStartX + nodePos.x,
         minimapStartY + nodePos.y,
@@ -141,6 +87,5 @@ export class MinimapRenderer {
     });
 
     context.restore();
-
   }
 }
