@@ -3,7 +3,7 @@ import { Graph } from "../Models/Graph";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { NodeDefinition } from "../Models/NodeDefinition";
 
-export { MinimapUtils } from './minimapUtils';
+export { MinimapUtils } from "./minimapUtils";
 /**
  * Utils
  *
@@ -14,10 +14,15 @@ export class Utils {
     new Array(crypto.getRandomValues(new Uint8Array(4))).join("-");
   static between = (a: number, b: number) => (c: number) => c >= a && c <= b;
   static dedupe = <T>(a: T[]) => a.filter((b, i) => a.indexOf(b) === i);
-  static snap = <T extends ScreenPosition>(e: T, snappingGridSize: number):T => ({
+  static deepCopy = <T extends Record<string, any>>(o: T):T =>
+    JSON.parse(JSON.stringify(o));
+  static snap = <T extends ScreenPosition>(
+    e: T,
+    snappingGridSize: number
+  ): T => ({
     ...e,
-    x: Math.floor(e.x / snappingGridSize)*snappingGridSize,
-    y: Math.floor(e.y / snappingGridSize)*snappingGridSize
+    x: Math.floor(e.x / snappingGridSize) * snappingGridSize,
+    y: Math.floor(e.y / snappingGridSize) * snappingGridSize
   });
   static getDefinitionAcceptedInputs = (definition: NodeDefinition) =>
     (definition.parent

@@ -2,16 +2,15 @@ import { EventBus } from "../../EventBus";
 import { DiagramState } from "../../Models/DiagramState";
 import * as Events from "../../Events";
 import { ScreenPosition } from "../../IO/ScreenPosition";
-import { DiagramTheme, Node, Category, Size } from "../../Models";
+import { DiagramTheme, Node, Size } from "../../Models";
 import { Utils } from "../../Utils";
 import { NodeDefinition } from "../../Models/NodeDefinition";
 import { NodeManager } from "./nodeManager";
 import { ConnectionManager } from "./connectionManager";
 import { UIManager } from "./uiManager";
 import { MinimapManager } from "./minimapManager";
-
-const { between } = Utils;
-
+import { HoverManager } from "./hoverManager";
+import { MenuManager } from "./menuManager/index";
 
 /**
  * StateManager:
@@ -26,8 +25,9 @@ export class StateManager {
   private state: DiagramState;
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
-          minimapManager: MinimapManager;
+  minimapManager: MinimapManager;
   private uiManager: UIManager;
+  private hoverManager: HoverManager;
   getState() {
     return {
       ...this.state
@@ -47,7 +47,7 @@ export class StateManager {
     private eventBus: EventBus,
     private theme: DiagramTheme,
     private connectionFunction: (input: Node, output: Node) => boolean,
-            areaSize: { width: number, height: number },
+    areaSize: { width: number; height: number }
   ) {
     this.state = {
       links: [],
@@ -69,8 +69,8 @@ export class StateManager {
         scale: 1.0,
         areaSize,
         draggingWorld: false,
-        draggingMinimap: false,
-      },
+        draggingMinimap: false
+      }
     };
     this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
     this.connectionManager = new ConnectionManager(
@@ -78,32 +78,31 @@ export class StateManager {
       this.state,
       this.connectionFunction
     );
-    this.uiManager = new UIManager(this.state.uiState, this.eventBus, this.theme);
-    this.minimapManager = new MinimapManager(this.state, this.eventBus, this.theme);
-
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenMouseOverMove,
-      this.hoverMenu
+    this.uiManager = new UIManager(
+      this.state.uiState,
+      this.eventBus,
+      this.theme
     );
-    this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openMenu);
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseClick,
-      this.clickMenuItem
+    this.minimapManager = new MinimapManager(
+      this.state,
+      this.eventBus,
+      this.theme
     );
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseUp,
-      this.openPortMenu
+    this.hoverManager = new HoverManager(this.state, this.eventBus, this.theme);
+    new MenuManager(
+      this.state,
+      this.eventBus,
+      this.theme,
+      this.nodeManager,
+      this.hoverManager,
+      this.connectionManager,
+      this.uiManager
     );
-
+    
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
       this.LMBPressed
     );
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseClick,
-      this.closeMenu
-    );
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseMove, this.hover);
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
   }
   mouseDrag = (e: ScreenPosition) => {
@@ -126,213 +125,7 @@ export class StateManager {
   LMBPressed = (e: ScreenPosition) => {
     this.state.lastPosition = { ...e };
   };
-  clickMenuItem = () => {
-    if (this.state.menu && this.state.hover.menu) {
-      const category = this.state.categories[this.state.hover.menu.index];
-      if (category.action) {
-        category.action!();
-        this.state.menu = undefined;
-        this.state.hover.menu = undefined;
-      } else if (category.children) {
-        this.state.categories = category.children;
-        this.state.hover.menu = undefined;
-      }
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
-  closeMenu = (e: ScreenPosition) => {
-    if (this.state.menu && !this.state.hover.menu) {
-      this.state.menu = undefined;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
-  openMenu = (e: ScreenPosition) => {
-    if (this.state.draw) {
-      return;
-    }
-    const { node } = this.state.hover;
-    if (!node) {
-      this.state.categories = this.state.nodeDefinitions
-        .filter(n => n.object)
-        .map(
-          n =>
-            ({
-              name: n.node.type,
-              action: () => {
-                const currentPos = {
-                  x: this.state.lastPosition.x - this.theme.node.width / 2.0,
-                  y: this.state.lastPosition.y - this.theme.node.height / 2.0
-                };
-                this.nodeManager.createNode(currentPos, n);
-                this.hover(currentPos);
-              }
-            } as Category)
-        );
-      this.state.menu = {
-        position: { ...e }
-      };
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
-  openPortMenu = (e: ScreenPosition) => {
-    if (!this.state.draw) {
-      return;
-    }
-    const { io, node } = this.state.hover;
-    const { io: ioD, node: nodeD } = this.state.draw;
 
-    if (nodeD === node && io === ioD && !this.state.menu) {
-      const createConnectedNodesCategory = (n: NodeDefinition) => ({
-        name: n.node.type,
-        action: () => {
-          const createdNode = this.nodeManager.createNode(
-            this.nodeManager.placeConnectedNode(node, io),
-            n
-          );
-          this.connectionManager.makeConnection(
-            io === "i" ? node : createdNode,
-            io === "o" ? node : createdNode
-          );
-        }
-      });
-      let { definition } = node;
-      let staticCategories: Category[] = [];
-      let dynamicCategories: Category[] = [];
-      if (io === "i" && definition.acceptsInputs) {
-        staticCategories = Utils.getDefinitionAcceptedInputs(definition)
-          .filter(n => !n.object)
-          .map(createConnectedNodesCategory);
-        dynamicCategories = Utils.getDefinitionAcceptedInputs(definition)
-          .filter(n => n.object)
-          .map(
-            n =>
-              ({
-                name: `${n.node.type} →`,
-                children: this.state.nodeDefinitions
-                  .filter(nd => nd.parent === n)
-                  .map(createConnectedNodesCategory)
-              } as Category)
-          )
-          .filter(c => c.children!.length > 0);
-      } else if (io === "o") {
-        staticCategories = this.state.nodeDefinitions
-          .filter(n => !n.object && !(n.parent && n.parent.object))
-          .filter(nd =>
-            Utils.getDefinitionAcceptedInputs(nd).find(
-              ai => ai === definition || ai === definition.parent
-            )
-          )
-          .map(createConnectedNodesCategory);
-        dynamicCategories = this.state.nodeDefinitions
-          .filter(n => n.object)
-          .map(
-            n =>
-              ({
-                name: `${n.node.type} →`,
-                children: this.state.nodeDefinitions
-                  .filter(nd =>
-                    Utils.getDefinitionAcceptedInputs(nd).find(
-                      ai => ai === definition || ai === definition.parent
-                    )
-                  )
-                  .filter(nd => nd.parent === n)
-                  .map(createConnectedNodesCategory)
-              } as Category)
-          )
-          .filter(c => c.children!.length > 0);
-      }
-      this.state.categories = staticCategories.concat(dynamicCategories);
-      if (this.state.categories.length) {
-        const { menu, port } = this.theme;
-        const NodeScreenPosition = this.uiManager.worldToScreen({
-          ...e,
-          x:
-            io === "i"
-              ? node.x - port.width - menu.spacing.x
-              : node.x + this.theme.node.width + port.width + menu.spacing.x,
-          y: node.y
-        });
-        this.state.menu = {
-          position: {
-            x:
-              io === "i"
-                ? NodeScreenPosition.x - menu.width
-                : NodeScreenPosition.x,
-            y: NodeScreenPosition.y
-          }
-        };
-      }
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
-  hoverMenu = (e: ScreenPosition) => {
-    if (this.state.menu) {
-      const distance = {
-        x: e.x - this.state.menu.position.x,
-        y: e.y - this.state.menu.position.y
-      };
-      if (distance.x > 0 && distance.y > 0) {
-        if (
-          distance.x < this.theme.menu.width &&
-          distance.y <
-            this.theme.menu.category.height * this.state.categories.length
-        ) {
-          const menuItem = Math.floor(
-            distance.y / this.theme.menu.category.height
-          );
-          if (!this.state.hover.menu) {
-            this.state.hover.menu = {
-              index: menuItem
-            };
-            this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-          } else if (this.state.hover.menu!.index !== menuItem) {
-            this.state.hover.menu!.index = menuItem;
-            this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-          }
-          return;
-        }
-      }
-    }
-    if (this.state.hover.menu) {
-      this.state.hover.menu = undefined;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
-  somethingHovered = () => {
-    for (const k of Object.keys(this.state.hover))
-      if (!!(this.state.hover.valueOf() as any)[k]) return true;
-  };
-  hover = (e: ScreenPosition) => {
-    for (const n of this.state.nodes) {
-      const distance = {
-        x: e.x - n.x,
-        y: e.y - n.y
-      };
-      const xBetween = between(
-        -this.theme.port.width,
-        this.theme.node.width + this.theme.port.width
-      );
-      const yBetween = between(0, this.theme.node.height);
-      if (xBetween(distance.x) && yBetween(distance.y)) {
-        const node = n;
-        const io =
-          distance.x > this.theme.node.width && node.outputs
-            ? "o"
-            : distance.x < 0 && node.inputs
-            ? "i"
-            : undefined;
-        if (this.state.hover.io !== io || this.state.hover.node !== node) {
-          this.state.hover = { node, io };
-          this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-        }
-        return;
-      }
-    }
-    if (this.state.hover.io || this.state.hover.node) {
-      this.state.hover = {};
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
-  };
   areaResized = (newSize: Size) => {
     this.state.uiState.areaSize = newSize;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
