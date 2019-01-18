@@ -3,7 +3,7 @@ import { Coords } from "../Models/index";
 
 export class Region implements RegionInterface {
   constructor(
-    public min: Coords = { x: Infinity, y: Infinity },
+    public min: Coords = { x: -Infinity, y: -Infinity },
     public max: Coords = { x: Infinity, y: Infinity }
   ) {}
   center = (): Coords => {
