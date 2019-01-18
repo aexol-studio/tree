@@ -9,6 +9,7 @@ export class DiagramEvents {
   static NodeSelected = "NodeSelected";
   static NodeHover = "NodeHover";
   static NodeCreated = "NodeCreated";
+  static NodeDeleted = "NodeDeleted";
   static LinkCreated = "LinkCreated";
   static DrawingLink = "DrawingLink";
   static RenderRequested = "RenderRequested";
