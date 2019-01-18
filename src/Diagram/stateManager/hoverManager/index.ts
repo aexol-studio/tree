@@ -7,7 +7,6 @@ import { Utils } from "../../../Utils";
 
 const { between } = Utils;
 
-
 /**
  * StateManager:
  *
@@ -29,8 +28,7 @@ export class HoverManager {
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseMove, this.hover);
   }
-  
-  
+
   hoverMenu = (e: ScreenPosition) => {
     if (this.state.menu) {
       const distance = {

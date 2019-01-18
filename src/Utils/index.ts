@@ -14,7 +14,7 @@ export class Utils {
     new Array(crypto.getRandomValues(new Uint8Array(4))).join("-");
   static between = (a: number, b: number) => (c: number) => c >= a && c <= b;
   static dedupe = <T>(a: T[]) => a.filter((b, i) => a.indexOf(b) === i);
-  static deepCopy = <T extends Record<string, any>>(o: T):T =>
+  static deepCopy = <T extends Record<string, any>>(o: T): T =>
     JSON.parse(JSON.stringify(o));
   static snap = <T extends ScreenPosition>(
     e: T,
@@ -61,5 +61,18 @@ export class Utils {
       graphs.push(graph);
     }
     return graphs;
+  };
+  static componentToHex = (c: number) => {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+  };
+
+  static rgbToHex = (r: number, g: number, b: number) => {
+    return (
+      "#" +
+      Utils.componentToHex(r) +
+      Utils.componentToHex(g) +
+      Utils.componentToHex(b)
+    );
   };
 }
