@@ -1,14 +1,19 @@
-import { QuadTreeInterface, Sides, RegionInterface } from "../Models/QuadTree";
+import {
+  QuadTreeInterface,
+  Sides,
+  RegionInterface,
+  BoundingBox
+} from "../Models/QuadTree";
 import { Region } from "./Region";
 import { Coords } from "../Models/index";
 
-export class QuadTree<T extends Coords> implements QuadTreeInterface<T> {
+export class QuadTree<T extends BoundingBox> implements QuadTreeInterface<T> {
   capacity = 30;
   objects: T[] = [];
   sides?: Sides<T>;
   constructor(public bb: Region = new Region()) {}
   insert = (node: T) => {
-    if (!this.bb.contains(node)) {
+    if (!this.bb.intersect(node)) {
       return false;
     }
 
@@ -19,11 +24,12 @@ export class QuadTree<T extends Coords> implements QuadTreeInterface<T> {
     if (!this.sides) {
       this.subdivide();
     }
-    if (this.sides!.nw!.insert(node)) return true;
-    if (this.sides!.ne!.insert(node)) return true;
-    if (this.sides!.sw!.insert(node)) return true;
-    if (this.sides!.se!.insert(node)) return true;
-    return false;
+    let insertedNode = false;
+    if (this.sides!.nw!.insert(node)) insertedNode = true;
+    if (this.sides!.ne!.insert(node)) insertedNode = true;
+    if (this.sides!.sw!.insert(node)) insertedNode = true;
+    if (this.sides!.se!.insert(node)) insertedNode = true;
+    return insertedNode;
   };
   subdivide = () => {
     const c = this.bb.center();
@@ -60,14 +66,31 @@ export class QuadTree<T extends Coords> implements QuadTreeInterface<T> {
     const objectsInRange: T[] = [];
     if (!this.bb.intersect(bb)) return objectsInRange;
     for (const o of this.objects) {
-      bb.contains(o) && objectsInRange.push(o);
+      bb.intersect(o) && objectsInRange.push(o);
     }
     if (!this.sides) return objectsInRange;
     const { nw, ne, sw, se } = this.sides;
-    return objectsInRange
+    let allObjectsInRange = objectsInRange
       .concat(nw!.queryRange(bb))
       .concat(ne!.queryRange(bb))
       .concat(se!.queryRange(bb))
       .concat(sw!.queryRange(bb));
+    return allObjectsInRange.filter(
+      (o, i) => allObjectsInRange.indexOf(o) === i
+    );
+  };
+  pick = (e: Coords) => {
+    const objectInRegion = <T extends BoundingBox>(r: T) =>
+      Region.regionContains(r, e);
+    if (!this.bb.contains(e)) return undefined;
+    const returnedObject = this.objects.find(objectInRegion);
+    if (returnedObject) return returnedObject;
+    if (!this.sides) return undefined;
+    return (
+      this.sides.ne!.pick(e) ||
+      this.sides.nw!.pick(e) ||
+      this.sides.se!.pick(e) ||
+      this.sides.sw!.pick(e)
+    );
   };
 }
