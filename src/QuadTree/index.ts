@@ -25,11 +25,20 @@ export class QuadTree<T extends BoundingBox> implements QuadTreeInterface<T> {
       this.subdivide();
     }
     let insertedNode = false;
-    if (this.sides!.nw!.insert(node)) insertedNode = true;
-    if (this.sides!.ne!.insert(node)) insertedNode = true;
-    if (this.sides!.sw!.insert(node)) insertedNode = true;
-    if (this.sides!.se!.insert(node)) insertedNode = true;
+    if (this.sides!.nw.insert(node)) insertedNode = true;
+    if (this.sides!.ne.insert(node)) insertedNode = true;
+    if (this.sides!.sw.insert(node)) insertedNode = true;
+    if (this.sides!.se.insert(node)) insertedNode = true;
     return insertedNode;
+  };
+  delete = (deleteFunction: (comparedObject: T) => boolean) => {
+    const deletedObject = this.objects.findIndex(deleteFunction);
+    if (deletedObject) return this.objects.splice(deletedObject, 1);
+    if (!this.sides) return;
+    this.sides.ne.delete(deleteFunction);
+    this.sides.nw.delete(deleteFunction);
+    this.sides.se.delete(deleteFunction);
+    this.sides.sw.delete(deleteFunction);
   };
   subdivide = () => {
     const c = this.bb.center();
@@ -83,8 +92,10 @@ export class QuadTree<T extends BoundingBox> implements QuadTreeInterface<T> {
     const objectInRegion = <T extends BoundingBox>(r: T) =>
       Region.regionContains(r, e);
     if (!this.bb.contains(e)) return undefined;
-    const returnedObject = this.objects.find(objectInRegion);
-    if (returnedObject) return returnedObject;
+    this.objects.reverse();
+    const returnedObjects = this.objects.filter(objectInRegion);
+    if (returnedObjects.length > 0)
+      return returnedObjects[returnedObjects.length - 1];
     if (!this.sides) return undefined;
     return (
       this.sides.ne!.pick(e) ||

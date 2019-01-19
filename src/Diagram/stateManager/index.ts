@@ -2,7 +2,7 @@ import { EventBus } from "../../EventBus";
 import { DiagramState } from "../../Models/DiagramState";
 import * as Events from "../../Events";
 import { ScreenPosition } from "../../IO/ScreenPosition";
-import { DiagramTheme, Node, Size } from "../../Models";
+import { DiagramTheme, Node, Size, Link } from "../../Models";
 import { Utils } from "../../Utils";
 import { NodeDefinition } from "../../Models/NodeDefinition";
 import { NodeManager } from "./nodeManager";
@@ -11,6 +11,8 @@ import { UIManager } from "./uiManager";
 import { MinimapManager } from "./minimapManager";
 import { HoverManager } from "./hoverManager";
 import { MenuManager } from "./menuManager/index";
+import { QuadTree } from "../../QuadTree/index";
+import { BoundingBox } from "../../Models/QuadTree";
 
 /**
  * StateManager:
@@ -58,6 +60,10 @@ export class StateManager {
       selectedNodes: [],
       hover: {},
       hoverMinimap: false,
+      trees: {
+        node: new QuadTree<BoundingBox & { node: Node }>(),
+        link: new QuadTree<BoundingBox & { link: Link }>()
+      },
       lastPosition: {
         x: 0,
         y: 0
@@ -98,7 +104,7 @@ export class StateManager {
       this.connectionManager,
       this.uiManager
     );
-    
+
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
       this.LMBPressed

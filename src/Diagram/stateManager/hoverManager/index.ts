@@ -3,9 +3,6 @@ import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
 import { DiagramTheme } from "../../../Models";
-import { Utils } from "../../../Utils";
-
-const { between } = Utils;
 
 /**
  * StateManager:
@@ -28,7 +25,6 @@ export class HoverManager {
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseMove, this.hover);
   }
-
   hoverMenu = (e: ScreenPosition) => {
     if (this.state.menu) {
       const distance = {
@@ -67,33 +63,27 @@ export class HoverManager {
       if (!!(this.state.hover.valueOf() as any)[k]) return true;
   };
   hover = (e: ScreenPosition) => {
-    for (const n of this.state.nodes) {
-      const distance = {
-        x: e.x - n.x,
-        y: e.y - n.y
-      };
-      const xBetween = between(
-        -this.theme.port.width,
-        this.theme.node.width + this.theme.port.width
-      );
-      const yBetween = between(0, this.theme.node.height);
-      if (xBetween(distance.x) && yBetween(distance.y)) {
-        const node = n;
-        const io =
-          distance.x > this.theme.node.width && node.outputs
-            ? "o"
-            : distance.x < 0 && node.inputs
-            ? "i"
-            : undefined;
-        if (this.state.hover.io !== io || this.state.hover.node !== node) {
-          this.state.hover = { node, io };
-          this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-        }
-        return;
+    const hoversNode = this.state.trees.node.pick(e);
+    if (!hoversNode) {
+      if (this.state.hover.node) {
+        this.state.hover = {};
+        this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       }
+      return;
     }
-    if (this.state.hover.io || this.state.hover.node) {
-      this.state.hover = {};
+    const { node } = hoversNode;
+    const distance = {
+      x: e.x - node.x,
+      y: e.y - node.y
+    };
+    const io =
+      distance.x > this.theme.node.width && node.outputs
+        ? "o"
+        : distance.x < 0 && node.inputs
+        ? "i"
+        : undefined;
+    if (this.state.hover.io !== io || this.state.hover.node !== node) {
+      this.state.hover = { node, io };
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };

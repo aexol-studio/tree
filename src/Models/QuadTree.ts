@@ -10,10 +10,10 @@ export interface RegionInterface extends BoundingBox {
 }
 
 export interface Sides<T extends BoundingBox> {
-  nw?: QuadTreeInterface<T>;
-  ne?: QuadTreeInterface<T>;
-  sw?: QuadTreeInterface<T>;
-  se?: QuadTreeInterface<T>;
+  nw: QuadTreeInterface<T>;
+  ne: QuadTreeInterface<T>;
+  sw: QuadTreeInterface<T>;
+  se: QuadTreeInterface<T>;
 }
 
 export interface QuadTreeInterface<T extends BoundingBox> {
@@ -22,6 +22,7 @@ export interface QuadTreeInterface<T extends BoundingBox> {
   objects: T[];
   sides?: Sides<T>;
   insert: (p: T) => boolean;
+  delete: (f: (comparedObject: T) => boolean) => void;
   subdivide: () => void;
   queryRange: (bb: RegionInterface) => T[];
   pick: (e: Coords) => T | undefined;

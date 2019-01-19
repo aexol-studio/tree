@@ -184,7 +184,9 @@ export class NodeManager {
         )
       );
     }
-
+    for (const treeNode of n) {
+      this.state.trees.node.delete(n => n.node === treeNode);
+    }
     this.state.selectedNodes = this.state.selectedNodes.filter(
       node => !n.find(nn => nn === node)
     );
@@ -196,9 +198,20 @@ export class NodeManager {
     );
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+  createTreeNode = (node: Node) => ({
+    node,
+    min: {
+      x: node.x - this.theme.port.width,
+      y: node.y
+    },
+    max: {
+      x: node.x + this.theme.node.width + this.theme.port.width,
+      y: node.y + this.theme.node.height
+    }
+  });
   createNode = (e: ScreenPosition, nodeDefinition: NodeDefinition) => {
     const { node: nodeSettings } = nodeDefinition;
-    const node: NodeDefinition["node"] = Utils.deepCopy(nodeSettings)
+    const node: NodeDefinition["node"] = Utils.deepCopy(nodeSettings);
     const createdNode: Node = {
       name: "Person",
       id: Utils.generateId(),
@@ -228,7 +241,8 @@ export class NodeManager {
       this.state.nodeDefinitions.push(newDefinition);
     }
     this.state.nodes.push(createdNode);
-    this.eventBus.publish(Events.DiagramEvents.NodeCreated);
+    this.state.trees.node.insert(this.createTreeNode(createdNode));
+    this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;
   };
