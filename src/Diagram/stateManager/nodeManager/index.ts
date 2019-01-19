@@ -32,7 +32,7 @@ export class NodeManager {
       Events.IOEvents.ScreenRightMouseUp,
       this.openNodeMenu
     );
-    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.movedNodes);
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
   }
   definition = <T extends Pick<Node, "type">>(n: T) =>
     this.state.nodeDefinitions.find(nd => nd.node.type === n.type);
@@ -48,10 +48,9 @@ export class NodeManager {
       n.y += e.y - this.state.uiState!.lastDragPosition!.y;
     }
     this.state.uiState!.lastDragPosition = { ...e };
-    this.eventBus.publish(Events.DiagramEvents.NodeMoved);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  movedNodes = (e: ScreenPosition) => {
+  movedNodes = () => {
     const { selectedNodes } = this.state;
     if (!selectedNodes.length) {
       return;
@@ -62,6 +61,7 @@ export class NodeManager {
         { x: node.x, y: node.y },
         this.createTreeNode(node).bb
       );
+    this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
 
   openNodeMenu = (e: ScreenPosition) => {

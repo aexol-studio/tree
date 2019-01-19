@@ -19,7 +19,9 @@ export class IOEvents {
   static ScreenMouseWheel = "ScreenMouseWheel";
 
   static WorldMouseMove = "WorldMouseMove";
+  static WorldMouseOverMove = "WorldMouseOverMove";
   static WorldMouseDrag = "WorldMouseDrag";
+  static WorldMouseDragEnd = "WorldMouseDragEnd";
   static WorldLeftMouseClick = "WorldLeftMouseClick";
 
   static MinimapMouseMove = "MinimapMouseMove";

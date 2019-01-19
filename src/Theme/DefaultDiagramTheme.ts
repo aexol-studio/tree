@@ -26,7 +26,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
     triangleWidth: 20
   },
   port: {
-    width: 40
+    width: 40,
+    gap:2
   },
   link: {
     cornerRadius: 5,
@@ -68,12 +69,13 @@ export const DefaultDiagramTheme: DiagramTheme = {
       text: Colors.grey[1]
     },
     port: {
-      background: Colors.grey[4],
-      backgroundActive: Colors.grey[3],
+      background: Colors.grey[5],
+      backgroundActive: Colors.grey[4],
       button: Colors.grey[0]
     },
     link: {
       main: Colors.grey[3],
+      hover: Colors.yellow[0],
       active: Colors.green[0]
     },
     menu: {

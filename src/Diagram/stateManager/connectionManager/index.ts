@@ -2,8 +2,9 @@ import { EventBus } from "../../../EventBus";
 import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { Node, Link } from "../../../Models";
+import { Node, Link, DiagramTheme } from "../../../Models";
 import { Utils } from "../../../Utils";
+import { DataObjectInTree } from "../../../Models/QuadTree";
 
 /**
  * ConnectionManager:
@@ -14,6 +15,7 @@ export class ConnectionManager {
   constructor(
     private eventBus: EventBus,
     private state: DiagramState,
+    private theme: DiagramTheme,
     private connectionFunction: (input: Node, output: Node) => boolean
   ) {
     this.eventBus.subscribe(
@@ -24,6 +26,9 @@ export class ConnectionManager {
       Events.IOEvents.ScreenLeftMouseUp,
       this.endDrawingConnector
     );
+    this.eventBus.subscribe(Events.DiagramEvents.NodeMoved, this.onNodeMoved);
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.moveLink);
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedLink);
   }
   startDrawingConnector = (e: ScreenPosition) => {
     const { io, node } = this.state.hover;
@@ -52,7 +57,7 @@ export class ConnectionManager {
     const linkExists = () =>
       !!this.state.links.find(l => l.i === i && l.o === o);
     const correctType = () => {
-      const acceptsInputs = Utils.getDefinitionAcceptedInputs(i.definition)
+      const acceptsInputs = Utils.getDefinitionAcceptedInputs(i.definition);
       if (!acceptsInputs) {
         return false;
       }
@@ -76,12 +81,73 @@ export class ConnectionManager {
     console.log(`connection between input ${i.type} - output ${o.type}`);
     const newLink: Link = {
       o: o,
-      i: i
+      i: i,
+      centerPoint: this.theme.link.defaultCenterPoint
     };
     this.state.links.push(newLink);
     i.inputs!.push(o);
     o.outputs!.push(i);
+    this.state.trees.link.insert(this.linkToTree(newLink));
     return newLink;
+  };
+  onNodeMoved = (nodes: Node[]) => {
+    const links = this.state.links.filter(l =>
+      nodes.find(n => n === l.i || n === l.o)
+    );
+    for (const l of links.map(this.linkToTree))
+      this.state.trees.link.update(
+        l.data,
+        { x: l.bb.min.x, y: l.bb.min.y },
+        l.bb
+      );
+  };
+  moveLink = (e: ScreenPosition) => {
+    const { link } = this.state.hover;
+    if (!link) {
+      return;
+    }
+    this.state.uiState.draggingWorld = true;
+    link.centerPoint = Utils.clamp(
+      (link.o.x + this.theme.node.width - e.x) /
+        (link.o.x + this.theme.node.width - link.i.x),
+      0.1,
+      0.9
+    );
+    this.state.uiState!.lastDragPosition = { ...e };
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
+  movedLink = () => {
+    const { link } = this.state.hover;
+    if (!link) {
+      return;
+    }
+    const linkTree = this.linkToTree(link);
+    this.state.trees.link.update(
+      link,
+      {
+        x: this.state.uiState!.lastDragPosition!.x,
+        y: this.state.uiState!.lastDragPosition!.y
+      },
+      linkTree.bb
+    );
+  };
+  linkToTree = (l: Link): DataObjectInTree<Link> => {
+    const { o, i, centerPoint } = l;
+    const xCenter = o.x+this.theme.node.width+(i.x - (this.theme.node.width + o.x)) * centerPoint;
+    console.log(o,i,xCenter)
+    return {
+      data: l,
+      bb: {
+        min: {
+          x: xCenter - 15,
+          y: o.y <= i.y ? o.y : i.y
+        },
+        max: {
+          x: xCenter + 15,
+          y: o.y > i.y ? o.y : i.y
+        }
+      }
+    };
   };
   endDrawingConnector = (e: ScreenPosition) => {
     if (!this.state.draw) {

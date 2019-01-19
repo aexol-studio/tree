@@ -90,6 +90,10 @@ export class Renderer {
       this.setCursor("pointer");
       return;
     }
+    if (state.hover.link) {
+      this.setCursor("move");
+      return;
+    }
     this.setCursor("grab");
   }
   /**
@@ -166,13 +170,11 @@ export class Renderer {
    */
   renderLinks() {
     const state = this.stateManager.getState();
-    state.links.forEach(l => this.linkRenderer.render(l, false));
+    state.links.forEach(l => this.linkRenderer.render(l, "main"));
     state.links
-      .filter(l => state.selectedNodes.indexOf(l.i) !== -1)
-      .forEach(l => this.linkRenderer.render(l, true));
-    state.links
-      .filter(l => state.selectedNodes.indexOf(l.o) !== -1)
-      .forEach(l => this.linkRenderer.render(l, true));
+      .filter(l => state.selectedNodes.find(n => n === l.i || n === l.o))
+      .forEach(l => this.linkRenderer.render(l, "active"));
+    state.hover.link && this.linkRenderer.render(state.hover.link, "hover");
   }
 
   /**
@@ -201,7 +203,11 @@ export class Renderer {
   }
 
   renderMinimap() {
-    this.minimapRenderer.render(this.context, this.theme, this.stateManager.getState());
+    this.minimapRenderer.render(
+      this.context,
+      this.theme,
+      this.stateManager.getState()
+    );
   }
 
   setScreenTransform() {

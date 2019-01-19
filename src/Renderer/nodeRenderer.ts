@@ -85,6 +85,15 @@ export class NodeRenderer {
         node.x - port.width / 2.0,
         node.y + height / 2.0
       );
+      this.context.fillStyle = colors.background;
+      port.gap &&
+        RoundedRectangle(this.context, {
+          height,
+          width: port.gap,
+          x: node.x,
+          y: node.y,
+          radius: 0
+        });
     }
     if (node.outputs) {
       this.context.fillStyle = outputActive
@@ -104,6 +113,15 @@ export class NodeRenderer {
         node.x + width + port.width / 2.0,
         node.y + height / 2.0
       );
+      this.context.fillStyle = colors.background;
+      port.gap &&
+        RoundedRectangle(this.context, {
+          height,
+          width: port.gap,
+          x: node.x + width,
+          y: node.y,
+          radius: 0
+        });
     }
   };
 }

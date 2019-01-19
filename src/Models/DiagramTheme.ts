@@ -1,5 +1,5 @@
 export interface DiagramTheme {
-  snappingGridSize?:number;
+  snappingGridSize?: number;
   node: {
     width: number;
     height: number;
@@ -23,6 +23,7 @@ export interface DiagramTheme {
     triangleHeight: number;
   };
   port: {
+    gap: number;
     width: number;
   };
   link: {
@@ -49,7 +50,7 @@ export interface DiagramTheme {
       visibleArea: string;
       borders: string;
       node: string;
-    }
+    };
     menu: {
       background: string;
       hover: string;
@@ -74,6 +75,7 @@ export interface DiagramTheme {
     link: {
       main: string;
       active: string;
+      hover:string;
     };
   };
 }

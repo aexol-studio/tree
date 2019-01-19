@@ -81,6 +81,7 @@ export class StateManager {
     this.connectionManager = new ConnectionManager(
       this.eventBus,
       this.state,
+      this.theme,
       this.connectionFunction
     );
     this.uiManager = new UIManager(

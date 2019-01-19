@@ -9,7 +9,7 @@ export const QuadraticPath = (
   color: string,
   centerPoint: number = 0.5
 ): void => {
-  let centerX = (x1 + x2) / Math.pow(centerPoint, -1);
+  let centerX = x1 + Math.abs(x1 - x2) * centerPoint;
   let ydiff = Math.abs(y2 - y1);
   let cr = ydiff > cornerRadius * 2 ? cornerRadius : Math.floor(ydiff / 2.0);
   let crx = x2 > x1 ? cr : -cr;

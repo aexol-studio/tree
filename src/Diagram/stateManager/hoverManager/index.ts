@@ -23,7 +23,7 @@ export class HoverManager {
       Events.IOEvents.ScreenMouseOverMove,
       this.hoverMenu
     );
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseMove, this.hover);
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseOverMove, this.hover);
   }
   hoverMenu = (e: ScreenPosition) => {
     if (this.state.menu) {
@@ -65,10 +65,9 @@ export class HoverManager {
   hover = (e: ScreenPosition) => {
     const node = this.state.trees.node.pick(e);
     if (!node) {
-      if (this.state.hover.node) {
-        this.state.hover = {};
-        this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      }
+      const link = this.state.trees.link.pick(e);
+      this.state.hover = { link };
+      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;
     }
     const distance = {
