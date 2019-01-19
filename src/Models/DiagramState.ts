@@ -5,7 +5,6 @@ import { ScreenPosition } from "../IO/ScreenPosition";
 import { NodeDefinition } from "./NodeDefinition";
 import { UIState } from "./UIState";
 import { QuadTree } from "../QuadTree/index";
-import { BoundingBox } from "./QuadTree";
 
 export interface DiagramState {
   links: Link[];
@@ -15,8 +14,8 @@ export interface DiagramState {
   selectedLinks: Link[];
   selectedNodes: Node[];
   trees: {
-    node: QuadTree<BoundingBox & { node: Node }>;
-    link: QuadTree<BoundingBox & { link: Link }>;
+    node: QuadTree<Node>;
+    link: QuadTree<Link>;
   };
   renamed?: {
     node?: Node;

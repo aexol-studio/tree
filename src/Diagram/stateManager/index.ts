@@ -12,7 +12,6 @@ import { MinimapManager } from "./minimapManager";
 import { HoverManager } from "./hoverManager";
 import { MenuManager } from "./menuManager/index";
 import { QuadTree } from "../../QuadTree/index";
-import { BoundingBox } from "../../Models/QuadTree";
 
 /**
  * StateManager:
@@ -61,8 +60,8 @@ export class StateManager {
       hover: {},
       hoverMinimap: false,
       trees: {
-        node: new QuadTree<BoundingBox & { node: Node }>(),
-        link: new QuadTree<BoundingBox & { link: Link }>()
+        node: new QuadTree<Node>(),
+        link: new QuadTree<Link>()
       },
       lastPosition: {
         x: 0,

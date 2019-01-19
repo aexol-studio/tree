@@ -2,18 +2,18 @@ import {
   QuadTreeInterface,
   Sides,
   RegionInterface,
-  BoundingBox
+  BoundingBox,
+  DataObjectInTree
 } from "../Models/QuadTree";
 import { Region } from "./Region";
 import { Coords } from "../Models/index";
 
-export class QuadTree<T extends BoundingBox> implements QuadTreeInterface<T> {
-  capacity = 30;
-  objects: T[] = [];
+export class QuadTree<T> implements QuadTreeInterface<T> {
+  objects: DataObjectInTree<T>[] = [];
   sides?: Sides<T>;
-  constructor(public bb: Region = new Region()) {}
-  insert = (node: T) => {
-    if (!this.bb.intersect(node)) {
+  constructor(public bb: Region = new Region(), public capacity: number = 50) {}
+  insert = (node: DataObjectInTree<T>) => {
+    if (!this.bb.intersect(node.bb)) {
       return false;
     }
 
@@ -31,14 +31,22 @@ export class QuadTree<T extends BoundingBox> implements QuadTreeInterface<T> {
     if (this.sides!.se.insert(node)) insertedNode = true;
     return insertedNode;
   };
-  delete = (deleteFunction: (comparedObject: T) => boolean) => {
-    const deletedObject = this.objects.findIndex(deleteFunction);
-    if (deletedObject) return this.objects.splice(deletedObject, 1);
-    if (!this.sides) return;
-    this.sides.ne.delete(deleteFunction);
-    this.sides.nw.delete(deleteFunction);
-    this.sides.se.delete(deleteFunction);
-    this.sides.sw.delete(deleteFunction);
+  delete = (data: T, e: Coords) => {
+    const tree = this.pickTree({
+      ...e
+    })!;
+    let index = 0;
+    for (const o of tree.objects) {
+      if (o.data === data) return tree.objects.splice(index, 1)[0].data;
+      index++;
+    }
+  };
+  update = (data: T, e: Coords, bb: BoundingBox) => {
+    this.delete(data, e);
+    this.insert({
+      data,
+      bb
+    });
   };
   subdivide = () => {
     const c = this.bb.center();
@@ -70,12 +78,13 @@ export class QuadTree<T extends BoundingBox> implements QuadTreeInterface<T> {
       ),
       se: new QuadTree<T>(new Region(c, this.bb.max))
     };
+    for(const object of this.objects) this.insert(object)
   };
   queryRange = (bb: RegionInterface) => {
     const objectsInRange: T[] = [];
     if (!this.bb.intersect(bb)) return objectsInRange;
     for (const o of this.objects) {
-      bb.intersect(o) && objectsInRange.push(o);
+      bb.intersect(o.bb) && objectsInRange.push(o.data);
     }
     if (!this.sides) return objectsInRange;
     const { nw, ne, sw, se } = this.sides;
@@ -89,19 +98,25 @@ export class QuadTree<T extends BoundingBox> implements QuadTreeInterface<T> {
     );
   };
   pick = (e: Coords) => {
-    const objectInRegion = <T extends BoundingBox>(r: T) =>
-      Region.regionContains(r, e);
-    if (!this.bb.contains(e)) return undefined;
-    this.objects.reverse();
-    const returnedObjects = this.objects.filter(objectInRegion);
+    const goToTree = this.pickTree(e)!;
+    const objectInRegion = (o: DataObjectInTree<T>) =>
+      Region.regionContains(o.bb, e);
+    const returnedObjects = goToTree.objects.filter(objectInRegion);
     if (returnedObjects.length > 0)
-      return returnedObjects[returnedObjects.length - 1];
-    if (!this.sides) return undefined;
+      return returnedObjects[returnedObjects.length - 1].data;
+  };
+  pickTree = (e: Coords): QuadTreeInterface<T> | undefined => {
+    if (!this.sides) {
+      if (this.bb.contains(e)) {
+        return this;
+      }
+      return;
+    }
     return (
-      this.sides.ne!.pick(e) ||
-      this.sides.nw!.pick(e) ||
-      this.sides.se!.pick(e) ||
-      this.sides.sw!.pick(e)
+      this.sides.ne.pickTree(e) ||
+      this.sides.nw.pickTree(e) ||
+      this.sides.se.pickTree(e) ||
+      this.sides.sw.pickTree(e)!
     );
   };
 }

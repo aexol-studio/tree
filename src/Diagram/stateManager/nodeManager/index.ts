@@ -6,6 +6,7 @@ import { DiagramTheme, Node } from "../../../Models";
 import { Utils } from "../../../Utils";
 import { Renamer } from "../../../IO/Renamer";
 import { NodeDefinition } from "../../../Models/NodeDefinition";
+import { DataObjectInTree } from "../../../Models/QuadTree";
 
 /**
  * NodeManager:
@@ -31,19 +32,17 @@ export class NodeManager {
       Events.IOEvents.ScreenRightMouseUp,
       this.openNodeMenu
     );
+    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.movedNodes);
   }
   definition = <T extends Pick<Node, "type">>(n: T) =>
     this.state.nodeDefinitions.find(nd => nd.node.type === n.type);
 
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
-
     if (!selectedNodes.length) {
       return;
     }
-
     this.state.uiState.draggingWorld = true;
-
     for (const n of selectedNodes) {
       n.x += e.x - this.state.uiState!.lastDragPosition!.x;
       n.y += e.y - this.state.uiState!.lastDragPosition!.y;
@@ -51,6 +50,18 @@ export class NodeManager {
     this.state.uiState!.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.NodeMoved);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
+  movedNodes = (e: ScreenPosition) => {
+    const { selectedNodes } = this.state;
+    if (!selectedNodes.length) {
+      return;
+    }
+    for (const node of selectedNodes)
+      this.state.trees.node.update(
+        node,
+        { x: node.x, y: node.y },
+        this.createTreeNode(node).bb
+      );
   };
 
   openNodeMenu = (e: ScreenPosition) => {
@@ -185,7 +196,7 @@ export class NodeManager {
       );
     }
     for (const treeNode of n) {
-      this.state.trees.node.delete(n => n.node === treeNode);
+      this.state.trees.node.delete(treeNode, { x: treeNode.x, y: treeNode.y });
     }
     this.state.selectedNodes = this.state.selectedNodes.filter(
       node => !n.find(nn => nn === node)
@@ -198,15 +209,17 @@ export class NodeManager {
     );
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  createTreeNode = (node: Node) => ({
-    node,
-    min: {
-      x: node.x - this.theme.port.width,
-      y: node.y
-    },
-    max: {
-      x: node.x + this.theme.node.width + this.theme.port.width,
-      y: node.y + this.theme.node.height
+  createTreeNode = (data: Node): DataObjectInTree<Node> => ({
+    data,
+    bb: {
+      min: {
+        x: data.x - this.theme.port.width,
+        y: data.y
+      },
+      max: {
+        x: data.x + this.theme.node.width + this.theme.port.width,
+        y: data.y + this.theme.node.height
+      }
     }
   });
   createNode = (e: ScreenPosition, nodeDefinition: NodeDefinition) => {

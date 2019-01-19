@@ -63,15 +63,14 @@ export class HoverManager {
       if (!!(this.state.hover.valueOf() as any)[k]) return true;
   };
   hover = (e: ScreenPosition) => {
-    const hoversNode = this.state.trees.node.pick(e);
-    if (!hoversNode) {
+    const node = this.state.trees.node.pick(e);
+    if (!node) {
       if (this.state.hover.node) {
         this.state.hover = {};
         this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       }
       return;
     }
-    const { node } = hoversNode;
     const distance = {
       x: e.x - node.x,
       y: e.y - node.y

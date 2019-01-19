@@ -1,10 +1,12 @@
 import { RegionInterface, BoundingBox } from "../Models/QuadTree";
 import { Coords } from "../Models/index";
 
+const MAX_INFINITY = 100000000000000000000;
+
 export class Region implements RegionInterface {
   constructor(
-    public min: Coords = { x: -Infinity, y: -Infinity },
-    public max: Coords = { x: Infinity, y: Infinity }
+    public min: Coords = { x: -MAX_INFINITY, y: -MAX_INFINITY },
+    public max: Coords = { x: MAX_INFINITY, y: MAX_INFINITY }
   ) {}
   center = (): Coords => {
     return {
@@ -12,15 +14,18 @@ export class Region implements RegionInterface {
       y: (this.min.y + this.max.y) / 2.0
     };
   };
-  intersect = <T extends BoundingBox>(bb: T) =>
+  intersect = (bb: BoundingBox) =>
     !(
       this.max.x < bb.min.x ||
       bb.max.x < this.min.x ||
       this.max.y < bb.min.y ||
       bb.max.y < this.min.y
     );
-  contains = (p: Coords) => Region.regionContains(this, p);
-  static regionContains = <T extends BoundingBox>(region: T, p: Coords) =>
+  contains = (p: Coords): boolean => Region.regionContains(this, p);
+  static regionContains = <T extends BoundingBox>(
+    region: T,
+    p: Coords
+  ): boolean =>
     region.min.x <= p.x &&
     p.x <= region.max.x &&
     region.min.y <= p.y &&
