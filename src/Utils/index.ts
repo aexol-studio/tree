@@ -1,4 +1,4 @@
-import { Node } from "../Models";
+import { Node, Link, DiagramTheme } from "../Models";
 import { Graph } from "../Models/Graph";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { NodeDefinition } from "../Models/NodeDefinition";
@@ -63,6 +63,15 @@ export class Utils {
       graphs.push(graph);
     }
     return graphs;
+  };
+  static calculateNodesCenterPoint = (
+    link: Link,
+    theme: DiagramTheme,
+    e: ScreenPosition
+  ) => {
+    const distance = Math.abs(link.o.x + theme.node.width - link.i.x);
+    const distanceFromOutput = link.o.x + theme.node.width - e.x;
+    return distanceFromOutput/distance
   };
   static componentToHex = (c: number) => {
     var hex = c.toString(16);

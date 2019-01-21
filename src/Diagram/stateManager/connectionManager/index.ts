@@ -23,11 +23,10 @@ export class ConnectionManager {
       this.startDrawingConnector
     );
     this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseUp,
+      Events.IOEvents.WorldMouseDragEnd,
       this.endDrawingConnector
     );
     this.eventBus.subscribe(Events.DiagramEvents.NodeMoved, this.onNodeMoved);
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.moveLink);
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedLink);
   }
   startDrawingConnector = (e: ScreenPosition) => {
@@ -38,6 +37,7 @@ export class ConnectionManager {
         io,
         initialPos: e
       };
+      this.state.uiState!.draggingWorld = true;
       return;
     }
     this.state.draw = undefined;
@@ -108,11 +108,12 @@ export class ConnectionManager {
     }
     this.state.uiState.draggingWorld = true;
     link.centerPoint = Utils.clamp(
-      (link.o.x + this.theme.node.width - e.x) /
-        (link.o.x + this.theme.node.width - link.i.x),
+      (e.x - link.o.x - this.theme.node.width) /
+        (link.i.x - (this.theme.node.width + link.o.x)),
       0.1,
       0.9
     );
+
     this.state.uiState!.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
@@ -133,8 +134,13 @@ export class ConnectionManager {
   };
   linkToTree = (l: Link): DataObjectInTree<Link> => {
     const { o, i, centerPoint } = l;
-    const xCenter = o.x+this.theme.node.width+(i.x - (this.theme.node.width + o.x)) * centerPoint;
-    console.log(o,i,xCenter)
+    const xCenter =
+      o.x > i.x
+        ? i.x + (o.x - i.x) * centerPoint
+        : o.x +
+          (i.x - o.x + this.theme.node.width + this.theme.port.width) *
+            centerPoint;
+    console.log(xCenter);
     return {
       data: l,
       bb: {

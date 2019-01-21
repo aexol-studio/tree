@@ -160,7 +160,7 @@ export class Renderer {
     if (state.drawedConnection && state.lastPosition) {
       this.activeLinkRenderer.render({
         from: state.draw.initialPos,
-        to: state.drawedConnection
+        to: state.drawedConnection,
       });
     }
   }

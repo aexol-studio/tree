@@ -120,10 +120,13 @@ export class StateManager {
     if (selectedNodes.length > 0) {
       this.nodeManager.moveNodes(e);
     } else if (this.state.draw) {
+      this.hoverManager.hover(e)
       this.connectionManager.drawConnector(e, {
         x: this.state.uiState.panX!,
         y: this.state.uiState.panY!
       });
+    } else if (this.state.hover.link) {
+      this.connectionManager.moveLink(e);
     } else {
       this.uiManager.panScreen(e);
     }
