@@ -78,7 +78,6 @@ export class ConnectionManager {
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;
     }
-    console.log(`connection between input ${i.type} - output ${o.type}`);
     const newLink: Link = {
       o: o,
       i: i,
@@ -107,13 +106,7 @@ export class ConnectionManager {
       return;
     }
     this.state.uiState.draggingWorld = true;
-    link.centerPoint = Utils.clamp(
-      (e.x - link.o.x - this.theme.node.width) /
-        (link.i.x - (this.theme.node.width + link.o.x)),
-      0.1,
-      0.9
-    );
-
+    link.centerPoint = Utils.clamp(Utils.calculateLinkCenterPoint(link, this.theme, e),0.1,0.9)
     this.state.uiState!.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
@@ -133,14 +126,8 @@ export class ConnectionManager {
     );
   };
   linkToTree = (l: Link): DataObjectInTree<Link> => {
-    const { o, i, centerPoint } = l;
-    const xCenter =
-      o.x > i.x
-        ? i.x + (o.x - i.x) * centerPoint
-        : o.x +
-          (i.x - o.x + this.theme.node.width + this.theme.port.width) *
-            centerPoint;
-    console.log(xCenter);
+    const { o, i } = l;
+    const xCenter = Utils.calculateLinkXCenter(l, this.theme);
     return {
       data: l,
       bb: {

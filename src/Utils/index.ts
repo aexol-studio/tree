@@ -64,14 +64,26 @@ export class Utils {
     }
     return graphs;
   };
-  static calculateNodesCenterPoint = (
+  static calculateLinkCenterPoint = (
     link: Link,
     theme: DiagramTheme,
     e: ScreenPosition
   ) => {
-    const distance = Math.abs(link.o.x + theme.node.width - link.i.x);
-    const distanceFromOutput = link.o.x + theme.node.width - e.x;
-    return distanceFromOutput/distance
+    return e.x/(link.o.x+theme.node.width+link.i.x)
+  };
+  static calculateLinkXCenter = (link: Link, theme: DiagramTheme) => {
+    return Utils.calculateLinkXCenterMath(
+      link.o.x + theme.node.width,
+      link.i.x,
+      link.centerPoint
+    );
+  };
+  static calculateLinkXCenterMath = (
+    x1: number,
+    x2: number,
+    centerPoint: number
+  ) => {
+    return (x1 + x2) * centerPoint;
   };
   static componentToHex = (c: number) => {
     var hex = c.toString(16);

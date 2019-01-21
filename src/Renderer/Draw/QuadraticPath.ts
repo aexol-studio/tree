@@ -1,3 +1,5 @@
+import { Utils } from "../../Utils/index";
+
 export const QuadraticPath = (
   context: CanvasRenderingContext2D,
   x1: number,
@@ -9,8 +11,7 @@ export const QuadraticPath = (
   color: string,
   centerPoint: number = 0.5
 ): void => {
-  const centerX =
-    x1 > x2 ? x2 + (x1 - x2) * centerPoint : x1 + (x2 - x1) * centerPoint;
+  const centerX = Utils.calculateLinkXCenterMath(x1,x2,centerPoint)
   let ydiff = Math.abs(y2 - y1);
   let cr = ydiff > cornerRadius * 2 ? cornerRadius : Math.floor(ydiff / 2.0);
   let crx = x2 > x1 ? cr : -cr;
