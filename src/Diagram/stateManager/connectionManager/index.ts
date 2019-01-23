@@ -42,7 +42,7 @@ export class ConnectionManager {
     }
     this.state.draw = undefined;
   };
-  drawConnector = (e: ScreenPosition, pan: ScreenPosition) => {
+  drawConnector = (e: ScreenPosition) => {
     if (!this.state.draw) {
       return;
     }
@@ -50,7 +50,7 @@ export class ConnectionManager {
     if (!io || !node) {
       return;
     }
-    this.state.drawedConnection = { x: e.x - pan.x, y: e.y - pan.y };
+    this.state.drawedConnection = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   makeConnection = (i: Node, o: Node) => {
@@ -105,8 +105,16 @@ export class ConnectionManager {
     if (!link) {
       return;
     }
-    this.state.uiState.draggingWorld = true;
-    link.centerPoint = Utils.clamp(Utils.calculateLinkCenterPoint(link, this.theme, e),0.1,0.9)
+    if (!this.state.uiState.draggingWorld) {
+      this.state.uiState.draggingWorld = true;
+      return;
+    }
+    link.centerPoint = Utils.clamp(
+      Utils.calculateLinkCenterPoint(link, this.theme, e),
+      0.1,
+      0.9
+    );
+    console.log(link.centerPoint)
     this.state.uiState!.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };

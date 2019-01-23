@@ -125,11 +125,18 @@ export class UIManager {
     if (isInsideMinimap && !this.state.draggingWorld) {
       return;
     }
-
-    this.eventBus.publish(Events.IOEvents.WorldMouseDrag, {
+    const withoutPan = {
       x: e.x / this.state.scale,
       y: e.y / this.state.scale,
       shiftKey: e.shiftKey
+    };
+    this.eventBus.publish(Events.IOEvents.WorldMouseDrag, {
+      withoutPan,
+      calculated: {
+        ...withoutPan,
+        x: withoutPan.x - this.state.panX!,
+        y: withoutPan.y - this.state.panY!
+      }
     });
   };
 

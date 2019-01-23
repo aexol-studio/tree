@@ -69,7 +69,7 @@ export class NodeManager {
       return;
     }
     const { node } = this.state.hover;
-    if (node) {
+    if (node && !this.state.menu) {
       this.state.categories = [
         {
           name: "delete",

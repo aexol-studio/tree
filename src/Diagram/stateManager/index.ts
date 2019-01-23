@@ -111,24 +111,26 @@ export class StateManager {
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
   }
-  mouseDrag = (e: ScreenPosition) => {
+  mouseDrag = ({
+    withoutPan,
+    calculated
+  }: {
+    withoutPan: ScreenPosition;
+    calculated: ScreenPosition;
+  }) => {
     if (this.state.uiState.draggingMinimap) {
       return;
     }
-
     const { selectedNodes } = this.state;
     if (selectedNodes.length > 0) {
-      this.nodeManager.moveNodes(e);
+      this.nodeManager.moveNodes(withoutPan);
     } else if (this.state.draw) {
-      this.hoverManager.hover(e)
-      this.connectionManager.drawConnector(e, {
-        x: this.state.uiState.panX!,
-        y: this.state.uiState.panY!
-      });
+      this.hoverManager.hover(calculated);
+      this.connectionManager.drawConnector(calculated);
     } else if (this.state.hover.link) {
-      this.connectionManager.moveLink(e);
+      this.connectionManager.moveLink(calculated);
     } else {
-      this.uiManager.panScreen(e);
+      this.uiManager.panScreen(withoutPan);
     }
   };
   LMBPressed = (e: ScreenPosition) => {

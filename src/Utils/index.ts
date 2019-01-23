@@ -64,12 +64,13 @@ export class Utils {
     }
     return graphs;
   };
-  static calculateLinkCenterPoint = (
+  static calculateLinkCenterPoint = <T extends { x: number }>(
     link: Link,
     theme: DiagramTheme,
-    e: ScreenPosition
+    e: T
   ) => {
-    return e.x/(link.o.x+theme.node.width+link.i.x)
+    const startX = link.o.x + theme.node.width;
+    return (e.x - startX) / (link.i.x - startX);
   };
   static calculateLinkXCenter = (link: Link, theme: DiagramTheme) => {
     return Utils.calculateLinkXCenterMath(
@@ -83,7 +84,8 @@ export class Utils {
     x2: number,
     centerPoint: number
   ) => {
-    return (x1 + x2) * centerPoint;
+    const distance = (x1 - x2) * centerPoint;
+    return x1 - distance;
   };
   static componentToHex = (c: number) => {
     var hex = c.toString(16);

@@ -62,8 +62,8 @@ export class MenuManager {
     if (this.state.draw) {
       return;
     }
-    const { node } = this.state.hover;
-    if (!node) {
+    const { node,link } = this.state.hover;
+    if (!node && !link) {
       this.state.categories = this.state.nodeDefinitions
         .filter(n => n.object)
         .map(
