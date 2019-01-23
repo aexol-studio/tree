@@ -28,10 +28,34 @@ export class ConnectionManager {
     );
     this.eventBus.subscribe(Events.DiagramEvents.NodeMoved, this.onNodeMoved);
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedLink);
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenRightMouseClick,
+      this.openLinkMenu
+    );
   }
+  openLinkMenu = (e: ScreenPosition) => {
+    const { link } = this.state.hover;
+    if (!link || this.state.menu) return;
+    this.state.categories = [
+      {
+        name: "delete",
+        action: () => {
+          this.state.links = this.state.links.filter(l => l !== link);
+          this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+          const linkTree = this.linkToTree(link);
+          this.state.trees.link.delete(link, {
+            ...linkTree.bb.min
+          });
+        }
+      }
+    ];
+    this.state.menu = {
+      position: { ...e }
+    };
+  };
   startDrawingConnector = (e: ScreenPosition) => {
-    const { io, node } = this.state.hover;
-    if (io && node) {
+    const { io, node, menu } = this.state.hover;
+    if (io && node && !menu) {
       this.state.draw = {
         node,
         io,
@@ -114,7 +138,6 @@ export class ConnectionManager {
       0.1,
       0.9
     );
-    console.log(link.centerPoint)
     this.state.uiState!.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
@@ -141,11 +164,11 @@ export class ConnectionManager {
       bb: {
         min: {
           x: xCenter - 15,
-          y: o.y <= i.y ? o.y : i.y
+          y: (o.y <= i.y ? o.y : i.y) + this.theme.node.height / 2.0
         },
         max: {
           x: xCenter + 15,
-          y: o.y > i.y ? o.y : i.y
+          y: (o.y > i.y ? o.y : i.y) + this.theme.node.height / 2.0
         }
       }
     };

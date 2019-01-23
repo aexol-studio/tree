@@ -26,7 +26,7 @@ export class MenuManager {
   ) {
     this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openMenu);
     this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseClick,
+      Events.IOEvents.ScreenLeftMouseUp,
       this.clickMenuItem
     );
     this.eventBus.subscribe(

@@ -7,7 +7,6 @@
 export class IOEvents {
   static LeftMouseClick = "LeftMouseClick";
   static DoubleClick = "DoubleClick";
-  static RightMouseClick = "RightMouseClick";
 
   static ScreenMouseMove = "ScreenMouseMove";
   static ScreenMouseDrag = "ScreenMouseDrag";

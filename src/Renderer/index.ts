@@ -91,7 +91,7 @@ export class Renderer {
       return;
     }
     if (state.hover.link) {
-      this.setCursor("move");
+      this.setCursor("col-resize");
       return;
     }
     this.setCursor("grab");
