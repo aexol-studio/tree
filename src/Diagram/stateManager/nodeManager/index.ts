@@ -86,13 +86,13 @@ export class NodeManager {
             };
             this.renamer.rename(node.name, e => {
               const objectNodeDefinition = this.state.nodeDefinitions.find(
-                nd => !!(nd.parent && nd.node.type === node.name)
+                nd => !!(nd.parent == node.definition)
               );
               node.name = e;
 
               if (node.definition.object && objectNodeDefinition) {
                 for (const stateNode of this.state.nodes) {
-                  if (stateNode.definition === objectNodeDefinition) {
+                  if (stateNode.definition == objectNodeDefinition) {
                     stateNode.type = e;
                   }
                 }

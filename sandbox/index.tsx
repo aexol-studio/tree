@@ -3,6 +3,7 @@ import { render } from "react-dom";
 
 import { Diagram } from "../src/index";
 import { NodeDefinition } from "../src/Models/NodeDefinition";
+import { help } from "./help";
 
 class App extends React.Component {
   private containerRef = React.createRef<HTMLDivElement>();
@@ -24,11 +25,12 @@ class App extends React.Component {
       outputs: null,
       type: name
     });
-    const builtInScalarsNodes = ["string", "ID", "Int", "Float", "Boolean"].map(
+    const builtInScalarsNodes = ["String", "ID", "Int", "Float", "Boolean"].map(
       name =>
         ({
           ...createOND(name),
           description: "Scalar node",
+          help: help[name],
           outputs: []
         } as NodeDefinition["node"])
     );
@@ -47,6 +49,7 @@ class App extends React.Component {
       node =>
         ({
           node,
+          help: help[node.type],
           acceptsInputs: []
         } as NodeDefinition)
     );
@@ -55,6 +58,7 @@ class App extends React.Component {
         ({
           node,
           acceptsInputs: [],
+          help: help[node.type],
           object: true
         } as NodeDefinition)
     );
@@ -63,6 +67,7 @@ class App extends React.Component {
         ({
           node,
           acceptsInputs: [],
+          help: help[node.type],
           object: true
         } as NodeDefinition)
     );
@@ -71,6 +76,7 @@ class App extends React.Component {
         ({
           node,
           acceptsInputs: undefined,
+          help: help[node.type],
           object: true
         } as NodeDefinition)
     );
@@ -78,6 +84,7 @@ class App extends React.Component {
       node =>
         ({
           node,
+          help: help[node.type],
           acceptsInputs: [
             builtInTypeObjects.find(bi => bi.node.type === "type")
           ],
@@ -88,7 +95,8 @@ class App extends React.Component {
       node =>
         ({
           node,
-          acceptsInputs: [builtInScalars.find(bi => bi.node.type === "string")],
+          help: help[node.type],
+          acceptsInputs: [builtInScalars.find(bi => bi.node.type === "String")],
           object: true
         } as NodeDefinition)
     );

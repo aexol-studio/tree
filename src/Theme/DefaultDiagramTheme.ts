@@ -2,7 +2,7 @@ import { DiagramTheme } from "../Models";
 import { Colors } from "./Colors";
 
 export const DefaultDiagramTheme: DiagramTheme = {
-  snappingGridSize:20,
+  snappingGridSize: 20,
   node: {
     width: 180,
     height: 100,
@@ -17,7 +17,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     alpha: 0.8,
     hoverAlpha: 0.9,
     size: 500,
-    margin: 20,
+    margin: 20
   },
   description: {
     width: 300,
@@ -27,12 +27,19 @@ export const DefaultDiagramTheme: DiagramTheme = {
   },
   port: {
     width: 40,
-    gap:2
+    gap: 2
   },
   link: {
     cornerRadius: 5,
     defaultCenterPoint: 0.5,
     strokeWidth: 4
+  },
+  help: {
+    lineHeight:42,
+    text: 24,
+    title: {
+      text: 28
+    }
   },
   menu: {
     width: 400,
@@ -44,7 +51,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     spacing: {
       x: 20,
       y: 100
-    },
+    }
   },
   colors: {
     background: Colors.grey[6],
@@ -62,7 +69,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
       background: Colors.grey[7],
       visibleArea: Colors.grey[5],
       node: Colors.grey[0],
-      borders: Colors.grey[4],
+      borders: Colors.grey[4]
     },
     description: {
       background: Colors.grey[8],
@@ -82,6 +89,11 @@ export const DefaultDiagramTheme: DiagramTheme = {
       background: Colors.grey[3],
       text: Colors.grey[6],
       hover: Colors.grey[1]
+    },
+    help: {
+      background:Colors.grey[7],
+      text: Colors.grey[0],
+      title: Colors.main[0]
     }
   }
 };

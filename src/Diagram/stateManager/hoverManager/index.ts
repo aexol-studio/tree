@@ -41,8 +41,10 @@ export class HoverManager {
             distance.y / this.theme.menu.category.height
           );
           if (!this.state.hover.menu) {
-            this.state.hover.menu = {
-              index: menuItem
+            this.state.hover = {
+              menu: {
+                index: menuItem
+              }
             };
             this.eventBus.publish(Events.DiagramEvents.RenderRequested);
           } else if (this.state.hover.menu!.index !== menuItem) {

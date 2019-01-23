@@ -43,6 +43,13 @@ export interface DiagramTheme {
       y: number;
     };
   };
+  help: {
+    lineHeight:number;
+    title:{
+      text:number
+    }
+    text:number
+  };
   colors: {
     background: string;
     minimap: {
@@ -54,6 +61,11 @@ export interface DiagramTheme {
     menu: {
       background: string;
       hover: string;
+      text: string;
+    };
+    help: {
+      background:string;
+      title: string;
       text: string;
     };
     description: {
@@ -75,7 +87,7 @@ export interface DiagramTheme {
     link: {
       main: string;
       active: string;
-      hover:string;
+      hover: string;
     };
   };
 }

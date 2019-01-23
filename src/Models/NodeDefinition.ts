@@ -9,4 +9,5 @@ export interface NodeDefinition {
   parent?: NodeDefinition;
   maxInputDepth?: number;
   id?: string;
+  help?: string;
 }

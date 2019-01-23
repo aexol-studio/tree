@@ -62,7 +62,7 @@ export class MenuManager {
     if (this.state.draw) {
       return;
     }
-    const { node,link } = this.state.hover;
+    const { node, link } = this.state.hover;
     if (!node && !link) {
       this.state.categories = this.state.nodeDefinitions
         .filter(n => n.object)
@@ -70,6 +70,7 @@ export class MenuManager {
           n =>
             ({
               name: n.node.type,
+              help: n.help,
               action: () => {
                 const currentPos = {
                   x: this.state.lastPosition.x - this.theme.node.width / 2.0,
@@ -96,6 +97,7 @@ export class MenuManager {
     if (nodeD === node && io === ioD && !this.state.menu) {
       const createConnectedNodesCategory = (n: NodeDefinition) => ({
         name: n.node.type,
+        help: n.help,
         action: () => {
           const createdNode = this.nodeManager.createNode(
             this.nodeManager.placeConnectedNode(node, io),
@@ -174,6 +176,7 @@ export class MenuManager {
           }
         };
       }
+      this.state.hover = {};
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };

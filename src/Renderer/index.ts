@@ -11,6 +11,7 @@ import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
 import { DescriptionRenderer } from "./descriptionRenderer";
+import { HelpRenderer } from "./helpRenderer";
 
 /**
  * Renderer.
@@ -26,6 +27,7 @@ export class Renderer {
   // private zoomPan = new ZoomPan();
   private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
+  private helpRenderer: HelpRenderer;
   private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
@@ -45,12 +47,12 @@ export class Renderer {
     private theme: DiagramTheme
   ) {
     this.nodeRenderer = new NodeRenderer(this.context, this.theme);
-    this.nodeRenderer = new NodeRenderer(this.context, this.theme);
     this.descriptionRenderer = new DescriptionRenderer(
       this.context,
       this.theme
     );
     this.menuRenderer = new MenuRenderer(this.context, this.theme);
+    this.helpRenderer = new HelpRenderer(this.context, this.theme);
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
@@ -160,7 +162,7 @@ export class Renderer {
     if (state.drawedConnection && state.lastPosition) {
       this.activeLinkRenderer.render({
         from: state.draw.initialPos,
-        to: state.drawedConnection,
+        to: state.drawedConnection
       });
     }
   }
@@ -199,6 +201,15 @@ export class Renderer {
     const index = state.hover.menu ? state.hover.menu.index : undefined;
     if (state.menu) {
       this.menuRenderer.render(state.menu.position, state.categories, index);
+      if (index !== undefined) {
+        const category = state.categories[index];
+        console.log(category)
+        if (!category.help) return;
+        this.helpRenderer.render({
+          title: category.name,
+          text: category.help
+        });
+      }
     }
   }
 
