@@ -18,7 +18,10 @@ export interface DiagramTheme {
   };
   description: {
     width: number;
-    height: number;
+    fontSize:number;
+    lineHeight:number;
+    paddingHorizontal: number;
+    paddingVertical: number;
     triangleWidth: number;
     triangleHeight: number;
   };

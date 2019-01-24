@@ -69,7 +69,7 @@ export class MenuManager {
         .map(
           n =>
             ({
-              name: n.node.type,
+              name: n.type,
               help: n.help,
               action: () => {
                 const currentPos = {
@@ -96,7 +96,7 @@ export class MenuManager {
 
     if (nodeD === node && io === ioD && !this.state.menu) {
       const createConnectedNodesCategory = (n: NodeDefinition) => ({
-        name: n.node.type,
+        name: n.type,
         help: n.help,
         action: () => {
           const createdNode = this.nodeManager.createNode(
@@ -121,7 +121,7 @@ export class MenuManager {
           .map(
             n =>
               ({
-                name: `${n.node.type} →`,
+                name: `${n.type} →`,
                 children: this.state.nodeDefinitions
                   .filter(nd => nd.parent === n)
                   .map(createConnectedNodesCategory)
@@ -142,7 +142,7 @@ export class MenuManager {
           .map(
             n =>
               ({
-                name: `${n.node.type} →`,
+                name: `${n.type} →`,
                 children: this.state.nodeDefinitions
                   .filter(nd =>
                     Utils.getDefinitionAcceptedInputs(nd).find(

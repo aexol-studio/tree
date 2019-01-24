@@ -203,7 +203,6 @@ export class Renderer {
       this.menuRenderer.render(state.menu.position, state.categories, index);
       if (index !== undefined) {
         const category = state.categories[index];
-        console.log(category)
         if (!category.help) return;
         this.helpRenderer.render({
           title: category.name,

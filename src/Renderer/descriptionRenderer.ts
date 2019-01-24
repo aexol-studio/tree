@@ -1,5 +1,6 @@
 import { Node, DiagramTheme } from "../Models";
 import { Bubble } from "./Draw/Bubble";
+import { MultilineText, TextInLines } from "./Draw/MultilineText";
 export class DescriptionRenderer {
   constructor(
     private context: CanvasRenderingContext2D,
@@ -13,28 +14,46 @@ export class DescriptionRenderer {
   }
   render = ({ node }: { node: Node }) => {
     if (node.description) {
+      const {
+        fontSize,
+        lineHeight,
+        paddingHorizontal,
+        paddingVertical,
+        triangleHeight,
+        triangleWidth,
+        width
+      } = this.theme.description;
+      const textWidth = width - paddingHorizontal * 2;
       this.context.fillStyle = this.theme.colors.description.background;
+      const lineCount = TextInLines(this.context, {
+        width: textWidth,
+        text: node.description
+      });
+      const bubbleHeight = paddingVertical * 2 + lineHeight * lineCount;
       Bubble(
         this.context,
         node.x + this.theme.node.width / 2.0,
         node.y,
-        this.theme.description.width,
-        this.theme.description.height,
-        this.theme.description.triangleWidth,
-        this.theme.description.triangleHeight
+        width,
+        bubbleHeight,
+        triangleWidth,
+        triangleHeight
       );
       this.context.fillStyle = this.theme.colors.description.text;
       this.context.textAlign = "center";
       this.context.textBaseline = "middle";
-
-      this.context.fillText(
-        node.description,
-        node.x + this.theme.node.width / 2.0,
-        node.y -
+      this.context.font = this.getNodeFont(fontSize, "normal");
+      MultilineText(this.context, {
+        x: node.x + this.theme.node.width / 2.0,
+        y:
+          node.y -
           this.theme.description.triangleHeight -
-          this.theme.description.height / 2.0,
-        this.theme.description.width
-      );
+          bubbleHeight +
+          paddingVertical*2,
+        lineHeight,
+        text: node.description,
+        width: textWidth
+      });
     }
   };
 }

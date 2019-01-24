@@ -34,8 +34,6 @@ export class NodeManager {
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
   }
-  definition = <T extends Pick<Node, "type">>(n: T) =>
-    this.state.nodeDefinitions.find(nd => nd.node.type === n.type);
 
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
@@ -63,7 +61,13 @@ export class NodeManager {
       );
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
-
+  renameNode = (node: Node, name: string) => {
+    node.name = name;
+    if (node.editsDefinition) {
+      node.editsDefinition.type = name;
+    }
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
   openNodeMenu = (e: ScreenPosition) => {
     if (this.state.draw) {
       return;
@@ -85,21 +89,7 @@ export class NodeManager {
               node
             };
             this.renamer.rename(node.name, e => {
-              const objectNodeDefinition = this.state.nodeDefinitions.find(
-                nd => !!(nd.parent == node.definition)
-              );
-              node.name = e;
-
-              if (node.definition.object && objectNodeDefinition) {
-                for (const stateNode of this.state.nodes) {
-                  if (stateNode.definition == objectNodeDefinition) {
-                    stateNode.type = e;
-                  }
-                }
-                objectNodeDefinition.node.name = e;
-                objectNodeDefinition.node.type = e;
-              }
-              this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+              this.renameNode(node, e);
             });
           }
         },
@@ -188,13 +178,21 @@ export class NodeManager {
   deleteNodes = (nodes: Node[]) => {
     let n = nodes.filter(node => !node.readonly);
     const definitions = n.map(n => n.definition);
-    for (const nodeDefinition of definitions.filter(d => d.object)) {
+    const objectDefinitions = definitions.filter(d => d.object);
+    const editsDefinition = n
+      .filter(n => n.editsDefinition)
+      .map(n => n.editsDefinition!);
+    //TODO: might be optimised
+    for (const nodeDefinition of objectDefinitions) {
       n = n.concat(
         this.state.nodes.filter(
           node => node.definition.parent === nodeDefinition
         )
       );
     }
+    this.state.nodeDefinitions = this.state.nodeDefinitions.filter(
+      n => !editsDefinition.find(o => o === n)
+    );
     for (const treeNode of n) {
       this.state.trees.node.delete(treeNode, { x: treeNode.x, y: treeNode.y });
     }
@@ -204,9 +202,7 @@ export class NodeManager {
     this.state.nodes = this.state.nodes.filter(
       node => !n.find(nn => nn === node)
     );
-    this.state.links = this.state.links.filter(
-      link => !n.find(nn => nn === link.i || nn === link.o)
-    );
+    this.eventBus.publish(Events.DiagramEvents.NodeDeleted, n);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   createTreeNode = (data: Node): DataObjectInTree<Node> => ({
@@ -228,7 +224,6 @@ export class NodeManager {
     const createdNode: Node = {
       name: "Person",
       id: Utils.generateId(),
-      type: "type",
       description: "Enter your description",
       x: e.x,
       y: e.y,
@@ -244,13 +239,14 @@ export class NodeManager {
         main: undefined,
         parent: nodeDefinition,
         id: Utils.generateId(),
+        type: node.name!,
         node: {
           ...nodeDefinition.node,
           inputs: [],
-          outputs: [],
-          type: node.name!
+          outputs: []
         }
       };
+      createdNode.editsDefinition = newDefinition;
       this.state.nodeDefinitions.push(newDefinition);
     }
     this.state.nodes.push(createdNode);

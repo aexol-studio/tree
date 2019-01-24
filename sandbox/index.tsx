@@ -22,82 +22,66 @@ class App extends React.Component {
       name: `${name}Node`,
       description: `${name} object node`,
       inputs: [],
-      outputs: null,
-      type: name
+      outputs: null
     });
-    const builtInScalarsNodes = ["String", "ID", "Int", "Float", "Boolean"].map(
+    const builtInScalars = ["String", "ID", "Int", "Float", "Boolean"].map(
       name =>
         ({
-          ...createOND(name),
+          node: { ...createOND(name), outputs: [] },
           description: "Scalar node",
           help: help[name],
-          outputs: []
-        } as NodeDefinition["node"])
-    );
-    const builtInTypeObjectNodes = ["type", "interface"].map(createOND);
-    const builtInInputObjectNodes = ["input"].map(createOND);
-    const builtInScalarObjectNodes = ["scalar"].map(
-      name =>
-        ({
-          ...createOND(name),
-          inputs: null
-        } as NodeDefinition["node"])
-    );
-    const builtInUnionObjectNodes = ["union"].map(createOND);
-    const builtInEnumObjectNodes = ["enum"].map(createOND);
-    const builtInScalars: NodeDefinition[] = builtInScalarsNodes.map(
-      node =>
-        ({
-          node,
-          help: help[node.type],
+          type: name,
           acceptsInputs: []
         } as NodeDefinition)
     );
-    const builtInTypeObjects: NodeDefinition[] = builtInTypeObjectNodes.map(
-      node =>
+    const builtInTypeObjects: NodeDefinition[] = ["type", "interface"].map(
+      name =>
         ({
-          node,
+          node: createOND(name),
+          type: name,
           acceptsInputs: [],
-          help: help[node.type],
+          help: help[name],
           object: true
         } as NodeDefinition)
     );
-    const builtInInputObjects: NodeDefinition[] = builtInInputObjectNodes.map(
-      node =>
+    const builtInInputObjects: NodeDefinition[] = ["input"].map(
+      name =>
         ({
-          node,
+          node: createOND(name),
+          type: name,
           acceptsInputs: [],
-          help: help[node.type],
+          help: help[name],
           object: true
         } as NodeDefinition)
     );
-    const builtInScalarObjects: NodeDefinition[] = builtInScalarObjectNodes.map(
-      node =>
+    const builtInScalarObjects: NodeDefinition[] = ["scalar"].map(
+      name =>
         ({
-          node,
-          acceptsInputs: undefined,
-          help: help[node.type],
-          object: true
+          node: { ...createOND(name), inputs: undefined },
+          type: name,
+          help: help[name],
+          object: true,
+          acceptsInputs: undefined
         } as NodeDefinition)
     );
-    const builtInUnionObjects: NodeDefinition[] = builtInUnionObjectNodes.map(
-      node =>
+    const builtInUnionObjects: NodeDefinition[] = ["union"].map(
+      name =>
         ({
-          node,
-          help: help[node.type],
-          acceptsInputs: [
-            builtInTypeObjects.find(bi => bi.node.type === "type")
-          ],
-          object: true
+          node: createOND(name),
+          type: name,
+          help: help[name],
+          object: true,
+          acceptsInputs: [builtInTypeObjects.find(bi => bi.type === "type")]
         } as NodeDefinition)
     );
-    const builtInEnumObjects: NodeDefinition[] = builtInEnumObjectNodes.map(
-      node =>
+    const builtInEnumObjects: NodeDefinition[] = ["enum"].map(
+      name =>
         ({
-          node,
-          help: help[node.type],
-          acceptsInputs: [builtInScalars.find(bi => bi.node.type === "String")],
-          object: true
+          node: createOND(name),
+          type: name,
+          help: help[name],
+          object: true,
+          acceptsInputs: [builtInScalars.find(bi => bi.type === "String")]
         } as NodeDefinition)
     );
     const acceptedArguments = builtInScalars

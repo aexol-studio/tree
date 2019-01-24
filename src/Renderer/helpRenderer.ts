@@ -18,7 +18,7 @@ export class HelpRenderer {
     const { width } = this.context.canvas;
     const basePadding = this.theme.minimap.margin;
     const helpWidth = width - this.theme.minimap.size - basePadding * 3;
-    const helpTextWidth = helpWidth - basePadding * 2;
+    const helpTextWidth = helpWidth - basePadding * 4;
     const {
       help: { text, title, lineHeight: helpLineHeight },
       colors: {
@@ -48,7 +48,7 @@ export class HelpRenderer {
     this.context.font = this.getNodeFont(title.text, "bold");
     this.context.fillText(help.title, x + basePadding * 2, y + basePadding * 2);
     this.context.fillStyle = textColor;
-    this.context.font = this.getNodeFont(text, "normal");
+    this.context.font = this.getNodeFont(text, "100");
     MultilineText(this.context, {
       x: x + basePadding * 2,
       y: y + basePadding * 2 + title.text * 2,

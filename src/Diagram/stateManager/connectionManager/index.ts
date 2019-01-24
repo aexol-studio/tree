@@ -32,21 +32,31 @@ export class ConnectionManager {
       Events.IOEvents.ScreenRightMouseClick,
       this.openLinkMenu
     );
+    this.eventBus.subscribe(
+      Events.DiagramEvents.NodeDeleted,
+      this.onNodesDelete
+    );
   }
+  onNodesDelete = (nodes: Node[]) =>
+    this.state.links
+      .filter(l => nodes.find(n => n === l.i || n === l.o))
+      .forEach(this.deleteLink);
+
+  deleteLink = (link: Link) => {
+    this.state.links = this.state.links.filter(l => l !== link);
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    const linkTree = this.linkToTree(link);
+    this.state.trees.link.delete(link, {
+      ...linkTree.bb.min
+    });
+  };
   openLinkMenu = (e: ScreenPosition) => {
     const { link } = this.state.hover;
     if (!link || this.state.menu) return;
     this.state.categories = [
       {
         name: "delete",
-        action: () => {
-          this.state.links = this.state.links.filter(l => l !== link);
-          this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-          const linkTree = this.linkToTree(link);
-          this.state.trees.link.delete(link, {
-            ...linkTree.bb.min
-          });
-        }
+        action: () => this.deleteLink(link)
       }
     ];
     this.state.menu = {
@@ -86,11 +96,11 @@ export class ConnectionManager {
         return false;
       }
       for (const ai of acceptsInputs) {
-        if (ai.node.type === o.type) {
+        if (ai.type === o.definition.type) {
           return true;
         }
         if (o.definition.parent) {
-          if (ai.node.type === o.definition.parent.node.type) {
+          if (ai.type === o.definition.parent.type) {
             return true;
           }
         }

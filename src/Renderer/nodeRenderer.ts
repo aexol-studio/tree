@@ -57,13 +57,12 @@ export class NodeRenderer {
         node.y! + height / 2.0
       );
     }
-    if (node.type) {
-      this.context.fillStyle = colors.node.types[node.type] || colors.node.name;
-      this.context.font = this.getNodeFont(typeSize, "normal");
-      this.context.textBaseline = "bottom";
-      this.context.textAlign = "end";
-      this.context.fillText(node.type, node.x! + width, node.y!);
-    }
+    this.context.fillStyle =
+      colors.node.types[node.definition.type] || colors.node.name;
+    this.context.font = this.getNodeFont(typeSize, "normal");
+    this.context.textBaseline = "bottom";
+    this.context.textAlign = "end";
+    this.context.fillText(node.definition.type, node.x! + width, node.y!);
     this.context.font = this.getNodeFont(nameSize, "normal");
     this.context.textAlign = "center";
     this.context.textBaseline = "middle";

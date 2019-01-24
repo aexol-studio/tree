@@ -20,10 +20,13 @@ export const DefaultDiagramTheme: DiagramTheme = {
     margin: 20
   },
   description: {
-    width: 300,
-    height: 120,
+    width: 400,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    fontSize: 24,
     triangleHeight: 20,
-    triangleWidth: 20
+    triangleWidth: 20,
+    lineHeight: 36
   },
   port: {
     width: 40,
@@ -35,8 +38,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
     strokeWidth: 4
   },
   help: {
-    lineHeight:42,
-    text: 24,
+    lineHeight: 42,
+    text: 28,
     title: {
       text: 28
     }
@@ -91,8 +94,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
       hover: Colors.grey[1]
     },
     help: {
-      background:Colors.grey[7],
-      text: Colors.grey[0],
+      background: Colors.grey[7],
+      text: Colors.grey[2],
       title: Colors.main[0]
     }
   }
