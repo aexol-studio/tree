@@ -15,10 +15,16 @@
     "start": "tsc --watch",
     "build": "tsc",
     "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open",
-    "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html"
+    "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
     "awesome-typescript-loader": "^5.2.1",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "ts-node": "^8.0.1",
     "typedoc": "^0.14.1"
   }
 }

@@ -4,14 +4,22 @@ import { ScreenPosition } from "../IO/ScreenPosition";
 import { NodeDefinition } from "../Models/NodeDefinition";
 
 export { MinimapUtils } from "./minimapUtils";
+
+function uuidv4() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 /**
  * Utils
  *
  * Various utils.
  */
 export class Utils {
-  static generateId = () =>
-    new Array(crypto.getRandomValues(new Uint8Array(4))).join("-");
+  static generateId = () => uuidv4();
   static between = (a: number, b: number) => (c: number) => c >= a && c <= b;
   static clamp = (v: number, min: number, max: number) =>
     Math.max(Math.min(v, max), min);

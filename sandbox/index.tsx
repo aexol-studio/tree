@@ -74,7 +74,7 @@ class App extends React.Component {
     const builtInScalarObjects: NodeDefinition[] = ["scalar"].map(
       name =>
         ({
-          node: { ...createOND(name), inputs: undefined },
+          node: { ...createOND(name), inputs: null, outputs: null },
           type: name,
           help: help[name],
           object: true,
