@@ -140,10 +140,15 @@ export class UIManager {
     });
   };
 
-  LMBUp = () => {
+  LMBUp = (e: ScreenPosition) => {
     if (this.state.draggingWorld) {
       this.eventBus.publish(Events.IOEvents.WorldMouseDragEnd);
     }
+    this.eventBus.publish(Events.IOEvents.WorldLeftMouseUp, {
+      x: e.x / this.state.scale - this.state.panX!,
+      y: e.y / this.state.scale - this.state.panY!,
+      shiftKey: e.shiftKey
+    });
     this.state.draggingWorld = false;
     this.state.draggingMinimap = false;
   };

@@ -6,9 +6,10 @@ export interface Node {
   description?: string;
   x: number;
   y: number;
+  definition: NodeDefinition;
+  options: string[];
   inputs?: Node[] | null;
   outputs?: Node[] | null;
-  definition: NodeDefinition;
   editsDefinition?: NodeDefinition;
   readonly?: boolean;
 }

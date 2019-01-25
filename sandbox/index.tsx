@@ -4,6 +4,7 @@ import { render } from "react-dom";
 import { Diagram } from "../src/index";
 import { NodeDefinition } from "../src/Models/NodeDefinition";
 import { help } from "./help";
+import { NodeOption } from "../src/Models/NodeOption";
 
 class App extends React.Component {
   private containerRef = React.createRef<HTMLDivElement>();
@@ -24,6 +25,19 @@ class App extends React.Component {
       inputs: [],
       outputs: null
     });
+    const options: NodeOption[] = [
+      {
+        name: "required",
+        help:
+          "Check this if this node is required for creation of the type or is required in input | interface"
+      },
+      {
+        name: "array",
+        help:
+          "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings"
+      }
+    ];
+    const instanceOptions = options;
     const builtInScalars = ["String", "ID", "Int", "Float", "Boolean"].map(
       name =>
         ({
@@ -31,7 +45,8 @@ class App extends React.Component {
           description: "Scalar node",
           help: help[name],
           type: name,
-          acceptsInputs: []
+          acceptsInputs: [],
+          options
         } as NodeDefinition)
     );
     const builtInTypeObjects: NodeDefinition[] = ["type", "interface"].map(
@@ -41,7 +56,8 @@ class App extends React.Component {
           type: name,
           acceptsInputs: [],
           help: help[name],
-          object: true
+          object: true,
+          instanceOptions
         } as NodeDefinition)
     );
     const builtInInputObjects: NodeDefinition[] = ["input"].map(
@@ -51,7 +67,8 @@ class App extends React.Component {
           type: name,
           acceptsInputs: [],
           help: help[name],
-          object: true
+          object: true,
+          instanceOptions
         } as NodeDefinition)
     );
     const builtInScalarObjects: NodeDefinition[] = ["scalar"].map(
@@ -61,7 +78,8 @@ class App extends React.Component {
           type: name,
           help: help[name],
           object: true,
-          acceptsInputs: undefined
+          acceptsInputs: undefined,
+          instanceOptions
         } as NodeDefinition)
     );
     const builtInUnionObjects: NodeDefinition[] = ["union"].map(
@@ -71,7 +89,8 @@ class App extends React.Component {
           type: name,
           help: help[name],
           object: true,
-          acceptsInputs: [builtInTypeObjects.find(bi => bi.type === "type")]
+          acceptsInputs: [builtInTypeObjects.find(bi => bi.type === "type")],
+          instanceOptions
         } as NodeDefinition)
     );
     const builtInEnumObjects: NodeDefinition[] = ["enum"].map(
@@ -81,7 +100,8 @@ class App extends React.Component {
           type: name,
           help: help[name],
           object: true,
-          acceptsInputs: [builtInScalars.find(bi => bi.type === "String")]
+          acceptsInputs: [builtInScalars.find(bi => bi.type === "String")],
+          instanceOptions
         } as NodeDefinition)
     );
     const acceptedArguments = builtInScalars

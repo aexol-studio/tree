@@ -77,12 +77,16 @@ export class NodeManager {
       this.state.categories = [
         {
           name: "delete",
+          help:
+            "Delete all selected nodes. If you are deleting object definitions it will delete instances of this object also",
           action: () => {
             this.deleteNodes([node]);
           }
         },
         {
           name: "rename",
+          help:
+            "Rename currently selected node. If you rename definition it will change the type of instances of course",
           action: () => {
             this.state.selectedNodes = [node];
             this.state.renamed = {
@@ -95,6 +99,7 @@ export class NodeManager {
         },
         {
           name: "renameDescription",
+          help: "Change selected node description",
           action: () => {
             this.state.selectedNodes = [node];
             this.state.renamed = {
@@ -108,6 +113,25 @@ export class NodeManager {
           }
         }
       ];
+      const definitionHasOptions = node.definition.parent
+        ? node.definition.instanceOptions
+        : node.definition.options;
+      if (definitionHasOptions) {
+        this.state.categories = this.state.categories.concat(
+          definitionHasOptions.map(({ help, name }) => ({
+            name,
+            help,
+            action: () => {
+              const hasIndex = node.options.findIndex(n => n === name);
+              if (hasIndex !== -1) {
+                node.options.splice(hasIndex, 1);
+                return;
+              }
+              node.options.push(name);
+            }
+          }))
+        );
+      }
       this.state.menu = {
         position: { ...e }
       };
@@ -229,6 +253,7 @@ export class NodeManager {
       y: e.y,
       inputs: [],
       outputs: [],
+      options: [],
       definition: nodeDefinition,
       ...node
     };

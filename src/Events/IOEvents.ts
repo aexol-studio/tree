@@ -22,6 +22,7 @@ export class IOEvents {
   static WorldMouseDrag = "WorldMouseDrag";
   static WorldMouseDragEnd = "WorldMouseDragEnd";
   static WorldLeftMouseClick = "WorldLeftMouseClick";
+  static WorldLeftMouseUp = "WorldLeftMouseUp";
 
   static MinimapMouseMove = "MinimapMouseMove";
   static MinimapLeftMouseClick = "MinimapLeftMouseClick";

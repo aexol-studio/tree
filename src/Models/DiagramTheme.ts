@@ -9,6 +9,9 @@ export interface DiagramTheme {
       x: number;
       y: number;
     };
+    options: {
+      fontSize: number;
+    };
   };
   minimap: {
     alpha: number;
@@ -18,8 +21,8 @@ export interface DiagramTheme {
   };
   description: {
     width: number;
-    fontSize:number;
-    lineHeight:number;
+    fontSize: number;
+    lineHeight: number;
     paddingHorizontal: number;
     paddingVertical: number;
     triangleWidth: number;
@@ -47,11 +50,11 @@ export interface DiagramTheme {
     };
   };
   help: {
-    lineHeight:number;
-    title:{
-      text:number
-    }
-    text:number
+    lineHeight: number;
+    title: {
+      text: number;
+    };
+    text: number;
   };
   colors: {
     background: string;
@@ -67,7 +70,7 @@ export interface DiagramTheme {
       text: string;
     };
     help: {
-      background:string;
+      background: string;
       title: string;
       text: string;
     };
@@ -81,6 +84,7 @@ export interface DiagramTheme {
       name: string;
       type: string;
       types: Record<string, string>;
+      options: Record<string, string>;
     };
     port: {
       background: string;

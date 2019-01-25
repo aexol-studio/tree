@@ -11,6 +11,9 @@ export const DefaultDiagramTheme: DiagramTheme = {
     spacing: {
       x: 100,
       y: 100
+    },
+    options: {
+      fontSize: 18
     }
   },
   minimap: {
@@ -66,6 +69,10 @@ export const DefaultDiagramTheme: DiagramTheme = {
       types: {
         string: Colors.green[0],
         type: Colors.main[0]
+      },
+      options: {
+        required: Colors.red[0],
+        array: Colors.yellow[0]
       }
     },
     minimap: {

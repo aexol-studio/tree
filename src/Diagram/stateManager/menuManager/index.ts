@@ -30,7 +30,7 @@ export class MenuManager {
       this.clickMenuItem
     );
     this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseUp,
+      Events.IOEvents.WorldLeftMouseUp,
       this.openPortMenu
     );
     this.eventBus.subscribe(
@@ -91,7 +91,11 @@ export class MenuManager {
     if (!this.state.draw) {
       return;
     }
+    const nodePick = this.state.trees.node.pick(e);
     const { io, node } = this.state.hover;
+    if (nodePick !== node) {
+      return;
+    }
     const { io: ioD, node: nodeD } = this.state.draw;
 
     if (nodeD === node && io === ioD && !this.state.menu) {

@@ -26,7 +26,7 @@ export class NodeRenderer {
   }) => {
     const {
       colors,
-      node: { width, height, nameSize, typeSize },
+      node: { width, height, nameSize, typeSize, options },
       port
     } = this.theme;
     this.context.fillStyle = colors.node.background;
@@ -121,6 +121,20 @@ export class NodeRenderer {
           y: node.y,
           radius: 0
         });
+    }
+    if (node.options) {
+      let xCounter = 0;
+      node.options.forEach(o => {
+        this.context.fillStyle = colors.node.options[o] || colors.node.name;
+        this.context.font = this.getNodeFont(options.fontSize, "normal");
+        this.context.fillText(
+          o,
+          node.x + xCounter,
+          node.y + height + options.fontSize,
+          width
+        );
+        xCounter += this.context.measureText(o).width + options.fontSize/2;
+      });
     }
   };
 }
