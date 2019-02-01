@@ -29,21 +29,6 @@ export class StateManager {
   minimapManager: MinimapManager;
   private uiManager: UIManager;
   private hoverManager: HoverManager;
-  getState() {
-    return {
-      ...this.state
-    };
-  }
-  pureState = () => this.state;
-  setDefinitions(nodeDefinitions: NodeDefinition[]) {
-    this.state.nodeDefinitions = nodeDefinitions;
-    for (const nd of this.state.nodeDefinitions) {
-      if (!nd.id) {
-        nd.id = Utils.generateId();
-      }
-    }
-  }
-
   constructor(
     private eventBus: EventBus,
     private theme: DiagramTheme,
@@ -110,7 +95,35 @@ export class StateManager {
       this.LMBPressed
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
+    this.eventBus.subscribe(
+      Events.DiagramEvents.RebuildTreeRequested,
+      this.rebuildTrees
+    );
   }
+  getState() {
+    return {
+      ...this.state
+    };
+  }
+  pureState = () => this.state;
+  setDefinitions(nodeDefinitions: NodeDefinition[]) {
+    this.state.nodeDefinitions = nodeDefinitions;
+    for (const nd of this.state.nodeDefinitions) {
+      if (!nd.id) {
+        nd.id = Utils.generateId();
+      }
+    }
+  }
+  setNodes(nodes: Node[]) {
+    this.nodeManager.loadNodes(nodes);
+  }
+  setLinks(links: Link[]) {
+    this.connectionManager.loadLinks(links);
+  }
+  rebuildTrees = () => {
+    this.nodeManager.rebuildTree();
+    this.connectionManager.rebuildTree();
+  };
   mouseDrag = ({
     withoutPan,
     calculated

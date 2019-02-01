@@ -3,7 +3,8 @@
   "exclude": ["node_modules", "sandbox"],
   "compilerOptions": {
     "target": "es5",
-    "outDir": "dist",
+    "outDir": "lib",
+    "declaration": true,
     "rootDirs": ["src", "sandbox"],
     "jsx": "react",
     "module": "commonjs",

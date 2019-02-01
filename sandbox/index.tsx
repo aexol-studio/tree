@@ -5,19 +5,15 @@ import { Diagram } from "../src/index";
 import { NodeDefinition } from "../src/Models/NodeDefinition";
 import { help } from "./help";
 import { NodeOption } from "../src/Models/NodeOption";
+import { Colors } from "../src/Theme/Colors";
 
 class App extends React.Component {
   private containerRef = React.createRef<HTMLDivElement>();
   diagram?: Diagram = undefined;
-  setupSizes() {
-    this.containerRef.current!.style.width = "100%";
-    this.containerRef.current!.style.height = "100%";
-  }
   componentDidMount() {
     if (!this.containerRef.current) {
       return;
     }
-    this.setupSizes();
     this.diagram = new Diagram(this.containerRef.current);
     const createOND = (name: string): NodeDefinition["node"] => ({
       name: `${name}Node`,
@@ -139,7 +135,38 @@ class App extends React.Component {
     this.diagram!.setDefinitions(nodeDefinitions);
   }
   render() {
-    return <div ref={this.containerRef} />;
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "grid",
+          gridTemplateRows: "auto 1fr"
+        }}
+      >
+        <div
+          style={{
+            background: Colors.grey[4]
+          }}
+        >
+          TOP BAR
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr" }}>
+          <div
+            style={{
+              background: Colors.grey[5],
+              padding: 20,
+              color: Colors.grey[3],
+              width: 400
+            }}
+          >
+            Running canvas component. Press Right mouse button anywhere on
+            canvas to start adding nodes
+          </div>
+          <div style={{}} ref={this.containerRef} />
+        </div>
+      </div>
+    );
   }
 }
 

@@ -12,6 +12,8 @@ export class DiagramEvents {
   static NodeDeleted = "NodeDeleted";
   static LinkCreated = "LinkCreated";
   static DrawingLink = "DrawingLink";
+  static PickRequested = "PickRequested";
+  static RebuildTreeRequested = "RebuildTreeRequested";
   static RenderRequested = "RenderRequested";
   // ...
 }

@@ -2,11 +2,10 @@ import { EventBus } from "../../../EventBus";
 import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { DiagramTheme, Node } from "../../../Models";
-import { Utils } from "../../../Utils";
+import { DiagramTheme, Node, NodeDefinition } from "../../../Models";
 import { Renamer } from "../../../IO/Renamer";
-import { NodeDefinition } from "../../../Models/NodeDefinition";
-import { DataObjectInTree } from "../../../Models/QuadTree";
+import { NodeUtils } from "../../../Utils/nodeUtils";
+import { QuadTree } from "../../../QuadTree";
 
 /**
  * NodeManager:
@@ -34,7 +33,18 @@ export class NodeManager {
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
   }
-
+  rebuildTree = () => {
+    this.state.trees.node = new QuadTree<Node>();
+    this.state.nodes.forEach(n =>
+      this.state.trees.node.insert(NodeUtils.createTreeNode(n, this.theme))
+    );
+  };
+  loadNodes = (nodes: Node[]) => {
+    this.state.nodes = nodes;
+    nodes.forEach(node => {
+      this.state.trees.node.insert(NodeUtils.createTreeNode(node, this.theme));
+    });
+  };
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
     if (!selectedNodes.length) {
@@ -57,7 +67,7 @@ export class NodeManager {
       this.state.trees.node.update(
         node,
         { x: node.x, y: node.y },
-        this.createTreeNode(node).bb
+        NodeUtils.createTreeNode(node, this.theme).bb
       );
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
@@ -111,6 +121,25 @@ export class NodeManager {
               this.eventBus.publish(Events.DiagramEvents.RenderRequested);
             });
           }
+        },
+        {
+          name: "beautify graph",
+          help: "Beautify graph and put nodes in good positions",
+          action: () => {
+            const graph = NodeUtils.graphFromNode(node);
+            NodeUtils.positionGraph(graph, this.theme);
+            const graph2 = NodeUtils.graphFromNode(node);
+            const diff = {
+              x: graph.center.x - graph2.center.x,
+              y: graph.center.y - graph2.center.y
+            };
+            graph2.nodes.forEach(n => {
+              n.x += diff.x;
+              n.y += diff.y;
+            });
+            this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
+            this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+          }
         }
       ];
       const definitionHasOptions = node.definition.parent
@@ -141,7 +170,7 @@ export class NodeManager {
   graphSelect = (e: ScreenPosition) => {
     const { node, io } = this.state.hover;
     if (node && !io) {
-      const nodeGraph = Utils.graphFromNode(node);
+      const nodeGraph = NodeUtils.graphFromNode(node);
       this.state.selectedNodes = nodeGraph.nodes;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
@@ -229,53 +258,16 @@ export class NodeManager {
     this.eventBus.publish(Events.DiagramEvents.NodeDeleted, n);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  createTreeNode = (data: Node): DataObjectInTree<Node> => ({
-    data,
-    bb: {
-      min: {
-        x: data.x - this.theme.port.width,
-        y: data.y
-      },
-      max: {
-        x: data.x + this.theme.node.width + this.theme.port.width,
-        y: data.y + this.theme.node.height
-      }
-    }
-  });
   createNode = (e: ScreenPosition, nodeDefinition: NodeDefinition) => {
-    const { node: nodeSettings } = nodeDefinition;
-    const node: NodeDefinition["node"] = Utils.deepCopy(nodeSettings);
-    const createdNode: Node = {
-      name: "Person",
-      id: Utils.generateId(),
-      description: "Enter your description",
-      x: e.x,
-      y: e.y,
-      inputs: [],
-      outputs: [],
-      options: [],
-      definition: nodeDefinition,
-      ...node
-    };
-    if (nodeDefinition.object) {
-      const newDefinition: NodeDefinition = {
-        ...nodeDefinition,
-        object: undefined,
-        main: undefined,
-        parent: nodeDefinition,
-        id: Utils.generateId(),
-        type: node.name!,
-        node: {
-          ...nodeDefinition.node,
-          inputs: [],
-          outputs: []
-        }
-      };
-      createdNode.editsDefinition = newDefinition;
-      this.state.nodeDefinitions.push(newDefinition);
-    }
+    const createdNode: Node = NodeUtils.createNode(
+      e,
+      nodeDefinition,
+      this.state.nodeDefinitions
+    );
     this.state.nodes.push(createdNode);
-    this.state.trees.node.insert(this.createTreeNode(createdNode));
+    this.state.trees.node.insert(
+      NodeUtils.createTreeNode(createdNode, this.theme)
+    );
     this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;

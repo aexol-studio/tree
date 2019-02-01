@@ -1,14 +1,17 @@
 import { EventBus } from "../../../EventBus";
-import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { DiagramTheme, Category } from "../../../Models";
-import { NodeManager } from "../nodeManager/index";
-import { HoverManager } from "../hoverManager/index";
-import { Utils } from "../../../Utils/index";
-import { ConnectionManager } from "../connectionManager/index";
-import { UIManager } from "../uiManager/index";
-import { NodeDefinition } from "../../../Models/NodeDefinition";
+import {
+  DiagramTheme,
+  Category,
+  NodeDefinition,
+  DiagramState
+} from "../../../Models";
+import { NodeManager } from "../nodeManager";
+import { HoverManager } from "../hoverManager";
+import { NodeUtils } from "../../../Utils";
+import { ConnectionManager } from "../connectionManager";
+import { UIManager } from "../uiManager";
 
 /**
  * MenuManager:
@@ -88,17 +91,12 @@ export class MenuManager {
     }
   };
   openPortMenu = (e: ScreenPosition) => {
-    if (!this.state.draw) {
+    if (this.state.menu) {
       return;
     }
-    const nodePick = this.state.trees.node.pick(e);
+    this.eventBus.publish(Events.DiagramEvents.PickRequested, e);
     const { io, node } = this.state.hover;
-    if (nodePick !== node) {
-      return;
-    }
-    const { io: ioD, node: nodeD } = this.state.draw;
-
-    if (nodeD === node && io === ioD && !this.state.menu) {
+    if (node && io) {
       const createConnectedNodesCategory = (n: NodeDefinition) => ({
         name: n.type,
         help: n.help,
@@ -117,10 +115,10 @@ export class MenuManager {
       let staticCategories: Category[] = [];
       let dynamicCategories: Category[] = [];
       if (io === "i" && definition.acceptsInputs) {
-        staticCategories = Utils.getDefinitionAcceptedInputs(definition)
+        staticCategories = NodeUtils.getDefinitionAcceptedInputs(definition)
           .filter(n => !n.object)
           .map(createConnectedNodesCategory);
-        dynamicCategories = Utils.getDefinitionAcceptedInputs(definition)
+        dynamicCategories = NodeUtils.getDefinitionAcceptedInputs(definition)
           .filter(n => n.object)
           .map(
             n =>
@@ -136,7 +134,7 @@ export class MenuManager {
         staticCategories = this.state.nodeDefinitions
           .filter(n => !n.object && !(n.parent && n.parent.object))
           .filter(nd =>
-            Utils.getDefinitionAcceptedInputs(nd).find(
+            NodeUtils.getDefinitionAcceptedInputs(nd).find(
               ai => ai === definition || ai === definition.parent
             )
           )
@@ -149,7 +147,7 @@ export class MenuManager {
                 name: `${n.type} →`,
                 children: this.state.nodeDefinitions
                   .filter(nd =>
-                    Utils.getDefinitionAcceptedInputs(nd).find(
+                    NodeUtils.getDefinitionAcceptedInputs(nd).find(
                       ai => ai === definition || ai === definition.parent
                     )
                   )

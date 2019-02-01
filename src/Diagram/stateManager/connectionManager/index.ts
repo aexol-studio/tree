@@ -3,8 +3,10 @@ import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
 import { Node, Link, DiagramTheme } from "../../../Models";
-import { Utils } from "../../../Utils";
+import { Utils, NodeUtils } from "../../../Utils";
 import { DataObjectInTree } from "../../../Models/QuadTree";
+import { LinkUtils } from "../../../Utils/linkUtils";
+import { QuadTree } from "../../../QuadTree/index";
 
 /**
  * ConnectionManager:
@@ -37,6 +39,15 @@ export class ConnectionManager {
       this.onNodesDelete
     );
   }
+  loadLinks = (links: Link[]) => {
+    this.state.links = links;
+  };
+  rebuildTree = () => {
+    this.state.trees.link = new QuadTree<Link>();
+    this.state.links.forEach(l =>
+      this.state.trees.link.insert(LinkUtils.linkToTree(l, this.theme))
+    );
+  };
   onNodesDelete = (nodes: Node[]) =>
     this.state.links
       .filter(l => nodes.find(n => n === l.i || n === l.o))
@@ -87,11 +98,15 @@ export class ConnectionManager {
     this.state.drawedConnection = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+  cancelDrawing = () => {
+    this.state.drawedConnection = undefined;
+    this.state.draw = undefined;
+  };
   makeConnection = (i: Node, o: Node) => {
     const linkExists = () =>
       !!this.state.links.find(l => l.i === i && l.o === o);
     const correctType = () => {
-      const acceptsInputs = Utils.getDefinitionAcceptedInputs(i.definition);
+      const acceptsInputs = NodeUtils.getDefinitionAcceptedInputs(i.definition);
       if (!acceptsInputs) {
         return false;
       }
@@ -144,7 +159,7 @@ export class ConnectionManager {
       return;
     }
     link.centerPoint = Utils.clamp(
-      Utils.calculateLinkCenterPoint(link, this.theme, e),
+      LinkUtils.calculateLinkCenterPoint(link, e, this.theme),
       0.1,
       0.9
     );
@@ -166,23 +181,8 @@ export class ConnectionManager {
       linkTree.bb
     );
   };
-  linkToTree = (l: Link): DataObjectInTree<Link> => {
-    const { o, i } = l;
-    const xCenter = Utils.calculateLinkXCenter(l, this.theme);
-    return {
-      data: l,
-      bb: {
-        min: {
-          x: xCenter - 15,
-          y: (o.y <= i.y ? o.y : i.y) + this.theme.node.height / 2.0
-        },
-        max: {
-          x: xCenter + 15,
-          y: (o.y > i.y ? o.y : i.y) + this.theme.node.height / 2.0
-        }
-      }
-    };
-  };
+  linkToTree = (l: Link): DataObjectInTree<Link> =>
+    LinkUtils.linkToTree(l, this.theme);
   endDrawingConnector = (e: ScreenPosition) => {
     if (!this.state.draw) {
       return;
@@ -198,7 +198,7 @@ export class ConnectionManager {
           : this.state.draw!.node;
       this.makeConnection(input, output);
     }
-    this.state.drawedConnection = undefined;
+    this.cancelDrawing();
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
 }

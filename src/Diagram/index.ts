@@ -2,7 +2,7 @@ import { Renderer } from "../Renderer";
 import { EventBus } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
-import { DiagramTheme, Node, Size } from "../Models";
+import { DiagramTheme, Node, Size, Link } from "../Models";
 
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 import { NodeDefinition } from "../Models/NodeDefinition";
@@ -18,19 +18,28 @@ export class Diagram {
   private renderer: Renderer;
   private eventBus: EventBus;
   private currentHostSize: Size;
-  public stateManager: StateManager;
+  private stateManager: StateManager;
 
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
   }
-
+  setNodes(nodes: Node[]) {
+    this.stateManager.setNodes(nodes);
+  }
+  setLinks(links: Link[]) {
+    this.stateManager.setLinks(links);
+  }
+  rebuildTrees() {
+    this.stateManager.rebuildTrees();
+  }
   calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
 
   wireUpResizer(domElement: HTMLElement, canvasElement: HTMLCanvasElement) {
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       const newHostSize = this.calculateElementSize(domElement);
+      console.log(newHostSize);
       if (
         newHostSize.width !== this.currentHostSize.width ||
         newHostSize.height !== this.currentHostSize.height
@@ -39,7 +48,7 @@ export class Diagram {
 
         const areaSize = {
           width: newHostSize.width * 2,
-          height: newHostSize.height * 2,
+          height: newHostSize.height * 2
         };
 
         canvasElement.width = areaSize.width;
@@ -48,7 +57,10 @@ export class Diagram {
         canvasElement.style.width = `${newHostSize.width}px`;
         canvasElement.style.height = `${newHostSize.height}px`;
 
-        this.stateManager.areaResized({ width: canvasElement.width, height: canvasElement.height });
+        this.stateManager.areaResized({
+          width: canvasElement.width,
+          height: canvasElement.height
+        });
       }
     });
   }
@@ -80,7 +92,7 @@ export class Diagram {
 
     const areaSize = {
       width: hostSize.width * 2,
-      height: hostSize.height * 2,
+      height: hostSize.height * 2
     };
 
     canvasElement.width = areaSize.width;
@@ -112,7 +124,7 @@ export class Diagram {
       this.eventBus,
       theme,
       connectionFunction,
-      areaSize,
+      areaSize
     );
 
     // initialize renderer

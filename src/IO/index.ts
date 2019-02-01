@@ -23,8 +23,8 @@ export class IO {
 
     element.addEventListener("mousemove", e => {
       e.preventDefault();
-      this.currentScreenPosition.x = e.clientX * 2;
-      this.currentScreenPosition.y = e.clientY * 2;
+      this.currentScreenPosition.x = e.clientX * 2 - element.offsetLeft * 2;
+      this.currentScreenPosition.y = e.clientY * 2 - element.offsetTop * 2;
       const mpl = this.createMouseEventPayload();
       this.eventBus.publish(Events.IOEvents.ScreenMouseMove, mpl);
       if (this.leftMouseButtonDown) {
@@ -44,7 +44,7 @@ export class IO {
         Events.IOEvents.ScreenMouseWheel,
         delta,
         coords.x,
-        coords.y,
+        coords.y
       );
     });
     element.addEventListener("mouseup", e => {
@@ -88,7 +88,6 @@ export class IO {
       }
     });
     element.addEventListener("keydown", e => {
-
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
       }

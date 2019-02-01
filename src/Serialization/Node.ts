@@ -2,33 +2,40 @@ import { Node } from "../Models/Node";
 import { NodeDefinition } from "../Models/NodeDefinition";
 
 export interface NodeDefinitionSerialized
-  extends Pick<NodeDefinition, "type" | "object" | "main"> {}
-
+  extends Pick<NodeDefinition, "type" | "object" | "main"> {
+  parent?: NodeDefinitionSerialized;
+}
 export interface NodeSerialized
   extends Pick<
     Node,
     "id" | "name" | "description" | "x" | "y" | "options" | "readonly"
   > {
-  definition: Pick<NodeDefinition, "type" | "object" | "main">;
-  editsDefinition?: Pick<NodeDefinition, "type" | "object" | "main">;
+  definition: NodeDefinitionSerialized;
+  editsDefinition?: NodeDefinitionSerialized;
 }
 
 export const serializeNodeDefinition = ({
   type,
   object,
-  main
+  main,
+  parent
 }: NodeDefinition): NodeDefinitionSerialized => ({
   main,
   object,
-  type
+  type,
+  parent: parent && serializeNodeDefinition(parent)
 });
 
 export const deserializeNodeDefinition = (
-  { type, object, main }: NodeDefinitionSerialized,
+  { type, object, main, parent }: NodeDefinitionSerialized,
   definitions: NodeDefinition[]
 ): NodeDefinition => {
   return definitions.find(
-    d => d.type === type && d.object === object && d.main === main
+    d =>
+      d.type === type &&
+      d.object === object &&
+      d.main === main &&
+      (parent && d.parent ? d.parent.type === parent.type : true)
   )!;
 };
 
@@ -51,9 +58,7 @@ export const serializeNode = ({
   options,
   readonly,
   definition: serializeNodeDefinition(definition),
-  editsDefinition: editsDefinition
-    ? serializeNodeDefinition(editsDefinition)
-    : undefined
+  editsDefinition: editsDefinition && serializeNodeDefinition(editsDefinition)
 });
 
 export const deserializeNode = (
@@ -79,8 +84,7 @@ export const deserializeNode = (
     description,
     readonly,
     definition: deserializeNodeDefinition(definition, definitions),
-    editsDefinition: editsDefinition
-      ? deserializeNodeDefinition(editsDefinition, definitions)
-      : undefined
+    editsDefinition:
+      editsDefinition && deserializeNodeDefinition(editsDefinition, definitions)
   };
 };

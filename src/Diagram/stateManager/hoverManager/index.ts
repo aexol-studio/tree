@@ -24,6 +24,7 @@ export class HoverManager {
       this.hoverMenu
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseOverMove, this.hover);
+    this.eventBus.subscribe(Events.DiagramEvents.PickRequested, this.hover);
   }
   hoverMenu = (e: ScreenPosition) => {
     if (this.state.menu) {

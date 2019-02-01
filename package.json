@@ -1,4 +1,8 @@
 {
+  "name": "graphsource",
+  "version": "0.99.1",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "dependencies": {
     "@babel/core": "^7.2.2",
     "@types/react": "^16.7.18",
