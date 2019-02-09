@@ -5,12 +5,19 @@ export interface DiagramTheme {
     height: number;
     nameSize: number;
     typeSize: number;
+    maxCharacters: number;
     spacing: {
       x: number;
       y: number;
     };
     options: {
       fontSize: number;
+    };
+  };
+  graph: {
+    spacing: {
+      x: number;
+      y: number;
     };
   };
   minimap: {

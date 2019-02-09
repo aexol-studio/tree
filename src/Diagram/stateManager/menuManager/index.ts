@@ -5,7 +5,8 @@ import {
   DiagramTheme,
   Category,
   NodeDefinition,
-  DiagramState
+  DiagramState,
+  AcceptedNodeDefinition
 } from "../../../Models";
 import { NodeManager } from "../nodeManager";
 import { HoverManager } from "../hoverManager";
@@ -69,6 +70,7 @@ export class MenuManager {
     if (!node && !link) {
       this.state.categories = this.state.nodeDefinitions
         .filter(n => n.object)
+        .filter(n => !n.hidden)
         .map(
           n =>
             ({
@@ -97,7 +99,7 @@ export class MenuManager {
     this.eventBus.publish(Events.DiagramEvents.PickRequested, e);
     const { io, node } = this.state.hover;
     if (node && io) {
-      const createConnectedNodesCategory = (n: NodeDefinition) => ({
+      const createConnectedNodesCategory = (n: NodeDefinition): Category => ({
         name: n.type,
         help: n.help,
         action: () => {
@@ -111,53 +113,25 @@ export class MenuManager {
           );
         }
       });
+      const createTopicCategory = (defs: AcceptedNodeDefinition): Category =>
+        defs.definition
+          ? createConnectedNodesCategory(defs.definition)
+          : {
+              name: defs.category!.name,
+              children: defs.category!.definitions.map(createTopicCategory)
+            };
       let { definition } = node;
-      let staticCategories: Category[] = [];
-      let dynamicCategories: Category[] = [];
-      if (io === "i" && definition.acceptsInputs) {
-        staticCategories = NodeUtils.getDefinitionAcceptedInputs(definition)
-          .filter(n => !n.object)
-          .map(createConnectedNodesCategory);
-        dynamicCategories = NodeUtils.getDefinitionAcceptedInputs(definition)
-          .filter(n => n.object)
-          .map(
-            n =>
-              ({
-                name: `${n.type} →`,
-                children: this.state.nodeDefinitions
-                  .filter(nd => nd.parent === n)
-                  .map(createConnectedNodesCategory)
-              } as Category)
-          )
-          .filter(c => c.children!.length > 0);
-      } else if (io === "o") {
-        staticCategories = this.state.nodeDefinitions
-          .filter(n => !n.object && !(n.parent && n.parent.object))
-          .filter(nd =>
-            NodeUtils.getDefinitionAcceptedInputs(nd).find(
-              ai => ai === definition || ai === definition.parent
-            )
-          )
-          .map(createConnectedNodesCategory);
-        dynamicCategories = this.state.nodeDefinitions
-          .filter(n => n.object)
-          .map(
-            n =>
-              ({
-                name: `${n.type} →`,
-                children: this.state.nodeDefinitions
-                  .filter(nd =>
-                    NodeUtils.getDefinitionAcceptedInputs(nd).find(
-                      ai => ai === definition || ai === definition.parent
-                    )
-                  )
-                  .filter(nd => nd.parent === n)
-                  .map(createConnectedNodesCategory)
-              } as Category)
-          )
-          .filter(c => c.children!.length > 0);
+      if (io === "i" && node.inputs) {
+        this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
+          definition,
+          this.state.nodeDefinitions
+        ).map(createTopicCategory);
+      } else if (io === "o" && node.outputs) {
+        this.state.categories = NodeUtils.getDefinitionAcceptedOutputCategories(
+          definition,
+          this.state.nodeDefinitions
+        ).map(createTopicCategory);
       }
-      this.state.categories = staticCategories.concat(dynamicCategories);
       if (this.state.categories.length) {
         const { menu, port } = this.theme;
         const NodeScreenPosition = this.uiManager.worldToScreen({
@@ -177,6 +151,19 @@ export class MenuManager {
             y: NodeScreenPosition.y
           }
         };
+      }
+      const categories = node.definition.categories;
+      if (categories) {
+        if (io === "i" && categories.inputs) {
+          this.state.categories = this.state.categories.concat(
+            categories.inputs
+          );
+        }
+        if (io === "o" && categories.outputs) {
+          this.state.categories = this.state.categories.concat(
+            categories.outputs
+          );
+        }
       }
       this.state.hover = {};
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);

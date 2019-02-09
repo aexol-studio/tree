@@ -12,6 +12,8 @@ import { MinimapManager } from "./minimapManager";
 import { HoverManager } from "./hoverManager";
 import { MenuManager } from "./menuManager/index";
 import { QuadTree } from "../../QuadTree/index";
+import { ChangesManager } from "./changesManager/index";
+import { Serializer } from "../../Serialization/index";
 
 /**
  * StateManager:
@@ -60,7 +62,9 @@ export class StateManager {
         areaSize,
         draggingWorld: false,
         draggingMinimap: false
-      }
+      },
+      serialisationFunction: Serializer.serialize,
+      positionSerialisationFunction: Serializer.serialize
     };
     this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
     this.connectionManager = new ConnectionManager(
@@ -89,7 +93,7 @@ export class StateManager {
       this.connectionManager,
       this.uiManager
     );
-
+    new ChangesManager(this.state, this.eventBus);
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
       this.LMBPressed
@@ -119,6 +123,14 @@ export class StateManager {
   }
   setLinks(links: Link[]) {
     this.connectionManager.loadLinks(links);
+  }
+  setSerialisationFunction(fn: DiagramState["serialisationFunction"]) {
+    this.state.serialisationFunction = fn;
+  }
+  setPositionSerialisationFunction(
+    fn: DiagramState["positionSerialisationFunction"]
+  ) {
+    this.state.positionSerialisationFunction = fn;
   }
   rebuildTrees = () => {
     this.nodeManager.rebuildTree();

@@ -2,7 +2,7 @@ import { Renderer } from "../Renderer";
 import { EventBus } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
-import { DiagramTheme, Node, Size, Link } from "../Models";
+import { DiagramTheme, Node, Size, Link, DiagramState } from "../Models";
 
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 import { NodeDefinition } from "../Models/NodeDefinition";
@@ -22,6 +22,14 @@ export class Diagram {
 
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
+  }
+  setSerialisationFunction(fn: DiagramState["serialisationFunction"]) {
+    this.stateManager.setSerialisationFunction(fn);
+  }
+  setPositionSerialisationFunction(
+    fn: DiagramState["positionSerialisationFunction"]
+  ) {
+    this.stateManager.setPositionSerialisationFunction(fn);
   }
   setNodes(nodes: Node[]) {
     this.stateManager.setNodes(nodes);

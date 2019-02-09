@@ -41,6 +41,7 @@ export class ConnectionManager {
   }
   loadLinks = (links: Link[]) => {
     this.state.links = links;
+    this.rebuildTree();
   };
   rebuildTree = () => {
     this.state.trees.link = new QuadTree<Link>();
@@ -48,18 +49,22 @@ export class ConnectionManager {
       this.state.trees.link.insert(LinkUtils.linkToTree(l, this.theme))
     );
   };
-  onNodesDelete = (nodes: Node[]) =>
-    this.state.links
-      .filter(l => nodes.find(n => n === l.i || n === l.o))
-      .forEach(this.deleteLink);
-
-  deleteLink = (link: Link) => {
-    this.state.links = this.state.links.filter(l => l !== link);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    const linkTree = this.linkToTree(link);
-    this.state.trees.link.delete(link, {
-      ...linkTree.bb.min
+  onNodesDelete = (nodes: Node[]) => {
+    this.deleteLinks(
+      this.state.links.filter(l => nodes.find(n => n === l.i || n === l.o))
+    );
+  };
+  deleteLinks = (links: Link[]) => {
+    this.state.links = this.state.links.filter(
+      l => !links.find(lf => lf === l)
+    );
+    links.forEach(l => {
+      l.o.outputs = l.o.outputs!.filter(o => o !== l.i);
+      l.i.inputs = l.i.inputs!.filter(i => i !== l.o);
     });
+    this.rebuildTree();
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish(Events.DiagramEvents.LinkDeleted);
   };
   openLinkMenu = (e: ScreenPosition) => {
     const { link } = this.state.hover;
@@ -67,7 +72,7 @@ export class ConnectionManager {
     this.state.categories = [
       {
         name: "delete",
-        action: () => this.deleteLink(link)
+        action: () => this.deleteLinks([link])
       }
     ];
     this.state.menu = {
@@ -106,7 +111,7 @@ export class ConnectionManager {
     const linkExists = () =>
       !!this.state.links.find(l => l.i === i && l.o === o);
     const correctType = () => {
-      const acceptsInputs = NodeUtils.getDefinitionAcceptedInputs(i.definition);
+      const acceptsInputs = NodeUtils.getDefinitionAcceptedInputs(i.definition,this.state.nodeDefinitions);
       if (!acceptsInputs) {
         return false;
       }
@@ -136,6 +141,7 @@ export class ConnectionManager {
     i.inputs!.push(o);
     o.outputs!.push(i);
     this.state.trees.link.insert(this.linkToTree(newLink));
+    this.eventBus.publish(Events.DiagramEvents.LinkCreated);
     return newLink;
   };
   onNodeMoved = (nodes: Node[]) => {
@@ -180,6 +186,7 @@ export class ConnectionManager {
       },
       linkTree.bb
     );
+    this.eventBus.publish(Events.DiagramEvents.LinkMoved);
   };
   linkToTree = (l: Link): DataObjectInTree<Link> =>
     LinkUtils.linkToTree(l, this.theme);

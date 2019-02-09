@@ -4,29 +4,36 @@ import {
   Graph,
   NodeDefinition,
   DiagramTheme,
-  DataObjectInTree
+  DataObjectInTree,
+  AcceptedNodeDefinition
 } from "../Models";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
+import { RectanglePacker } from "../RectanglePacker/index";
 export class NodeUtils {
   static createObjectDefinition(
     nodeDefinition: NodeDefinition,
     type: string
-  ): NodeDefinition {
-    const newDefinition: NodeDefinition = {
-      ...nodeDefinition,
-      type,
-      object: undefined,
-      main: undefined,
-      parent: nodeDefinition,
-      id: Utils.generateId(),
-      node: {
-        ...nodeDefinition.node,
-        inputs: [],
-        outputs: []
-      }
-    };
-    return newDefinition;
+  ): NodeDefinition[] {
+    if (!nodeDefinition.instances) return [];
+    return nodeDefinition.instances.map(
+      instance =>
+        ({
+          ...nodeDefinition,
+          type,
+          object: undefined,
+          main: undefined,
+          parent: nodeDefinition,
+          id: Utils.generateId(),
+          ...instance,
+          node: {
+            ...nodeDefinition.node,
+            inputs: [],
+            outputs: [],
+            ...((instance && instance.node) || {})
+          }
+        } as NodeDefinition)
+    );
   }
 
   static createBasicNode(
@@ -59,36 +66,71 @@ export class NodeUtils {
     const node: NodeDefinition["node"] = Utils.deepCopy(nodeSettings);
     const createdNode: Node = NodeUtils.createBasicNode(e, nodeDefinition);
     if (nodeDefinition.object) {
-      const newDefinition = NodeUtils.createObjectDefinition(
+      const newDefinitions = NodeUtils.createObjectDefinition(
         nodeDefinition,
         node.name
       );
-      createdNode.editsDefinition = newDefinition;
-      nodeDefinitions.push(newDefinition);
+      createdNode.editsDefinitions = newDefinitions;
+      for (const newDefinition of newDefinitions) {
+        nodeDefinitions.push(newDefinition);
+      }
     }
     return createdNode;
   };
-  static getDefinitionAcceptedInputs = (definition: NodeDefinition) =>
-    (definition.parent
-      ? definition.instanceAcceptsInputs || definition.acceptsInputs
-      : definition.acceptsInputs) || [];
-  static graphFromNode = (n: Node, together: Node[] = []): Graph => {
-    let graphNodes: Node[] = [n, ...together];
-    const notInNodes = (nodes: Node[]) => (n: Node) =>
-      !nodes.find(nd => nd.id === n.id);
-    let connectedNodes: Node[] = [];
-    if (n.inputs) {
-      connectedNodes = [...connectedNodes, ...n.inputs];
-    }
-    if (n.outputs) {
-      connectedNodes = [...connectedNodes, ...n.outputs];
-    }
-    connectedNodes = connectedNodes.filter(notInNodes(graphNodes));
-    for (const i of connectedNodes) {
-      graphNodes = [...NodeUtils.graphFromNode(i, graphNodes).nodes];
-    }
-    // dedupe on circular references
-    graphNodes = Utils.dedupe(graphNodes);
+  static AcceptedNodeDefinitionsToDefinitions = (
+    ndc: AcceptedNodeDefinition[]
+  ): NodeDefinition[] => {
+    const nodeDefinitions: NodeDefinition[] = [];
+    const recurisveExtractDefinitions = (ndc: AcceptedNodeDefinition[]) => {
+      ndc.forEach(nd => {
+        if (nd.definition) nodeDefinitions.push(nd.definition);
+        if (nd.category) recurisveExtractDefinitions(nd.category.definitions);
+      });
+    };
+    recurisveExtractDefinitions(ndc);
+    return nodeDefinitions;
+  };
+  static getDefinitionAcceptedInputs = (
+    definition: NodeDefinition,
+    definitions: NodeDefinition[]
+  ): NodeDefinition[] =>
+    NodeUtils.AcceptedNodeDefinitionsToDefinitions(
+      NodeUtils.getDefinitionAcceptedInputCategories(definition, definitions)
+    );
+  static getDefinitionAcceptedOutputs = (
+    definition: NodeDefinition,
+    definitions: NodeDefinition[]
+  ): NodeDefinition[] =>
+    NodeUtils.AcceptedNodeDefinitionsToDefinitions(
+      NodeUtils.getDefinitionAcceptedOutputCategories(definition, definitions)
+    );
+  static getDefinitionAcceptedOutputCategories = (
+    definition: NodeDefinition,
+    definitions: NodeDefinition[]
+  ) => {
+    let defs: AcceptedNodeDefinition[] = [];
+    if (definition.acceptsOutputs)
+      defs = defs.concat(definition.acceptsOutputs(definition, definitions));
+    return Utils.dedupe(defs);
+  };
+  static getDefinitionAcceptedInputCategories = (
+    definition: NodeDefinition,
+    definitions: NodeDefinition[]
+  ) => {
+    let defs: AcceptedNodeDefinition[] = [];
+    if (definition.acceptsInputs)
+      defs = defs.concat(definition.acceptsInputs(definition, definitions));
+    return Utils.dedupe(defs);
+  };
+  static graphFromNode = (n: Node): Graph => {
+    const graphNodes: Node[] = [];
+    const spawnConnections = (n: Node) => {
+      if (graphNodes.find(no => no === n)) return;
+      graphNodes.push(n);
+      n.inputs && n.inputs.map(spawnConnections);
+      n.outputs && n.outputs.map(spawnConnections);
+    };
+    spawnConnections(n);
     const graphX = graphNodes.map(n => n.x);
     const graphY = graphNodes.map(n => n.y);
     const graphBB = {
@@ -120,7 +162,7 @@ export class NodeUtils {
       if (usedNodes.find(un => un === node)) {
         continue;
       }
-      const graph = NodeUtils.graphFromNode(node, usedNodes);
+      const graph = NodeUtils.graphFromNode(node);
       usedNodes = usedNodes.concat(graph.nodes);
       graphs.push(graph);
     }
@@ -130,14 +172,15 @@ export class NodeUtils {
     graph: Graph,
     theme: DiagramTheme = DefaultDiagramTheme
   ): Graph => {
-    let levels: Record<number, Node[]> = {};
+    if (graph.nodes.length === 0) return graph;
+
+    let levels: Record<string, Node[]> = {};
     const repositioned: Node[] = [];
     const repositionNode = (n: Node, level: number = 0) => {
       if (repositioned.find(r => r === n)) return;
       levels[level] = levels[level] || [];
       repositioned.push(n);
       levels[level].push(n);
-
       n.inputs && n.inputs.forEach(i => repositionNode(i, level - 1));
       n.outputs && n.outputs.forEach(i => repositionNode(i, level + 1));
     };
@@ -149,14 +192,13 @@ export class NodeUtils {
       levelsKeys.length * (node.width + node.spacing.x + port.width * 2) -
       node.spacing.x;
     const maxHeight =
-      Math.max(...levelsKeys.map(l => l.length)) *
+      Math.max(...levelsKeys.map(l => levels[l].length)) *
       (node.height + node.spacing.y);
     levelsKeys
       .map(k => parseInt(k))
       .forEach(x => {
         let height = levels[x].length * (node.height + node.spacing.y);
         const centrise = (maxHeight - height) / maxHeight;
-        centrise;
         levels[x].forEach((node, index, a) => {
           node.x = (x * width) / levelsKeys.length;
           node.y = ((index - 1) * height) / a.length + centrise;
@@ -170,7 +212,7 @@ export class NodeUtils {
   };
   static beautifyDiagram = (nodes: Node[]) => {
     const graphs = NodeUtils.graphsFromNodes(nodes);
-    graphs.forEach(g => NodeUtils.positionGraph(g));
+    RectanglePacker.pack(graphs.map(g => NodeUtils.positionGraph(g)));
   };
   static createTreeNode = (
     data: Node,

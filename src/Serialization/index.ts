@@ -27,7 +27,7 @@ export class Serializer {
         n.definition,
         nodeDefinitions
       );
-      nodeDefinitions.push(
+      nodeDefinitions = nodeDefinitions.concat(
         NodeUtils.createObjectDefinition(nodeDefinition, n.name)
       );
     });

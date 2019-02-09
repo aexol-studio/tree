@@ -191,4 +191,9 @@ export class UIManager {
     this.state.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+  panTo = (e: ScreenPosition) => {
+    this.state.panX! = e.x;
+    this.state.panY! = e.y;
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
 }

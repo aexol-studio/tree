@@ -10,7 +10,6 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "ts-loader": "^5.3.2",
-    "typescript": "^3.2.2",
     "webpack": "^4.28.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14"
@@ -29,6 +28,7 @@
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "ts-node": "^8.0.1",
-    "typedoc": "^0.14.1"
+    "typedoc": "^0.14.1",
+    "typescript": "^3.3.1"
   }
 }

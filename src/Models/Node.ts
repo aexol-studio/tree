@@ -10,6 +10,6 @@ export interface Node {
   options: string[];
   inputs?: Node[] | null;
   outputs?: Node[] | null;
-  editsDefinition?: NodeDefinition;
+  editsDefinitions?: NodeDefinition[];
   readonly?: boolean;
 }

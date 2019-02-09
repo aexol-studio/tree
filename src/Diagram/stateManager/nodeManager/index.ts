@@ -73,9 +73,10 @@ export class NodeManager {
   };
   renameNode = (node: Node, name: string) => {
     node.name = name;
-    if (node.editsDefinition) {
-      node.editsDefinition.type = name;
+    if (node.editsDefinitions) {
+      node.editsDefinitions.forEach(ed => (ed.type = name));
     }
+    this.eventBus.publish(Events.DiagramEvents.NodeChanged);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   openNodeMenu = (e: ScreenPosition) => {
@@ -118,6 +119,7 @@ export class NodeManager {
             };
             this.renamer.rename(node.description, e => {
               node.description = e;
+              this.eventBus.publish(Events.DiagramEvents.NodeChanged);
               this.eventBus.publish(Events.DiagramEvents.RenderRequested);
             });
           }
@@ -142,9 +144,7 @@ export class NodeManager {
           }
         }
       ];
-      const definitionHasOptions = node.definition.parent
-        ? node.definition.instanceOptions
-        : node.definition.options;
+      const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
         this.state.categories = this.state.categories.concat(
           definitionHasOptions.map(({ help, name }) => ({
@@ -157,9 +157,17 @@ export class NodeManager {
                 return;
               }
               node.options.push(name);
+              this.eventBus.publish(Events.DiagramEvents.NodeChanged);
             }
           }))
         );
+      }
+
+      const categories =
+        node.definition.categories ||
+        (node.definition.parent && node.definition.parent.categories);
+      if (categories && categories.node) {
+        this.state.categories = this.state.categories.concat(categories.node);
       }
       this.state.menu = {
         position: { ...e }
@@ -232,9 +240,10 @@ export class NodeManager {
     let n = nodes.filter(node => !node.readonly);
     const definitions = n.map(n => n.definition);
     const objectDefinitions = definitions.filter(d => d.object);
-    const editsDefinition = n
-      .filter(n => n.editsDefinition)
-      .map(n => n.editsDefinition!);
+    const editsDefinitions = n
+      .filter(n => n.editsDefinitions)
+      .map(n => n.editsDefinitions!)
+      .reduce((a, b) => a.concat(b), []);
     //TODO: might be optimised
     for (const nodeDefinition of objectDefinitions) {
       n = n.concat(
@@ -244,17 +253,15 @@ export class NodeManager {
       );
     }
     this.state.nodeDefinitions = this.state.nodeDefinitions.filter(
-      n => !editsDefinition.find(o => o === n)
+      n => !editsDefinitions.find(o => o === n)
     );
-    for (const treeNode of n) {
-      this.state.trees.node.delete(treeNode, { x: treeNode.x, y: treeNode.y });
-    }
     this.state.selectedNodes = this.state.selectedNodes.filter(
       node => !n.find(nn => nn === node)
     );
     this.state.nodes = this.state.nodes.filter(
       node => !n.find(nn => nn === node)
     );
+    this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.NodeDeleted, n);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };

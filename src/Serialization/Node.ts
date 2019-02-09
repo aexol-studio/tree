@@ -11,7 +11,7 @@ export interface NodeSerialized
     "id" | "name" | "description" | "x" | "y" | "options" | "readonly"
   > {
   definition: NodeDefinitionSerialized;
-  editsDefinition?: NodeDefinitionSerialized;
+  editsDefinitions?: NodeDefinitionSerialized[];
 }
 
 export const serializeNodeDefinition = ({
@@ -48,7 +48,7 @@ export const serializeNode = ({
   options,
   readonly,
   definition,
-  editsDefinition
+  editsDefinitions
 }: Node): NodeSerialized => ({
   id,
   name,
@@ -58,7 +58,8 @@ export const serializeNode = ({
   options,
   readonly,
   definition: serializeNodeDefinition(definition),
-  editsDefinition: editsDefinition && serializeNodeDefinition(editsDefinition)
+  editsDefinitions:
+    editsDefinitions && editsDefinitions.map(serializeNodeDefinition)
 });
 
 export const deserializeNode = (
@@ -70,7 +71,7 @@ export const deserializeNode = (
     options,
     definition,
     description,
-    editsDefinition,
+    editsDefinitions,
     readonly
   }: NodeSerialized,
   definitions: NodeDefinition[]
@@ -84,7 +85,8 @@ export const deserializeNode = (
     description,
     readonly,
     definition: deserializeNodeDefinition(definition, definitions),
-    editsDefinition:
-      editsDefinition && deserializeNodeDefinition(editsDefinition, definitions)
+    editsDefinitions:
+      editsDefinitions &&
+      editsDefinitions.map(def => deserializeNodeDefinition(def, definitions))
   };
 };

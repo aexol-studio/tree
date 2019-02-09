@@ -10,7 +10,10 @@ export class DiagramEvents {
   static NodeHover = "NodeHover";
   static NodeCreated = "NodeCreated";
   static NodeDeleted = "NodeDeleted";
+  static NodeChanged = "NodeChanged";
   static LinkCreated = "LinkCreated";
+  static LinkDeleted = "LinkDeleted";
+  static LinkMoved = "LinkMoved";
   static DrawingLink = "DrawingLink";
   static PickRequested = "PickRequested";
   static RebuildTreeRequested = "RebuildTreeRequested";

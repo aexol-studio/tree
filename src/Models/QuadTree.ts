@@ -26,7 +26,7 @@ export interface QuadTreeInterface<T> {
   objects: DataObjectInTree<T>[];
   sides?: Sides<T>;
   insert: (p: DataObjectInTree<T>) => boolean;
-  delete: (data: T, e: Coords) => T | undefined;
+  delete: (data: T, e: Coords) => void;
   update: (data: T, e: Coords, bb: BoundingBox) => void;
   subdivide: () => void;
   queryRange: (bb: RegionInterface) => T[];

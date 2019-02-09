@@ -5,13 +5,9 @@ import { ScreenPosition } from "../../../IO/ScreenPosition";
 import { DiagramTheme } from "../../../Models";
 
 /**
- * StateManager:
+ * HoverManager:
  *
- * Main data store. Responsibilities:
- * - storing main arrays of nodes, links, etc.
- * - storing current state of diagram: selected nodes, selected links etc.
- * - methods for serializing and deserializing data
- * - listening for IO events on event bus and responding accordingly
+ * Hover data store.
  */
 export class HoverManager {
   constructor(

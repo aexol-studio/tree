@@ -22,17 +22,15 @@ describe("Serialize and Deserialize", () => {
         id: Utils.generateId(),
         type: "type",
         object: true,
-        acceptsInputs: [],
         node: {
           name: "dummy"
         }
       }
     ];
-    nodeDefinitions[0].acceptsInputs = [nodeDefinitions[0]];
+    nodeDefinitions[0].acceptsInputs = (allDefinitions) => [{definition:nodeDefinitions[0]}];
     nodeDefinitions.push({
       id: Utils.generateId(),
       type: "Person",
-      acceptsInputs: [],
       parent: nodeDefinitions[1],
       node: {
         name: "Person",
@@ -49,7 +47,7 @@ describe("Serialize and Deserialize", () => {
         x: 0,
         y: 0,
         description: "Hello world",
-        editsDefinition: undefined,
+        editsDefinitions: undefined,
         readonly: undefined
       },
       {
@@ -60,7 +58,7 @@ describe("Serialize and Deserialize", () => {
         x: 0,
         y: 0,
         description: "Hello world 2",
-        editsDefinition: undefined,
+        editsDefinitions: undefined,
         readonly: undefined
       },
       {
@@ -71,7 +69,7 @@ describe("Serialize and Deserialize", () => {
         y: 0,
         description: "Hello world 2",
         definition: nodeDefinitions[1],
-        editsDefinition: nodeDefinitions[2],
+        editsDefinitions: [nodeDefinitions[2]],
         readonly: undefined
       }
     ];

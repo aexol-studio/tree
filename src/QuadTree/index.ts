@@ -11,13 +11,21 @@ import { Coords } from "../Models/index";
 export class QuadTree<T> implements QuadTreeInterface<T> {
   objects: DataObjectInTree<T>[] = [];
   sides?: Sides<T>;
-  constructor(public bb: Region = new Region(), public capacity: number = 50) {}
+  constructor(
+    public bb: Region = new Region(),
+    public capacity: number = 50,
+    public maxDepth = 10,
+    public depth = 0
+  ) {}
   insert = (node: DataObjectInTree<T>) => {
     if (!this.bb.intersect(node.bb)) {
       return false;
     }
 
-    if (this.objects.length < this.capacity && !this.sides) {
+    if (
+      (this.objects.length < this.capacity && !this.sides) ||
+      this.depth === this.maxDepth
+    ) {
       this.objects.push(node);
       return true;
     }
@@ -37,7 +45,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
     })!;
     let index = 0;
     for (const o of tree.objects) {
-      if (o.data === data) return tree.objects.splice(index, 1)[0].data;
+      if (o.data === data) tree.objects.splice(index, 1)[0].data;
       index++;
     }
   };
@@ -51,7 +59,12 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
   subdivide = () => {
     const c = this.bb.center();
     this.sides = {
-      nw: new QuadTree<T>(new Region(this.bb.min, c)),
+      nw: new QuadTree<T>(
+        new Region(this.bb.min, c),
+        this.capacity,
+        this.maxDepth,
+        this.depth + 1
+      ),
       ne: new QuadTree<T>(
         new Region(
           {
@@ -62,7 +75,10 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
             x: this.bb.max.x,
             y: c.y
           }
-        )
+        ),
+        this.capacity,
+        this.maxDepth,
+        this.depth + 1
       ),
       sw: new QuadTree<T>(
         new Region(
@@ -74,11 +90,19 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
             x: c.x,
             y: this.bb.max.y
           }
-        )
+        ),
+        this.capacity,
+        this.maxDepth,
+        this.depth + 1
       ),
-      se: new QuadTree<T>(new Region(c, this.bb.max))
+      se: new QuadTree<T>(
+        new Region(c, this.bb.max),
+        this.capacity,
+        this.maxDepth,
+        this.depth + 1
+      )
     };
-    for(const object of this.objects) this.insert(object)
+    for (const object of this.objects) this.insert(object);
   };
   queryRange = (bb: RegionInterface) => {
     const objectsInRange: T[] = [];
@@ -86,6 +110,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
     for (const o of this.objects) {
       bb.intersect(o.bb) && objectsInRange.push(o.data);
     }
+
     if (!this.sides) return objectsInRange;
     const { nw, ne, sw, se } = this.sides;
     let allObjectsInRange = objectsInRange

@@ -4,16 +4,23 @@ import { Colors } from "./Colors";
 export const DefaultDiagramTheme: DiagramTheme = {
   snappingGridSize: 20,
   node: {
-    width: 180,
-    height: 100,
+    width: 200,
+    height: 110,
     nameSize: 24,
     typeSize: 20,
+    maxCharacters:12,
     spacing: {
       x: 100,
       y: 100
     },
     options: {
       fontSize: 18
+    }
+  },
+  graph: {
+    spacing: {
+      x: 150,
+      y: 150
     }
   },
   minimap: {

@@ -12,6 +12,7 @@ import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
 import { DescriptionRenderer } from "./descriptionRenderer";
 import { HelpRenderer } from "./helpRenderer";
+import { Region } from "../QuadTree/Region";
 
 /**
  * Renderer.
@@ -58,7 +59,21 @@ export class Renderer {
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
     this.renameNode();
   }
-
+  getActiveArea = () => {
+    const { uiState } = this.stateManager.getState();
+    const width = uiState.areaSize.width / uiState.scale;
+    const height = uiState.areaSize.height / uiState.scale;
+    return new Region(
+      {
+        x: 0 - uiState.panX!,
+        y: 0 - uiState.panY!
+      },
+      {
+        x: width - uiState.panX!,
+        y: height - uiState.panY!
+      }
+    );
+  };
   renameNode = () => {
     this.caret = this.caret === "|" ? " " : "|";
     this.eventBus.publish(DiagramEvents.RenderRequested);
@@ -103,7 +118,10 @@ export class Renderer {
    */
   renderNodes() {
     const state = this.stateManager.getState();
-    for (const n of state.nodes) {
+    const nodes = state.trees.node
+      .queryRange(this.getActiveArea())
+      .concat(state.selectedNodes);
+    for (const n of nodes) {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
       const isRenamed = !!(
         state.renamed &&
@@ -172,7 +190,8 @@ export class Renderer {
    */
   renderLinks() {
     const state = this.stateManager.getState();
-    state.links.forEach(l => this.linkRenderer.render(l, "main"));
+    const linksInArea = state.trees.link.queryRange(this.getActiveArea());
+    linksInArea.forEach(l => this.linkRenderer.render(l, "main"));
     state.links
       .filter(l => state.selectedNodes.find(n => n === l.i || n === l.o))
       .forEach(l => this.linkRenderer.render(l, "active"));
