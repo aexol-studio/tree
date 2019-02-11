@@ -68,7 +68,7 @@ export class NodeUtils {
     if (nodeDefinition.object) {
       const newDefinitions = NodeUtils.createObjectDefinition(
         nodeDefinition,
-        node.name
+        node.name || `${nodeDefinition.type}${nodeDefinitions.length}`
       );
       createdNode.editsDefinitions = newDefinitions;
       for (const newDefinition of newDefinitions) {
@@ -210,9 +210,9 @@ export class NodeUtils {
     graph.center.y = maxHeight / 2.0;
     return graph;
   };
-  static beautifyDiagram = (nodes: Node[]) => {
+  static beautifyDiagram = (nodes: Node[], theme: DiagramTheme) => {
     const graphs = NodeUtils.graphsFromNodes(nodes);
-    RectanglePacker.pack(graphs.map(g => NodeUtils.positionGraph(g)));
+    RectanglePacker.pack(graphs.map(g => NodeUtils.positionGraph(g)), theme);
   };
   static createTreeNode = (
     data: Node,

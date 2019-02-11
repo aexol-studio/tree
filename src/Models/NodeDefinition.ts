@@ -10,7 +10,7 @@ export interface AcceptedNodeDefinition<Data = {}> {
   };
 }
 export interface NodeDefinition<Data = {}> {
-  node: Pick<Node, "name" | "description" | "inputs" | "outputs">;
+  node: Partial<Node>;
   categories?: {
     inputs?: Category[];
     outputs?: Category[];

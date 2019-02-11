@@ -6,6 +6,7 @@ import { DiagramTheme, Node, Size, Link, DiagramState } from "../Models";
 
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 import { NodeDefinition } from "../Models/NodeDefinition";
+import { NodeUtils } from "../Utils/index";
 
 /**
  * Diagram:
@@ -31,7 +32,10 @@ export class Diagram {
   ) {
     this.stateManager.setPositionSerialisationFunction(fn);
   }
-  setNodes(nodes: Node[]) {
+  setNodes(nodes: Node[], beautify?: boolean) {
+    if (beautify) {
+      this.beautifyDiagram(nodes);
+    }
     this.stateManager.setNodes(nodes);
   }
   setLinks(links: Link[]) {
@@ -39,6 +43,9 @@ export class Diagram {
   }
   rebuildTrees() {
     this.stateManager.rebuildTrees();
+  }
+  beautifyDiagram(nodes: Node[]) {
+    NodeUtils.beautifyDiagram(nodes, this.theme);
   }
   calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
@@ -75,7 +82,7 @@ export class Diagram {
 
   constructor(
     domElement: HTMLElement,
-    theme: DiagramTheme = DefaultDiagramTheme,
+    private theme: DiagramTheme = DefaultDiagramTheme,
     connectionFunction: (input: Node, output: Node) => boolean = (
       input,
       output

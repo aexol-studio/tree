@@ -46,17 +46,6 @@ export class NodeRenderer {
       radiusBottomRight: rightRadius,
       radiusTopRight: rightRadius
     });
-    if (node.name) {
-      this.context.fillStyle = colors.node.name;
-      this.context.font = this.getNodeFont(nameSize, "normal");
-      this.context.textAlign = "center";
-      this.context.textBaseline = "middle";
-      this.context.fillText(
-        node.name,
-        node.x! + width / 2.0,
-        node.y! + height / 2.0
-      );
-    }
     this.context.fillStyle =
       colors.node.types[node.definition.type] || colors.node.name;
     this.context.font = this.getNodeFont(typeSize, "normal");
@@ -133,8 +122,19 @@ export class NodeRenderer {
           node.y + height + options.fontSize,
           width
         );
-        xCounter += this.context.measureText(o).width + options.fontSize/2;
+        xCounter += this.context.measureText(o).width + options.fontSize / 2;
       });
+    }
+    if (node.name) {
+      this.context.fillStyle = colors.node.name;
+      this.context.font = this.getNodeFont(nameSize, "normal");
+      this.context.textAlign = "center";
+      this.context.textBaseline = "middle";
+      this.context.fillText(
+        node.name,
+        node.x! + width / 2.0,
+        node.y! + height / 2.0
+      );
     }
   };
 }

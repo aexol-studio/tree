@@ -19,8 +19,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
   },
   graph: {
     spacing: {
-      x: 150,
-      y: 150
+      x: 300,
+      y: 350
     }
   },
   minimap: {
