@@ -15,7 +15,7 @@ export class Old {
   ): NodeDefinitionSerialized {
     return {
       type: n.kind || n.type,
-      object: Old.isObject(n),
+      root: Old.isObject(n),
       parent:
         n.clone && n.kind
           ? {

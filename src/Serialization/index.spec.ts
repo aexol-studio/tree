@@ -21,7 +21,7 @@ describe("Serialize and Deserialize", () => {
       {
         id: Utils.generateId(),
         type: "type",
-        object: true,
+        root: true,
         node: {
           name: "dummy"
         }

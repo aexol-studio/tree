@@ -21,7 +21,7 @@ export class Serializer {
     state: Format,
     nodeDefinitions: NodeDefinition[]
   ): Pick<DiagramState, "nodes" | "links" | "nodeDefinitions"> {
-    const objectDefinitons = (n: NodeSerialized) => n.definition.object;
+    const objectDefinitons = (n: NodeSerialized) => n.definition.root;
     state.nodes.filter(objectDefinitons).forEach(n => {
       const nodeDefinition = deserializeNodeDefinition(
         n.definition,

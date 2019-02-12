@@ -41,6 +41,9 @@ export class Diagram {
   setLinks(links: Link[]) {
     this.stateManager.setLinks(links);
   }
+  requestSerialise() {
+    this.stateManager.requestSerialise();
+  }
   rebuildTrees() {
     this.stateManager.rebuildTrees();
   }

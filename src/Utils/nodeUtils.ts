@@ -21,7 +21,7 @@ export class NodeUtils {
         ({
           ...nodeDefinition,
           type,
-          object: undefined,
+          root: undefined,
           main: undefined,
           parent: nodeDefinition,
           id: Utils.generateId(),
@@ -65,7 +65,7 @@ export class NodeUtils {
     const { node: nodeSettings } = nodeDefinition;
     const node: NodeDefinition["node"] = Utils.deepCopy(nodeSettings);
     const createdNode: Node = NodeUtils.createBasicNode(e, nodeDefinition);
-    if (nodeDefinition.object) {
+    if (nodeDefinition.root) {
       const newDefinitions = NodeUtils.createObjectDefinition(
         nodeDefinition,
         node.name || `${nodeDefinition.type}${nodeDefinitions.length}`

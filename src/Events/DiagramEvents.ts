@@ -18,5 +18,6 @@ export class DiagramEvents {
   static PickRequested = "PickRequested";
   static RebuildTreeRequested = "RebuildTreeRequested";
   static RenderRequested = "RenderRequested";
+  static SerialisationRequested = "SerialisationRequested";
   // ...
 }

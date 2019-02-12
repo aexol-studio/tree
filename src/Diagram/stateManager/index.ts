@@ -132,6 +132,9 @@ export class StateManager {
   ) {
     this.state.positionSerialisationFunction = fn;
   }
+  requestSerialise = () => {
+    this.eventBus.publish(Events.DiagramEvents.SerialisationRequested);
+  };
   rebuildTrees = () => {
     this.nodeManager.rebuildTree();
     this.connectionManager.rebuildTree();

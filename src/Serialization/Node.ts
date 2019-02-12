@@ -2,7 +2,7 @@ import { Node } from "../Models/Node";
 import { NodeDefinition } from "../Models/NodeDefinition";
 
 export interface NodeDefinitionSerialized
-  extends Pick<NodeDefinition, "type" | "object" | "main"> {
+  extends Pick<NodeDefinition, "type" | "root" | "main"> {
   parent?: NodeDefinitionSerialized;
 }
 export interface NodeSerialized
@@ -16,24 +16,24 @@ export interface NodeSerialized
 
 export const serializeNodeDefinition = ({
   type,
-  object,
+  root: object,
   main,
   parent
 }: NodeDefinition): NodeDefinitionSerialized => ({
   main,
-  object,
+  root: object,
   type,
   parent: parent && serializeNodeDefinition(parent)
 });
 
 export const deserializeNodeDefinition = (
-  { type, object, main, parent }: NodeDefinitionSerialized,
+  { type, root: object, main, parent }: NodeDefinitionSerialized,
   definitions: NodeDefinition[]
 ): NodeDefinition => {
   return definitions.find(
     d =>
       d.type === type &&
-      d.object === object &&
+      d.root === object &&
       d.main === main &&
       (parent && d.parent ? d.parent.type === parent.type : true)
   )!;

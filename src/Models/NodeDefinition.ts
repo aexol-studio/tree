@@ -27,11 +27,10 @@ export interface NodeDefinition<Data = {}> {
   ) => AcceptedNodeDefinition<Data>[];
   instances?: Partial<NodeDefinition<Data>>[];
   options?: NodeOption[];
-  object?: boolean;
+  root?: boolean;
   main?: boolean;
   hidden?: boolean;
   parent?: NodeDefinition<Data>;
-  maxInputDepth?: number;
   id?: string;
   help?: string;
   data?: Data;

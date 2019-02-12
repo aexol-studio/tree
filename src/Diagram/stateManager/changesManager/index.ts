@@ -15,6 +15,10 @@ export class ChangesManager {
     this.eventBus.subscribe(Events.DiagramEvents.LinkCreated, this.dataChange);
     this.eventBus.subscribe(Events.DiagramEvents.LinkDeleted, this.dataChange);
     this.eventBus.subscribe(
+      Events.DiagramEvents.SerialisationRequested,
+      this.dataChange
+    );
+    this.eventBus.subscribe(
       Events.DiagramEvents.LinkMoved,
       this.positionChange
     );

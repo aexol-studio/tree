@@ -69,7 +69,7 @@ export class MenuManager {
     const { node, link } = this.state.hover;
     if (!node && !link) {
       this.state.categories = this.state.nodeDefinitions
-        .filter(n => n.object)
+        .filter(n => n.root)
         .filter(n => !n.hidden)
         .map(
           n =>

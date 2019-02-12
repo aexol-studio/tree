@@ -41,9 +41,7 @@ export class NodeManager {
   };
   loadNodes = (nodes: Node[]) => {
     this.state.nodes = nodes;
-    nodes.forEach(node => {
-      this.state.trees.node.insert(NodeUtils.createTreeNode(node, this.theme));
-    });
+    this.rebuildTree();
   };
   moveNodes = (e: ScreenPosition) => {
     const { selectedNodes } = this.state;
@@ -239,7 +237,7 @@ export class NodeManager {
   deleteNodes = (nodes: Node[]) => {
     let n = nodes.filter(node => !node.readonly);
     const definitions = n.map(n => n.definition);
-    const objectDefinitions = definitions.filter(d => d.object);
+    const objectDefinitions = definitions.filter(d => d.root);
     const editsDefinitions = n
       .filter(n => n.editsDefinitions)
       .map(n => n.editsDefinitions!)

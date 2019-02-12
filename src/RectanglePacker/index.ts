@@ -16,7 +16,7 @@ export class RectanglePacker {
     const size = Math.max(maxHeight, maxWidth);
     const center = { x: 0, y: 0 };
     let maxY = 0;
-    blocks.sort((a, b) => b.height - a.height);
+    blocks.sort((a, b) => a.height - b.height);
     blocks.forEach(b => {
       if (center.x > size) {
         center.x = 0;
