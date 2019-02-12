@@ -33,7 +33,15 @@ class App {
         help: "Hello I am dummy node this is help I do display",
         node: createOND("dummy"),
         options,
+        root: true,
         acceptsInputs: (d, defs) =>
+          defs.map(
+            def =>
+              ({
+                definition: def
+              } as AcceptedNodeDefinition)
+          ),
+        acceptsOutputs: (d, defs) =>
           defs.map(
             def =>
               ({
@@ -44,5 +52,4 @@ class App {
     ]);
   }
 }
-
 new App();

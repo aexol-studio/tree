@@ -8,14 +8,14 @@ Diagram is the tool for making node based systems. Define your own behaviour of 
 
 ## Live demo
 
-Here is [Live Demo](https://demo.graphqleditor.com) of diagram used to create node based graphql system
+Here is [Live Demo](https://app.graphqleditor.com) of diagram used to create node based graphql system
 
 ![](assets/gif.gif)
 
 ## Add to your project
 
 ```sh
-$ npm install @slothking-online/diagram
+$ npm install graphsource
 ```
 
 ## Develop & Contribute
@@ -29,34 +29,9 @@ $ npm run start
 ## Define spacebar menu actions
 
 ```tsx
-import { Graph } from '@slothking-online/diagram';
-import * as React from 'react';
-let allCategories = [
-  {
-    name: 'middlewares',
-    items: [
-      {
-        name: 'middleware',
-        type: 'middleware',
-        inputs: [
-          {
-            name: ''
-          }
-        ],
-        outputs: [
-          {
-            name: ''
-          }
-        ]
-      }
-    ]
-  }
-];
-
-export const MyGraphComponent = () => <Graph categories={allCategories} />;
 ```
 
-Now if you press spacebar when mouse is on the graph you get this menu, which creates nodes.
+Press RMB to open menu
 
 ## Serialization of data
 
@@ -81,7 +56,7 @@ Now if you press spacebar when mouse is on the graph you get this menu, which cr
 * Connect - Click and hold desired node output and move it to other node's output then release mouse button
   IMPORTANT: Every node is connectable only if it creates valid schema. Experiment to test
 * Node Properties - Click right mouse button on node
-* CMD/CTRL + Left Mouse Button Click - select multiple nodes
+* SHIFT + Left Mouse Button Click - select multiple nodes
 * Delete - Click delete button when node/nodes are selected or right click -> delete
 
 ## Keyboard shortcuts
