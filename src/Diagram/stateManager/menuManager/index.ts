@@ -93,7 +93,8 @@ export class MenuManager {
     }
   };
   openPortMenu = (e: ScreenPosition) => {
-    if (this.state.menu) {
+    if (this.state.menu || this.state.drawedConnection) {
+      this.state.drawedConnection = undefined;
       return;
     }
     this.eventBus.publish(Events.DiagramEvents.PickRequested, e);

@@ -69,7 +69,7 @@ export class NodeRenderer {
       });
       this.context.fillStyle = colors.port.button;
       this.context.fillText(
-        "-",
+        "+",
         node.x - port.width / 2.0,
         node.y + height / 2.0
       );
@@ -97,7 +97,7 @@ export class NodeRenderer {
       });
       this.context.fillStyle = colors.port.button;
       this.context.fillText(
-        "+",
+        "-",
         node.x + width + port.width / 2.0,
         node.y + height / 2.0
       );
@@ -116,6 +116,7 @@ export class NodeRenderer {
       node.options.forEach(o => {
         this.context.fillStyle = colors.node.options[o] || colors.node.name;
         this.context.font = this.getNodeFont(options.fontSize, "normal");
+        this.context.textAlign = "left";
         this.context.fillText(
           o,
           node.x + xCounter,

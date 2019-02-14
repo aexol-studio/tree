@@ -16,24 +16,24 @@ export interface NodeSerialized
 
 export const serializeNodeDefinition = ({
   type,
-  root: object,
+  root,
   main,
   parent
 }: NodeDefinition): NodeDefinitionSerialized => ({
   main,
-  root: object,
+  root,
   type,
   parent: parent && serializeNodeDefinition(parent)
 });
 
 export const deserializeNodeDefinition = (
-  { type, root: object, main, parent }: NodeDefinitionSerialized,
+  { type, root, main, parent }: NodeDefinitionSerialized,
   definitions: NodeDefinition[]
 ): NodeDefinition => {
   return definitions.find(
     d =>
       d.type === type &&
-      d.root === object &&
+      d.root === root &&
       d.main === main &&
       (parent && d.parent ? d.parent.type === parent.type : true)
   )!;

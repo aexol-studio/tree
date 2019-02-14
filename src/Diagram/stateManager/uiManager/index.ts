@@ -192,8 +192,13 @@ export class UIManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   panTo = (e: ScreenPosition) => {
-    this.state.panX! = e.x;
-    this.state.panY! = e.y;
+    this.state.panX! = -e.x;
+    this.state.panY! = -e.y;
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
+  centerPanTo = (e: ScreenPosition) => {
+    this.state.panX! = -e.x + this.state.areaSize.width / 2.0;
+    this.state.panY! = -e.y + this.state.areaSize.height / 2.0;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
 }

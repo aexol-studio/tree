@@ -139,6 +139,12 @@ export class StateManager {
     this.nodeManager.rebuildTree();
     this.connectionManager.rebuildTree();
   };
+  centerGraph = () => {
+    this.uiManager.centerPanTo(this.nodeManager.getCenter());
+  };
+  zeroGraph = () => {
+    this.uiManager.panTo({ x: -this.theme.node.width*3, y:  -this.theme.node.height*3 });
+  };
   mouseDrag = ({
     withoutPan,
     calculated

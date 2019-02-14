@@ -104,7 +104,6 @@ export class ConnectionManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   cancelDrawing = () => {
-    this.state.drawedConnection = undefined;
     this.state.draw = undefined;
   };
   makeConnection = (i: Node, o: Node) => {

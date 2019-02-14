@@ -20,23 +20,22 @@ export class Serializer {
   static deserialize(
     state: Format,
     nodeDefinitions: NodeDefinition[]
-  ): Pick<DiagramState, "nodes" | "links" | "nodeDefinitions"> {
+  ): Pick<DiagramState, "nodes" | "links"> {
     const objectDefinitons = (n: NodeSerialized) => n.definition.root;
     state.nodes.filter(objectDefinitons).forEach(n => {
       const nodeDefinition = deserializeNodeDefinition(
         n.definition,
         nodeDefinitions
       );
-      nodeDefinitions = nodeDefinitions.concat(
-        NodeUtils.createObjectDefinition(nodeDefinition, n.name)
+      NodeUtils.createObjectDefinition(nodeDefinition, n.name).forEach(nd =>
+        nodeDefinitions.push(nd)
       );
     });
     const nodes = state.nodes.map(n => deserializeNode(n, nodeDefinitions));
     const links = state.links.map(l => deserializeLink(l, nodes));
     return {
       nodes,
-      links,
-      nodeDefinitions
+      links
     };
   }
 }
