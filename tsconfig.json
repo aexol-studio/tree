@@ -1,21 +1,14 @@
 {
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "sandbox"],
   "compilerOptions": {
-    "sourceMap": true,
-    "target": "es6",
-    "jsx": "react",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
+    "target": "es5",
+    "outDir": "lib",
     "declaration": true,
-    "removeComments": true,
-    "noUnusedLocals": true,
-    "outDir": "./lib",
-    "rootDir": "./src",
-    "baseUrl": "./src/",
-    "lib": ["es6", "es7", "dom"],
-    "types": [
-      "react"
-    ]
-  },
-  "exclude": ["lib", "build", "node_modules"]
+    "rootDirs": ["src", "sandbox"],
+    "module": "commonjs",
+    "lib": ["es6","dom"],
+    "strict": true,
+    "noUnusedLocals": true
+  }
 }

@@ -1,40 +1,27 @@
 {
-  "name": "@slothking-online/diagram",
-  "version": "1.0.9",
-  "private": false,
-  "publishConfig": {
-    "access": "public"
-  },
-  "description": "A slothking diagram",
+  "name": "graphsource",
+  "version": "0.99.9",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "grunt",
-    "start": "grunt watch",
-    "prettier": "prettier --write \"src/**/*.{ts,tsx,css}\""
+    "start": "tsc --watch",
+    "build": "tsc",
+    "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open",
+    "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
-  "license": "MIT",
   "devDependencies": {
-    "@types/classnames": "^2.2.3",
-    "@types/history": "4.6.2",
-    "@types/json-schema": "^6.0.1",
-    "@types/node": "9.4.6",
-    "@types/react": "^16.4.6",
-    "@types/react-dom": "^16.0.6",
-    "grunt": "^1.0.3",
-    "grunt-contrib-clean": "^1.1.0",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-watch": "^1.1.0",
-    "grunt-ts": "^6.0.0-beta.19",
-    "prettier": "^1.11.1",
-    "typescript": "^2.9.2"
-  },
-  "dependencies": {
-    "classnames": "^2.2.5",
-    "moment": "^2.21.0",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.0",
-    "typestyle": "^2.0.1",
-    "utility-types": "^1.1.0"
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "awesome-typescript-loader": "^5.2.1",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "ts-node": "^8.0.1",
+    "typedoc": "^0.14.1",
+    "typescript": "^3.3.1",
+    "@babel/core": "^7.2.2",
+    "webpack": "^4.28.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.14"
   }
 }

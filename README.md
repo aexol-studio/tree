@@ -1,22 +1,15 @@
-![](assets/logo-100.jpg)
+# Graphsource
 
 Diagram is the tool for making node based systems. Define your own behaviour of this react based diagram system and create your tool. Visual programming is trending right now so this is a good basis.
 
-[Project Page](https://diagram.graphqleditor.com)
+Providing highest level of abstracion and theming `graphsource` is the most powerful package around the ecosystem. This package contains no dependencies!
 
-![](assets/features-100.jpg)
+[Project Page](https://diagram.graphqleditor.com)
 
 ## Live demo
 
-Here is [Live Demo](https://demo.graphqleditor.com) of diagram used to create node based graphql system
+Here is [Live Demo](https://app.graphqleditor.com) of diagram used to create node based graphql system
 
-![](assets/gif.gif)
-
-## Add to your project
-
-```sh
-$ npm install @slothking-online/diagram
-```
 
 ## Develop & Contribute
 
@@ -26,84 +19,90 @@ $ npm install
 $ npm run start
 ```
 
-## Define spacebar menu actions
+## Creating new nodes
 
-```tsx
-import { Graph } from '@slothking-online/diagram';
-import * as React from 'react';
-let allCategories = [
+Press RMB to open menu pointing on diagram
+
+## Add to your project
+
+```sh
+$ npm install graphsource
+```
+
+## Usage in project
+
+```ts
+import { Diagram, NodeDefinition, AcceptedNodeDefinition } from 'graphsource'
+this.diagram = new Diagram(document.getElementById("root"));
+const createOND = (name: string): NodeDefinition["node"] => ({
+  name: `${name}Node`,
+  description: `${name} object node`,
+  inputs: [],
+  outputs: []
+});
+const options: NodeOption[] = [
   {
-    name: 'middlewares',
-    items: [
-      {
-        name: 'middleware',
-        type: 'middleware',
-        inputs: [
-          {
-            name: ''
-          }
-        ],
-        outputs: [
-          {
-            name: ''
-          }
-        ]
-      }
-    ]
+    name: "required",
+    help:
+      "Check this if this node is required for creation of the type or is required in input | interface"
+  },
+  {
+    name: "array",
+    help:
+      "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings"
   }
 ];
-
-export const MyGraphComponent = () => <Graph categories={allCategories} />;
+this.diagram!.setDefinitions([
+  {
+    type: "dummy",
+    help: "Hello I am dummy node this is help I do display",
+    node: createOND("dummy"),
+    options,
+    root: true,
+    acceptsInputs: (d, defs) =>
+      defs.map(
+        def =>
+          ({
+            definition: def
+          } as AcceptedNodeDefinition)
+      ),
+    acceptsOutputs: (d, defs) =>
+      defs.map(
+        def =>
+          ({
+            definition: def
+          } as AcceptedNodeDefinition)
+      )
+  }
+]);
 ```
 
-Now if you press spacebar when mouse is on the graph you get this menu, which creates nodes.
+## Docs
 
-## Serialization of data
-
-```jsx
-<Graph
-  categories={allCategories}
-  serialize={(nodes, links) => {
-    //here you receive nodes and links after every graph change
-  }}
-  validate={(node1, node2) => {
-    // not necessary but you can add custom validation function between every node
-  }}
-/>
+To generate docs simply type:
 ```
+npm run docs
+```
+
 
 ### Controls
 
-* Create - press and hold Spacebar and choose category -> node and Left Mouse Button click
+* Create - press and hold right mouse button and choose node -> Left Mouse Button click
 * Pan - press and hold Left Mouse Button and move mouse
 * Move - press and hold Left Mouse Button on node
-* Rename - To rename node simply start typing when one node is selected
-* Connect - Click and hold desired node output and move it to other node's output then release mouse button
-  IMPORTANT: Every node is connectable only if it creates valid schema. Experiment to test
-* Node Properties - Click right mouse button on node
-* CMD/CTRL + Left Mouse Button Click - select multiple nodes
-* Delete - Click delete button when node/nodes are selected or right click -> delete
-
-## Keyboard shortcuts
-
-* CMD/CTRL + Mouse Click - Select multiple nodes
-* CMD/CTRL + L - Beautify diagram
-* CMD/CTRL + Z - Undo
-* CMD/CTRL + Y - Redo
-* CMD/CTRL + D - Duplicate Nodes
-* CMD/CTRL + F - Find nodes
-* ALT/OPTION + V - Find duplicate definitions(Validate)
-* ALT/OPTION + LMB on cloned node - navigate to definition
 * RIGHT MOUSE CLICK on node - node actions
+* CLICK ON NODE INPUT - open new nodes menu
+* Rename - To rename node simply start typing when one node is selected
+* Rename description - To rename node description clik right mouse button on node and click renameDescription
+* SHIFT + Left Mouse Button Click - select multiple nodes
+* Delete - Click delete button when node/nodes are selected or right click -> delete
 
 ## Contribute
 
-Feel free to contact us and contribute in graphql editor project. aexol@aexol.com
+Feel free to contact us and contribute in graphql editor project. artur@graphqleditor.com
 
 1.  fork this repo
 2.  Create your feature branch: git checkout -b feature-name
 3.  Commit your changes: git commit -am 'Add some feature'
 4.  Push to the branch: git push origin my-new-feature
 5.  Submit a pull request
-
-![](assets/roadmap-100.jpg)
