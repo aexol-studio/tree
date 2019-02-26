@@ -112,6 +112,8 @@ export class MenuManager {
             io === "i" ? node : createdNode,
             io === "o" ? node : createdNode
           );
+          if (this.theme.autoBeuatify)
+            this.nodeManager.beautifyNodesInPlace(createdNode);
         }
       });
       const createTopicCategory = (defs: AcceptedNodeDefinition): Category =>

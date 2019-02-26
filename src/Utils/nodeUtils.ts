@@ -173,42 +173,72 @@ export class NodeUtils {
     theme: DiagramTheme = DefaultDiagramTheme
   ): Graph => {
     if (graph.nodes.length === 0) return graph;
-
     let levels: Record<string, Node[]> = {};
     const repositioned: Node[] = [];
+    const { center } = graph;
     const repositionNode = (n: Node, level: number = 0) => {
       if (repositioned.find(r => r === n)) return;
       levels[level] = levels[level] || [];
       repositioned.push(n);
       levels[level].push(n);
       n.inputs && n.inputs.forEach(i => repositionNode(i, level - 1));
-      n.outputs && n.outputs.forEach(i => repositionNode(i, level + 1));
     };
-    if (graph.nodes.length === 0) return graph;
-    repositionNode(graph.nodes[0]);
-    const levelsKeys = Object.keys(levels);
+    repositionNode(
+      graph.nodes.find(n => !n.outputs || n.outputs.length === 0)!
+    );
+    const levelsKeys = Object.keys(levels).map(k => parseInt(k));
+    levelsKeys.sort((a, b) => a - b);
     const { node, port } = theme;
     const width =
       levelsKeys.length * (node.width + node.spacing.x + port.width * 2) -
       node.spacing.x;
-    const maxHeight =
-      Math.max(...levelsKeys.map(l => levels[l].length)) *
-      (node.height + node.spacing.y);
-    levelsKeys
-      .map(k => parseInt(k))
-      .forEach(x => {
-        let height = levels[x].length * (node.height + node.spacing.y);
-        const centrise = (maxHeight - height) / maxHeight;
-        levels[x].forEach((node, index, a) => {
-          node.x = (x * width) / levelsKeys.length;
-          node.y = ((index - 1) * height) / a.length + centrise;
+    levelsKeys.forEach((x, i) => {
+      let lastNode = 0;
+      if (i === 0)
+        levels[x].sort((a, b) => {
+          const aOutput = a.outputs![0].id;
+          const bOutput = b.outputs![0].id;
+          if (aOutput === bOutput) return 0;
+          return aOutput > bOutput ? 1 : -1;
         });
+      else
+        levels[x].sort((a, b) => {
+          if (!b.inputs || b.inputs.length === 0) return -2;
+          if (a.inputs === b.inputs) return 0;
+          return (a.inputs ? a.inputs.length : 0) >
+            (b.inputs ? b.inputs.length : 0)
+            ? 1
+            : -1;
+        });
+      levels[x].forEach((n, index, a) => {
+        n.x = (i * width) / levelsKeys.length;
+        if (n.inputs && n.inputs.length > 0) {
+          const yS = n.inputs.map(i => i.y);
+          const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
+          n.y = (minY + maxY) / 2.0;
+          lastNode = lastNode > n.y ? lastNode : n.y;
+        } else {
+        }
       });
-    graph.height = maxHeight;
-    graph.width = width;
-    graph.center.x = width / 2.0;
-    graph.center.y = maxHeight / 2.0;
-    return graph;
+      levels[x].forEach((n, index, a) => {
+        n.x = (i * width) / levelsKeys.length;
+        if (n.inputs && n.inputs.length > 0) {
+        } else {
+          n.y = lastNode + node.height + node.spacing.y;
+          lastNode = n.y;
+        }
+      });
+    });
+    const newGraph = NodeUtils.graphFromNode(graph.nodes[0]);
+    const diff = {
+      x: center.x - newGraph.center.x,
+      y: center.y - newGraph.center.y
+    };
+    newGraph.nodes.forEach(n => {
+      n.x += diff.x;
+      n.y += diff.y;
+    });
+    return NodeUtils.graphFromNode(graph.nodes[0]);
   };
   static beautifyDiagram = (nodes: Node[], theme: DiagramTheme) => {
     const graphs = NodeUtils.graphsFromNodes(nodes);

@@ -8,7 +8,7 @@ import { NodeOption } from "../src/Models/NodeOption";
 class App {
   diagram?: Diagram = undefined;
   constructor() {
-    this.diagram = new Diagram(document.getElementById("root"));
+    this.diagram = new Diagram(document.getElementById("root")!);
     const createOND = (name: string): NodeDefinition["node"] => ({
       name: `${name}Node`,
       description: `${name} object node`,

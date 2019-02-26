@@ -77,6 +77,23 @@ export class NodeManager {
     this.eventBus.publish(Events.DiagramEvents.NodeChanged);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+  beautifyNodesInPlace = (node: Node) => {
+    const graph = NodeUtils.graphFromNode(node);
+    const {
+      center: { x, y }
+    } = graph;
+    const graph2 = NodeUtils.positionGraph(graph, this.theme);
+    const diff = {
+      x: x - graph2.center.x,
+      y: y - graph2.center.y
+    };
+    graph2.nodes.forEach(n => {
+      n.x += diff.x;
+      n.y += diff.y;
+    });
+    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
   openNodeMenu = (e: ScreenPosition) => {
     if (this.state.draw) {
       return;
@@ -112,19 +129,7 @@ export class NodeManager {
           name: "beautify graph",
           help: "Beautify graph and put nodes in good positions",
           action: () => {
-            const graph = NodeUtils.graphFromNode(node);
-            NodeUtils.positionGraph(graph, this.theme);
-            const graph2 = NodeUtils.graphFromNode(node);
-            const diff = {
-              x: graph.center.x - graph2.center.x,
-              y: graph.center.y - graph2.center.y
-            };
-            graph2.nodes.forEach(n => {
-              n.x += diff.x;
-              n.y += diff.y;
-            });
-            this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
-            this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+            this.beautifyNodesInPlace(node);
           }
         }
       ];
