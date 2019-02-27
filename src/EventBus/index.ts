@@ -7,7 +7,10 @@ import { DiagramEvents, IOEvents } from "../Events";
  * - providing possibility of subscribing to particular topics
  * - providing possibility of publishing events to particular topics
  */
-export type EventBusListener = <T extends any[]>(...args: T) => {};
+export type EventBusListener = <T extends any[]>(
+  topic: Topic,
+  ...args: T
+) => {};
 type Topic = DiagramEvents | IOEvents;
 export class EventBus {
   private eventListener?: EventBusListener;
