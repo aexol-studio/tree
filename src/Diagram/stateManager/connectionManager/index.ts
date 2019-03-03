@@ -127,7 +127,6 @@ export class ConnectionManager {
       return false;
     };
     if (!this.connectionFunction(i, o) || linkExists() || !correctType()) {
-      this.state.drawedConnection = undefined;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;
     }
