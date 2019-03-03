@@ -2,11 +2,11 @@ import { Renderer } from "../Renderer";
 import { EventBus, EventBusListener } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
-import { DiagramTheme, Node, Size, Link, DiagramState } from "../Models";
+import { Node, Size, Link, DiagramState } from "../Models";
 
-import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 import { NodeDefinition } from "../Models/NodeDefinition";
 import { NodeUtils } from "../Utils/index";
+import { DiagramOptions, ConfigurationManager } from "../Configuration/index";
 
 /**
  * Diagram:
@@ -21,6 +21,7 @@ export class Diagram {
   private currentHostSize: Size;
   private stateManager: StateManager;
   private canvasElement: HTMLCanvasElement;
+  public configuration: ConfigurationManager;
 
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
@@ -52,7 +53,7 @@ export class Diagram {
     this.stateManager.rebuildTrees();
   }
   beautifyDiagram(nodes: Node[]) {
-    NodeUtils.beautifyDiagram(nodes, this.theme);
+    NodeUtils.beautifyDiagram(nodes, this.configuration.getOption('theme'));
   }
   centerDiagram() {
     this.stateManager.centerGraph();
@@ -60,11 +61,35 @@ export class Diagram {
   zeroDiagram() {
     this.stateManager.zeroGraph();
   }
-  calculateElementSize(domElement: HTMLElement) {
+  resize(width: number, height: number) {
+    const targetSize = {
+      width,
+      height,
+    };
+
+    this.currentHostSize = targetSize;
+
+    const areaSize = {
+      width: targetSize.width * 2,
+      height: targetSize.height * 2
+    };
+
+    this.canvasElement.width = areaSize.width;
+    this.canvasElement.height = areaSize.height;
+
+    this.canvasElement.style.width = `${targetSize.width}px`;
+    this.canvasElement.style.height = `${targetSize.height}px`;
+
+    this.stateManager.areaResized({
+      width: this.canvasElement.width,
+      height: this.canvasElement.height
+    });
+  }
+  private calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
-  resize = () => {
-    const newHostSize = this.calculateElementSize(this.domElement);
+  private autoResize = () => {
+    const newHostSize = this.calculateElementSize(this.hostDomElement);
     if (
       newHostSize.width !== this.currentHostSize.width ||
       newHostSize.height !== this.currentHostSize.height
@@ -88,19 +113,16 @@ export class Diagram {
       });
     }
   };
+
   wireUpResizer() {
     window.addEventListener("resize", () => {
-      this.resize();
+      this.autoResize();
     });
   }
 
   constructor(
-    private domElement: HTMLElement,
-    private theme: DiagramTheme = DefaultDiagramTheme,
-    connectionFunction: (input: Node, output: Node) => boolean = (
-      input,
-      output
-    ) => true
+    private hostDomElement: HTMLElement,
+    options?: Partial<DiagramOptions>,
   ) {
     if (typeof document === "undefined") {
       throw new Error(
@@ -108,34 +130,39 @@ export class Diagram {
       );
     }
 
+    this.configuration = new ConfigurationManager(options || {});
+
     this.canvasElement = document.createElement("canvas");
     this.canvasElement.tabIndex = 0
     const canvasContext = this.canvasElement.getContext("2d");
 
     canvasContext!.font = "10px Helvetica";
 
-    const hostSize = this.calculateElementSize(document.body);
+    const hostSize = this.calculateElementSize(hostDomElement);
 
     this.currentHostSize = hostSize;
 
     this.canvasElement.oncontextmenu = () => false;
 
+    const targetWidth = this.configuration.getOption('width') || hostSize.width;
+    const targetHeight = this.configuration.getOption('height') || hostSize.height;
+
     const areaSize = {
-      width: hostSize.width * 2,
-      height: hostSize.height * 2
+      width: targetWidth * 2,
+      height: targetHeight * 2
     };
 
     this.canvasElement.width = areaSize.width;
     this.canvasElement.height = areaSize.height;
 
-    this.canvasElement.style.width = `${hostSize.width}px`;
-    this.canvasElement.style.height = `${hostSize.height}px`;
+    this.canvasElement.style.width = `${targetWidth}px`;
+    this.canvasElement.style.height = `${targetHeight}px`;
 
-    while (domElement.firstChild) {
-      domElement.removeChild(domElement.firstChild);
+    while (hostDomElement.firstChild) {
+      hostDomElement.removeChild(hostDomElement.firstChild);
     }
 
-    domElement.appendChild(this.canvasElement);
+    hostDomElement.appendChild(this.canvasElement);
     if (!canvasContext) {
       throw new Error("Can't create canvas context!");
     }
@@ -148,8 +175,8 @@ export class Diagram {
     // initialize state manager
     this.stateManager = new StateManager(
       this.eventBus,
-      theme,
-      connectionFunction,
+      this.configuration.getOption('theme'),
+      this.configuration.getOption('connectionFunction'),
       areaSize
     );
 
@@ -158,10 +185,16 @@ export class Diagram {
       this.eventBus,
       canvasContext,
       this.stateManager,
-      theme
+      this.configuration.getOption('theme'),
     );
-    this.wireUpResizer();
-    setInterval(this.resize, 1000);
+
+    if (this.configuration.getOption('autosizeWatcher')) {
+      setInterval(this.autoResize, this.configuration.getOption('autosizeInterval'));
+    }
+
+    if (this.configuration.getOption('autosizeOnWindowResize')) {
+      this.wireUpResizer();
+    }
     // ...start the rendering loop
     this.renderer.renderStart();
   }
