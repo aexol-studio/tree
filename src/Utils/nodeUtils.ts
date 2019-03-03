@@ -91,35 +91,59 @@ export class NodeUtils {
     return nodeDefinitions;
   };
   static getDefinitionAcceptedInputs = (
-    definition: NodeDefinition,
-    definitions: NodeDefinition[]
+    incomingDefinition: NodeDefinition,
+    definitions: NodeDefinition[],
+    definition?: NodeDefinition
   ): NodeDefinition[] =>
     NodeUtils.AcceptedNodeDefinitionsToDefinitions(
-      NodeUtils.getDefinitionAcceptedInputCategories(definition, definitions)
+      NodeUtils.getDefinitionAcceptedInputCategories(
+        incomingDefinition,
+        definitions,
+        definition
+      )
     );
   static getDefinitionAcceptedOutputs = (
-    definition: NodeDefinition,
-    definitions: NodeDefinition[]
+    incomingDefinition: NodeDefinition,
+    definitions: NodeDefinition[],
+    definition?: NodeDefinition
   ): NodeDefinition[] =>
     NodeUtils.AcceptedNodeDefinitionsToDefinitions(
-      NodeUtils.getDefinitionAcceptedOutputCategories(definition, definitions)
+      NodeUtils.getDefinitionAcceptedOutputCategories(
+        incomingDefinition,
+        definitions,
+        definition
+      )
     );
   static getDefinitionAcceptedOutputCategories = (
-    definition: NodeDefinition,
-    definitions: NodeDefinition[]
+    incomingDefinition: NodeDefinition,
+    definitions: NodeDefinition[],
+    definition?: NodeDefinition
   ) => {
     let defs: AcceptedNodeDefinition[] = [];
-    if (definition.acceptsOutputs)
-      defs = defs.concat(definition.acceptsOutputs(definition, definitions));
+    if (incomingDefinition.acceptsOutputs)
+      defs = defs.concat(
+        incomingDefinition.acceptsOutputs(
+          incomingDefinition,
+          definitions,
+          definition
+        )
+      );
     return Utils.dedupe(defs);
   };
   static getDefinitionAcceptedInputCategories = (
-    definition: NodeDefinition,
-    definitions: NodeDefinition[]
+    incomingDefinition: NodeDefinition,
+    definitions: NodeDefinition[],
+    definition?: NodeDefinition
   ) => {
     let defs: AcceptedNodeDefinition[] = [];
-    if (definition.acceptsInputs)
-      defs = defs.concat(definition.acceptsInputs(definition, definitions));
+    if (incomingDefinition.acceptsInputs)
+      defs = defs.concat(
+        incomingDefinition.acceptsInputs(
+          incomingDefinition,
+          definitions,
+          definition
+        )
+      );
     return Utils.dedupe(defs);
   };
   static graphFromNode = (n: Node): Graph => {

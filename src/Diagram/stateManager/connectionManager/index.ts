@@ -110,7 +110,11 @@ export class ConnectionManager {
     const linkExists = () =>
       !!this.state.links.find(l => l.i === i && l.o === o);
     const correctType = () => {
-      const acceptsInputs = NodeUtils.getDefinitionAcceptedInputs(i.definition,this.state.nodeDefinitions);
+      const acceptsInputs = NodeUtils.getDefinitionAcceptedInputs(
+        i.definition,
+        this.state.nodeDefinitions,
+        o.definition
+      );
       if (!acceptsInputs) {
         return false;
       }

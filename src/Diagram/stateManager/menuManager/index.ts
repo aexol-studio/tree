@@ -127,7 +127,8 @@ export class MenuManager {
       if (io === "i" && node.inputs) {
         this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
           definition,
-          this.state.nodeDefinitions
+          this.state.nodeDefinitions,
+          
         ).map(createTopicCategory);
       } else if (io === "o" && node.outputs) {
         this.state.categories = NodeUtils.getDefinitionAcceptedOutputCategories(

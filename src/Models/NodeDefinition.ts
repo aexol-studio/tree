@@ -18,12 +18,14 @@ export interface NodeDefinition<Data = {}> {
   };
   type: string;
   acceptsInputs?: (
-    definition: NodeDefinition<Data>,
-    allDefinitions: NodeDefinition<Data>[]
+    incomingDefinition: NodeDefinition<Data>,
+    allDefinitions: NodeDefinition<Data>[],
+    definition?: NodeDefinition<Data>
   ) => AcceptedNodeDefinition<Data>[];
   acceptsOutputs?: (
-    definition: NodeDefinition<Data>,
-    allDefinitions: NodeDefinition<Data>[]
+    incomingDefinition: NodeDefinition<Data>,
+    allDefinitions: NodeDefinition<Data>[],
+    definition?: NodeDefinition<Data>
   ) => AcceptedNodeDefinition<Data>[];
   instances?: Partial<NodeDefinition<Data>>[];
   options?: NodeOption[];

@@ -88,11 +88,18 @@ export class IO {
       }
     });
     element.addEventListener("keydown", e => {
+      const ctrl = (e.ctrlKey || e.metaKey)
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
       }
       if (e.key === "delete") {
         this.eventBus.publish(Events.IOEvents.DeletePressed);
+      }
+      if (e.key === "z" && ctrl && !e.shiftKey) {
+        this.eventBus.publish(Events.DiagramEvents.UndoRequested);
+      }
+      if (e.key === "z" && ctrl && e.shiftKey) {
+        this.eventBus.publish(Events.DiagramEvents.RedoRequested);
       }
     });
   }

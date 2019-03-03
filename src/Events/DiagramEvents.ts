@@ -18,6 +18,8 @@ export enum DiagramEvents {
   PickRequested = "PickRequested",
   RebuildTreeRequested = "RebuildTreeRequested",
   RenderRequested = "RenderRequested",
-  SerialisationRequested = "SerialisationRequested"
+  SerialisationRequested = "SerialisationRequested",
+  UndoRequested = "UndoRequested",
+  RedoRequested = "RedoRequested"
   // ...
 }
