@@ -88,7 +88,7 @@ export class Diagram {
   private calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
-  private autoResize = () => {
+  autoResize = () => {
     const newHostSize = this.calculateElementSize(this.hostDomElement);
     if (
       newHostSize.width !== this.currentHostSize.width ||
