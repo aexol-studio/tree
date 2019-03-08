@@ -5,9 +5,6 @@
  * Used by IO service to put events on a bus
  */
 export enum IOEvents {
-  LeftMouseClick = "LeftMouseClick",
-  DoubleClick = "DoubleClick",
-
   ScreenMouseMove = "ScreenMouseMove",
   ScreenMouseDrag = "ScreenMouseDrag",
   ScreenMouseOverMove = "ScreenMouseOverMove",

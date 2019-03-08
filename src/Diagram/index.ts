@@ -1,5 +1,5 @@
 import { Renderer } from "../Renderer";
-import { EventBus, EventBusListener } from "../EventBus";
+import { EventBus, Topic } from "../EventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "../IO";
 import { Node, Size, Link, DiagramState } from "../Models";
@@ -34,8 +34,11 @@ export class Diagram {
   ) {
     this.stateManager.setPositionSerialisationFunction(fn);
   }
-  setEventListener(fn: EventBusListener) {
-    this.eventBus.setEventListener(fn);
+  on(topic: Topic | string, callback: Function) {
+    return this.eventBus.on(topic, callback);
+  }
+  off(topic: Topic | string, callback: Function) {
+    return this.eventBus.off(topic, callback);
   }
   setNodes(nodes: Node[], beautify?: boolean) {
     if (beautify) {

@@ -61,6 +61,7 @@ export class StateManager {
         scale: 1.0,
         areaSize,
         draggingWorld: false,
+        draggingElements: false,
         draggingMinimap: false
       },
       serialisationFunction: Serializer.serialize,

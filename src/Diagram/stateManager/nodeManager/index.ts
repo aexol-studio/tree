@@ -48,12 +48,13 @@ export class NodeManager {
     if (!selectedNodes.length) {
       return;
     }
-    this.state.uiState.draggingWorld = true;
+    this.state.uiState.draggingElements = true;
     for (const n of selectedNodes) {
       n.x += e.x - this.state.uiState!.lastDragPosition!.x;
       n.y += e.y - this.state.uiState!.lastDragPosition!.y;
     }
     this.state.uiState!.lastDragPosition = { ...e };
+    this.eventBus.publish(Events.DiagramEvents.NodeMoving, selectedNodes);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   movedNodes = () => {
@@ -203,7 +204,7 @@ export class NodeManager {
     } else {
       this.state.selectedNodes = [];
     }
-    this.eventBus.publish(Events.DiagramEvents.NodeSelected);
+    this.eventBus.publish(Events.DiagramEvents.NodeSelected, this.state.selectedNodes);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   placeConnectedNode = (node: Node, io: "i" | "o") => {

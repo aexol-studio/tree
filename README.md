@@ -77,6 +77,56 @@ this.diagram!.setDefinitions([
 ]);
 ```
 
+## Listening to diagram events
+
+It's possible to attach to certain events that occur inside the diagram.
+You can do it by using familiar `.on()` syntax, e.g.:
+
+```
+this.diagram = new Diagram(/* ... */);
+/* ... */
+this.diagram.on(EVENT_NAME, () => {
+  // callback
+});
+```
+
+Here is the list of all subscribable events:
+*) *DataModelChanged* - fires when a data model (nodes, links placement and content) was changed
+*) *ViewModelChanged* - fires when a view model (pan, zoom) was changed
+*) *NodeMoving* - fires when node is being moved
+*) *NodeMoved* - fires when node stops being moved
+*) *NodeSelected* - fires when node(s) was selected
+*) *NodeCreated* - fires when node was created
+*) *NodeDeleted* - fires when node was deleted
+*) *NodeChanged* - fires when node was modified
+*) *LinkCreated* - fires when a link was created
+*) *LinkDeleted* - fires when a link was deleted
+*) *LinkMoved* - fires when a link stops being moved
+*) *UndoRequested* - fires when undo was requested
+*) *RedoRequested* - fires when redo was requested
+
+You can unsubscribe your listener either by using `.off()`, or by invoking unsubscriber function that is being returned from `.on()`:
+
+```
+this.diagram = new Diagram(/* ... */);
+const callback = (nodeList) => {
+  console.log('Nodes are moving!', nodeList);
+};
+this.diagram.on('NodeMoving', callback); // callback will be fired
+// ...
+this.diagram.off('NodeMoving', callback); // callback will not be fired anymore
+```
+
+```
+this.diagram = new Diagram(/* ... */);
+const callback = () => {
+  console.log('node moving!');
+};
+const unsubscriber = this.diagram.on('NodeMoving', callback); // callback will be fired
+// ...
+unsubscriber(); // callback will not be fired anymore
+```
+
 ## Docs
 
 To generate docs simply type:

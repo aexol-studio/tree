@@ -87,7 +87,7 @@ export class ConnectionManager {
         io,
         initialPos: e
       };
-      this.state.uiState!.draggingWorld = true;
+      this.state.uiState!.draggingElements = true;
       return;
     }
     this.state.draw = undefined;
@@ -162,8 +162,8 @@ export class ConnectionManager {
     if (!link) {
       return;
     }
-    if (!this.state.uiState.draggingWorld) {
-      this.state.uiState.draggingWorld = true;
+    if (!this.state.uiState.draggingElements) {
+      this.state.uiState.draggingElements = true;
       return;
     }
     link.centerPoint = Utils.clamp(

@@ -7,17 +7,12 @@ import { DiagramEvents, IOEvents } from "../Events";
  * - providing possibility of subscribing to particular topics
  * - providing possibility of publishing events to particular topics
  */
-export type EventBusListener = <T extends any[]>(
-  topic: Topic,
-  ...args: T
-) => {};
-type Topic = DiagramEvents | IOEvents;
+export type Topic = DiagramEvents | IOEvents;
 export class EventBus {
-  private eventListener?: EventBusListener;
+
   private topics: { [key: string]: Function[] } = {};
-  setEventListener(fn: EventBusListener) {
-    this.eventListener = fn;
-  }
+  private externalSubscribers: { [key: string]: Function[] } = {};
+
   subscribe(topic: Topic, callback: Function) {
     if (!this.topics[topic]) {
       this.topics[topic] = [];
@@ -27,12 +22,29 @@ export class EventBus {
   }
 
   publish<T>(topic: Topic, ...args: T[]) {
-    if (!this.topics[topic]) {
-      return;
-    }
-    this.topics[topic].forEach((callback, index) => {
+    [
+      ...(this.topics[topic] || []),
+      ...(this.externalSubscribers[topic] || []),
+    ].forEach((callback, index) => {
       callback(...args);
     });
-    this.eventListener && this.eventListener(topic, ...args);
+  }
+
+  on(topic: Topic | string, callback: Function) {
+    if (!this.externalSubscribers[topic]) {
+      this.externalSubscribers[topic] = [];
+    }
+
+    this.externalSubscribers[topic].push(callback);
+
+    return () => this.off(topic, callback);
+  }
+
+  off(topic: Topic | string, callback: Function) {
+    if (!this.externalSubscribers[topic]) {
+      return;
+    }
+
+    this.externalSubscribers[topic] = this.externalSubscribers[topic].filter(existingCallback => existingCallback !== callback);
   }
 }
