@@ -50,6 +50,7 @@ export class UIManager {
     this.state.scale = newScale;
 
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, this.getViewModel());
   };
 
   worldToScreen = (e: ScreenPosition): ScreenPosition => {
@@ -122,7 +123,7 @@ export class UIManager {
   mouseDrag = (e: ScreenPosition) => {
     const isInsideMinimap = this.calculateMinimapPosition(e);
 
-    if (isInsideMinimap && !this.state.draggingWorld) {
+    if (isInsideMinimap && !this.state.draggingElements) {
       return;
     }
     const withoutPan = {
@@ -140,9 +141,22 @@ export class UIManager {
     });
   };
 
+  getViewModel() {
+    return {
+      pan: {
+        x: this.state.panX,
+        y: this.state.panY,
+      },
+      scale: this.state.scale,
+    };
+  }
+
   LMBUp = (e: ScreenPosition) => {
-    if (this.state.draggingWorld) {
+    if (this.state.draggingElements) {
       this.eventBus.publish(Events.IOEvents.WorldMouseDragEnd);
+    }
+    if (this.state.draggingWorld) {
+      this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, this.getViewModel());
     }
     this.eventBus.publish(Events.IOEvents.WorldLeftMouseUp, {
       x: e.x / this.state.scale - this.state.panX!,
@@ -150,6 +164,7 @@ export class UIManager {
       shiftKey: e.shiftKey
     });
     this.state.draggingWorld = false;
+    this.state.draggingElements = false;
     this.state.draggingMinimap = false;
   };
 

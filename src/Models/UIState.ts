@@ -12,5 +12,6 @@ export interface UIState {
     height: number,
   },
   draggingWorld: boolean;
+  draggingElements: boolean;
   draggingMinimap: boolean;
 }

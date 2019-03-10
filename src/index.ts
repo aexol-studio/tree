@@ -1,4 +1,5 @@
 export { Diagram } from "./Diagram";
+export { Topic } from "./EventBus";
 export * from "./Utils";
 export * from "./Models";
 export * from "./Serialization";

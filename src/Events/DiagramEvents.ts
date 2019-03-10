@@ -5,9 +5,9 @@
  * Used possibly to indicate that diagram state have changed
  */
 export enum DiagramEvents {
+  NodeMoving = "NodeMoving",
   NodeMoved = "NodeMoved",
   NodeSelected = "NodeSelected",
-  NodeHover = "NodeHover",
   NodeCreated = "NodeCreated",
   NodeDeleted = "NodeDeleted",
   NodeChanged = "NodeChanged",
@@ -20,6 +20,8 @@ export enum DiagramEvents {
   RenderRequested = "RenderRequested",
   SerialisationRequested = "SerialisationRequested",
   UndoRequested = "UndoRequested",
-  RedoRequested = "RedoRequested"
+  RedoRequested = "RedoRequested",
+  DataModelChanged = "DataModelChanged",
+  ViewModelChanged = "ViewModelChanged",
   // ...
 }

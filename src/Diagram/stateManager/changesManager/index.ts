@@ -39,16 +39,23 @@ export class ChangesManager {
   }
   dataChange = () => {
     this.snapshot("past");
-    this.state.serialisationFunction({
+    const payload = {
       nodes: this.state.nodes,
       links: this.state.links
-    });
+    };
+    this.eventBus.publish(Events.DiagramEvents.DataModelChanged, payload);
+    this.state.serialisationFunction(payload);
   };
-  positionChange = () =>
-    this.state.positionSerialisationFunction({
+  positionChange = () => {
+    const payload = {
       nodes: this.state.nodes,
       links: this.state.links
-    });
+    };
+    this.eventBus.publish(Events.DiagramEvents.DataModelChanged, payload);
+
+    // todo: deprecate this
+    this.state.positionSerialisationFunction(payload);
+  };
   unsnap = (time: SnapshotType) => {
     const state = this[time].pop()!;
     this.snapshot(time === "past" ? "future" : "past");
