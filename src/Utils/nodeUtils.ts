@@ -276,7 +276,7 @@ export class NodeUtils {
     bb: {
       min: {
         x: data.x - theme.port.width,
-        y: data.y
+        y: data.y - theme.node.typeSize
       },
       max: {
         x: data.x + theme.node.width + theme.port.width,

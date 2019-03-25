@@ -21,6 +21,7 @@ export class DescriptionRenderer {
         paddingVertical,
         triangleHeight,
         triangleWidth,
+        triangleDistance,
         width
       } = this.theme.description;
       const textWidth = width - paddingHorizontal * 2;
@@ -33,7 +34,7 @@ export class DescriptionRenderer {
       Bubble(
         this.context,
         node.x + this.theme.node.width / 2.0,
-        node.y,
+        node.y - triangleDistance,
         width,
         bubbleHeight,
         triangleWidth,
@@ -47,9 +48,10 @@ export class DescriptionRenderer {
         x: node.x + this.theme.node.width / 2.0,
         y:
           node.y -
-          this.theme.description.triangleHeight -
+          triangleDistance -
+          triangleHeight -
           bubbleHeight +
-          paddingVertical*2,
+          paddingVertical * 2,
         lineHeight,
         text: node.description,
         width: textWidth

@@ -37,6 +37,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     fontSize: 24,
     triangleHeight: 20,
     triangleWidth: 20,
+    triangleDistance:20,
     lineHeight: 36
   },
   port: {
@@ -81,6 +82,9 @@ export const DefaultDiagramTheme: DiagramTheme = {
       options: {
         required: Colors.red[0],
         array: Colors.yellow[0]
+      },
+      hover: {
+        type: Colors.yellow[0]
       }
     },
     minimap: {

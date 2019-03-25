@@ -24,6 +24,10 @@ export class NodeManager {
       this.selectNode
     );
     this.eventBus.subscribe(
+      Events.IOEvents.ScreenLeftMouseClick,
+      this.goToNodeType
+    );
+    this.eventBus.subscribe(
       Events.IOEvents.ScreenDoubleClick,
       this.graphSelect
     );
@@ -183,9 +187,26 @@ export class NodeManager {
       this.renameNode(node, e);
     });
   };
+  goToNodeType = (e: ScreenPosition) => {
+    const { type, node } = this.state.hover;
+    if (type && node && node.definition.parent) {
+      const parentNode = this.state.nodes.find(
+        n => n.definition === node.definition.parent
+      )!;
+      this.selectSingleNode(parentNode)
+      this.eventBus.publish(
+        Events.DiagramEvents.NodeSelected,
+        this.state.selectedNodes
+      );
+      this.eventBus.publish(Events.DiagramEvents.CenterPanRequested, {
+        x: parentNode.x,
+        y: parentNode.y
+      });
+    }
+  };
   selectNode = (e: ScreenPosition) => {
-    const { node, io } = this.state.hover;
-    if (node && !io) {
+    const { node, io, type } = this.state.hover;
+    if (node && !io && !type) {
       if (e.shiftKey) {
         const hasIndex = this.state.selectedNodes.indexOf(node);
         if (hasIndex !== -1) {
@@ -204,7 +225,10 @@ export class NodeManager {
     } else {
       this.state.selectedNodes = [];
     }
-    this.eventBus.publish(Events.DiagramEvents.NodeSelected, this.state.selectedNodes);
+    this.eventBus.publish(
+      Events.DiagramEvents.NodeSelected,
+      this.state.selectedNodes
+    );
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   placeConnectedNode = (node: Node, io: "i" | "o") => {

@@ -29,6 +29,28 @@ class App {
     ];
     this.diagram!.setDefinitions([
       {
+        type: "www",
+        help: "Hello I am dummy node this is help I do display",
+        node: createOND("www"),
+        options,
+        root: true,
+        instances: [{}],
+        acceptsInputs: (d, defs) =>
+          defs.map(
+            def =>
+              ({
+                definition: def
+              } as AcceptedNodeDefinition)
+          ),
+        acceptsOutputs: (d, defs) =>
+          defs.map(
+            def =>
+              ({
+                definition: def
+              } as AcceptedNodeDefinition)
+          )
+      },
+      {
         type: "dummy",
         help: "Hello I am dummy node this is help I do display",
         node: createOND("dummy"),

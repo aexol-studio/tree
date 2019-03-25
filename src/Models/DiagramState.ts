@@ -38,6 +38,7 @@ export interface DiagramState {
       index: number;
     };
     io?: "i" | "o";
+    type?: boolean;
     description?: Node;
   };
   menu?: {

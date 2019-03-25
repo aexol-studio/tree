@@ -17,6 +17,7 @@
     "@types/uuid": "^3.4.4",
     "awesome-typescript-loader": "^5.2.1",
     "chai": "^4.2.0",
+    "cz-conventional-changelog": "^2.1.0",
     "mocha": "^5.2.0",
     "ts-node": "^8.0.1",
     "typedoc": "^0.14.1",
@@ -27,5 +28,10 @@
   },
   "dependencies": {
     "uuid": "^3.3.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }

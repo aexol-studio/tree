@@ -142,6 +142,7 @@ npm run docs
 * Move - press and hold Left Mouse Button on node
 * RIGHT MOUSE CLICK on node - node actions
 * CLICK ON NODE INPUT - open new nodes menu
+* CLICK ON NODE TYPE - if node is a children of other node it centers view on parent node
 * Rename - To rename node simply start typing when one node is selected
 * Rename description - To rename node description clik right mouse button on node and click renameDescription
 * SHIFT + Left Mouse Button Click - select multiple nodes

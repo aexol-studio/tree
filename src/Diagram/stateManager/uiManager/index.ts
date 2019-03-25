@@ -27,6 +27,8 @@ export class UIManager {
       this.LMBPressed
     );
     this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.LMBUp);
+    this.eventBus.subscribe(Events.DiagramEvents.PanRequested, this.panTo);
+    this.eventBus.subscribe(Events.DiagramEvents.CenterPanRequested, this.centerPanTo);
   }
 
   mouseWheel = (delta: number, mouseX: number, mouseY: number) => {
@@ -50,7 +52,10 @@ export class UIManager {
     this.state.scale = newScale;
 
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, this.getViewModel());
+    this.eventBus.publish(
+      Events.DiagramEvents.ViewModelChanged,
+      this.getViewModel()
+    );
   };
 
   worldToScreen = (e: ScreenPosition): ScreenPosition => {
@@ -145,9 +150,9 @@ export class UIManager {
     return {
       pan: {
         x: this.state.panX,
-        y: this.state.panY,
+        y: this.state.panY
       },
-      scale: this.state.scale,
+      scale: this.state.scale
     };
   }
 
@@ -156,7 +161,10 @@ export class UIManager {
       this.eventBus.publish(Events.IOEvents.WorldMouseDragEnd);
     }
     if (this.state.draggingWorld) {
-      this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, this.getViewModel());
+      this.eventBus.publish(
+        Events.DiagramEvents.ViewModelChanged,
+        this.getViewModel()
+      );
     }
     this.eventBus.publish(Events.IOEvents.WorldLeftMouseUp, {
       x: e.x / this.state.scale - this.state.panX!,

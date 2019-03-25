@@ -35,6 +35,7 @@ export interface DiagramTheme {
     paddingVertical: number;
     triangleWidth: number;
     triangleHeight: number;
+    triangleDistance: number;
   };
   port: {
     gap: number;
@@ -93,6 +94,9 @@ export interface DiagramTheme {
       type: string;
       types: Record<string, string>;
       options: Record<string, string>;
+      hover: {
+        type: string;
+      };
     };
     port: {
       background: string;
