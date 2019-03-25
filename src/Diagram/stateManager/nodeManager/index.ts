@@ -191,9 +191,11 @@ export class NodeManager {
     const { type, node } = this.state.hover;
     if (type && node && node.definition.parent) {
       const parentNode = this.state.nodes.find(
-        n => n.definition === node.definition.parent
+        n =>
+          !!n.editsDefinitions &&
+          !!n.editsDefinitions.find(e => e === node.definition)
       )!;
-      this.selectSingleNode(parentNode)
+      this.selectSingleNode(parentNode);
       this.eventBus.publish(
         Events.DiagramEvents.NodeSelected,
         this.state.selectedNodes
