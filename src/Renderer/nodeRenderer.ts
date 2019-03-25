@@ -13,12 +13,14 @@ export class NodeRenderer {
   }
   render = ({
     node,
+    typeIsHovered,
     isHovered,
     isSelected,
     inputActive,
     outputActive
   }: {
     node: Node;
+    typeIsHovered?: boolean;
     isHovered?: boolean;
     isSelected?: boolean;
     outputActive?: boolean;
@@ -48,10 +50,19 @@ export class NodeRenderer {
     });
     this.context.fillStyle =
       colors.node.types[node.definition.type] || colors.node.name;
+    let typeContent = node.definition.type
+    if (typeIsHovered && node.definition.parent) {
+      this.context.fillStyle = colors.node.hover.type;
+      typeContent += ' >'
+    }
     this.context.font = this.getNodeFont(typeSize, "normal");
     this.context.textBaseline = "bottom";
     this.context.textAlign = "end";
-    this.context.fillText(node.definition.type, node.x! + width, node.y!);
+    this.context.fillText(
+      typeContent,
+      node.x! + width,
+      node.y!
+    );
     this.context.font = this.getNodeFont(nameSize, "normal");
     this.context.textAlign = "center";
     this.context.textBaseline = "middle";

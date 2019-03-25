@@ -80,8 +80,9 @@ export class HoverManager {
         : distance.x < 0 && node.inputs
         ? "i"
         : undefined;
-    if (this.state.hover.io !== io || this.state.hover.node !== node) {
-      this.state.hover = { node, io };
+    const type = distance.y < 0 ? true : undefined;
+    if (this.state.hover.io !== io || this.state.hover.node !== node || this.state.hover.type !== type) {
+      this.state.hover = { node, io, type };
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };

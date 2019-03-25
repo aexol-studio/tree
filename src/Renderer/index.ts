@@ -93,6 +93,10 @@ export class Renderer {
     }
     if (state.hover.node) {
       this.setCursor("move");
+      if (state.hover.type && state.hover.node.definition.parent) {
+        this.setCursor("pointer");
+        return;
+      }
       if (state.hover.io) {
         this.setCursor("crosshair");
         return;
@@ -129,8 +133,9 @@ export class Renderer {
         !state.renamed.description
       );
       const isHovered = state.hover.node === n;
-      const inputActive = state.hover.node === n && state.hover.io == "i";
-      const outputActive = state.hover.node === n && state.hover.io == "o";
+      const typeIsHovered = isHovered && state.hover.type;
+      const inputActive = isHovered && state.hover.io == "i";
+      const outputActive = isHovered && state.hover.io == "o";
       const node = {
         ...n
       };
@@ -141,6 +146,7 @@ export class Renderer {
         node,
         isSelected,
         isHovered,
+        typeIsHovered,
         inputActive,
         outputActive
       });
@@ -198,17 +204,6 @@ export class Renderer {
     state.hover.link && this.linkRenderer.render(state.hover.link, "hover");
   }
 
-  /**
-   * Example method!
-   * @param something
-   */
-  renderSomething(something: any) {
-    // ...
-  }
-
-  /**
-   * Example method!
-   */
   renderBackground() {
     const { width, height } = this.context.canvas;
     this.context.fillStyle = Colors.grey[6];

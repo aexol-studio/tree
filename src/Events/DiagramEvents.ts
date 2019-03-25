@@ -23,5 +23,7 @@ export enum DiagramEvents {
   RedoRequested = "RedoRequested",
   DataModelChanged = "DataModelChanged",
   ViewModelChanged = "ViewModelChanged",
+  PanRequested = "PanRequested",
+  CenterPanRequested = "CenterPanRequested",
   // ...
 }
