@@ -136,8 +136,8 @@ export class Diagram {
     this.configuration = new ConfigurationManager(options || {});
 
     this.canvasElement = document.createElement("canvas");
-    this.canvasElement.tabIndex = 0
-    this.canvasElement.style.outline = "none"
+    this.canvasElement.tabIndex = -1;
+    this.canvasElement.style.outline = "none";
     const canvasContext = this.canvasElement.getContext("2d");
 
     canvasContext!.font = "10px Helvetica";
