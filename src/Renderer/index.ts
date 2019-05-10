@@ -130,7 +130,9 @@ export class Renderer {
       const isRenamed = !!(
         state.renamed &&
         state.renamed.node === n &&
-        !state.renamed.description
+        !state.renamed.description &&
+        !n.readonly &&
+        !n.notEditable
       );
       const isHovered = state.hover.node === n;
       const typeIsHovered = isHovered && state.hover.type;
@@ -163,7 +165,12 @@ export class Renderer {
     } = this.stateManager.getState();
     if (node || selectedNodes.length === 1) {
       let dNode = node || selectedNodes[0];
-      if (renamed && renamed.description) {
+      if (
+        renamed &&
+        renamed.description &&
+        !dNode.readonly &&
+        !dNode.notEditable
+      ) {
         dNode = {
           ...dNode,
           description: dNode.description + this.caret
@@ -226,6 +233,11 @@ export class Renderer {
     }
   }
 
+  /**
+   * render minimap in top right corner
+   *
+   * @memberof Renderer
+   */
   renderMinimap() {
     this.minimapRenderer.render(
       this.context,

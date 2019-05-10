@@ -113,7 +113,9 @@ export class ConnectionManager {
       const acceptsInputs = NodeUtils.getDefinitionAcceptedInputs(
         i.definition,
         this.state.nodeDefinitions,
-        o.definition
+        o.definition,
+        this.state.nodes,
+        i
       );
       if (!acceptsInputs) {
         return false;

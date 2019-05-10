@@ -20,12 +20,16 @@ export interface NodeDefinition<Data = {}> {
   acceptsInputs?: (
     incomingDefinition: NodeDefinition<Data>,
     allDefinitions: NodeDefinition<Data>[],
-    definition?: NodeDefinition<Data>
+    definition?: NodeDefinition<Data>,
+    nodes?: Node<Data>[],
+    node?: Node<Data>
   ) => AcceptedNodeDefinition<Data>[];
   acceptsOutputs?: (
     incomingDefinition: NodeDefinition<Data>,
     allDefinitions: NodeDefinition<Data>[],
-    definition?: NodeDefinition<Data>
+    definition?: NodeDefinition<Data>,
+    nodes?: Node<Data>[],
+    node?: Node<Data>
   ) => AcceptedNodeDefinition<Data>[];
   instances?: Partial<NodeDefinition<Data>>[];
   options?: NodeOption[];

@@ -43,7 +43,7 @@ export class NodeUtils {
   ): Node {
     const nodeD: NodeDefinition["node"] = Utils.deepCopy(nodeDefinition.node);
     return {
-      name: "Node",
+      name: nodeDefinition.type || "Node",
       id: Utils.generateId(),
       description: "Enter your description",
       x: e.x,
@@ -65,7 +65,7 @@ export class NodeUtils {
     const { node: nodeSettings } = nodeDefinition;
     const node: NodeDefinition["node"] = Utils.deepCopy(nodeSettings);
     const createdNode: Node = NodeUtils.createBasicNode(e, nodeDefinition);
-    if (nodeDefinition.root) {
+    if (nodeDefinition.instances) {
       const newDefinitions = NodeUtils.createObjectDefinition(
         nodeDefinition,
         node.name || `${nodeDefinition.type}${nodeDefinitions.length}`
@@ -93,31 +93,41 @@ export class NodeUtils {
   static getDefinitionAcceptedInputs = (
     incomingDefinition: NodeDefinition,
     definitions: NodeDefinition[],
-    definition?: NodeDefinition
+    definition: NodeDefinition,
+    nodes: Node[],
+    node?: Node
   ): NodeDefinition[] =>
     NodeUtils.AcceptedNodeDefinitionsToDefinitions(
       NodeUtils.getDefinitionAcceptedInputCategories(
         incomingDefinition,
         definitions,
-        definition
+        definition,
+        nodes,
+        node
       )
     );
   static getDefinitionAcceptedOutputs = (
     incomingDefinition: NodeDefinition,
     definitions: NodeDefinition[],
-    definition?: NodeDefinition
+    definition: NodeDefinition,
+    nodes: Node[],
+    node?: Node
   ): NodeDefinition[] =>
     NodeUtils.AcceptedNodeDefinitionsToDefinitions(
       NodeUtils.getDefinitionAcceptedOutputCategories(
         incomingDefinition,
         definitions,
-        definition
+        definition,
+        nodes,
+        node
       )
     );
   static getDefinitionAcceptedOutputCategories = (
     incomingDefinition: NodeDefinition,
     definitions: NodeDefinition[],
-    definition?: NodeDefinition
+    definition?: NodeDefinition,
+    nodes?: Node[],
+    node?: Node
   ) => {
     let defs: AcceptedNodeDefinition[] = [];
     if (incomingDefinition.acceptsOutputs)
@@ -125,7 +135,9 @@ export class NodeUtils {
         incomingDefinition.acceptsOutputs(
           incomingDefinition,
           definitions,
-          definition
+          definition,
+          nodes,
+          node
         )
       );
     return Utils.dedupe(defs);
@@ -133,7 +145,9 @@ export class NodeUtils {
   static getDefinitionAcceptedInputCategories = (
     incomingDefinition: NodeDefinition,
     definitions: NodeDefinition[],
-    definition?: NodeDefinition
+    definition?: NodeDefinition,
+    nodes?: Node[],
+    node?: Node
   ) => {
     let defs: AcceptedNodeDefinition[] = [];
     if (incomingDefinition.acceptsInputs)
@@ -141,7 +155,9 @@ export class NodeUtils {
         incomingDefinition.acceptsInputs(
           incomingDefinition,
           definitions,
-          definition
+          definition,
+          nodes,
+          node
         )
       );
     return Utils.dedupe(defs);

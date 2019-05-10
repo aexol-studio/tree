@@ -75,6 +75,9 @@ export class NodeManager {
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
   renameNode = (node: Node, name: string) => {
+    if (node.notEditable || node.readonly) {
+      return;
+    }
     node.name = name;
     if (node.editsDefinitions) {
       node.editsDefinitions.forEach(ed => (ed.type = name));
@@ -115,22 +118,6 @@ export class NodeManager {
           }
         },
         {
-          name: "renameDescription",
-          help: "Change selected node description",
-          action: () => {
-            this.state.selectedNodes = [node];
-            this.state.renamed = {
-              node,
-              description: true
-            };
-            this.renamer.rename(node.description, e => {
-              node.description = e;
-              this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-              this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-            });
-          }
-        },
-        {
           name: "beautify graph",
           help: "Beautify graph and put nodes in good positions",
           action: () => {
@@ -138,6 +125,31 @@ export class NodeManager {
           }
         }
       ];
+
+      if (!(node.notEditable || node.readonly)) {
+        this.state.categories = [
+          {
+            name: "renameDescription",
+            help: "Change selected node description",
+            action: () => {
+              this.state.selectedNodes = [node];
+              this.state.renamed = {
+                node,
+                description: true
+              };
+              this.renamer.rename(node.description, e => {
+                if (node.notEditable || node.readonly) {
+                  return;
+                }
+                node.description = e;
+                this.eventBus.publish(Events.DiagramEvents.NodeChanged);
+                this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+              });
+            }
+          },
+          ...this.state.categories
+        ];
+      }
       const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
         this.state.categories = this.state.categories.concat(
