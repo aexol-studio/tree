@@ -11,8 +11,8 @@ import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
 import { DescriptionRenderer } from "./descriptionRenderer";
-import { HelpRenderer } from "./helpRenderer";
 import { Region } from "../QuadTree/Region";
+import { CSSMiniEngine } from "./CssMiniEngine";
 
 /**
  * Renderer.
@@ -28,10 +28,10 @@ export class Renderer {
   // private zoomPan = new ZoomPan();
   private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
-  private helpRenderer: HelpRenderer;
   private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
+  private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
   private activeLinkRenderer: ActiveLinkRenderer;
   private caret: string = " ";
 
@@ -52,12 +52,17 @@ export class Renderer {
       this.context,
       this.theme
     );
-    this.menuRenderer = new MenuRenderer(this.context, this.theme);
-    this.helpRenderer = new HelpRenderer(this.context, this.theme);
+    this.menuRenderer = new MenuRenderer(
+      this.context,
+      this.theme,
+      this.eventBus,
+      this.cssMiniEngine
+    );
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
     this.renameNode();
+    this.cssMiniEngine.compile();
   }
   getActiveArea = () => {
     const { uiState } = this.stateManager.getState();
@@ -219,17 +224,10 @@ export class Renderer {
 
   renderMenu() {
     const state = this.stateManager.getState();
-    const index = state.hover.menu ? state.hover.menu.index : undefined;
     if (state.menu) {
-      this.menuRenderer.render(state.menu.position, state.categories, index);
-      if (index !== undefined) {
-        const category = state.categories[index];
-        if (!category.help) return;
-        this.helpRenderer.render({
-          title: category.name,
-          text: category.help
-        });
-      }
+      this.menuRenderer.render(state.menu.position, state.categories);
+    } else {
+      this.menuRenderer.hideMenu();
     }
   }
 

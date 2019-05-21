@@ -30,7 +30,7 @@ export class MenuManager {
   ) {
     this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openMenu);
     this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseUp,
+      Events.DiagramEvents.MenuItemClicked,
       this.clickMenuItem
     );
     this.eventBus.subscribe(
@@ -42,19 +42,16 @@ export class MenuManager {
       this.closeMenu
     );
   }
-  clickMenuItem = () => {
-    if (this.state.menu && this.state.hover.menu) {
-      const category = this.state.categories[this.state.hover.menu.index];
-      if (category.action) {
-        category.action!();
-        this.state.menu = undefined;
-        this.state.hover.menu = undefined;
-      } else if (category.children) {
-        this.state.categories = category.children;
-        this.state.hover.menu = undefined;
-      }
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  clickMenuItem = (category: Category) => {
+    if (category.action) {
+      category.action!();
+      this.state.menu = undefined;
+      this.state.hover.menu = undefined;
+    } else if (category.children) {
+      this.state.categories = category.children;
+      this.state.hover.menu = undefined;
     }
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   closeMenu = (e: ScreenPosition) => {
     if (this.state.menu && !this.state.hover.menu) {
@@ -146,22 +143,20 @@ export class MenuManager {
         ).map(createTopicCategory);
       }
       if (this.state.categories.length) {
-        const { menu, port } = this.theme;
         const NodeScreenPosition = this.uiManager.worldToScreen({
           ...e,
-          x:
-            io === "i"
-              ? node.x - port.width - menu.spacing.x
-              : node.x + this.theme.node.width + port.width + menu.spacing.x,
+          x: node.x,
           y: node.y
         });
         this.state.menu = {
           position: {
             x:
-              io === "i"
-                ? NodeScreenPosition.x - menu.width
-                : NodeScreenPosition.x,
-            y: NodeScreenPosition.y
+              NodeScreenPosition.x +
+              (io === "i" ? -this.theme.port.width : this.theme.port.width),
+            y:
+              NodeScreenPosition.y +
+              this.theme.node.height +
+              this.theme.menu.spacing.y
           }
         };
       }

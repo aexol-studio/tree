@@ -15,10 +15,6 @@ export class HoverManager {
     private eventBus: EventBus,
     private theme: DiagramTheme
   ) {
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenMouseOverMove,
-      this.hoverMenu
-    );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseOverMove, this.hover);
     this.eventBus.subscribe(Events.DiagramEvents.PickRequested, this.hover);
   }
@@ -30,22 +26,13 @@ export class HoverManager {
       };
       if (distance.x > 0 && distance.y > 0) {
         if (
-          distance.x < this.theme.menu.width &&
-          distance.y <
-            this.theme.menu.category.height * this.state.categories.length
+          distance.x < this.theme.menu.maxWidth &&
+          distance.y < this.theme.menu.maxHeight
         ) {
-          const menuItem = Math.floor(
-            distance.y / this.theme.menu.category.height
-          );
           if (!this.state.hover.menu) {
             this.state.hover = {
-              menu: {
-                index: menuItem
-              }
+              menu: true
             };
-            this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-          } else if (this.state.hover.menu!.index !== menuItem) {
-            this.state.hover.menu!.index = menuItem;
             this.eventBus.publish(Events.DiagramEvents.RenderRequested);
           }
           return;
@@ -81,7 +68,11 @@ export class HoverManager {
         ? "i"
         : undefined;
     const type = distance.y < 0 ? true : undefined;
-    if (this.state.hover.io !== io || this.state.hover.node !== node || this.state.hover.type !== type) {
+    if (
+      this.state.hover.io !== io ||
+      this.state.hover.node !== node ||
+      this.state.hover.type !== type
+    ) {
       this.state.hover = { node, io, type };
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }

@@ -47,11 +47,14 @@ export interface DiagramTheme {
     defaultCenterPoint: number;
   };
   menu: {
-    width: number;
+    maxWidth: number;
     maxHeight: number;
+    padding: string;
+    borderRadius: string;
     category: {
-      height: number;
-      textSize: number;
+      padding: string;
+      fontSize: string;
+      fontWeight: string;
     };
     spacing: {
       x: number;

@@ -37,7 +37,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     fontSize: 24,
     triangleHeight: 20,
     triangleWidth: 20,
-    triangleDistance:20,
+    triangleDistance: 20,
     lineHeight: 36
   },
   port: {
@@ -57,15 +57,18 @@ export const DefaultDiagramTheme: DiagramTheme = {
     }
   },
   menu: {
-    width: 400,
-    maxHeight: 700,
+    maxWidth: 300,
+    maxHeight: 300,
+    padding: `15px`,
+    borderRadius: `5px`,
     category: {
-      height: 50,
-      textSize: 25
+      padding: `5px`,
+      fontSize: `11px`,
+      fontWeight: `bold`
     },
     spacing: {
       x: 20,
-      y: 100
+      y: 10
     }
   },
   colors: {
@@ -108,8 +111,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
       active: Colors.green[0]
     },
     menu: {
-      background: Colors.grey[3],
-      text: Colors.grey[6],
+      background: Colors.grey[7],
+      text: Colors.grey[3],
       hover: Colors.grey[1]
     },
     help: {

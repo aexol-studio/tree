@@ -207,16 +207,18 @@ export class NodeManager {
         n =>
           !!n.editsDefinitions &&
           !!n.editsDefinitions.find(e => e === node.definition)
-      )!;
-      this.selectSingleNode(parentNode);
-      this.eventBus.publish(
-        Events.DiagramEvents.NodeSelected,
-        this.state.selectedNodes
       );
-      this.eventBus.publish(Events.DiagramEvents.CenterPanRequested, {
-        x: parentNode.x,
-        y: parentNode.y
-      });
+      if (parentNode) {
+        this.selectSingleNode(parentNode);
+        this.eventBus.publish(
+          Events.DiagramEvents.NodeSelected,
+          this.state.selectedNodes
+        );
+        this.eventBus.publish(Events.DiagramEvents.CenterPanRequested, {
+          x: parentNode.x,
+          y: parentNode.y
+        });
+      }
     }
   };
   selectNode = (e: ScreenPosition) => {

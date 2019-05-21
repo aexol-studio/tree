@@ -34,9 +34,7 @@ export interface DiagramState {
   hover: {
     node?: Node;
     link?: Link;
-    menu?: {
-      index: number;
-    };
+    menu?: boolean;
     io?: "i" | "o";
     type?: boolean;
     description?: Node;
