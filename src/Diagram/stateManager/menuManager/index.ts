@@ -63,7 +63,7 @@ export class MenuManager {
     }
   };
   openMenu = (e: ScreenPosition) => {
-    if (this.state.draw) {
+    if (this.state.isReadOnly || this.state.draw) {
       return;
     }
     const { node, link } = this.state.hover;
@@ -93,7 +93,11 @@ export class MenuManager {
     }
   };
   openPortMenu = (e: ScreenPosition) => {
-    if (this.state.menu || this.state.drawedConnection) {
+    if (
+      this.state.isReadOnly ||
+      this.state.menu ||
+      this.state.drawedConnection
+    ) {
       this.state.drawedConnection = undefined;
       return;
     }

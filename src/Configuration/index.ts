@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
-import { DiagramTheme, Node } from '../Models/index';
-import { DefaultDiagramTheme } from '../Theme/DefaultDiagramTheme';
+import { v4 as uuidv4 } from "uuid";
+import { DiagramTheme, Node } from "../Models/index";
+import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 
 // We're doing a singleton here, so config can be easily accessible across code files
 let _instance: ConfigurationManager;
@@ -9,25 +9,22 @@ export interface DiagramOptions {
   width: number | undefined;
   height: number | undefined;
   generateIdFn: () => string;
-  theme: DiagramTheme,
+  theme: DiagramTheme;
   connectionFunction: (input: Node, output: Node) => boolean;
   autosizeWatcher: boolean;
   autosizeInterval: number;
-  autosizeOnWindowResize: boolean,
-};
+  autosizeOnWindowResize: boolean;
+}
 
 const defaultOptions: DiagramOptions = {
   width: undefined,
   height: undefined,
   generateIdFn: uuidv4,
   theme: DefaultDiagramTheme,
-  connectionFunction: (
-    input,
-    output
-  ) => true,
+  connectionFunction: (input, output) => true,
   autosizeWatcher: true,
   autosizeInterval: 1000,
-  autosizeOnWindowResize: true,
+  autosizeOnWindowResize: true
 };
 
 export class ConfigurationManager {
@@ -43,7 +40,7 @@ export class ConfigurationManager {
 
     this.options = {
       ...this.options,
-      ...providedOptions,
+      ...providedOptions
     };
   }
 
@@ -54,4 +51,4 @@ export class ConfigurationManager {
   public getOption<T extends keyof DiagramOptions>(fieldName: T) {
     return this.options[fieldName];
   }
-};
+}

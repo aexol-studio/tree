@@ -49,6 +49,9 @@ export class Diagram {
   setLinks(links: Link[]) {
     this.stateManager.setLinks(links);
   }
+  setReadOnly(isReadOnly: boolean) {
+    this.stateManager.setReadOnly(isReadOnly);
+  }
   requestSerialise() {
     this.stateManager.requestSerialise();
   }
@@ -56,7 +59,7 @@ export class Diagram {
     this.stateManager.rebuildTrees();
   }
   beautifyDiagram(nodes: Node[]) {
-    NodeUtils.beautifyDiagram(nodes, this.configuration.getOption('theme'));
+    NodeUtils.beautifyDiagram(nodes, this.configuration.getOption("theme"));
   }
   centerDiagram() {
     this.stateManager.centerGraph();
@@ -67,7 +70,7 @@ export class Diagram {
   resize(width: number, height: number) {
     const targetSize = {
       width,
-      height,
+      height
     };
 
     this.currentHostSize = targetSize;
@@ -125,7 +128,7 @@ export class Diagram {
 
   constructor(
     private hostDomElement: HTMLElement,
-    options?: Partial<DiagramOptions>,
+    options?: Partial<DiagramOptions>
   ) {
     if (typeof document === "undefined") {
       throw new Error(
@@ -148,8 +151,9 @@ export class Diagram {
 
     this.canvasElement.oncontextmenu = () => false;
 
-    const targetWidth = this.configuration.getOption('width') || hostSize.width;
-    const targetHeight = this.configuration.getOption('height') || hostSize.height;
+    const targetWidth = this.configuration.getOption("width") || hostSize.width;
+    const targetHeight =
+      this.configuration.getOption("height") || hostSize.height;
 
     const areaSize = {
       width: targetWidth * 2,
@@ -179,8 +183,8 @@ export class Diagram {
     // initialize state manager
     this.stateManager = new StateManager(
       this.eventBus,
-      this.configuration.getOption('theme'),
-      this.configuration.getOption('connectionFunction'),
+      this.configuration.getOption("theme"),
+      this.configuration.getOption("connectionFunction"),
       areaSize
     );
 
@@ -189,14 +193,17 @@ export class Diagram {
       this.eventBus,
       canvasContext,
       this.stateManager,
-      this.configuration.getOption('theme'),
+      this.configuration.getOption("theme")
     );
 
-    if (this.configuration.getOption('autosizeWatcher')) {
-      setInterval(this.autoResize, this.configuration.getOption('autosizeInterval'));
+    if (this.configuration.getOption("autosizeWatcher")) {
+      setInterval(
+        this.autoResize,
+        this.configuration.getOption("autosizeInterval")
+      );
     }
 
-    if (this.configuration.getOption('autosizeOnWindowResize')) {
+    if (this.configuration.getOption("autosizeOnWindowResize")) {
       this.wireUpResizer();
     }
     // ...start the rendering loop

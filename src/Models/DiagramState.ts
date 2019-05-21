@@ -41,6 +41,7 @@ export interface DiagramState {
     type?: boolean;
     description?: Node;
   };
+  isReadOnly?: boolean;
   menu?: {
     position: ScreenPosition;
   };

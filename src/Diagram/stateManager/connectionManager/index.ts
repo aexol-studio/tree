@@ -68,7 +68,7 @@ export class ConnectionManager {
   };
   openLinkMenu = (e: ScreenPosition) => {
     const { link } = this.state.hover;
-    if (!link || this.state.menu) return;
+    if (this.state.isReadOnly || !link || this.state.menu) return;
     this.state.categories = [
       {
         name: "delete",
@@ -80,6 +80,7 @@ export class ConnectionManager {
     };
   };
   startDrawingConnector = (e: ScreenPosition) => {
+    if (this.state.isReadOnly) return;
     const { io, node, menu } = this.state.hover;
     if (io && node && !menu) {
       this.state.draw = {

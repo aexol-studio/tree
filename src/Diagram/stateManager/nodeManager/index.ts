@@ -48,6 +48,7 @@ export class NodeManager {
     this.rebuildTree();
   };
   moveNodes = (e: ScreenPosition) => {
+    if (this.state.isReadOnly) return;
     const { selectedNodes } = this.state;
     if (!selectedNodes.length) {
       return;
@@ -75,7 +76,7 @@ export class NodeManager {
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
   renameNode = (node: Node, name: string) => {
-    if (node.notEditable || node.readonly) {
+    if (this.state.isReadOnly || node.notEditable || node.readonly) {
       return;
     }
     node.name = name;
@@ -103,7 +104,7 @@ export class NodeManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   openNodeMenu = (e: ScreenPosition) => {
-    if (this.state.draw) {
+    if (this.state.isReadOnly || this.state.draw) {
       return;
     }
     const { node } = this.state.hover;

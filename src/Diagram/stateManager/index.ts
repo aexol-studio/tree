@@ -28,7 +28,6 @@ export class StateManager {
   private state: DiagramState;
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
-  minimapManager: MinimapManager;
   private uiManager: UIManager;
   private hoverManager: HoverManager;
   constructor(
@@ -79,11 +78,7 @@ export class StateManager {
       this.eventBus,
       this.theme
     );
-    this.minimapManager = new MinimapManager(
-      this.state,
-      this.eventBus,
-      this.theme
-    );
+    new MinimapManager(this.state, this.eventBus, this.theme);
     this.hoverManager = new HoverManager(this.state, this.eventBus, this.theme);
     new MenuManager(
       this.state,
@@ -125,6 +120,9 @@ export class StateManager {
   setLinks(links: Link[]) {
     this.connectionManager.loadLinks(links);
   }
+  setReadOnly(isReadOnly: boolean) {
+    this.state.isReadOnly = isReadOnly;
+  }
   setSerialisationFunction(fn: DiagramState["serialisationFunction"]) {
     this.state.serialisationFunction = fn;
   }
@@ -144,7 +142,10 @@ export class StateManager {
     this.uiManager.centerPanTo(this.nodeManager.getCenter());
   };
   zeroGraph = () => {
-    this.uiManager.panTo({ x: -this.theme.node.width*3, y:  -this.theme.node.height*3 });
+    this.uiManager.panTo({
+      x: -this.theme.node.width * 3,
+      y: -this.theme.node.height * 3
+    });
   };
   mouseDrag = ({
     withoutPan,
