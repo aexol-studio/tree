@@ -185,6 +185,7 @@ export class Diagram {
       this.eventBus,
       this.configuration.getOption("theme"),
       this.configuration.getOption("connectionFunction"),
+      this.configuration.getOption("disableLinkOperations"),
       areaSize
     );
 

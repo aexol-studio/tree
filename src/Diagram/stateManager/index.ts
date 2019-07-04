@@ -34,6 +34,7 @@ export class StateManager {
     private eventBus: EventBus,
     private theme: DiagramTheme,
     private connectionFunction: (input: Node, output: Node) => boolean,
+    private disableLinkOperations: boolean,
     areaSize: { width: number; height: number }
   ) {
     this.state = {
@@ -79,7 +80,12 @@ export class StateManager {
       this.theme
     );
     new MinimapManager(this.state, this.eventBus, this.theme);
-    this.hoverManager = new HoverManager(this.state, this.eventBus, this.theme);
+    this.hoverManager = new HoverManager(
+      this.state,
+      this.eventBus,
+      this.theme,
+      this.disableLinkOperations
+    );
     new MenuManager(
       this.state,
       this.eventBus,

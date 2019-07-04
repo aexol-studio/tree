@@ -6,25 +6,27 @@ import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 let _instance: ConfigurationManager;
 
 export interface DiagramOptions {
-  width: number | undefined;
-  height: number | undefined;
-  generateIdFn: () => string;
-  theme: DiagramTheme;
-  connectionFunction: (input: Node, output: Node) => boolean;
   autosizeWatcher: boolean;
   autosizeInterval: number;
   autosizeOnWindowResize: boolean;
+  connectionFunction: (input: Node, output: Node) => boolean;
+  disableLinkOperations: boolean;
+  generateIdFn: () => string;
+  height: number | undefined;
+  theme: DiagramTheme;
+  width: number | undefined;
 }
 
 const defaultOptions: DiagramOptions = {
-  width: undefined,
-  height: undefined,
-  generateIdFn: uuidv4,
-  theme: DefaultDiagramTheme,
-  connectionFunction: (input, output) => true,
   autosizeWatcher: true,
   autosizeInterval: 1000,
-  autosizeOnWindowResize: true
+  autosizeOnWindowResize: true,
+  disableLinkOperations: false,
+  connectionFunction: (input, output) => true,
+  generateIdFn: uuidv4,
+  height: undefined,
+  theme: DefaultDiagramTheme,
+  width: undefined
 };
 
 export class ConfigurationManager {

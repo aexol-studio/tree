@@ -45,6 +45,7 @@ export class NodeManager {
   };
   loadNodes = (nodes: Node[]) => {
     this.state.nodes = nodes;
+    this.state.selectedNodes = [];
     this.rebuildTree();
   };
   moveNodes = (e: ScreenPosition) => {

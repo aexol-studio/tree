@@ -13,7 +13,8 @@ export class HoverManager {
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
-    private theme: DiagramTheme
+    private theme: DiagramTheme,
+    private disableLinkOperations: boolean
   ) {
     this.eventBus.subscribe(Events.IOEvents.WorldMouseOverMove, this.hover);
     this.eventBus.subscribe(Events.DiagramEvents.PickRequested, this.hover);
@@ -51,7 +52,7 @@ export class HoverManager {
   hover = (e: ScreenPosition) => {
     const node = this.state.trees.node.pick(e);
     if (!node) {
-      if (this.state.draw) return;
+      if (this.state.draw || this.disableLinkOperations) return;
       const link = this.state.trees.link.pick(e);
       this.state.hover = { link };
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
