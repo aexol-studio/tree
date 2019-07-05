@@ -47,7 +47,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
   link: {
     cornerRadius: 5,
     defaultCenterPoint: 0.5,
-    strokeWidth: 4
+    strokeWidth: 3
   },
   help: {
     lineHeight: 42,
@@ -75,7 +75,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     background: Colors.grey[6],
     node: {
       background: Colors.grey[5],
-      selected: Colors.main[3],
+      selected: Colors.green[0],
       name: Colors.grey[0],
       type: Colors.green[0],
       types: {

@@ -3,9 +3,9 @@ import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
 import { DiagramTheme, Node, NodeDefinition } from "../../../Models";
-import { Renamer } from "../../../IO/Renamer";
 import { NodeUtils } from "../../../Utils/nodeUtils";
 import { QuadTree } from "../../../QuadTree";
+import { UIManager } from "../uiManager/index";
 
 /**
  * NodeManager:
@@ -13,10 +13,10 @@ import { QuadTree } from "../../../QuadTree";
  * Main nodes operation class
  */
 export class NodeManager {
-  private renamer = new Renamer();
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
+    private uiManager: UIManager,
     private theme: DiagramTheme
   ) {
     this.eventBus.subscribe(
@@ -29,13 +29,17 @@ export class NodeManager {
     );
     this.eventBus.subscribe(
       Events.IOEvents.ScreenDoubleClick,
-      this.graphSelect
+      this.nodeIsRenamed
     );
     this.eventBus.subscribe(
       Events.IOEvents.ScreenRightMouseUp,
       this.openNodeMenu
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
+    this.eventBus.subscribe(
+      Events.DiagramEvents.NodeRenameEnded,
+      this.nodeRenameEnded
+    );
   }
   rebuildTree = () => {
     this.state.trees.node = new QuadTree<Node>();
@@ -50,6 +54,7 @@ export class NodeManager {
   };
   moveNodes = (e: ScreenPosition) => {
     if (this.state.isReadOnly) return;
+    if (this.state.renamed) return;
     const { selectedNodes } = this.state;
     if (!selectedNodes.length) {
       return;
@@ -75,6 +80,42 @@ export class NodeManager {
         NodeUtils.createTreeNode(node, this.theme).bb
       );
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
+  };
+  descriptionIsRenamed = (node: Node) => {
+    if (node) {
+      const nodePosition = this.uiManager.worldToScreen({
+        x: node.x,
+        y: node.y
+      });
+      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.eventBus.publish(
+        Events.DiagramEvents.DescriptionRenameShowInput,
+        node,
+        node.description || "",
+        nodePosition
+      );
+    }
+  };
+  nodeIsRenamed = () => {
+    const [node] = this.state.selectedNodes;
+    if (node) {
+      const nodePosition = this.uiManager.worldToScreen({
+        x: node.x,
+        y: node.y
+      });
+      this.state.renamed = node;
+      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.eventBus.publish(
+        Events.DiagramEvents.NodeRenameShowInput,
+        node.name,
+        nodePosition
+      );
+    }
+  };
+  nodeRenameEnded = (newName: string) => {
+    this.renameNode(this.state.renamed!, newName);
+    delete this.state.renamed;
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   renameNode = (node: Node, name: string) => {
     if (this.state.isReadOnly || node.notEditable || node.readonly) {
@@ -127,31 +168,6 @@ export class NodeManager {
           }
         }
       ];
-
-      if (!(node.notEditable || node.readonly)) {
-        this.state.categories = [
-          {
-            name: "renameDescription",
-            help: "Change selected node description",
-            action: () => {
-              this.state.selectedNodes = [node];
-              this.state.renamed = {
-                node,
-                description: true
-              };
-              this.renamer.rename(node.description, e => {
-                if (node.notEditable || node.readonly) {
-                  return;
-                }
-                node.description = e;
-                this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-                this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-              });
-            }
-          },
-          ...this.state.categories
-        ];
-      }
       const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
         this.state.categories = this.state.categories.concat(
@@ -194,12 +210,7 @@ export class NodeManager {
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
-    this.state.renamed = {
-      node
-    };
-    this.renamer.rename(node.name, e => {
-      this.renameNode(node, e);
-    });
+    this.descriptionIsRenamed(node);
   };
   goToNodeType = (e: ScreenPosition) => {
     const { type, node } = this.state.hover;
@@ -314,6 +325,9 @@ export class NodeManager {
     );
     this.selectSingleNode(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
+    if (!createdNode.name) {
+      this.nodeIsRenamed();
+    }
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;
   };

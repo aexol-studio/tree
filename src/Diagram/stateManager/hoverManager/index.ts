@@ -52,9 +52,13 @@ export class HoverManager {
   hover = (e: ScreenPosition) => {
     const node = this.state.trees.node.pick(e);
     if (!node) {
-      if (this.state.draw || this.disableLinkOperations) return;
-      const link = this.state.trees.link.pick(e);
-      this.state.hover = { link };
+      if (this.state.draw) return;
+      if (!this.disableLinkOperations) {
+        const link = this.state.trees.link.pick(e);
+        this.state.hover = { link };
+      } else {
+        this.state.hover = {};
+      }
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;
     }

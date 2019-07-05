@@ -1,4 +1,4 @@
-export const RoundedRectangle = (
+const RoundedRectangleBase = (
   context: CanvasRenderingContext2D,
   {
     width,
@@ -37,5 +37,39 @@ export const RoundedRectangle = (
   context.arcTo(x, y + height, x, y + height - rbl, rbl);
   context.lineTo(x, y + rtl);
   context.arcTo(x, y, x + rtl, y, rtl);
+};
+
+export const RoundedRectangle = (
+  context: CanvasRenderingContext2D,
+  props: {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    radius?: number;
+    radiusTopLeft?: number;
+    radiusTopRight?: number;
+    radiusBottomRight?: number;
+    radiusBottomLeft?: number;
+  }
+) => {
+  RoundedRectangleBase(context, props);
   context.fill();
+};
+export const RoundedRectangleStroke = (
+  context: CanvasRenderingContext2D,
+  props: {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    radius?: number;
+    radiusTopLeft?: number;
+    radiusTopRight?: number;
+    radiusBottomRight?: number;
+    radiusBottomLeft?: number;
+  }
+) => {
+  RoundedRectangleBase(context, props);
+  context.stroke();
 };

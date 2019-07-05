@@ -21,10 +21,7 @@ export interface DiagramState {
     node: QuadTree<Node>;
     link: QuadTree<Link>;
   };
-  renamed?: {
-    node?: Node;
-    description?: boolean;
-  };
+  renamed?: Node;
   draw?: {
     node: Node;
     io: "i" | "o";

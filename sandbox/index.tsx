@@ -12,8 +12,8 @@ class App {
       disableLinkOperations: true
     });
     const createOND = (name: string): NodeDefinition["node"] => ({
-      name: `${name}Node`,
-      description: `${name} object node`,
+      name: `${name}`,
+      description: ``,
       inputs: [],
       outputs: []
     });
@@ -33,7 +33,7 @@ class App {
       {
         type: "www",
         help: "Hello I am dummy node this is help I do display",
-        node: createOND("www"),
+        node: createOND(""),
         options,
         root: true,
         instances: [{}],

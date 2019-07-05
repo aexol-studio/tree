@@ -9,7 +9,6 @@ import { DiagramEvents, IOEvents } from "../Events";
  */
 export type Topic = DiagramEvents | IOEvents;
 export class EventBus {
-
   private topics: { [key: string]: Function[] } = {};
   private externalSubscribers: { [key: string]: Function[] } = {};
 
@@ -21,10 +20,10 @@ export class EventBus {
     this.topics[topic].push(callback);
   }
 
-  publish<T>(topic: Topic, ...args: T[]) {
+  publish(topic: Topic, ...args: any[]) {
     [
       ...(this.topics[topic] || []),
-      ...(this.externalSubscribers[topic] || []),
+      ...(this.externalSubscribers[topic] || [])
     ].forEach((callback, index) => {
       callback(...args);
     });
@@ -45,6 +44,8 @@ export class EventBus {
       return;
     }
 
-    this.externalSubscribers[topic] = this.externalSubscribers[topic].filter(existingCallback => existingCallback !== callback);
+    this.externalSubscribers[topic] = this.externalSubscribers[topic].filter(
+      existingCallback => existingCallback !== callback
+    );
   }
 }

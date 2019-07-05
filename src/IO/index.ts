@@ -13,7 +13,6 @@ export class IO {
   private eventBus: EventBus;
   private currentScreenPosition: ScreenPosition = { x: 0, y: 0 };
   private lastClick = Date.now();
-  private leftMouseButtonDown: boolean = false;
   /**
    * @param eventBus event bus to be used
    * @param element HTML <canvas> elements to put listeners on
@@ -27,7 +26,7 @@ export class IO {
       this.currentScreenPosition.y = e.clientY * 2 - element.offsetTop * 2;
       const mpl = this.createMouseEventPayload();
       this.eventBus.publish(Events.IOEvents.ScreenMouseMove, mpl);
-      if (this.leftMouseButtonDown) {
+      if (e.buttons === 1) {
         this.eventBus.publish(Events.IOEvents.ScreenMouseDrag, mpl);
       } else {
         this.eventBus.publish(Events.IOEvents.ScreenMouseOverMove, mpl);
@@ -50,7 +49,6 @@ export class IO {
     element.addEventListener("mouseup", e => {
       e.preventDefault();
       if (e.which === 1) {
-        this.leftMouseButtonDown = false;
         this.eventBus.publish(
           Events.IOEvents.ScreenLeftMouseUp,
           this.createMouseEventPayload()
@@ -64,7 +62,6 @@ export class IO {
     });
     element.addEventListener("mousedown", e => {
       if (e.which === 1) {
-        this.leftMouseButtonDown = true;
         this.eventBus.publish(
           Events.IOEvents.ScreenLeftMouseClick,
           this.createMouseEventPayload({
@@ -88,7 +85,7 @@ export class IO {
       }
     });
     element.addEventListener("keydown", e => {
-      const ctrl = (e.ctrlKey || e.metaKey)
+      const ctrl = e.ctrlKey || e.metaKey;
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
       }

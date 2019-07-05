@@ -13,6 +13,7 @@ import { Cursor } from "../Models/Cursor";
 import { DescriptionRenderer } from "./descriptionRenderer";
 import { Region } from "../QuadTree/Region";
 import { CSSMiniEngine } from "./CssMiniEngine";
+import { RenameRenderer } from "./renameRenderer";
 
 /**
  * Renderer.
@@ -33,8 +34,6 @@ export class Renderer {
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
   private activeLinkRenderer: ActiveLinkRenderer;
-  private caret: string = " ";
-
   /**
    * @param eventBus event bus instance to be used
    * @param context context from the canvas
@@ -48,20 +47,28 @@ export class Renderer {
     private theme: DiagramTheme
   ) {
     this.nodeRenderer = new NodeRenderer(this.context, this.theme);
+
     this.descriptionRenderer = new DescriptionRenderer(
       this.context,
-      this.theme
+      this.eventBus,
+      this.theme,
+      this.cssMiniEngine
     );
+
     this.menuRenderer = new MenuRenderer(
       this.context,
       this.theme,
       this.eventBus,
       this.cssMiniEngine
     );
+
+    new RenameRenderer("", this.theme, this.eventBus, this.cssMiniEngine);
+
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
+
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
-    this.renameNode();
+
     this.cssMiniEngine.compile();
   }
   getActiveArea = () => {
@@ -78,11 +85,6 @@ export class Renderer {
         y: height - uiState.panY!
       }
     );
-  };
-  renameNode = () => {
-    this.caret = this.caret === "|" ? " " : "|";
-    this.eventBus.publish(DiagramEvents.RenderRequested);
-    setTimeout(this.renameNode, 500);
   };
   setCursor(cursor: Cursor) {
     this.context.canvas.style.cursor = cursor;
@@ -132,22 +134,16 @@ export class Renderer {
       .concat(state.selectedNodes);
     for (const n of nodes) {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
-      const isRenamed = !!(
-        state.renamed &&
-        state.renamed.node === n &&
-        !state.renamed.description &&
-        !n.readonly &&
-        !n.notEditable
-      );
       const isHovered = state.hover.node === n;
+      const isRenamed = state.renamed && state.renamed === n;
       const typeIsHovered = isHovered && state.hover.type;
       const inputActive = isHovered && state.hover.io == "i";
       const outputActive = isHovered && state.hover.io == "o";
       const node = {
         ...n
       };
-      if (isRenamed && isSelected && state.selectedNodes.length === 1) {
-        node.name = node.name + this.caret;
+      if (isRenamed && isSelected) {
+        node.name = "";
       }
       this.nodeRenderer.render({
         node,
@@ -157,31 +153,6 @@ export class Renderer {
         inputActive,
         outputActive
       });
-    }
-  }
-  /**
-   * Render descriptions.
-   */
-  renderDescriptions() {
-    const {
-      hover: { node },
-      renamed,
-      selectedNodes
-    } = this.stateManager.getState();
-    if (node || selectedNodes.length === 1) {
-      let dNode = node || selectedNodes[0];
-      if (
-        renamed &&
-        renamed.description &&
-        !dNode.readonly &&
-        !dNode.notEditable
-      ) {
-        dNode = {
-          ...dNode,
-          description: dNode.description + this.caret
-        };
-      }
-      this.descriptionRenderer.render({ node: dNode });
     }
   }
 
@@ -216,12 +187,22 @@ export class Renderer {
     state.hover.link && this.linkRenderer.render(state.hover.link, "hover");
   }
 
+  /**
+   * Renders background of canvas
+   *
+   * @memberof Renderer
+   */
   renderBackground() {
     const { width, height } = this.context.canvas;
     this.context.fillStyle = Colors.grey[6];
     this.context.fillRect(0, 0, width, height);
   }
 
+  /**
+   * Renders context menu
+   *
+   * @memberof Renderer
+   */
   renderMenu() {
     const state = this.stateManager.getState();
     if (state.menu) {
@@ -242,6 +223,18 @@ export class Renderer {
       this.theme,
       this.stateManager.getState()
     );
+  }
+  rederDescription() {
+    const state = this.stateManager.getState();
+    const [node] = state.selectedNodes;
+    if (!node) {
+      return this.descriptionRenderer.hide();
+    }
+    const nodePosition = this.stateManager.worldToScreenCoordinates({
+      x: node.x,
+      y: node.y
+    });
+    this.descriptionRenderer.position(nodePosition);
   }
 
   setScreenTransform() {
@@ -269,7 +262,7 @@ export class Renderer {
     this.renderLinks();
     this.renderActiveLink();
     this.renderNodes();
-    this.renderDescriptions();
+    this.rederDescription();
 
     this.setScreenTransform();
     this.renderMinimap();

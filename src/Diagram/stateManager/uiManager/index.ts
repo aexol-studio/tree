@@ -28,7 +28,10 @@ export class UIManager {
     );
     this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.LMBUp);
     this.eventBus.subscribe(Events.DiagramEvents.PanRequested, this.panTo);
-    this.eventBus.subscribe(Events.DiagramEvents.CenterPanRequested, this.centerPanTo);
+    this.eventBus.subscribe(
+      Events.DiagramEvents.CenterPanRequested,
+      this.centerPanTo
+    );
   }
 
   mouseWheel = (delta: number, mouseX: number, mouseY: number) => {
@@ -40,8 +43,8 @@ export class UIManager {
       newScale = 0.3;
     }
 
-    if (newScale > 1.0) {
-      newScale = 1.0;
+    if (newScale > 1.5) {
+      newScale = 1.5;
     }
 
     this.state.panX! =
@@ -127,7 +130,6 @@ export class UIManager {
 
   mouseDrag = (e: ScreenPosition) => {
     const isInsideMinimap = this.calculateMinimapPosition(e);
-
     if (isInsideMinimap && !this.state.draggingElements) {
       return;
     }

@@ -67,17 +67,22 @@ export class StateManager {
       serialisationFunction: Serializer.serialize,
       positionSerialisationFunction: Serializer.serialize
     };
-    this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
+    this.uiManager = new UIManager(
+      this.state.uiState,
+      this.eventBus,
+      this.theme
+    );
+    this.nodeManager = new NodeManager(
+      this.state,
+      this.eventBus,
+      this.uiManager,
+      this.theme
+    );
     this.connectionManager = new ConnectionManager(
       this.eventBus,
       this.state,
       this.theme,
       this.connectionFunction
-    );
-    this.uiManager = new UIManager(
-      this.state.uiState,
-      this.eventBus,
-      this.theme
     );
     new MinimapManager(this.state, this.eventBus, this.theme);
     this.hoverManager = new HoverManager(
@@ -178,9 +183,10 @@ export class StateManager {
   LMBPressed = (e: ScreenPosition) => {
     this.state.lastPosition = { ...e };
   };
-
   areaResized = (newSize: Size) => {
     this.state.uiState.areaSize = newSize;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+  worldToScreenCoordinates = (e: ScreenPosition) =>
+    this.uiManager.worldToScreen(e);
 }

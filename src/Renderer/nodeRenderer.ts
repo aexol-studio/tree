@@ -1,5 +1,8 @@
 import { Node, DiagramTheme } from "../Models";
-import { RoundedRectangle } from "./Draw/RoundedRectangle";
+import {
+  RoundedRectangle,
+  RoundedRectangleStroke
+} from "./Draw/RoundedRectangle";
 export class NodeRenderer {
   constructor(
     private context: CanvasRenderingContext2D,
@@ -32,9 +35,6 @@ export class NodeRenderer {
       port
     } = this.theme;
     this.context.fillStyle = colors.node.background;
-    if (isSelected || isHovered) {
-      this.context.fillStyle = colors.node.selected;
-    }
     const leftRadius = node.inputs ? 0 : 5;
     const rightRadius = node.outputs ? 0 : 5;
     RoundedRectangle(this.context, {
@@ -50,19 +50,15 @@ export class NodeRenderer {
     });
     this.context.fillStyle =
       colors.node.types[node.definition.type] || colors.node.name;
-    let typeContent = node.definition.type
+    let typeContent = node.definition.type;
     if (typeIsHovered && node.definition.parent) {
       this.context.fillStyle = colors.node.hover.type;
-      typeContent += ' >'
+      typeContent += " >";
     }
     this.context.font = this.getNodeFont(typeSize, "normal");
     this.context.textBaseline = "bottom";
     this.context.textAlign = "end";
-    this.context.fillText(
-      typeContent,
-      node.x! + width,
-      node.y!
-    );
+    this.context.fillText(typeContent, node.x! + width, node.y!);
     this.context.font = this.getNodeFont(nameSize, "normal");
     this.context.textAlign = "center";
     this.context.textBaseline = "middle";
@@ -75,14 +71,15 @@ export class NodeRenderer {
         width: port.width,
         x: node.x - port.width,
         y: node.y,
-        radiusTopLeft: 5,
-        radiusBottomLeft: 5
+        radiusTopLeft: 10,
+        radiusBottomLeft: 10
       });
       this.context.fillStyle = colors.port.button;
+      this.context.font = this.getNodeFont(12, "normal");
       this.context.fillText(
-        "+",
+        "◀",
         node.x - port.width / 2.0,
-        node.y + height / 2.0
+        node.y + height / 2.0 + 2
       );
       this.context.fillStyle = colors.background;
       port.gap &&
@@ -103,14 +100,15 @@ export class NodeRenderer {
         width: port.width,
         x: node.x + width,
         y: node.y,
-        radiusTopRight: 5,
-        radiusBottomRight: 5
+        radiusTopRight: 10,
+        radiusBottomRight: 10
       });
       this.context.fillStyle = colors.port.button;
+      this.context.font = this.getNodeFont(12, "normal");
       this.context.fillText(
-        "-",
+        "▶",
         node.x + width + port.width / 2.0,
-        node.y + height / 2.0
+        node.y + height / 2.0 + 2
       );
       this.context.fillStyle = colors.background;
       port.gap &&
@@ -147,6 +145,35 @@ export class NodeRenderer {
         node.x! + width / 2.0,
         node.y! + height / 2.0
       );
+    }
+    if (isHovered || isSelected) {
+      this.context.strokeStyle = colors.node.selected;
+      this.context.lineWidth = 2;
+      RoundedRectangleStroke(this.context, {
+        width: width + port.width * 2,
+        height,
+        x: node.x! - port.width,
+        y: node.y!,
+        radius: 0,
+        radiusBottomLeft: 10,
+        radiusTopLeft: 10,
+        radiusBottomRight: 10,
+        radiusTopRight: 10
+      });
+    }
+    if (isSelected) {
+      this.context.fillStyle = `${colors.node.selected}17`;
+      RoundedRectangle(this.context, {
+        width: width + port.width * 2,
+        height,
+        x: node.x! - port.width,
+        y: node.y!,
+        radius: 0,
+        radiusBottomLeft: 10,
+        radiusTopLeft: 10,
+        radiusBottomRight: 10,
+        radiusTopRight: 10
+      });
     }
   };
 }
