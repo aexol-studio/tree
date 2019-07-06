@@ -41,6 +41,5 @@ export interface DiagramState {
     position: ScreenPosition;
   };
   drawedConnection?: ScreenPosition;
-  lastPosition: ScreenPosition;
   uiState: UIState;
 }

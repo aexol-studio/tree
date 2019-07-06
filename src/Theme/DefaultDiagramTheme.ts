@@ -31,7 +31,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     margin: 20
   },
   description: {
-    width: 400,
+    width: 200,
     paddingHorizontal: 20,
     paddingVertical: 20,
     fontSize: 24,

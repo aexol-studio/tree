@@ -8,8 +8,9 @@ export class RenameRenderer {
   private textHandler?: HTMLInputElement;
   private renaming: boolean = false;
   private className = "Renamer";
+  private _position: ScreenPosition = { x: 0, y: 0 };
+  private _scale: number = 1.0;
   constructor(
-    initialValue: string = "",
     private theme: DiagramTheme,
     private eventBus: EventBus,
     private cssMiniEngine: CSSMiniEngine
@@ -26,9 +27,10 @@ export class RenameRenderer {
         border: "0",
         textAlign: "center",
         display: "none",
+        alignItems: "center",
+        justifyContent: "center",
+        transformOrigin: `top left`,
         zIndex: "1000",
-        padding: `20px 0`,
-        marginTop: "-20px",
         outline: "none"
       },
       this.className
@@ -57,15 +59,12 @@ export class RenameRenderer {
       if (this.textHandler) {
         this.renaming = true;
         this.textHandler.value = initialValue;
-        this.textHandler.style.display = "block";
-        this.textHandler.style.top = `${(position.y +
-          this.theme.node.height / 2.0) /
-          2.0 -
-          this.theme.node.options.fontSize / 2.4}px`;
+        this.textHandler.style.display = "flex";
         this.textHandler.style.fontSize = `${this.theme.node.options.fontSize /
-          1.6}px`;
-        this.textHandler.style.left = `${position.x / 2}px`;
+          1.5}px`;
         this.textHandler.style.width = `${this.theme.node.width / 2.0}px`;
+        this.textHandler.style.height = `${this.theme.node.height / 2.0}px`;
+        this.position(position, this._scale);
         setTimeout(() => this.textHandler!.focus(), 10);
         this.textHandler.onblur = e => {
           this.renameEnded();
@@ -79,6 +78,18 @@ export class RenameRenderer {
           this.renameEnded();
         };
       }
+    }
+  };
+  position = (e: ScreenPosition, scale: number) => {
+    this._position = e;
+    this._scale = scale;
+    this.calculatePosition();
+  };
+  calculatePosition = () => {
+    if (this.textHandler) {
+      this.textHandler.style.left = `${this._position.x / 2.0}px`;
+      this.textHandler.style.top = `${this._position.y / 2.0}px`;
+      this.textHandler.style.transform = `scale(${this._scale})`;
     }
   };
   hide = () => {

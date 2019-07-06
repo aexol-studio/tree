@@ -68,7 +68,7 @@ export class UIManager {
       shiftKey: e.shiftKey
     };
   };
-  calculateMousePosition = (e: ScreenPosition): ScreenPosition => {
+  screenToWorld = (e: ScreenPosition): ScreenPosition => {
     return {
       x: e.x / this.state.scale - this.state.panX!,
       y: e.y / this.state.scale - this.state.panY!,

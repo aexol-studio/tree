@@ -19,6 +19,7 @@ export class NodeRenderer {
     typeIsHovered,
     isHovered,
     isSelected,
+    isRenamed,
     inputActive,
     outputActive
   }: {
@@ -26,6 +27,7 @@ export class NodeRenderer {
     typeIsHovered?: boolean;
     isHovered?: boolean;
     isSelected?: boolean;
+    isRenamed?: boolean;
     outputActive?: boolean;
     inputActive?: boolean;
   }) => {
@@ -135,7 +137,7 @@ export class NodeRenderer {
         xCounter += this.context.measureText(o).width + options.fontSize / 2;
       });
     }
-    if (node.name) {
+    if (node.name && !isRenamed) {
       this.context.fillStyle = colors.node.name;
       this.context.font = this.getNodeFont(nameSize, "normal");
       this.context.textAlign = "center";

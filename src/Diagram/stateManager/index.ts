@@ -50,10 +50,6 @@ export class StateManager {
         node: new QuadTree<Node>(),
         link: new QuadTree<Link>()
       },
-      lastPosition: {
-        x: 0,
-        y: 0
-      },
       uiState: {
         minimapActive: true,
         panX: 0,
@@ -96,15 +92,10 @@ export class StateManager {
       this.eventBus,
       this.theme,
       this.nodeManager,
-      this.hoverManager,
       this.connectionManager,
       this.uiManager
     );
     new ChangesManager(this.state, this.eventBus);
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseClick,
-      this.LMBPressed
-    );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
     this.eventBus.subscribe(
       Events.DiagramEvents.RebuildTreeRequested,
@@ -179,9 +170,6 @@ export class StateManager {
     } else {
       this.uiManager.panScreen(withoutPan);
     }
-  };
-  LMBPressed = (e: ScreenPosition) => {
-    this.state.lastPosition = { ...e };
   };
   areaResized = (newSize: Size) => {
     this.state.uiState.areaSize = newSize;

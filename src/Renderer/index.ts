@@ -29,6 +29,7 @@ export class Renderer {
   // private zoomPan = new ZoomPan();
   private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
+  private renameRenderer: RenameRenderer;
   private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
@@ -62,7 +63,11 @@ export class Renderer {
       this.cssMiniEngine
     );
 
-    new RenameRenderer("", this.theme, this.eventBus, this.cssMiniEngine);
+    this.renameRenderer = new RenameRenderer(
+      this.theme,
+      this.eventBus,
+      this.cssMiniEngine
+    );
 
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
@@ -139,14 +144,16 @@ export class Renderer {
       const typeIsHovered = isHovered && state.hover.type;
       const inputActive = isHovered && state.hover.io == "i";
       const outputActive = isHovered && state.hover.io == "o";
-      const node = {
-        ...n
-      };
-      if (isRenamed && isSelected) {
-        node.name = "";
+      if (isRenamed) {
+        const nodePosition = this.stateManager.worldToScreenCoordinates({
+          x: n.x,
+          y: n.y
+        });
+        this.renameRenderer.position(nodePosition, state.uiState.scale);
       }
       this.nodeRenderer.render({
-        node,
+        node: n,
+        isRenamed,
         isSelected,
         isHovered,
         typeIsHovered,
@@ -166,7 +173,7 @@ export class Renderer {
       return;
     }
 
-    if (state.drawedConnection && state.lastPosition) {
+    if (state.drawedConnection) {
       this.activeLinkRenderer.render({
         from: state.draw.initialPos,
         to: state.drawedConnection
@@ -234,7 +241,7 @@ export class Renderer {
       x: node.x,
       y: node.y
     });
-    this.descriptionRenderer.position(nodePosition);
+    this.descriptionRenderer.position(nodePosition, state.uiState.scale);
   }
 
   setScreenTransform() {

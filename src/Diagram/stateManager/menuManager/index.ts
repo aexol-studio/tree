@@ -9,7 +9,6 @@ import {
   AcceptedNodeDefinition
 } from "../../../Models";
 import { NodeManager } from "../nodeManager";
-import { HoverManager } from "../hoverManager";
 import { NodeUtils } from "../../../Utils";
 import { ConnectionManager } from "../connectionManager";
 import { UIManager } from "../uiManager";
@@ -24,7 +23,6 @@ export class MenuManager {
     private eventBus: EventBus,
     private theme: DiagramTheme,
     private nodeManager: NodeManager,
-    private hoverManager: HoverManager,
     private connectionManager: ConnectionManager,
     private uiManager: UIManager
   ) {
@@ -65,6 +63,9 @@ export class MenuManager {
     }
     const { node, link } = this.state.hover;
     if (!node && !link) {
+      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
+        e
+      );
       this.state.categories = this.state.nodeDefinitions
         .filter(n => n.root)
         .filter(n => !n.hidden)
@@ -74,12 +75,7 @@ export class MenuManager {
               name: n.type,
               help: n.help,
               action: () => {
-                const currentPos = {
-                  x: this.state.lastPosition.x - this.theme.node.width / 2.0,
-                  y: this.state.lastPosition.y - this.theme.node.height / 2.0
-                };
-                this.nodeManager.createNode(currentPos, n);
-                this.hoverManager.hover(currentPos);
+                this.nodeManager.createNode(createNodePosition, n);
               }
             } as Category)
         );

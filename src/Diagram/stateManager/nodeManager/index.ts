@@ -91,7 +91,6 @@ export class NodeManager {
       this.eventBus.publish(
         Events.DiagramEvents.DescriptionRenameShowInput,
         node,
-        node.description || "",
         nodePosition
       );
     }

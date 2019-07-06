@@ -9,6 +9,7 @@ export class DescriptionRenderer {
   public visible: boolean = false;
   private node?: Node;
   private _position: ScreenPosition = { x: 0, y: 0 };
+  private _scale: number = 1.0;
   constructor(
     private context: CanvasRenderingContext2D,
     private eventBus: EventBus,
@@ -21,11 +22,12 @@ export class DescriptionRenderer {
         padding: "10px",
         background: this.theme.colors.description.background,
         color: this.theme.colors.description.text,
-        width: `${this.theme.description.width / 2.0}px`,
+        width: `${this.theme.description.width}px`,
         textAlign: "center",
         position: "fixed",
         outline: "none",
         zIndex: "1000",
+        transformOrigin: `top left`,
         font: this.getNodeFont(10)
       },
       this.className
@@ -36,20 +38,16 @@ export class DescriptionRenderer {
     );
     this.eventBus.subscribe(DiagramEvents.DescriptionRenameEnded, this.hide);
   }
-  createTextarea = (
-    node: Node,
-    initialValue: string = "",
-    e: ScreenPosition
-  ) => {
+  createTextarea = (node: Node, e: ScreenPosition) => {
     if (!this.visible) {
       this.node = node;
       this._position = e;
       this.visible = true;
       this.textarea = document.createElement("div");
       this.textarea.classList.add(this.className);
-      this.textarea.innerHTML = initialValue || "Put your description here";
+      this.textarea.innerHTML = node.name || "Put your description here";
       this.textarea.contentEditable = "true";
-      this.position(e);
+      this.position(e, this._scale);
       this.textarea.onfocus = e => {
         if (this.textarea!.innerHTML === "Put your description here") {
           this.textarea!.innerHTML = "";
@@ -61,18 +59,20 @@ export class DescriptionRenderer {
       document.body.appendChild(this.textarea);
     }
   };
-  position = (e: ScreenPosition) => {
+  position = (e: ScreenPosition, scale: number) => {
     this._position = e;
+    this._scale = scale;
     this.calculatePosition();
   };
   calculatePosition = () => {
     if (this.textarea) {
-      this.textarea.style.left = `${(this._position.x -
-        this.theme.node.width / 2.0) /
-        2.0}px`;
+      this.textarea.style.left = `${this._position.x / 2.0 -
+        (this._scale * this.theme.description.width) / 2.0 +
+        (this._scale * this.theme.node.width) / 4.0}px`;
       this.textarea.style.top = `${this._position.y / 2.0 -
         this.textarea.getBoundingClientRect().height -
-        20}`;
+        this._scale * 20}`;
+      this.textarea.style.transform = `scale(${this._scale})`;
     }
   };
   hide = () => {
