@@ -1,39 +1,37 @@
 import { Graph, DiagramTheme } from "../Models";
-import { ScreenPosition } from "../IO/ScreenPosition";
+import { packBoxes, IndexedDimensions } from "./packer";
 
 export class RectanglePacker {
-  static pack(
-    blocks: Graph[],
-    theme: DiagramTheme,
-    e: ScreenPosition = { x: 0, y: 0 }
-  ) {
-    const heights = blocks.map(b => b.height);
-    const widths = blocks.map(b => b.width);
-    const totalHeight = heights.reduce((a, b) => a + b);
-    const totalWidth = widths.reduce((a, b) => a + b);
-    const maxHeight = Math.max(Math.max(...heights), Math.sqrt(totalHeight));
-    const maxWidth = Math.max(Math.max(...widths), Math.sqrt(totalWidth));
-    const size = Math.max(maxHeight, maxWidth);
-    const center = { x: 0, y: 0 };
-    let maxY = 0;
-    blocks.sort((a, b) => b.height - a.height);
-    blocks.forEach(b => {
-      if (center.x > size) {
-        center.x = 0;
-        center.y += maxY + theme.graph.spacing.y;
-        maxY = 0;
-      }
-      const newPosition = {
-        x: center.x,
-        y: center.y
+  static pack(blocks: Graph[], theme: DiagramTheme) {
+    const boxes = packBoxes(
+      blocks.map(
+        (b, index) =>
+          ({
+            dimensions: [
+              b.width + theme.graph.spacing.x,
+              b.height + theme.graph.spacing.y
+            ],
+            index
+          } as IndexedDimensions)
+      )
+    );
+    boxes.forEach(box => {
+      const block = blocks[box.index];
+      const newCenter = {
+        x: box.box.position[0] + block.width / 2.0,
+        y: box.box.position[1] + block.height / 2.0
       };
-      b.nodes.forEach(node => {
-        (node.x += newPosition.x), (node.y += newPosition.y);
+      block.nodes.forEach(node => {
+        const relativePosition = {
+          x: node.x - block.center.x,
+          y: node.y - block.center.y
+        };
+        (node.x = newCenter.x + relativePosition.x),
+          (node.y = newCenter.y + relativePosition.y);
       });
-      b.center.x += newPosition.x;
-      b.center.y += newPosition.y;
-      center.x += b.width + theme.graph.spacing.x;
-      maxY = maxY < b.height ? b.height : maxY;
+      block.center = {
+        ...newCenter
+      };
     });
   }
 }
