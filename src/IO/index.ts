@@ -19,7 +19,10 @@ export class IO {
    */
   constructor(eventBus: EventBus, element: HTMLCanvasElement) {
     this.eventBus = eventBus;
-
+    element.addEventListener("mouseleave", e => {
+      e.preventDefault();
+      this.eventBus.publish(Events.IOEvents.ScreenMouseLeave);
+    });
     element.addEventListener("mousemove", e => {
       e.preventDefault();
       this.currentScreenPosition.x = e.clientX * 2 - element.offsetLeft * 2;

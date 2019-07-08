@@ -161,7 +161,7 @@ export class StateManager {
     }
     const { selectedNodes } = this.state;
     if (selectedNodes.length > 0) {
-      this.nodeManager.moveNodes(withoutPan);
+      this.nodeManager.moveNodes(calculated);
     } else if (this.state.draw) {
       this.hoverManager.hover(calculated);
       this.connectionManager.drawConnector(calculated);

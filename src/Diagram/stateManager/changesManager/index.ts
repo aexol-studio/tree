@@ -17,6 +17,10 @@ export class ChangesManager {
   ];
   future: Snapshot[] = [];
   constructor(private state: DiagramState, private eventBus: EventBus) {
+    this.eventBus.subscribe(
+      Events.DiagramEvents.DescriptionRenameEnded,
+      this.dataChange
+    );
     this.eventBus.subscribe(Events.DiagramEvents.NodeCreated, this.dataChange);
     this.eventBus.subscribe(Events.DiagramEvents.NodeDeleted, this.dataChange);
     this.eventBus.subscribe(Events.DiagramEvents.NodeChanged, this.dataChange);

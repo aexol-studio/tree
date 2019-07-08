@@ -35,8 +35,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
     paddingHorizontal: 20,
     paddingVertical: 20,
     fontSize: 24,
-    triangleHeight: 20,
-    triangleWidth: 20,
+    triangleHeight: 10,
+    triangleWidth: 10,
     triangleDistance: 20,
     lineHeight: 36
   },

@@ -11,6 +11,7 @@ export class RenameRenderer {
   private _position: ScreenPosition = { x: 0, y: 0 };
   private _scale: number = 1.0;
   constructor(
+    private context: CanvasRenderingContext2D,
     private theme: DiagramTheme,
     private eventBus: EventBus,
     private cssMiniEngine: CSSMiniEngine
@@ -87,8 +88,10 @@ export class RenameRenderer {
   };
   calculatePosition = () => {
     if (this.textHandler) {
-      this.textHandler.style.left = `${this._position.x / 2.0}px`;
-      this.textHandler.style.top = `${this._position.y / 2.0}px`;
+      this.textHandler.style.left = `${this.context.canvas.offsetLeft +
+        this._position.x / 2.0}px`;
+      this.textHandler.style.top = `${this.context.canvas.offsetTop +
+        this._position.y / 2.0}px`;
       this.textHandler.style.transform = `scale(${this._scale})`;
     }
   };

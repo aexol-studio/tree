@@ -64,6 +64,7 @@ export class Renderer {
     );
 
     this.renameRenderer = new RenameRenderer(
+      this.context,
       this.theme,
       this.eventBus,
       this.cssMiniEngine

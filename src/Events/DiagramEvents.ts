@@ -5,7 +5,6 @@
  * Used possibly to indicate that diagram state have changed
  */
 export enum DiagramEvents {
-  NodeMoving = "NodeMoving",
   NodeMoved = "NodeMoved",
   NodeSelected = "NodeSelected",
   NodeCreated = "NodeCreated",
@@ -17,6 +16,8 @@ export enum DiagramEvents {
   DescriptionRenameShowInput = "DescriptionRenameShowInput",
   DescriptionRenameEnded = "DescriptionRenameEnded",
   DescriptionRenameFocus = "DescriptionRenameFocus",
+  DescriptionMakeReadOnly = "DescriptionMakeReadOnly",
+  DescriptionMakeEditable = "DescriptionMakeEditable",
   LinkCreated = "LinkCreated",
   LinkDeleted = "LinkDeleted",
   LinkMoved = "LinkMoved",

@@ -148,33 +148,43 @@ export class NodeRenderer {
         node.y! + height / 2.0
       );
     }
+    const radiusRight = node.outputs ? 10 : 0;
+    const radiusLeft = node.inputs ? 10 : 0;
+    let hoverWidth = width;
+    let hoverX = node.x!;
+    if (node.inputs) {
+      hoverX -= port.width;
+      hoverWidth += port.width;
+    }
+    if (node.outputs) {
+      hoverWidth += port.width;
+    }
     if (isHovered || isSelected) {
       this.context.strokeStyle = colors.node.selected;
       this.context.lineWidth = 2;
       RoundedRectangleStroke(this.context, {
-        width: width + port.width * 2,
+        width: hoverWidth,
         height,
-        x: node.x! - port.width,
+        x: hoverX,
         y: node.y!,
         radius: 0,
-        radiusBottomLeft: 10,
-        radiusTopLeft: 10,
-        radiusBottomRight: 10,
-        radiusTopRight: 10
+        radiusBottomLeft: radiusLeft,
+        radiusTopLeft: radiusLeft,
+        radiusBottomRight: radiusRight,
+        radiusTopRight: radiusRight
       });
     }
     if (isSelected) {
       this.context.fillStyle = `${colors.node.selected}17`;
       RoundedRectangle(this.context, {
-        width: width + port.width * 2,
+        width: hoverWidth,
         height,
-        x: node.x! - port.width,
+        x: hoverX,
         y: node.y!,
-        radius: 0,
-        radiusBottomLeft: 10,
-        radiusTopLeft: 10,
-        radiusBottomRight: 10,
-        radiusTopRight: 10
+        radiusBottomLeft: radiusLeft,
+        radiusTopLeft: radiusLeft,
+        radiusBottomRight: radiusRight,
+        radiusTopRight: radiusRight
       });
     }
   };

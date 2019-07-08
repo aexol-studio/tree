@@ -53,12 +53,11 @@ export class HoverManager {
     const node = this.state.trees.node.pick(e);
     if (!node) {
       if (this.state.draw) return;
+      let link;
       if (!this.disableLinkOperations) {
-        const link = this.state.trees.link.pick(e);
-        this.state.hover = { link };
-      } else {
-        this.state.hover = {};
+        link = this.state.trees.link.pick(e);
       }
+      this.state.hover = { link };
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       return;
     }

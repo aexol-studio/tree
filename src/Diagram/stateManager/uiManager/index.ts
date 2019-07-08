@@ -106,11 +106,10 @@ export class UIManager {
     if (minimapPosition && !this.state.draggingWorld) {
       return;
     }
-    this.eventBus.publish(Events.IOEvents.WorldMouseOverMove, {
-      x: e.x / this.state.scale - this.state.panX!,
-      y: e.y / this.state.scale - this.state.panY!,
-      shiftKey: e.shiftKey
-    });
+    this.eventBus.publish(
+      Events.IOEvents.WorldMouseOverMove,
+      this.screenToWorld(e)
+    );
   };
 
   mouseMove = (e: ScreenPosition) => {
@@ -121,11 +120,10 @@ export class UIManager {
       return;
     }
 
-    this.eventBus.publish(Events.IOEvents.WorldMouseMove, {
-      x: e.x / this.state.scale - this.state.panX!,
-      y: e.y / this.state.scale - this.state.panY!,
-      shiftKey: e.shiftKey
-    });
+    this.eventBus.publish(
+      Events.IOEvents.WorldMouseMove,
+      this.screenToWorld(e)
+    );
   };
 
   mouseDrag = (e: ScreenPosition) => {
@@ -133,18 +131,14 @@ export class UIManager {
     if (isInsideMinimap && !this.state.draggingElements) {
       return;
     }
-    const withoutPan = {
-      x: e.x / this.state.scale,
-      y: e.y / this.state.scale,
-      shiftKey: e.shiftKey
-    };
+    const calculated = this.screenToWorld(e);
     this.eventBus.publish(Events.IOEvents.WorldMouseDrag, {
-      withoutPan,
-      calculated: {
-        ...withoutPan,
-        x: withoutPan.x - this.state.panX!,
-        y: withoutPan.y - this.state.panY!
-      }
+      withoutPan: {
+        x: calculated.x + this.state.panX!,
+        y: calculated.y + this.state.panY!,
+        shiftKey: calculated.shiftKey
+      },
+      calculated
     });
   };
 
@@ -168,11 +162,10 @@ export class UIManager {
         this.getViewModel()
       );
     }
-    this.eventBus.publish(Events.IOEvents.WorldLeftMouseUp, {
-      x: e.x / this.state.scale - this.state.panX!,
-      y: e.y / this.state.scale - this.state.panY!,
-      shiftKey: e.shiftKey
-    });
+    this.eventBus.publish(
+      Events.IOEvents.WorldLeftMouseUp,
+      this.screenToWorld(e)
+    );
     this.state.draggingWorld = false;
     this.state.draggingElements = false;
     this.state.draggingMinimap = false;
@@ -196,11 +189,7 @@ export class UIManager {
 
     this.eventBus.publish(
       Events.IOEvents.WorldLeftMouseClick,
-      {
-        x: e.x / this.state.scale - this.state.panX!,
-        y: e.y / this.state.scale - this.state.panY!,
-        shiftKey: e.shiftKey
-      },
+      this.screenToWorld(e),
       {
         x: this.state.panX,
         y: this.state.panY
@@ -210,7 +199,6 @@ export class UIManager {
 
   panScreen = (e: ScreenPosition) => {
     this.state.draggingWorld = true;
-
     this.state.panX! -= this.state.lastDragPosition!.x - e.x;
     this.state.panY! -= this.state.lastDragPosition!.y - e.y;
     this.state.lastDragPosition = { ...e };

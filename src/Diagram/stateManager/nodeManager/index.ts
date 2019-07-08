@@ -13,6 +13,7 @@ import { UIManager } from "../uiManager/index";
  * Main nodes operation class
  */
 export class NodeManager {
+  private storeSelectedNodesRelativePosition: ScreenPosition[] = [];
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
@@ -20,11 +21,11 @@ export class NodeManager {
     private theme: DiagramTheme
   ) {
     this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseClick,
+      Events.IOEvents.WorldLeftMouseClick,
       this.selectNode
     );
     this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseClick,
+      Events.IOEvents.WorldLeftMouseClick,
       this.goToNodeType
     );
     this.eventBus.subscribe(
@@ -35,12 +36,23 @@ export class NodeManager {
       Events.IOEvents.ScreenRightMouseUp,
       this.openNodeMenu
     );
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenMouseLeave,
+      this.handleScreenLeave
+    );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
     this.eventBus.subscribe(
       Events.DiagramEvents.NodeRenameEnded,
       this.nodeRenameEnded
     );
+    this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
   }
+  handleScreenLeave = () => {
+    if (this.state.uiState.draggingElements) {
+      this.state.uiState.draggingElements = false;
+      this.movedNodes();
+    }
+  };
   rebuildTree = () => {
     this.state.trees.node = new QuadTree<Node>();
     this.state.nodes.forEach(n =>
@@ -52,6 +64,15 @@ export class NodeManager {
     this.state.selectedNodes = [];
     this.rebuildTree();
   };
+  storeNodes = (e: ScreenPosition) => {
+    this.storeSelectedNodesRelativePosition = this.state.selectedNodes.map(
+      sn =>
+        ({
+          x: e.x - sn.x,
+          y: e.y - sn.y
+        } as ScreenPosition)
+    );
+  };
   moveNodes = (e: ScreenPosition) => {
     if (this.state.isReadOnly) return;
     if (this.state.renamed) return;
@@ -60,12 +81,13 @@ export class NodeManager {
       return;
     }
     this.state.uiState.draggingElements = true;
-    for (const n of selectedNodes) {
-      n.x += e.x - this.state.uiState!.lastDragPosition!.x;
-      n.y += e.y - this.state.uiState!.lastDragPosition!.y;
+    for (let i = 0; i < selectedNodes.length; i++) {
+      const n = selectedNodes[i];
+      const oldN = this.storeSelectedNodesRelativePosition[i];
+      n.x = e.x - oldN.x;
+      n.y = e.y - oldN.y;
     }
     this.state.uiState!.lastDragPosition = { ...e };
-    this.eventBus.publish(Events.DiagramEvents.NodeMoving, selectedNodes);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   movedNodes = () => {
@@ -73,12 +95,7 @@ export class NodeManager {
     if (!selectedNodes.length) {
       return;
     }
-    for (const node of selectedNodes)
-      this.state.trees.node.update(
-        node,
-        { x: node.x, y: node.y },
-        NodeUtils.createTreeNode(node, this.theme).bb
-      );
+    this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
   descriptionIsRenamed = (node: Node) => {
@@ -93,11 +110,17 @@ export class NodeManager {
         node,
         nodePosition
       );
+      if (this.state.isReadOnly) {
+        this.eventBus.publish(Events.DiagramEvents.DescriptionMakeReadOnly);
+      }
+      if (!this.state.isReadOnly) {
+        this.eventBus.publish(Events.DiagramEvents.DescriptionMakeEditable);
+      }
     }
   };
   nodeIsRenamed = () => {
     const [node] = this.state.selectedNodes;
-    if (node) {
+    if (node && !this.state.isReadOnly) {
       const nodePosition = this.uiManager.worldToScreen({
         x: node.x,
         y: node.y
@@ -221,10 +244,10 @@ export class NodeManager {
       );
       if (parentNode) {
         this.selectSingleNode(parentNode);
-        this.eventBus.publish(
-          Events.DiagramEvents.NodeSelected,
-          this.state.selectedNodes
-        );
+        this.eventBus.publish(Events.DiagramEvents.NodeSelected, {
+          x: parentNode.x,
+          y: parentNode.y
+        });
         this.eventBus.publish(Events.DiagramEvents.CenterPanRequested, {
           x: parentNode.x,
           y: parentNode.y
@@ -253,10 +276,7 @@ export class NodeManager {
     } else {
       this.state.selectedNodes = [];
     }
-    this.eventBus.publish(
-      Events.DiagramEvents.NodeSelected,
-      this.state.selectedNodes
-    );
+    this.eventBus.publish(Events.DiagramEvents.NodeSelected, e);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   placeConnectedNode = (node: Node, io: "i" | "o") => {
