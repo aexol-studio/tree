@@ -49,6 +49,9 @@ export class Diagram {
   setLinks(links: Link[]) {
     this.stateManager.setLinks(links);
   }
+  centerOnNode(node: Node) {
+    this.stateManager.centerOnNode(node);
+  }
   setReadOnly(isReadOnly: boolean) {
     this.stateManager.setReadOnly(isReadOnly);
   }

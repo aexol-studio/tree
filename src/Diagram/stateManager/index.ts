@@ -149,6 +149,12 @@ export class StateManager {
       y: -this.theme.node.height * 3
     });
   };
+  centerOnNode = (node: Node) => {
+    const foundIndex = this.state.nodes.indexOf(node);
+    if (foundIndex > -1) {
+      this.eventBus.publish(Events.DiagramEvents.CenterOnNode, node);
+    }
+  };
   mouseDrag = ({
     withoutPan,
     calculated
