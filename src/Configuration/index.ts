@@ -5,6 +5,15 @@ import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
 // We're doing a singleton here, so config can be easily accessible across code files
 let _instance: ConfigurationManager;
 
+export interface DiagramDrawingDistanceOptions {
+  nodeTitle: number;
+  nodeOptions: number;
+  nodeType: number;
+  nodeArrows: number;
+  detailedLinks: number,
+  simplifiedLinks: number,
+};
+
 export interface DiagramOptions {
   autosizeWatcher: boolean;
   autosizeInterval: number;
@@ -15,6 +24,7 @@ export interface DiagramOptions {
   height: number | undefined;
   theme: DiagramTheme;
   width: number | undefined;
+  drawingDistance: Partial<DiagramDrawingDistanceOptions>
 }
 
 const defaultOptions: DiagramOptions = {
@@ -26,7 +36,15 @@ const defaultOptions: DiagramOptions = {
   generateIdFn: uuidv4,
   height: undefined,
   theme: DefaultDiagramTheme,
-  width: undefined
+  width: undefined,
+  drawingDistance: {
+    nodeTitle: 0.0,
+    nodeOptions: 0.0,
+    nodeType: 0.0,
+    nodeArrows: 0.0,
+    detailedLinks: 0.7,
+    simplifiedLinks: 0.0,
+  },
 };
 
 export class ConfigurationManager {
@@ -42,7 +60,11 @@ export class ConfigurationManager {
 
     this.options = {
       ...this.options,
-      ...providedOptions
+      ...providedOptions,
+      drawingDistance: {
+        ...this.options.drawingDistance,
+        ...providedOptions.drawingDistance,
+      }
     };
   }
 
@@ -52,5 +74,12 @@ export class ConfigurationManager {
 
   public getOption<T extends keyof DiagramOptions>(fieldName: T) {
     return this.options[fieldName];
+  }
+
+  public getDistance<T extends keyof DiagramDrawingDistanceOptions>(distanceName: T): number {
+    if (!this.options.drawingDistance[distanceName]) {
+      return 0.0;
+    }
+    return this.options.drawingDistance[distanceName]!;
   }
 }

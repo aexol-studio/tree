@@ -3,16 +3,21 @@ import {
   RoundedRectangle,
   RoundedRectangleStroke
 } from "./Draw/RoundedRectangle";
+import { ConfigurationManager, DiagramDrawingDistanceOptions } from "../Configuration/index";
 export class NodeRenderer {
+  distances: DiagramDrawingDistanceOptions;
+
   constructor(
     private context: CanvasRenderingContext2D,
     private theme: DiagramTheme
-  ) {}
+  ) {
+    this.distances = ConfigurationManager.instance.getOption('drawingDistance') as DiagramDrawingDistanceOptions;
+  }
 
   getNodeFont(size: number, weight = "normal") {
     return `${weight} ${size}px ${
       this.context.font.split(" ")[this.context.font.split(" ").length - 1]
-    }`;
+      }`;
   }
   render = ({
     node,
@@ -21,7 +26,8 @@ export class NodeRenderer {
     isSelected,
     isRenamed,
     inputActive,
-    outputActive
+    outputActive,
+    currentScale = 1.0,
   }: {
     node: Node;
     typeIsHovered?: boolean;
@@ -30,6 +36,7 @@ export class NodeRenderer {
     isRenamed?: boolean;
     outputActive?: boolean;
     inputActive?: boolean;
+    currentScale?: number;
   }) => {
     const {
       colors,
@@ -50,21 +57,34 @@ export class NodeRenderer {
       radiusBottomRight: rightRadius,
       radiusTopRight: rightRadius
     });
-    this.context.fillStyle =
-      colors.node.types[node.definition.type] || colors.node.name;
-    let typeContent = node.definition.type;
-    if (typeIsHovered && node.definition.parent) {
-      this.context.fillStyle = colors.node.hover.type;
-      typeContent += " >";
+
+    const {
+      nodeType: distanceNodeType,
+      nodeTitle: distanceNodeTitle,
+      nodeOptions: distanceNodeOptions,
+      nodeArrows: distanceNodeArrows,
+    } = this.distances;
+
+    if (currentScale > distanceNodeType) {
+      this.context.fillStyle =
+        colors.node.types[node.definition.type] || colors.node.name;
+      let typeContent = node.definition.type;
+      if (typeIsHovered && node.definition.parent) {
+        this.context.fillStyle = colors.node.hover.type;
+        typeContent += " >";
+      }
+      this.context.font = this.getNodeFont(typeSize, "normal");
+      this.context.textBaseline = "bottom";
+      this.context.textAlign = "end";
+      this.context.fillText(typeContent, node.x! + width, node.y!);
     }
-    this.context.font = this.getNodeFont(typeSize, "normal");
-    this.context.textBaseline = "bottom";
-    this.context.textAlign = "end";
-    this.context.fillText(typeContent, node.x! + width, node.y!);
-    this.context.font = this.getNodeFont(nameSize, "normal");
-    this.context.textAlign = "center";
-    this.context.textBaseline = "middle";
+
     if (node.inputs) {
+
+      this.context.font = this.getNodeFont(nameSize, "normal");
+      this.context.textAlign = "center";
+      this.context.textBaseline = "middle";
+
       this.context.fillStyle = inputActive
         ? colors.port.backgroundActive
         : colors.port.background;
@@ -76,13 +96,15 @@ export class NodeRenderer {
         radiusTopLeft: 10,
         radiusBottomLeft: 10
       });
-      this.context.fillStyle = colors.port.button;
-      this.context.font = this.getNodeFont(12, "normal");
-      this.context.fillText(
-        "◀",
-        node.x - port.width / 2.0,
-        node.y + height / 2.0 + 2
-      );
+      if (currentScale > distanceNodeArrows) {
+        this.context.fillStyle = colors.port.button;
+        this.context.font = this.getNodeFont(12, "normal");
+        this.context.fillText(
+          "◀",
+          node.x - port.width / 2.0,
+          node.y + height / 2.0 + 2
+        );
+      }
       this.context.fillStyle = colors.background;
       port.gap &&
         RoundedRectangle(this.context, {
@@ -105,13 +127,15 @@ export class NodeRenderer {
         radiusTopRight: 10,
         radiusBottomRight: 10
       });
-      this.context.fillStyle = colors.port.button;
-      this.context.font = this.getNodeFont(12, "normal");
-      this.context.fillText(
-        "▶",
-        node.x + width + port.width / 2.0,
-        node.y + height / 2.0 + 2
-      );
+      if (currentScale > distanceNodeArrows) {
+        this.context.fillStyle = colors.port.button;
+        this.context.font = this.getNodeFont(12, "normal");
+        this.context.fillText(
+          "▶",
+          node.x + width + port.width / 2.0,
+          node.y + height / 2.0 + 2
+        );
+      }
       this.context.fillStyle = colors.background;
       port.gap &&
         RoundedRectangle(this.context, {
@@ -122,7 +146,7 @@ export class NodeRenderer {
           radius: 0
         });
     }
-    if (node.options) {
+    if (node.options && currentScale > distanceNodeOptions) {
       let xCounter = 0;
       node.options.forEach(o => {
         this.context.fillStyle = colors.node.options[o] || colors.node.name;
@@ -137,7 +161,7 @@ export class NodeRenderer {
         xCounter += this.context.measureText(o).width + options.fontSize / 2;
       });
     }
-    if (node.name && !isRenamed) {
+    if (node.name && !isRenamed && currentScale > distanceNodeTitle) {
       this.context.fillStyle = colors.node.name;
       this.context.font = this.getNodeFont(nameSize, "normal");
       this.context.textAlign = "center";

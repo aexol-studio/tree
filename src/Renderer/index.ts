@@ -145,6 +145,7 @@ export class Renderer {
       const typeIsHovered = isHovered && state.hover.type;
       const inputActive = isHovered && state.hover.io == "i";
       const outputActive = isHovered && state.hover.io == "o";
+      const currentScale = state.uiState.scale;
       if (isRenamed) {
         const nodePosition = this.stateManager.worldToScreenCoordinates({
           x: n.x,
@@ -152,6 +153,7 @@ export class Renderer {
         });
         this.renameRenderer.position(nodePosition, state.uiState.scale);
       }
+
       this.nodeRenderer.render({
         node: n,
         isRenamed,
@@ -159,7 +161,8 @@ export class Renderer {
         isHovered,
         typeIsHovered,
         inputActive,
-        outputActive
+        outputActive,
+        currentScale,
       });
     }
   }
@@ -188,11 +191,11 @@ export class Renderer {
   renderLinks() {
     const state = this.stateManager.getState();
     const linksInArea = state.trees.link.queryRange(this.getActiveArea());
-    linksInArea.forEach(l => this.linkRenderer.render(l, "main"));
+    linksInArea.forEach(l => this.linkRenderer.render(l, "main", state.uiState.scale));
     state.links
       .filter(l => state.selectedNodes.find(n => n === l.i || n === l.o))
-      .forEach(l => this.linkRenderer.render(l, "active"));
-    state.hover.link && this.linkRenderer.render(state.hover.link, "hover");
+      .forEach(l => this.linkRenderer.render(l, "active", state.uiState.scale));
+    state.hover.link && this.linkRenderer.render(state.hover.link, "hover", state.uiState.scale);
   }
 
   /**
