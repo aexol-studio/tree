@@ -2,7 +2,7 @@ import { EventBus } from "../../../EventBus";
 import { UIState } from "../../../Models/UIState";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
 import * as Events from "../../../Events";
-import { DiagramTheme } from "../../../Models";
+import { DiagramTheme, Node } from "../../../Models";
 
 /**
  * UIManager:
@@ -32,6 +32,7 @@ export class UIManager {
       Events.DiagramEvents.CenterPanRequested,
       this.centerPanTo
     );
+    this.eventBus.subscribe(Events.DiagramEvents.CenterOnNode, this.centerOnNode);
   }
 
   mouseWheel = (delta: number, mouseX: number, mouseY: number) => {
@@ -74,6 +75,12 @@ export class UIManager {
       y: e.y / this.state.scale - this.state.panY!,
       shiftKey: e.shiftKey
     };
+  };
+
+  centerOnNode = (n: Node) => {
+    this.state.panX = -(n.x - this.state.areaSize.width / 2 + this.theme.node.width / 2);
+    this.state.panY = -(n.y - this.state.areaSize.height / 2 + this.theme.node.height / 2);
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
 
   calculateMinimapPosition = (e: ScreenPosition) => {
