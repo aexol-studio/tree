@@ -52,6 +52,7 @@ export class MinimapRenderer {
     context.lineWidth = 1;
     context.strokeRect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
 
+    context.beginPath();
     context.rect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
     context.clip();
 
