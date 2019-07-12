@@ -10,7 +10,7 @@ import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
-import { DescriptionRenderer } from "./descriptionRenderer";
+// import { DescriptionRenderer } from "./descriptionRenderer";
 import { Region } from "../QuadTree/Region";
 import { CSSMiniEngine } from "./CssMiniEngine";
 import { RenameRenderer } from "./renameRenderer";
@@ -30,7 +30,7 @@ export class Renderer {
   private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
   private renameRenderer: RenameRenderer;
-  private descriptionRenderer: DescriptionRenderer;
+  // private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
@@ -49,25 +49,25 @@ export class Renderer {
   ) {
     this.nodeRenderer = new NodeRenderer(this.context, this.theme);
 
-    this.descriptionRenderer = new DescriptionRenderer(
-      this.context,
-      this.eventBus,
-      this.theme,
-      this.cssMiniEngine
-    );
+    // this.descriptionRenderer = new DescriptionRenderer(
+    //   this.context,
+    //   this.eventBus,
+    //   this.theme,
+    //   this.cssMiniEngine
+    // );
 
     this.menuRenderer = new MenuRenderer(
       this.context,
       this.theme,
       this.eventBus,
-      this.cssMiniEngine
+      // this.cssMiniEngine
     );
 
     this.renameRenderer = new RenameRenderer(
       this.context,
       this.theme,
       this.eventBus,
-      this.cssMiniEngine
+      // this.cssMiniEngine
     );
 
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
@@ -235,18 +235,18 @@ export class Renderer {
       this.stateManager.getState()
     );
   }
-  rederDescription() {
-    const state = this.stateManager.getState();
-    const [node] = state.selectedNodes;
-    if (!node) {
-      return this.descriptionRenderer.hide();
-    }
-    const nodePosition = this.stateManager.worldToScreenCoordinates({
-      x: node.x,
-      y: node.y
-    });
-    this.descriptionRenderer.position(nodePosition, state.uiState.scale);
-  }
+  // rederDescription() {
+  //   const state = this.stateManager.getState();
+  //   const [node] = state.selectedNodes;
+  //   if (!node) {
+  //     return this.descriptionRenderer.hide();
+  //   }
+  //   const nodePosition = this.stateManager.worldToScreenCoordinates({
+  //     x: node.x,
+  //     y: node.y
+  //   });
+  //   this.descriptionRenderer.position(nodePosition, state.uiState.scale);
+  // }
 
   setScreenTransform() {
     this.zoomPan.setUniformMatrix(this.context);
@@ -273,7 +273,7 @@ export class Renderer {
     this.renderLinks();
     this.renderActiveLink();
     this.renderNodes();
-    this.rederDescription();
+    // this.rederDescription();
 
     this.setScreenTransform();
     this.renderMinimap();

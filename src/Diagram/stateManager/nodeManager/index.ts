@@ -98,7 +98,7 @@ export class NodeManager {
     this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
-  descriptionIsRenamed = (node: Node) => {
+  /* descriptionIsRenamed = (node: Node) => {
     if (node) {
       const nodePosition = this.uiManager.worldToScreen({
         x: node.x,
@@ -117,7 +117,7 @@ export class NodeManager {
         this.eventBus.publish(Events.DiagramEvents.DescriptionMakeEditable);
       }
     }
-  };
+  }; */
   nodeIsRenamed = () => {
     const [node] = this.state.selectedNodes;
     if (node && !this.state.isReadOnly) {
@@ -232,7 +232,7 @@ export class NodeManager {
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
-    this.descriptionIsRenamed(node);
+    // this.descriptionIsRenamed(node);
   };
   goToNodeType = (e: ScreenPosition) => {
     const { type, node } = this.state.hover;

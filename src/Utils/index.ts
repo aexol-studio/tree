@@ -11,6 +11,7 @@ export { NodeUtils } from "./nodeUtils";
  */
 export class Utils {
   static generateId = () => { return ConfigurationManager.instance.getOption('generateIdFn')() };
+  static getUniquePrefix = (prefix: string = '') => { return `${prefix}${Math.floor(Math.random() * 9999999)}` };
   static between = (a: number, b: number) => (c: number) => c >= a && c <= b;
   static clamp = (v: number, min: number, max: number) =>
     Math.max(Math.min(v, max), min);

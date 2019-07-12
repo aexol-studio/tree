@@ -3,7 +3,7 @@ import { DiagramTheme, Category } from "../Models";
 import { HelpRenderer } from "./helpRenderer";
 import { EventBus } from "../EventBus/index";
 import { DiagramEvents } from "../Events/index";
-import { CSSMiniEngine } from "./CssMiniEngine/index";
+// import { CSSMiniEngine } from "./CssMiniEngine/index";
 export class MenuRenderer {
   private htmlMenuElement: HTMLDivElement;
   private categories: Category[] = [];
@@ -13,7 +13,7 @@ export class MenuRenderer {
     private context: CanvasRenderingContext2D,
     private theme: DiagramTheme,
     private eventBus: EventBus,
-    private cssMiniEngine: CSSMiniEngine
+    // private cssMiniEngine: CSSMiniEngine
   ) {
     this.helpRenderer = new HelpRenderer(this.context, this.theme);
     this.htmlMenuElement = this.createHTMLMenuBackground();
@@ -27,8 +27,8 @@ export class MenuRenderer {
   }
   createHTMLMenuBackground() {
     const base = document.createElement("div");
-    const baseClassName = "DiagramMenuBase";
-    this.cssMiniEngine.addClass(
+    // const baseClassName = "DiagramMenuBase";
+    /*this.cssMiniEngine.addClass(
       {
         position: "fixed",
         background: this.theme.colors.menu.background,
@@ -54,7 +54,7 @@ export class MenuRenderer {
         cursor: "pointer"
       },
       "DiagramMenuNodeElement"
-    );
+    );*/
     return base;
   }
   createHTMLMenuElement(name: string) {

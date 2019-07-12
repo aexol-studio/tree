@@ -14,6 +14,8 @@ import { MenuManager } from "./menuManager/index";
 import { QuadTree } from "../../QuadTree/index";
 import { ChangesManager } from "./changesManager/index";
 import { Serializer } from "../../Serialization/index";
+import { HtmlManager } from "./htmlManager/index";
+import { DescriptionManager } from "./descriptionManager/index";
 
 /**
  * StateManager:
@@ -30,12 +32,14 @@ export class StateManager {
   private connectionManager: ConnectionManager;
   private uiManager: UIManager;
   private hoverManager: HoverManager;
+  private htmlManager: HtmlManager;
   constructor(
     private eventBus: EventBus,
     private theme: DiagramTheme,
     private connectionFunction: (input: Node, output: Node) => boolean,
     private disableLinkOperations: boolean,
-    areaSize: { width: number; height: number }
+    private getHostElement: () => HTMLElement,
+    areaSize: { width: number; height: number },
   ) {
     this.state = {
       links: [],
@@ -63,6 +67,12 @@ export class StateManager {
       serialisationFunction: Serializer.serialize,
       positionSerialisationFunction: Serializer.serialize
     };
+    this.htmlManager = new HtmlManager(
+      this.state,
+      this.eventBus,
+      this.getHostElement,
+      this.theme,
+    );
     this.uiManager = new UIManager(
       this.state.uiState,
       this.eventBus,
@@ -93,8 +103,11 @@ export class StateManager {
       this.theme,
       this.nodeManager,
       this.connectionManager,
-      this.uiManager
+      this.uiManager,
+      this.htmlManager,
     );
+
+    new DescriptionManager(this.state, this.eventBus, this.htmlManager);
     new ChangesManager(this.state, this.eventBus);
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
     this.eventBus.subscribe(

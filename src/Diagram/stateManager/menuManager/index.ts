@@ -12,19 +12,22 @@ import { NodeManager } from "../nodeManager";
 import { NodeUtils } from "../../../Utils";
 import { ConnectionManager } from "../connectionManager";
 import { UIManager } from "../uiManager";
+import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
 
 /**
  * MenuManager:
  *
  */
 export class MenuManager {
+  activeMenu: HtmlElementRegistration | null = null;
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
     private theme: DiagramTheme,
     private nodeManager: NodeManager,
     private connectionManager: ConnectionManager,
-    private uiManager: UIManager
+    private uiManager: UIManager,
+    private htmlManager: HtmlManager,
   ) {
     this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openMenu);
     this.eventBus.subscribe(
@@ -37,7 +40,7 @@ export class MenuManager {
     );
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
-      this.closeMenu
+      this.closeMenus
     );
   }
   clickMenuItem = (category: Category) => {
@@ -51,14 +54,21 @@ export class MenuManager {
     }
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  closeMenu = (e: ScreenPosition) => {
+  /*closeMenu = (e: ScreenPosition) => {
     if (this.state.menu && !this.state.hover.menu) {
       this.state.menu = undefined;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
+  };*/
+  closeMenus = () => {
+    if (this.activeMenu) {
+      this.activeMenu.remove();
+      this.activeMenu = null;
+    }
   };
   openMenu = (e: ScreenPosition) => {
-    if (this.state.isReadOnly || this.state.draw) {
+    this.closeMenus();
+    /*if (this.state.isReadOnly || this.state.draw) {
       return;
     }
     const { node, link } = this.state.hover;
@@ -83,7 +93,21 @@ export class MenuManager {
         position: { ...e }
       };
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    }*/
+    if (this.state.isReadOnly || this.state.draw) {
+      return;
     }
+
+    const { node, link } = this.state.hover;
+    if (!node && !link) {
+      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
+        e
+      );
+      this.activeMenu = this.htmlManager.createElement(`
+        <div style="position:fixed">qweqwe</div>
+      `, createNodePosition.x, createNodePosition.y, false, { x: 0, y: 0 });
+    }
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   openPortMenu = (e: ScreenPosition) => {
     if (

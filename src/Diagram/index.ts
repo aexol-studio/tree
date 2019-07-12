@@ -7,6 +7,7 @@ import { Node, Size, Link, DiagramState } from "../Models";
 import { NodeDefinition } from "../Models/NodeDefinition";
 import { NodeUtils } from "../Utils/index";
 import { DiagramOptions, ConfigurationManager } from "../Configuration/index";
+import { CSSMiniEngine } from "../Renderer/CssMiniEngine/index";
 
 /**
  * Diagram:
@@ -129,6 +130,10 @@ export class Diagram {
     });
   }
 
+  getHostElement = () => {
+    return this.hostDomElement;
+  }
+
   constructor(
     private hostDomElement: HTMLElement,
     options?: Partial<DiagramOptions>
@@ -189,7 +194,8 @@ export class Diagram {
       this.configuration.getOption("theme"),
       this.configuration.getOption("connectionFunction"),
       this.configuration.getOption("disableLinkOperations"),
-      areaSize
+      this.getHostElement,
+      areaSize,
     );
 
     // initialize renderer
@@ -210,6 +216,9 @@ export class Diagram {
     if (this.configuration.getOption("autosizeOnWindowResize")) {
       this.wireUpResizer();
     }
+
+    CSSMiniEngine.instance.compile();
+
     // ...start the rendering loop
     this.renderer.renderStart();
   }

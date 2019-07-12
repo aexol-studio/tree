@@ -1,25 +1,25 @@
 import { DiagramTheme } from "../Models";
 import { ScreenPosition } from "../IO/ScreenPosition";
-import { CSSMiniEngine } from "./CssMiniEngine";
+// import { CSSMiniEngine } from "./CssMiniEngine";
 import { EventBus } from "../EventBus";
 import { DiagramEvents } from "../Events/index";
 
 export class RenameRenderer {
   private textHandler?: HTMLInputElement;
   private renaming: boolean = false;
-  private className = "Renamer";
+  // private className = "Renamer";
   private _position: ScreenPosition = { x: 0, y: 0 };
   private _scale: number = 1.0;
   constructor(
     private context: CanvasRenderingContext2D,
     private theme: DiagramTheme,
     private eventBus: EventBus,
-    private cssMiniEngine: CSSMiniEngine
+    // private cssMiniEngine: CSSMiniEngine
   ) {
     this.eventBus.subscribe(DiagramEvents.NodeRenameFocus, this.focus);
     this.eventBus.subscribe(DiagramEvents.NodeRenameShowInput, this.rename);
     this.eventBus.subscribe(DiagramEvents.NodeRenameEnded, this.hide);
-    this.cssMiniEngine.addClass(
+    /*this.cssMiniEngine.addClass(
       {
         visibility: "visible",
         position: "fixed",
@@ -35,7 +35,7 @@ export class RenameRenderer {
         outline: "none"
       },
       this.className
-    );
+    );*/
   }
   createInput = () => {
     const className = "Renamer";
