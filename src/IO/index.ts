@@ -92,8 +92,11 @@ export class IO {
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
       }
-      if (e.key === "delete") {
+      if (e.key === "Delete") {
         this.eventBus.publish(Events.IOEvents.DeletePressed);
+      }
+      if (e.key === "Backspace") {
+        this.eventBus.publish(Events.IOEvents.BackspacePressed);
       }
       if (e.key === "z" && ctrl && !e.shiftKey) {
         this.eventBus.publish(Events.DiagramEvents.UndoRequested);
