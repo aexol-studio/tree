@@ -107,7 +107,7 @@ Here is the list of all subscribable events:
 
 You can unsubscribe your listener either by using `.off()`, or by invoking unsubscriber function that is being returned from `.on()`:
 
-```
+```js
 this.diagram = new Diagram(/* ... */);
 const callback = (nodeList) => {
   console.log('Nodes are moving!', nodeList);
@@ -117,7 +117,7 @@ this.diagram.on('NodeMoving', callback); // callback will be fired
 this.diagram.off('NodeMoving', callback); // callback will not be fired anymore
 ```
 
-```
+```js
 this.diagram = new Diagram(/* ... */);
 const callback = () => {
   console.log('node moving!');
@@ -125,6 +125,17 @@ const callback = () => {
 const unsubscriber = this.diagram.on('NodeMoving', callback); // callback will be fired
 // ...
 unsubscriber(); // callback will not be fired anymore
+```
+
+## Serialisation of data
+
+```js
+const diagram = new Diagram(/* ... */);
+const callback = ({nodes, links}) => {
+  // Here you receive nodes and links after Serialisation
+};
+this.diagram.on('DataModelChanged', callback); // callback will be fired
+
 ```
 
 ## Docs
