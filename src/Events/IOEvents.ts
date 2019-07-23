@@ -27,6 +27,7 @@ export enum IOEvents {
 
   ScreenRightMouseClick = "ScreenRightMouseClick",
   MPressed = "MPressed",
-  DeletePressed = "Delete",
+  DeletePressed = "DeletePressed",
+  BackspacePressed = "BackspacePressed",
   RenamerChanged = "RenamerChanged"
 }
