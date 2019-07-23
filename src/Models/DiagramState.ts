@@ -13,10 +13,6 @@ export interface DiagramState {
   nodeDefinitions: NodeDefinition[];
   selectedLinks: Link[];
   selectedNodes: Node[];
-  serialisationFunction: (props: Pick<DiagramState, "nodes" | "links">) => void;
-  positionSerialisationFunction: (
-    props: Pick<DiagramState, "nodes" | "links">
-  ) => void;
   trees: {
     node: QuadTree<Node>;
     link: QuadTree<Link>;

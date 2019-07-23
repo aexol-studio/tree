@@ -13,7 +13,6 @@ import { HoverManager } from "./hoverManager";
 import { MenuManager } from "./menuManager/index";
 import { QuadTree } from "../../QuadTree/index";
 import { ChangesManager } from "./changesManager/index";
-import { Serializer } from "../../Serialization/index";
 
 /**
  * StateManager:
@@ -59,9 +58,7 @@ export class StateManager {
         draggingWorld: false,
         draggingElements: false,
         draggingMinimap: false
-      },
-      serialisationFunction: Serializer.serialize,
-      positionSerialisationFunction: Serializer.serialize
+      }
     };
     this.uiManager = new UIManager(
       this.state.uiState,
@@ -124,14 +121,6 @@ export class StateManager {
   }
   setReadOnly(isReadOnly: boolean) {
     this.state.isReadOnly = isReadOnly;
-  }
-  setSerialisationFunction(fn: DiagramState["serialisationFunction"]) {
-    this.state.serialisationFunction = fn;
-  }
-  setPositionSerialisationFunction(
-    fn: DiagramState["positionSerialisationFunction"]
-  ) {
-    this.state.positionSerialisationFunction = fn;
   }
   requestSerialise = () => {
     this.eventBus.publish(Events.DiagramEvents.SerialisationRequested);

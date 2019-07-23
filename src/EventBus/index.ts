@@ -11,7 +11,7 @@ export type Topic = DiagramEvents | IOEvents;
 export class EventBus {
   private topics: { [key: string]: Function[] } = {};
   private externalSubscribers: { [key: string]: Function[] } = {};
-
+  private que: Array<{ topic: Topic; args: any[] }> = [];
   subscribe(topic: Topic, callback: Function) {
     if (!this.topics[topic]) {
       this.topics[topic] = [];
@@ -21,12 +21,22 @@ export class EventBus {
   }
 
   publish(topic: Topic, ...args: any[]) {
-    [
-      ...(this.topics[topic] || []),
-      ...(this.externalSubscribers[topic] || [])
-    ].forEach((callback, index) => {
-      callback(...args);
+    this.que.push({
+      topic,
+      args
     });
+    if (this.que.length > 1) {
+      return;
+    }
+    while (this.que.length > 0) {
+      const [q] = this.que;
+      const all = [
+        ...(this.topics[q.topic] || []),
+        ...(this.externalSubscribers[q.topic] || [])
+      ];
+      all.forEach(callback => callback(...q.args));
+      this.que.shift()!;
+    }
   }
 
   on(topic: Topic | string, callback: Function) {
