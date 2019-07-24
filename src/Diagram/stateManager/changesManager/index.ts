@@ -48,17 +48,13 @@ export class ChangesManager {
       links: this.state.links
     };
     this.eventBus.publish(Events.DiagramEvents.DataModelChanged, payload);
-    this.state.serialisationFunction(payload);
   };
   positionChange = () => {
     const payload = {
       nodes: this.state.nodes,
       links: this.state.links
     };
-    this.eventBus.publish(Events.DiagramEvents.DataModelChanged, payload);
-
-    // todo: deprecate this
-    this.state.positionSerialisationFunction(payload);
+    this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, payload);
   };
   unsnap = (time: SnapshotType) => {
     const state = this[time].pop()!;

@@ -46,6 +46,7 @@ export class NodeManager {
       this.nodeRenameEnded
     );
     this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
+    this.eventBus.subscribe(Events.IOEvents.BackspacePressed, this.deleteSelectedNodes);
   }
   handleScreenLeave = () => {
     if (this.state.uiState.draggingElements) {
@@ -167,6 +168,9 @@ export class NodeManager {
     this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+  deleteSelectedNodes = () => {
+    this.deleteNodes(this.state.selectedNodes);
+  }
   openNodeMenu = (e: ScreenPosition) => {
     if (this.state.isReadOnly || this.state.draw) {
       return;
@@ -179,7 +183,11 @@ export class NodeManager {
           help:
             "Delete all selected nodes. If you are deleting object definitions it will delete instances of this object also",
           action: () => {
-            this.deleteNodes([node]);
+            if (this.state.selectedNodes.indexOf(node) > -1) {
+              this.deleteSelectedNodes();
+            } else {
+              this.deleteNodes([node]);
+            }
           }
         },
         {
