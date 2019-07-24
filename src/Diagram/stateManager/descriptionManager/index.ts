@@ -110,7 +110,7 @@ export class DescriptionManager {
 
     this.clearDescription();
     const { x, y } = node;
-    const elementRegistration = this.htmlManager.createElement(`
+    const elementRegistration = this.htmlManager.createElementFromHTML(`
       <div class="${containerClassName}" data-ref="container">
         <div class="${descriptionClassName}">
           <span data-ref="span" contenteditable>${this.getNodeDescriptionValue(node)}</span>
@@ -133,6 +133,6 @@ export class DescriptionManager {
 
     this.selectedNode = node;
     this.registeredDescriptionElement = elementRegistration;
-    this.eventBus.publish(DiagramEvents.RenderRequested);
+    // this.eventBus.publish(DiagramEvents.RenderRequested);
   };
 }

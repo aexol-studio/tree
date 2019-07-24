@@ -1,6 +1,6 @@
 import { MinimapRenderer } from "./minimapRenderer";
 import { ZoomPan } from "./zoomPan";
-import { MenuRenderer } from "./menuRenderer";
+// import { MenuRenderer } from "./menuRenderer";
 import { EventBus } from "../EventBus";
 import { StateManager } from "../Diagram/stateManager";
 import { DiagramEvents } from "../Events";
@@ -13,7 +13,7 @@ import { Cursor } from "../Models/Cursor";
 // import { DescriptionRenderer } from "./descriptionRenderer";
 import { Region } from "../QuadTree/Region";
 import { CSSMiniEngine } from "./CssMiniEngine";
-import { RenameRenderer } from "./renameRenderer";
+// import { RenameRenderer } from "./renameRenderer";
 
 /**
  * Renderer.
@@ -27,9 +27,9 @@ import { RenameRenderer } from "./renameRenderer";
 export class Renderer {
   private minimapRenderer = new MinimapRenderer();
   // private zoomPan = new ZoomPan();
-  private menuRenderer: MenuRenderer;
+  // private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
-  private renameRenderer: RenameRenderer;
+  // private renameRenderer: RenameRenderer;
   // private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
@@ -56,19 +56,19 @@ export class Renderer {
     //   this.cssMiniEngine
     // );
 
-    this.menuRenderer = new MenuRenderer(
+    /* this.menuRenderer = new MenuRenderer(
       this.context,
       this.theme,
       this.eventBus,
       // this.cssMiniEngine
-    );
+    ); */
 
-    this.renameRenderer = new RenameRenderer(
+    /* this.renameRenderer = new RenameRenderer(
       this.context,
       this.theme,
       this.eventBus,
       // this.cssMiniEngine
-    );
+    ); */
 
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
@@ -120,10 +120,10 @@ export class Renderer {
       this.setCursor("text");
       return;
     }
-    if (state.hover.menu) {
+    /*if (state.hover.menu) {
       this.setCursor("pointer");
       return;
-    }
+    }*/
     if (state.hover.link) {
       this.setCursor("col-resize");
       return;
@@ -147,11 +147,11 @@ export class Renderer {
       const outputActive = isHovered && state.hover.io == "o";
       const currentScale = state.uiState.scale;
       if (isRenamed) {
-        const nodePosition = this.stateManager.worldToScreenCoordinates({
+        /* const nodePosition = this.stateManager.worldToScreenCoordinates({
           x: n.x,
           y: n.y
-        });
-        this.renameRenderer.position(nodePosition, state.uiState.scale);
+        }); */
+        // this.renameRenderer.position(nodePosition, state.uiState.scale);
       }
 
       this.nodeRenderer.render({
@@ -217,9 +217,9 @@ export class Renderer {
   renderMenu() {
     const state = this.stateManager.getState();
     if (state.menu) {
-      this.menuRenderer.render(state.menu.position, state.categories);
+      // this.menuRenderer.render(state.menu.position, state.categories);
     } else {
-      this.menuRenderer.hideMenu();
+      // this.menuRenderer.hideMenu();
     }
   }
 

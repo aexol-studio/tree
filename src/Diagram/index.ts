@@ -91,6 +91,8 @@ export class Diagram {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
   autoResize = () => {
+    console.info("HAALO");
+
     const newHostSize = this.calculateElementSize(this.hostDomElement);
     if (
       newHostSize.width !== this.currentHostSize.width ||
@@ -117,9 +119,11 @@ export class Diagram {
   };
 
   wireUpResizer() {
-    window.addEventListener("resize", () => {
-      this.autoResize();
-    });
+    if (this.configuration.getOption("autosizeOnWindowResize")) {
+      window.addEventListener("resize", () => {
+        this.autoResize();
+      });
+    }
   }
 
   getHostElement = () => {
@@ -205,13 +209,12 @@ export class Diagram {
       );
     }
 
-    if (this.configuration.getOption("autosizeOnWindowResize")) {
-      this.wireUpResizer();
-    }
 
     CSSMiniEngine.instance.compile();
 
     // ...start the rendering loop
+    // this.autoResize();
+    this.wireUpResizer();
     this.renderer.renderStart();
   }
 }

@@ -20,7 +20,7 @@ export class HoverManager {
     this.eventBus.subscribe(Events.DiagramEvents.PickRequested, this.hover);
   }
   hoverMenu = (e: ScreenPosition) => {
-    if (this.state.menu) {
+    /*if (this.state.menu) {
       const distance = {
         x: e.x - this.state.menu.position.x,
         y: e.y - this.state.menu.position.y
@@ -39,11 +39,11 @@ export class HoverManager {
           return;
         }
       }
-    }
-    if (this.state.hover.menu) {
+    }*/
+    /*if (this.state.hover.menu) {
       this.state.hover.menu = undefined;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
+    }*/
   };
   somethingHovered = () => {
     for (const k of Object.keys(this.state.hover))

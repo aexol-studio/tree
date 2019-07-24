@@ -32,6 +32,7 @@ export enum DiagramEvents {
   ViewModelChanged = "ViewModelChanged",
   PanRequested = "PanRequested",
   CenterPanRequested = "CenterPanRequested",
+  MenuRequested = "MenuRequested",
   MenuItemClicked = "MenuItemClicked",
   CenterOnNode = "CenterOnNode"
   // ...

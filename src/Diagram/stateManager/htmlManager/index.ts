@@ -79,7 +79,7 @@ export class HtmlManager {
     this.elements = this.elements.filter(e => e !== deletedElement);
     this.nodeAttachedElements = this.nodeAttachedElements.filter(e => e !== deletedElement);
   };
-  createElement(
+  createElementFromHTML(
     markup: string,
     x: number,
     y: number,

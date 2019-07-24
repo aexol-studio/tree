@@ -42,7 +42,7 @@ export class MinimapManager {
 
     this.state.hoverMinimap = true;
     this.state.hover.node = undefined;
-    this.state.hover.menu = undefined;
+    // this.state.hover.menu = undefined;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   }
 

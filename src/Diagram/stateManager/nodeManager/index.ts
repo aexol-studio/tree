@@ -2,10 +2,11 @@ import { EventBus } from "../../../EventBus";
 import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { DiagramTheme, Node, NodeDefinition } from "../../../Models";
+import { DiagramTheme, Node, NodeDefinition, Category, AcceptedNodeDefinition } from "../../../Models";
 import { NodeUtils } from "../../../Utils/nodeUtils";
 import { QuadTree } from "../../../QuadTree";
 import { UIManager } from "../uiManager/index";
+import { ConnectionManager } from "../connectionManager/index";
 
 /**
  * NodeManager:
@@ -18,7 +19,8 @@ export class NodeManager {
     private state: DiagramState,
     private eventBus: EventBus,
     private uiManager: UIManager,
-    private theme: DiagramTheme
+    private theme: DiagramTheme,
+    private connectionManager: ConnectionManager,
   ) {
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
@@ -39,6 +41,10 @@ export class NodeManager {
     this.eventBus.subscribe(
       Events.IOEvents.ScreenMouseLeave,
       this.handleScreenLeave
+    );
+    this.eventBus.subscribe(
+      Events.IOEvents.WorldLeftMouseUp,
+      this.openPortMenu
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
     this.eventBus.subscribe(
@@ -122,16 +128,15 @@ export class NodeManager {
   nodeIsRenamed = () => {
     const [node] = this.state.selectedNodes;
     if (node && !this.state.isReadOnly) {
-      const nodePosition = this.uiManager.worldToScreen({
+      /* const nodePosition = this.uiManager.worldToScreen({
         x: node.x,
         y: node.y
-      });
-      this.state.renamed = node;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      }); */
+      //this.state.renamed = node;
+      //this.eventBus.publish(Events.DiagramEvents.RenderRequested);
       this.eventBus.publish(
         Events.DiagramEvents.NodeRenameShowInput,
-        node.name,
-        nodePosition
+        node
       );
     }
   };
@@ -176,6 +181,7 @@ export class NodeManager {
       return;
     }
     const { node } = this.state.hover;
+
     if (node && !this.state.menu) {
       this.state.categories = [
         {
@@ -224,10 +230,8 @@ export class NodeManager {
       if (categories && categories.node) {
         this.state.categories = this.state.categories.concat(categories.node);
       }
-      this.state.menu = {
-        position: { ...e }
-      };
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+
+      this.eventBus.publish(Events.DiagramEvents.MenuRequested, e);
     }
   };
   graphSelect = (e: ScreenPosition) => {
@@ -366,5 +370,102 @@ export class NodeManager {
       x: 0.5 * (Math.max(...X) + Math.min(...X)),
       y: 0.5 * (Math.max(...Y) + Math.min(...Y))
     };
+  };
+
+  openPortMenu = (e: ScreenPosition) => {
+    if (
+      this.state.isReadOnly ||
+      this.state.menu ||
+      this.state.drawedConnection
+    ) {
+      this.state.drawedConnection = undefined;
+      return;
+    }
+    this.eventBus.publish(Events.DiagramEvents.PickRequested, e);
+    const { io, node } = this.state.hover;
+    if (node && io) {
+      const createConnectedNodesCategory = (n: NodeDefinition): Category => ({
+        name: n.type,
+        help: n.help,
+        action: () => {
+          console.log("AAA");
+          const createdNode = this.createNode(
+            this.placeConnectedNode(node, io),
+            n
+          );
+          this.connectionManager.makeConnection(
+            io === "i" ? node : createdNode,
+            io === "o" ? node : createdNode
+          );
+          if (this.theme.autoBeuatify)
+            this.beautifyNodesInPlace(createdNode);
+        }
+      });
+      const createTopicCategory = (defs: AcceptedNodeDefinition): Category =>
+        defs.definition
+          ? createConnectedNodesCategory(defs.definition)
+          : {
+            name: defs.category!.name,
+            children: defs.category!.definitions.map(createTopicCategory)
+          };
+      let { definition } = node;
+      if (io === "i" && node.inputs) {
+        this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
+          definition,
+          this.state.nodeDefinitions,
+          undefined,
+          this.state.nodes,
+          node
+        ).map(createTopicCategory);
+      } else if (io === "o" && node.outputs) {
+        this.state.categories = NodeUtils.getDefinitionAcceptedOutputCategories(
+          definition,
+          this.state.nodeDefinitions,
+          undefined,
+          this.state.nodes,
+          node
+        ).map(createTopicCategory);
+      }
+      if (this.state.categories.length) {
+        /*const NodeScreenPosition = this.uiManager.worldToScreen({
+          ...e,
+          x: node.x,
+          y: node.y
+        });*/
+        /*this.state.menu = {
+          position: {
+            x:
+              NodeScreenPosition.x +
+              (io === "i" ? -this.theme.port.width : this.theme.port.width),
+            y:
+              NodeScreenPosition.y +
+              this.theme.node.height +
+              this.theme.menu.spacing.y
+          }
+        };*/
+      }
+      const categories = node.definition.categories;
+      if (categories) {
+        if (io === "i" && categories.inputs) {
+          this.state.categories = this.state.categories.concat(
+            categories.inputs
+          );
+        }
+        if (io === "o" && categories.outputs) {
+          this.state.categories = this.state.categories.concat(
+            categories.outputs
+          );
+        }
+      }
+
+      const NodeScreenPosition = this.uiManager.worldToScreen({
+        ...e,
+        x: node.x,
+        y: node.y
+      });
+
+      this.state.hover = {};
+      this.eventBus.publish(Events.DiagramEvents.MenuRequested, NodeScreenPosition);
+    }
   };
 }

@@ -75,17 +75,24 @@ export class StateManager {
       this.eventBus,
       this.theme
     );
-    this.nodeManager = new NodeManager(
-      this.state,
-      this.eventBus,
-      this.uiManager,
-      this.theme
-    );
     this.connectionManager = new ConnectionManager(
       this.eventBus,
       this.state,
       this.theme,
       this.connectionFunction
+    );
+    new MenuManager(
+      this.state,
+      this.eventBus,
+      this.uiManager,
+      this.htmlManager,
+    );
+    this.nodeManager = new NodeManager(
+      this.state,
+      this.eventBus,
+      this.uiManager,
+      this.theme,
+      this.connectionManager
     );
     new MinimapManager(this.state, this.eventBus, this.theme);
     this.hoverManager = new HoverManager(
@@ -94,15 +101,7 @@ export class StateManager {
       this.theme,
       this.disableLinkOperations
     );
-    new MenuManager(
-      this.state,
-      this.eventBus,
-      this.theme,
-      this.nodeManager,
-      this.connectionManager,
-      this.uiManager,
-      this.htmlManager,
-    );
+
 
     new DescriptionManager(this.state, this.eventBus, this.htmlManager);
     new ChangesManager(this.state, this.eventBus);
