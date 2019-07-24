@@ -92,7 +92,8 @@ export class StateManager {
       this.eventBus,
       this.uiManager,
       this.theme,
-      this.connectionManager
+      this.connectionManager,
+      this.htmlManager
     );
     new MinimapManager(this.state, this.eventBus, this.theme);
     this.hoverManager = new HoverManager(

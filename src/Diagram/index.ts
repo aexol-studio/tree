@@ -91,8 +91,6 @@ export class Diagram {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
   autoResize = () => {
-    console.info("HAALO");
-
     const newHostSize = this.calculateElementSize(this.hostDomElement);
     if (
       newHostSize.width !== this.currentHostSize.width ||
@@ -118,7 +116,7 @@ export class Diagram {
     }
   };
 
-  wireUpResizer() {
+  private wireUpResizer() {
     if (this.configuration.getOption("autosizeOnWindowResize")) {
       window.addEventListener("resize", () => {
         this.autoResize();
@@ -126,7 +124,7 @@ export class Diagram {
     }
   }
 
-  getHostElement = () => {
+  private getHostElement = () => {
     return this.hostDomElement;
   }
 

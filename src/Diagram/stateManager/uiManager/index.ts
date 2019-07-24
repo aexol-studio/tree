@@ -205,9 +205,12 @@ export class UIManager {
   };
 
   panScreen = (e: ScreenPosition) => {
+    if (!this.state.lastDragPosition) {
+      return;
+    }
     this.state.draggingWorld = true;
-    this.state.panX! -= this.state.lastDragPosition!.x - e.x;
-    this.state.panY! -= this.state.lastDragPosition!.y - e.y;
+    this.state.panX! -= this.state.lastDragPosition.x - e.x;
+    this.state.panY! -= this.state.lastDragPosition.y - e.y;
     this.state.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };

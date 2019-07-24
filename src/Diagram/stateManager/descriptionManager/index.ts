@@ -133,6 +133,6 @@ export class DescriptionManager {
 
     this.selectedNode = node;
     this.registeredDescriptionElement = elementRegistration;
-    // this.eventBus.publish(DiagramEvents.RenderRequested);
+    this.eventBus.publish(DiagramEvents.RenderRequested);
   };
 }

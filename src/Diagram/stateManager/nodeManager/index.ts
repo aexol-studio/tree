@@ -7,6 +7,8 @@ import { NodeUtils } from "../../../Utils/nodeUtils";
 import { QuadTree } from "../../../QuadTree";
 import { UIManager } from "../uiManager/index";
 import { ConnectionManager } from "../connectionManager/index";
+import { RenameManager } from "../renameManager/index";
+import { HtmlManager } from "../htmlManager/index";
 
 /**
  * NodeManager:
@@ -15,12 +17,14 @@ import { ConnectionManager } from "../connectionManager/index";
  */
 export class NodeManager {
   private storeSelectedNodesRelativePosition: ScreenPosition[] = [];
+  private renameManager: RenameManager;
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
     private uiManager: UIManager,
     private theme: DiagramTheme,
     private connectionManager: ConnectionManager,
+    private htmlManager: HtmlManager,
   ) {
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
@@ -46,6 +50,10 @@ export class NodeManager {
       Events.IOEvents.WorldLeftMouseUp,
       this.openPortMenu
     );
+    // this.eventBus.subscribe(
+    //   Events.DiagramEvents.NodeRenameShowInput,
+    //   this.renameNode,
+    // );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
     this.eventBus.subscribe(
       Events.DiagramEvents.NodeRenameEnded,
@@ -53,6 +61,12 @@ export class NodeManager {
     );
     this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
     this.eventBus.subscribe(Events.IOEvents.BackspacePressed, this.deleteSelectedNodes);
+
+    this.renameManager = new RenameManager(
+      state,
+      this.eventBus,
+      this.htmlManager,
+    );
   }
   handleScreenLeave = () => {
     if (this.state.uiState.draggingElements) {
@@ -134,10 +148,13 @@ export class NodeManager {
       }); */
       //this.state.renamed = node;
       //this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      this.eventBus.publish(
+      /*this.eventBus.publish(
         Events.DiagramEvents.NodeRenameShowInput,
         node
-      );
+      );*/
+      // this.startRenamingNode(node);
+      this.state.renamed = node;
+      this.renameManager.startRenaming(node);
     }
   };
   nodeRenameEnded = (newName: string) => {
@@ -244,7 +261,6 @@ export class NodeManager {
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
-    // this.descriptionIsRenamed(node);
   };
   goToNodeType = (e: ScreenPosition) => {
     const { type, node } = this.state.hover;
@@ -362,6 +378,7 @@ export class NodeManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;
   };
+
   getCenter = () => {
     const X: number[] = [];
     const Y: number[] = [];
@@ -388,7 +405,6 @@ export class NodeManager {
         name: n.type,
         help: n.help,
         action: () => {
-          console.log("AAA");
           const createdNode = this.createNode(
             this.placeConnectedNode(node, io),
             n
@@ -426,24 +442,7 @@ export class NodeManager {
           node
         ).map(createTopicCategory);
       }
-      if (this.state.categories.length) {
-        /*const NodeScreenPosition = this.uiManager.worldToScreen({
-          ...e,
-          x: node.x,
-          y: node.y
-        });*/
-        /*this.state.menu = {
-          position: {
-            x:
-              NodeScreenPosition.x +
-              (io === "i" ? -this.theme.port.width : this.theme.port.width),
-            y:
-              NodeScreenPosition.y +
-              this.theme.node.height +
-              this.theme.menu.spacing.y
-          }
-        };*/
-      }
+
       const categories = node.definition.categories;
       if (categories) {
         if (io === "i" && categories.inputs) {
