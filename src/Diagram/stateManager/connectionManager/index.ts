@@ -32,7 +32,7 @@ export class ConnectionManager {
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedLink);
     /* this.eventBus.subscribe(
       Events.IOEvents.ScreenRightMouseClick,
-      this.openLinkMenu
+      this.openLinkMenuScreenRightMouseClick
     ); */
     this.eventBus.subscribe(
       Events.DiagramEvents.NodeDeleted,

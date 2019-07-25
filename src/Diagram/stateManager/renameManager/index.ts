@@ -52,7 +52,6 @@ export class RenameManager {
   // static descriptionClassName = `${CSS_PREFIX}Description`;
   // static separatorClassName = `${CSS_PREFIX}Separator`;
   registeredRenameElement: HtmlElementRegistration | null = null;
-  renamedNode: Node | null = null;
 
   constructor(private state: DiagramState, private eventBus: EventBus, private htmlManager: HtmlManager, /*, private htmlManager: HtmlManager*/) {
     this.state;
@@ -68,6 +67,10 @@ export class RenameManager {
     //   separatorClassName,
     // } = DescriptionManager;
 
+    this.eventBus.subscribe(
+      IOEvents.ScreenDoubleClick,
+      this.tryToRenameNode
+    );
     this.eventBus.subscribe(IOEvents.WorldMouseDrag, this.nodeMoving);
     this.eventBus.subscribe(DiagramEvents.NodeMoved, this.nodeMoved);
 
@@ -78,21 +81,31 @@ export class RenameManager {
   }
 
   nodeMoving = () => {
-    if (this.renamedNode && this.registeredRenameElement) {
-      if (this.state.selectedNodes.indexOf(this.renamedNode) > -1) {
+    if (this.state.renamed && this.registeredRenameElement) {
+      if (this.state.selectedNodes.indexOf(this.state.renamed) > -1) {
         this.registeredRenameElement.refs.input.style.pointerEvents = 'none';
       }
     }
   };
 
   nodeMoved = () => {
-    if (this.renamedNode && this.registeredRenameElement) {
+    if (this.state.renamed && this.registeredRenameElement) {
       this.registeredRenameElement.refs.input.style.pointerEvents = 'all';
     }
   };
 
-  startRenaming(node: Node) {
-    this.renamedNode = node;
+  tryToRenameNode = () => {
+    if (this.state.selectedNodes.length == 0 || this.state.selectedNodes.length > 1) {
+      return;
+    }
+    const [node] = this.state.selectedNodes;
+    if (node && !this.state.isReadOnly) {
+      this.startRenaming(node);
+    }
+  }
+
+  startRenaming = (node: Node) => {
+    this.state.renamed = node;
     this.clearRenameInputs();
 
     const { x, y } = node;
@@ -110,16 +123,24 @@ export class RenameManager {
     const { refs } = elementRegistration;
 
     window.requestAnimationFrame(() => {
-      // refs.input.focus();
       (refs.input as HTMLInputElement).select();
     });
 
-    refs.input.addEventListener('blur', () => {
-      this.eventBus.publish(
-        DiagramEvents.NodeRenameEnded,
-        (refs.input as HTMLInputElement).value,
-      );
-      this.clearRenameInputs();
+    const saveNewName = () => {
+      refs.input.removeEventListener('blur', saveNewName);
+      this.finalizeRenaming((refs.input as HTMLInputElement).value)
+    };
+
+    refs.input.addEventListener('blur', saveNewName);
+
+    refs.input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveNewName();
+      }
+      if (e.key === 'Escape') {
+        refs.input.removeEventListener('blur', saveNewName);
+        this.cancelRenaming();
+      }
     });
 
     this.registeredRenameElement = elementRegistration;
@@ -132,8 +153,30 @@ export class RenameManager {
     }
   };
 
-  getNodeDescriptionValue = (node: Node) => {
-    // return node.description || 'Put your description here';
+  cancelRenaming = () => {
+    delete this.state.renamed;
+    this.clearRenameInputs();
+    this.eventBus.publish(DiagramEvents.RenderRequested);
+  }
+
+  finalizeRenaming = (newName: string) => {
+    if (this.state.renamed) {
+      const node = this.state.renamed;
+
+      if (this.state.isReadOnly || node.notEditable || node.readonly) {
+        return;
+      }
+      node.name = newName;
+      if (node.editsDefinitions) {
+        node.editsDefinitions.forEach(ed => (ed.type = newName));
+      }
+      this.eventBus.publish(DiagramEvents.NodeChanged);
+      this.eventBus.publish(DiagramEvents.RenderRequested);
+    }
+
+    delete this.state.renamed;
+    this.clearRenameInputs();
+    this.eventBus.publish(DiagramEvents.RenderRequested);
   };
 
   nodeSelectionChange = () => {
@@ -144,39 +187,4 @@ export class RenameManager {
 
     this.startRenaming(this.state.selectedNodes[0]);
   }
-
-  registerNodeEditedDescription = (node: Node) => {
-    // const {
-    //   containerClassName,
-    //   descriptionClassName,
-    //   separatorClassName,
-    // } = DescriptionManager;
-
-    // this.clearDescription();
-    // const { x, y } = node;
-    // const elementRegistration = this.htmlManager.createElementFromHTML(`
-    //   <div class="${containerClassName}" data-ref="container">
-    //     <div class="${descriptionClassName}">
-    //       <span data-ref="span" contenteditable>${this.getNodeDescriptionValue(node)}</span>
-    //     </div>
-    //     <div class="${separatorClassName}"></div>
-    //   </div>
-    // `,
-    //   x,
-    //   y,
-    //   false,
-    //   'topCenter',
-    //   node,
-    // );
-
-    // const { refs } = elementRegistration;
-
-    // refs.span.addEventListener('blur', () => {
-    //   node.description = (refs.span as HTMLSpanElement).innerHTML;
-    // });
-
-    // this.selectedNode = node;
-    // this.registeredDescriptionElement = elementRegistration;
-    // // this.eventBus.publish(DiagramEvents.RenderRequested);
-  };
 }

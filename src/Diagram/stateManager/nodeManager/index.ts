@@ -34,10 +34,10 @@ export class NodeManager {
       Events.IOEvents.WorldLeftMouseClick,
       this.goToNodeType
     );
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenDoubleClick,
-      this.nodeIsRenamed
-    );
+    // this.eventBus.subscribe(
+    //   Events.IOEvents.ScreenDoubleClick,
+    //   this.nodeIsRenamed
+    // );
     this.eventBus.subscribe(
       Events.IOEvents.ScreenRightMouseUp,
       this.openNodeMenu
@@ -55,10 +55,10 @@ export class NodeManager {
     //   this.renameNode,
     // );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
-    this.eventBus.subscribe(
-      Events.DiagramEvents.NodeRenameEnded,
-      this.nodeRenameEnded
-    );
+    // this.eventBus.subscribe(
+    //   Events.DiagramEvents.NodeRenameEnded,
+    //   this.nodeRenameEnded
+    // );
     this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
     this.eventBus.subscribe(Events.IOEvents.BackspacePressed, this.deleteSelectedNodes);
 
@@ -119,59 +119,42 @@ export class NodeManager {
     this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
-  /* descriptionIsRenamed = (node: Node) => {
-    if (node) {
-      const nodePosition = this.uiManager.worldToScreen({
-        x: node.x,
-        y: node.y
-      });
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      this.eventBus.publish(
-        Events.DiagramEvents.DescriptionRenameShowInput,
-        node,
-        nodePosition
-      );
-      if (this.state.isReadOnly) {
-        this.eventBus.publish(Events.DiagramEvents.DescriptionMakeReadOnly);
-      }
-      if (!this.state.isReadOnly) {
-        this.eventBus.publish(Events.DiagramEvents.DescriptionMakeEditable);
-      }
-    }
-  }; */
   nodeIsRenamed = () => {
-    const [node] = this.state.selectedNodes;
-    if (node && !this.state.isReadOnly) {
-      /* const nodePosition = this.uiManager.worldToScreen({
-        x: node.x,
-        y: node.y
-      }); */
-      //this.state.renamed = node;
-      //this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      /*this.eventBus.publish(
-        Events.DiagramEvents.NodeRenameShowInput,
-        node
-      );*/
-      // this.startRenamingNode(node);
-      this.state.renamed = node;
-      this.renameManager.startRenaming(node);
-    }
+    // const [node] = this.state.selectedNodes;
+    // if (node && !this.state.isReadOnly) {
+    //   this.state.renamed = node;
+    //   this.renameManager.startRenaming(node);
+    // }
   };
   nodeRenameEnded = (newName: string) => {
-    this.renameNode(this.state.renamed!, newName);
-    delete this.state.renamed;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    // // this.renameNode(this.state.renamed!, newName);
+    // if (this.state.renamed) {
+    //   const node = this.state.renamed;
+
+    //   if (this.state.isReadOnly || node.notEditable || node.readonly) {
+    //     return;
+    //   }
+    //   node.name = name;
+    //   if (node.editsDefinitions) {
+    //     node.editsDefinitions.forEach(ed => (ed.type = name));
+    //   }
+    //   this.eventBus.publish(Events.DiagramEvents.NodeChanged);
+    //   this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    // }
+
+    // delete this.state.renamed;
+    // this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   renameNode = (node: Node, name: string) => {
-    if (this.state.isReadOnly || node.notEditable || node.readonly) {
-      return;
-    }
-    node.name = name;
-    if (node.editsDefinitions) {
-      node.editsDefinitions.forEach(ed => (ed.type = name));
-    }
-    this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    // if (this.state.isReadOnly || node.notEditable || node.readonly) {
+    //   return;
+    // }
+    // node.name = name;
+    // if (node.editsDefinitions) {
+    //   node.editsDefinitions.forEach(ed => (ed.type = name));
+    // }
+    // this.eventBus.publish(Events.DiagramEvents.NodeChanged);
+    // this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   beautifyNodesInPlace = (node: Node) => {
     const graph = NodeUtils.graphFromNode(node);
@@ -373,7 +356,7 @@ export class NodeManager {
     this.selectSingleNode(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
     if (!createdNode.name) {
-      this.nodeIsRenamed();
+      this.renameManager.startRenaming(createdNode);
     }
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;
@@ -413,8 +396,10 @@ export class NodeManager {
             io === "i" ? node : createdNode,
             io === "o" ? node : createdNode
           );
-          if (this.theme.autoBeuatify)
+          if (this.theme.autoBeuatify) {
             this.beautifyNodesInPlace(createdNode);
+            this.htmlManager.nodeMoved();
+          }
         }
       });
       const createTopicCategory = (defs: AcceptedNodeDefinition): Category =>
