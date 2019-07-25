@@ -49,7 +49,7 @@ export class HtmlManager {
       const x = (this.state.uiState.panX! + e.x) / 2.0;
       const y = (this.state.uiState.panY! + e.y) / 2.0;
       const nodeWidth = this.theme.node.width;
-      if (e.scalable) { // translate(calc(-50% + ${nodeWidth * scale / 4}px), -100%)
+      if (e.scalable) {
         if (e.paddedBy === 'topCenter') {
           e.element.style.transform = `scale(${scale}) translate(calc(-50% + ${nodeWidth / 4}px), -100%) translate(${x}px, ${y}px)`;
         } else {
@@ -57,7 +57,7 @@ export class HtmlManager {
         }
       } else {
         if (e.paddedBy === 'topCenter') {
-          e.element.style.transform = `translate(calc(-50% + ${nodeWidth * scale / 4}px), -100%) scale(${scale}) translate(${x}px, ${y}px) scale(${1 / scale})`;
+          e.element.style.transform = `translate(-50%, -100%) scale(${scale}) translate(${nodeWidth * 0.25}px, 0) translate(${x}px, ${y}px) scale(${1 / scale})`;
         } else {
           e.element.style.transform = `scale(${scale}) translate(${x + e.paddedBy.x}px, ${y + e.paddedBy.y}px) scale(${1 / scale})`;
         }

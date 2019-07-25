@@ -30,10 +30,10 @@ export class ConnectionManager {
     );
     this.eventBus.subscribe(Events.DiagramEvents.NodeMoved, this.onNodeMoved);
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedLink);
-    /* this.eventBus.subscribe(
+    this.eventBus.subscribe(
       Events.IOEvents.ScreenRightMouseClick,
-      this.openLinkMenuScreenRightMouseClick
-    ); */
+      this.openLinkMenu
+    );
     this.eventBus.subscribe(
       Events.DiagramEvents.NodeDeleted,
       this.onNodesDelete
@@ -66,7 +66,7 @@ export class ConnectionManager {
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     this.eventBus.publish(Events.DiagramEvents.LinkDeleted);
   };
-  /* openLinkMenu = (e: ScreenPosition) => {
+  openLinkMenu = (e: ScreenPosition) => {
     const { link } = this.state.hover;
     if (this.state.isReadOnly || !link || this.state.menu) return;
     this.state.categories = [
@@ -76,7 +76,7 @@ export class ConnectionManager {
       }
     ];
     this.state.menu = true;
-  }; */
+  };
   startDrawingConnector = (e: ScreenPosition) => {
     if (this.state.isReadOnly) return;
     const { io, node, menu } = this.state.hover;

@@ -61,6 +61,10 @@ export class MenuManager {
       Events.IOEvents.WorldLeftMouseClick,
       this.closeMenus
     );
+    this.eventBus.subscribe(
+      Events.IOEvents.ScreenRightMouseUp,
+      this.openNewNodeMenu
+    );
 
     CSSMiniEngine.instance.addClass(menuBaseClass, MenuManager.menuBaseClassName);
     CSSMiniEngine.instance.addClass(menuElementClass, MenuManager.menuElementClassName);
@@ -85,6 +89,32 @@ export class MenuManager {
     if (this.activeMenu) {
       this.activeMenu.remove();
       this.activeMenu = null;
+    }
+  };
+  openNewNodeMenu = (screenPosition: ScreenPosition) => {
+    if (this.state.isReadOnly || this.state.draw) {
+      return;
+    }
+    const { node, link } = this.state.hover;
+    if (!node && !link) {
+      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
+        screenPosition
+      );
+      createNodePosition;
+      this.state.categories = this.state.nodeDefinitions
+        .filter(n => n.root)
+        .filter(n => !n.hidden)
+        .map(
+          n =>
+            ({
+              name: n.type,
+              help: n.help,
+              action: () => {
+                this.eventBus.publish(Events.DiagramEvents.NodeCreationRequested, createNodePosition, n);
+              }
+            } as Category)
+        );
+      this.openMenu(screenPosition);
     }
   };
   openMenu = (e: ScreenPosition) => {

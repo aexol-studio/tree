@@ -23,6 +23,12 @@ const descriptionClass = (theme: DiagramTheme) => ({
   font: 'normal 12px Helvetica',
 });
 
+const descriptionSpanClass = (theme: DiagramTheme) => ({
+  minHeight: '14px',
+  display: 'inline-block',
+  outline: 'none',
+});
+
 const descriptionSeparatorClass = {
   height: '10px',
   pointerEvents: 'none',
@@ -31,17 +37,17 @@ const descriptionSeparatorClass = {
 
 const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
   left: '50%',
-  top: '-5px',
   width: '10px',
   height: '10px',
   position: 'absolute',
-  transform: 'rotate(45deg)',
+  transform: 'translate(-5px, -5px) rotate(45deg)',
   background: theme.colors.description.background,
 });
 
 export class DescriptionManager {
   static containerClassName = `${CSS_PREFIX}Container`;
   static descriptionClassName = `${CSS_PREFIX}Description`;
+  static descriptionSpanClassName = `${CSS_PREFIX}DescriptionSpan`;
   static separatorClassName = `${CSS_PREFIX}Separator`;
   registeredDescriptionElement: HtmlElementRegistration | null = null;
   selectedNode: Node | null = null;
@@ -57,6 +63,7 @@ export class DescriptionManager {
       containerClassName,
       descriptionClassName,
       separatorClassName,
+      descriptionSpanClassName,
     } = DescriptionManager;
 
     this.eventBus.subscribe(IOEvents.WorldMouseDrag, this.nodeMoving);
@@ -64,6 +71,7 @@ export class DescriptionManager {
 
     CSSMiniEngine.instance.addClass(containerClass, containerClassName);
     CSSMiniEngine.instance.addClass(descriptionClass, descriptionClassName);
+    CSSMiniEngine.instance.addClass(descriptionSpanClass, descriptionSpanClassName);
     CSSMiniEngine.instance.addClass(descriptionSeparatorClass, separatorClassName);
     CSSMiniEngine.instance.addClass(descriptionSeparatorClassAfter, separatorClassName, '::after');
   }
@@ -106,6 +114,7 @@ export class DescriptionManager {
       containerClassName,
       descriptionClassName,
       separatorClassName,
+      descriptionSpanClassName,
     } = DescriptionManager;
 
     this.clearDescription();
@@ -113,7 +122,7 @@ export class DescriptionManager {
     const elementRegistration = this.htmlManager.createElementFromHTML(`
       <div class="${containerClassName}" data-ref="container">
         <div class="${descriptionClassName}">
-          <span data-ref="span" contenteditable>${this.getNodeDescriptionValue(node)}</span>
+          <span data-ref="span" contenteditable class="${descriptionSpanClassName}">${this.getNodeDescriptionValue(node)}</span>
         </div>
         <div class="${separatorClassName}"></div>
       </div>
@@ -129,6 +138,12 @@ export class DescriptionManager {
 
     refs.span.addEventListener('blur', () => {
       node.description = (refs.span as HTMLSpanElement).innerHTML;
+    });
+
+    refs.span.addEventListener('focus', () => {
+      if (!node.description) {
+        refs.span.innerText = '';
+      }
     });
 
     this.selectedNode = node;

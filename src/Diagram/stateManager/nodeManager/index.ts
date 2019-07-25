@@ -50,6 +50,10 @@ export class NodeManager {
       Events.IOEvents.WorldLeftMouseUp,
       this.openPortMenu
     );
+    this.eventBus.subscribe(
+      Events.DiagramEvents.NodeCreationRequested,
+      this.createNode
+    );
     // this.eventBus.subscribe(
     //   Events.DiagramEvents.NodeRenameShowInput,
     //   this.renameNode,
