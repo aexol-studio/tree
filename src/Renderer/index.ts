@@ -13,6 +13,7 @@ import { Cursor } from "../Models/Cursor";
 // import { DescriptionRenderer } from "./descriptionRenderer";
 import { Region } from "../QuadTree/Region";
 import { CSSMiniEngine } from "./CssMiniEngine";
+import { HelpRenderer } from "./helpRenderer";
 // import { RenameRenderer } from "./renameRenderer";
 
 /**
@@ -72,6 +73,7 @@ export class Renderer {
 
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
+    new HelpRenderer(this.context, this.theme);
 
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
 

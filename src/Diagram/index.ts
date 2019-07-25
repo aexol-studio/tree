@@ -22,6 +22,7 @@ export class Diagram {
   private currentHostSize: Size;
   private stateManager: StateManager;
   private canvasElement: HTMLCanvasElement;
+  private io: IO;
   public configuration: ConfigurationManager;
 
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
@@ -86,6 +87,8 @@ export class Diagram {
       width: this.canvasElement.width,
       height: this.canvasElement.height
     });
+
+    this.io.calculateClientBoundingRect();
   }
   private calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
@@ -113,6 +116,7 @@ export class Diagram {
         width: this.canvasElement.width,
         height: this.canvasElement.height
       });
+      this.io.calculateClientBoundingRect();
     }
   };
 
@@ -172,6 +176,10 @@ export class Diagram {
       hostDomElement.removeChild(hostDomElement.firstChild);
     }
 
+    if (window.getComputedStyle(hostDomElement).position === 'static') {
+      hostDomElement.style.position = 'relative';
+    }
+
     hostDomElement.appendChild(this.canvasElement);
     if (!canvasContext) {
       throw new Error("Can't create canvas context!");
@@ -180,7 +188,7 @@ export class Diagram {
     this.eventBus = new EventBus();
 
     // initialize IO: mouse/keyboard logic will be there
-    new IO(this.eventBus, this.canvasElement);
+    this.io = new IO(this.eventBus, this.canvasElement);
 
     // initialize state manager
     this.stateManager = new StateManager(

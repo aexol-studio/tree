@@ -10,6 +10,7 @@ import { Utils } from "../../../Utils";
 import { UIManager } from "../uiManager";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
 import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
+// import { HelpRenderer } from "../../../Renderer/helpRenderer";
 
 const CSS_PREFIX = Utils.getUniquePrefix('MenuManager');
 
@@ -156,12 +157,17 @@ export class MenuManager {
         this.eventBus.publish(Events.DiagramEvents.MenuItemClicked, category);
         // this.closeMenus();
       });
-      /* element.addEventListener('mouseenter', () => {
-        this.helpRenderer.render({
-          text: category.help || "",
-          title: category.name
-        });
-      }); */
+      element.addEventListener('mouseenter', () => {
+        if (category.help) {
+          this.htmlManager.renderHelp({
+            text: category.help || "",
+            title: category.name
+          });
+        }
+      });
+      element.addEventListener('mouseleave', () => {
+        this.htmlManager.hideHelp();
+      });
     })
     // }
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);

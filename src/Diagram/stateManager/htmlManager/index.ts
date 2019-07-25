@@ -1,8 +1,12 @@
 import { DiagramState, Node, DiagramTheme } from "../../../Models/index";
 import { EventBus } from "../../../EventBus/index";
 import * as Events from "../../../Events/index";
+import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
+import { Utils } from "../../../Utils/index";
 
 export type DiagramHtmlElementPaddedBy = { x: number, y: number } | 'topCenter';
+
+const CSS_PREFIX = Utils.getUniquePrefix('HtmlManager');
 
 export interface DiagramHtmlElement {
   id: number;
@@ -21,8 +25,32 @@ export type HtmlElementRegistration = {
   };
 };
 
+const helpContainerClass = (theme: DiagramTheme) => ({
+  position: 'absolute',
+  left: '10px',
+  top: '10px',
+  right: '270px',
+  height: 'auto',
+  pointerEvents: 'none',
+  display: 'none',
+  padding: '10px',
+  background: theme.colors.help.background,
+});
+
+const helpTitleClass = (theme: DiagramTheme) => ({
+  fontSize: `${theme.help.title.text / 2.0}px`,
+  color: theme.colors.help.title,
+  marginBottom: '10px',
+});
+
+const helpContentClass = (theme: DiagramTheme) => ({
+  fontSize: `${theme.help.text / 2.0}px`,
+  color: theme.colors.help.text,
+  lineHeight: `${theme.help.lineHeight / 2.0}px`
+});
+
 function createElementFromHTML(htmlString: string) {
-  var div = document.createElement('div');
+  const div = document.createElement('div');
   div.innerHTML = htmlString.trim();
   return div.firstChild as HTMLElement;
 }
@@ -30,6 +58,7 @@ function createElementFromHTML(htmlString: string) {
 export class HtmlManager {
   elements: DiagramHtmlElement[];
   nodeAttachedElements: DiagramHtmlElement[];
+  helpElements?: [HTMLDivElement, HTMLDivElement, HTMLDivElement];
   created: boolean = false;
   constructor(
     private state: DiagramState,
@@ -42,6 +71,40 @@ export class HtmlManager {
     this.state;
     this.eventBus.subscribe(Events.DiagramEvents.RenderRequested, this.renderRequested);
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.nodeMoved);
+
+    CSSMiniEngine.instance.addClass(helpContainerClass, `${CSS_PREFIX}container`);
+    CSSMiniEngine.instance.addClass(helpTitleClass, `${CSS_PREFIX}title`);
+    CSSMiniEngine.instance.addClass(helpContentClass, `${CSS_PREFIX}content`);
+
+    this.prepareHelpMarkup();
+  }
+  prepareHelpMarkup = () => {
+    const divHelpTitle = document.createElement('div');
+    const divHelpContent = document.createElement('div');
+    const divHelp = document.createElement('div');
+    this.getHostElement().appendChild(divHelp);
+    divHelp.className = `${CSS_PREFIX}container`;
+    divHelpTitle.className = `${CSS_PREFIX}title`;
+    divHelpContent.className = `${CSS_PREFIX}content`;
+    divHelp.appendChild(divHelpTitle);
+    divHelp.appendChild(divHelpContent);
+    this.helpElements = [divHelp, divHelpTitle, divHelpContent];
+  }
+  renderHelp = (help: { title: string; text: string }) => {
+    if (!this.helpElements) {
+      return;
+    }
+    const [divHelp, divHelpTitle, divHelpContent] = this.helpElements;
+    divHelp.style.display = 'block';
+    divHelpTitle.innerText = help.title;
+    divHelpContent.innerText = help.text;
+  };
+  hideHelp = () => {
+    if (!this.helpElements) {
+      return;
+    }
+    const [divHelp] = this.helpElements;
+    divHelp.style.display = 'none';
   }
   renderRequested = () => {
     this.elements.forEach(e => {

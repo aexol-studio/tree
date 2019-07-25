@@ -13,20 +13,25 @@ export class IO {
   private eventBus: EventBus;
   private currentScreenPosition: ScreenPosition = { x: 0, y: 0 };
   private lastClick = Date.now();
+  private elementRect?: ClientRect;
   /**
    * @param eventBus event bus to be used
    * @param element HTML <canvas> elements to put listeners on
    */
-  constructor(eventBus: EventBus, element: HTMLCanvasElement) {
+  constructor(eventBus: EventBus, private element: HTMLCanvasElement) {
     this.eventBus = eventBus;
+    this.calculateClientBoundingRect();
     element.addEventListener("mouseleave", e => {
       e.preventDefault();
       this.eventBus.publish(Events.IOEvents.ScreenMouseLeave);
     });
     element.addEventListener("mousemove", e => {
       e.preventDefault();
-      this.currentScreenPosition.x = e.clientX * 2 - element.offsetLeft * 2;
-      this.currentScreenPosition.y = e.clientY * 2 - element.offsetTop * 2;
+      if (!this.elementRect) {
+        return;
+      }
+      this.currentScreenPosition.x = e.clientX * 2 - this.elementRect.left * 2;
+      this.currentScreenPosition.y = e.clientY * 2 - this.elementRect.top * 2;
       const mpl = this.createMouseEventPayload();
       this.eventBus.publish(Events.IOEvents.ScreenMouseMove, mpl);
       if (e.buttons === 1) {
@@ -105,6 +110,10 @@ export class IO {
         this.eventBus.publish(Events.DiagramEvents.RedoRequested);
       }
     });
+  }
+
+  calculateClientBoundingRect() {
+    this.elementRect = this.element.getBoundingClientRect();
   }
 
   createMouseEventPayload(e: Partial<ScreenPosition> = {}) {

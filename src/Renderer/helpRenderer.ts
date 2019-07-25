@@ -2,11 +2,19 @@ import { DiagramTheme } from "../Models";
 import { RoundedRectangle } from "./Draw/RoundedRectangle";
 import { MultilineText } from "./Draw/MultilineText";
 
+let _instance: HelpRenderer;
+
 export class HelpRenderer {
   constructor(
     private context: CanvasRenderingContext2D,
     private theme: DiagramTheme
-  ) {}
+  ) {
+    _instance = this;
+  }
+
+  static get instance(): HelpRenderer {
+    return _instance;
+  }
 
   getNodeFont(size: number, weight = "normal") {
     return `${weight} ${size}px ${
