@@ -95,18 +95,31 @@ export class StateManager {
       this.connectionManager,
       this.htmlManager
     );
-    new MinimapManager(this.state, this.eventBus, this.theme);
+    new MinimapManager(
+      this.state,
+      this.eventBus,
+      this.theme
+    );
     this.hoverManager = new HoverManager(
       this.state,
       this.eventBus,
       this.theme,
       this.disableLinkOperations
     );
+    new DescriptionManager(
+      this.state,
+      this.eventBus,
+      this.htmlManager,
+    );
+    new ChangesManager(
+      this.state,
+      this.eventBus,
+    );
 
-
-    new DescriptionManager(this.state, this.eventBus, this.htmlManager);
-    new ChangesManager(this.state, this.eventBus);
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
+    this.eventBus.subscribe(
+      Events.IOEvents.WorldMouseDrag,
+      this.mouseDrag
+    );
     this.eventBus.subscribe(
       Events.DiagramEvents.RebuildTreeRequested,
       this.rebuildTrees

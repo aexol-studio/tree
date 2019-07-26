@@ -34,10 +34,6 @@ export class NodeManager {
       Events.IOEvents.WorldLeftMouseClick,
       this.goToNodeType
     );
-    // this.eventBus.subscribe(
-    //   Events.IOEvents.ScreenDoubleClick,
-    //   this.nodeIsRenamed
-    // );
     this.eventBus.subscribe(
       Events.IOEvents.ScreenRightMouseUp,
       this.openNodeMenu
@@ -54,15 +50,7 @@ export class NodeManager {
       Events.DiagramEvents.NodeCreationRequested,
       this.createNode
     );
-    // this.eventBus.subscribe(
-    //   Events.DiagramEvents.NodeRenameShowInput,
-    //   this.renameNode,
-    // );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
-    // this.eventBus.subscribe(
-    //   Events.DiagramEvents.NodeRenameEnded,
-    //   this.nodeRenameEnded
-    // );
     this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
     this.eventBus.subscribe(Events.IOEvents.BackspacePressed, this.deleteSelectedNodes);
 
@@ -122,43 +110,6 @@ export class NodeManager {
     }
     this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
-  };
-  nodeIsRenamed = () => {
-    // const [node] = this.state.selectedNodes;
-    // if (node && !this.state.isReadOnly) {
-    //   this.state.renamed = node;
-    //   this.renameManager.startRenaming(node);
-    // }
-  };
-  nodeRenameEnded = (newName: string) => {
-    // // this.renameNode(this.state.renamed!, newName);
-    // if (this.state.renamed) {
-    //   const node = this.state.renamed;
-
-    //   if (this.state.isReadOnly || node.notEditable || node.readonly) {
-    //     return;
-    //   }
-    //   node.name = name;
-    //   if (node.editsDefinitions) {
-    //     node.editsDefinitions.forEach(ed => (ed.type = name));
-    //   }
-    //   this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-    //   this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    // }
-
-    // delete this.state.renamed;
-    // this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  };
-  renameNode = (node: Node, name: string) => {
-    // if (this.state.isReadOnly || node.notEditable || node.readonly) {
-    //   return;
-    // }
-    // node.name = name;
-    // if (node.editsDefinitions) {
-    //   node.editsDefinitions.forEach(ed => (ed.type = name));
-    // }
-    // this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-    // this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   beautifyNodesInPlace = (node: Node) => {
     const graph = NodeUtils.graphFromNode(node);

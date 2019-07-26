@@ -10,11 +10,9 @@ import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
-// import { DescriptionRenderer } from "./descriptionRenderer";
 import { Region } from "../QuadTree/Region";
 import { CSSMiniEngine } from "./CssMiniEngine";
-import { HelpRenderer } from "./helpRenderer";
-// import { RenameRenderer } from "./renameRenderer";
+
 
 /**
  * Renderer.
@@ -50,30 +48,8 @@ export class Renderer {
   ) {
     this.nodeRenderer = new NodeRenderer(this.context, this.theme);
 
-    // this.descriptionRenderer = new DescriptionRenderer(
-    //   this.context,
-    //   this.eventBus,
-    //   this.theme,
-    //   this.cssMiniEngine
-    // );
-
-    /* this.menuRenderer = new MenuRenderer(
-      this.context,
-      this.theme,
-      this.eventBus,
-      // this.cssMiniEngine
-    ); */
-
-    /* this.renameRenderer = new RenameRenderer(
-      this.context,
-      this.theme,
-      this.eventBus,
-      // this.cssMiniEngine
-    ); */
-
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
-    new HelpRenderer(this.context, this.theme);
 
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
 
@@ -148,13 +124,6 @@ export class Renderer {
       const inputActive = isHovered && state.hover.io == "i";
       const outputActive = isHovered && state.hover.io == "o";
       const currentScale = state.uiState.scale;
-      if (isRenamed) {
-        /* const nodePosition = this.stateManager.worldToScreenCoordinates({
-          x: n.x,
-          y: n.y
-        }); */
-        // this.renameRenderer.position(nodePosition, state.uiState.scale);
-      }
 
       this.nodeRenderer.render({
         node: n,
@@ -212,20 +181,6 @@ export class Renderer {
   }
 
   /**
-   * Renders context menu
-   *
-   * @memberof Renderer
-   */
-  renderMenu() {
-    const state = this.stateManager.getState();
-    if (state.menu) {
-      // this.menuRenderer.render(state.menu.position, state.categories);
-    } else {
-      // this.menuRenderer.hideMenu();
-    }
-  }
-
-  /**
    * render minimap in top right corner
    *
    * @memberof Renderer
@@ -237,18 +192,6 @@ export class Renderer {
       this.stateManager.getState()
     );
   }
-  // rederDescription() {
-  //   const state = this.stateManager.getState();
-  //   const [node] = state.selectedNodes;
-  //   if (!node) {
-  //     return this.descriptionRenderer.hide();
-  //   }
-  //   const nodePosition = this.stateManager.worldToScreenCoordinates({
-  //     x: node.x,
-  //     y: node.y
-  //   });
-  //   this.descriptionRenderer.position(nodePosition, state.uiState.scale);
-  // }
 
   setScreenTransform() {
     this.zoomPan.setUniformMatrix(this.context);
@@ -280,6 +223,5 @@ export class Renderer {
     this.setScreenTransform();
     this.renderMinimap();
     this.renderCursor();
-    this.renderMenu();
   };
 }
