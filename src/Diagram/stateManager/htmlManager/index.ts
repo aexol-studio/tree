@@ -29,7 +29,7 @@ const helpContainerClass = (theme: DiagramTheme) => ({
   position: 'absolute',
   left: '10px',
   top: '10px',
-  right: '270px',
+  right: `${(theme.minimap.size / 2.0) + 20}px`,
   height: 'auto',
   pointerEvents: 'none',
   display: 'none',
@@ -178,8 +178,10 @@ export class HtmlManager {
       };
     }, {});
 
-    if (element.getAttribute('data-ref')) {
-      referencesSet[element.getAttribute('data-ref')!] = element;
+    const refAttributeValue = element.getAttribute('data-ref');
+
+    if (refAttributeValue) {
+      referencesSet[refAttributeValue] = element;
     }
 
     return {

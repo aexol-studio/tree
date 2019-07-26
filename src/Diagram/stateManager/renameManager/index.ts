@@ -19,53 +19,15 @@ const containerClass = (theme: DiagramTheme) => ({
   border: '0',
   outline: '0',
 });
-/*
-const descriptionClass = (theme: DiagramTheme) => ({
-  borderRadius: '3px',
-  padding: '10px',
-  background: theme.colors.description.background,
-  color: theme.colors.description.text,
-  width: `${theme.description.width}px`,
-  textAlign: 'center',
-  outline: 'none',
-  font: 'normal 12px Helvetica',
-});
-
-const descriptionSeparatorClass = {
-  height: '10px',
-  pointerEvents: 'none',
-  position: 'relative',
-};
-
-const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
-  left: '50%',
-  top: '-5px',
-  width: '10px',
-  height: '10px',
-  position: 'absolute',
-  transform: 'rotate(45deg)',
-  background: theme.colors.description.background,
-});*/
 
 export class RenameManager {
   static containerClassName = `${CSS_PREFIX}Container`;
-  // static descriptionClassName = `${CSS_PREFIX}Description`;
-  // static separatorClassName = `${CSS_PREFIX}Separator`;
+
   registeredRenameElement: HtmlElementRegistration | null = null;
 
   constructor(private state: DiagramState, private eventBus: EventBus, private htmlManager: HtmlManager, /*, private htmlManager: HtmlManager*/) {
     this.state;
     this.htmlManager;
-    // this.eventBus.subscribe(
-    //   DiagramEvents.NodeSelected,
-    //   this.nodeSelectionChange
-    // );
-
-    // const {
-    //   containerClassName,
-    //   descriptionClassName,
-    //   separatorClassName,
-    // } = DescriptionManager;
 
     this.eventBus.subscribe(
       IOEvents.ScreenDoubleClick,
@@ -75,9 +37,6 @@ export class RenameManager {
     this.eventBus.subscribe(DiagramEvents.NodeMoved, this.nodeMoved);
 
     CSSMiniEngine.instance.addClass(containerClass, RenameManager.containerClassName);
-    // CSSMiniEngine.instance.addClass(descriptionClass, descriptionClassName);
-    // CSSMiniEngine.instance.addClass(descriptionSeparatorClass, separatorClassName);
-    // CSSMiniEngine.instance.addClass(descriptionSeparatorClassAfter, separatorClassName, '::after');
   }
 
   nodeMoving = () => {

@@ -10,7 +10,6 @@ import { Utils } from "../../../Utils";
 import { UIManager } from "../uiManager";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
 import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
-// import { HelpRenderer } from "../../../Renderer/helpRenderer";
 
 const CSS_PREFIX = Utils.getUniquePrefix('MenuManager');
 
@@ -98,9 +97,7 @@ export class MenuManager {
     }
     const { node, link } = this.state.hover;
     if (!node && !link) {
-      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
-        screenPosition
-      );
+      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(screenPosition);
       createNodePosition;
       this.state.categories = this.state.nodeDefinitions
         .filter(n => n.root)
@@ -131,9 +128,7 @@ export class MenuManager {
 
     this.activeMenuPosition = e;
 
-    const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
-      e
-    );
+    const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(e);
     this.activeCategories = [...this.state.categories];
 
     const elementsMarkup = this.state.categories.map((category, index) =>
@@ -155,7 +150,6 @@ export class MenuManager {
       const category = this.activeCategories[index];
       element.addEventListener('click', () => {
         this.eventBus.publish(Events.DiagramEvents.MenuItemClicked, category);
-        // this.closeMenus();
       });
       element.addEventListener('mouseenter', () => {
         if (category.help) {
@@ -169,7 +163,7 @@ export class MenuManager {
         this.htmlManager.hideHelp();
       });
     })
-    // }
+
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
 
