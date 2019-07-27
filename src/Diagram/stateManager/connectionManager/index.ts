@@ -75,9 +75,7 @@ export class ConnectionManager {
         action: () => this.deleteLinks([link])
       }
     ];
-    this.state.menu = {
-      position: { ...e }
-    };
+    this.state.menu = true;
   };
   startDrawingConnector = (e: ScreenPosition) => {
     if (this.state.isReadOnly) return;

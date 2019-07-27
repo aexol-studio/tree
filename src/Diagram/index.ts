@@ -7,6 +7,7 @@ import { Node, Size, Link } from "../Models";
 import { NodeDefinition } from "../Models/NodeDefinition";
 import { NodeUtils } from "../Utils/index";
 import { DiagramOptions, ConfigurationManager } from "../Configuration/index";
+import { CSSMiniEngine } from "../Renderer/CssMiniEngine/index";
 
 /**
  * Diagram:
@@ -21,6 +22,7 @@ export class Diagram {
   private currentHostSize: Size;
   private stateManager: StateManager;
   private canvasElement: HTMLCanvasElement;
+  private io: IO;
   public configuration: ConfigurationManager;
 
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
@@ -85,6 +87,8 @@ export class Diagram {
       width: this.canvasElement.width,
       height: this.canvasElement.height
     });
+
+    this.io.calculateClientBoundingRect();
   }
   private calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
@@ -112,13 +116,20 @@ export class Diagram {
         width: this.canvasElement.width,
         height: this.canvasElement.height
       });
+      this.io.calculateClientBoundingRect();
     }
   };
 
-  wireUpResizer() {
-    window.addEventListener("resize", () => {
-      this.autoResize();
-    });
+  private wireUpResizer() {
+    if (this.configuration.getOption("autosizeOnWindowResize")) {
+      window.addEventListener("resize", () => {
+        this.autoResize();
+      });
+    }
+  }
+
+  private getHostElement = () => {
+    return this.hostDomElement;
   }
 
   constructor(
@@ -165,6 +176,10 @@ export class Diagram {
       hostDomElement.removeChild(hostDomElement.firstChild);
     }
 
+    if (window.getComputedStyle(hostDomElement).position === 'static') {
+      hostDomElement.style.position = 'relative';
+    }
+
     hostDomElement.appendChild(this.canvasElement);
     if (!canvasContext) {
       throw new Error("Can't create canvas context!");
@@ -173,7 +188,7 @@ export class Diagram {
     this.eventBus = new EventBus();
 
     // initialize IO: mouse/keyboard logic will be there
-    new IO(this.eventBus, this.canvasElement);
+    this.io = new IO(this.eventBus, this.canvasElement);
 
     // initialize state manager
     this.stateManager = new StateManager(
@@ -181,7 +196,8 @@ export class Diagram {
       this.configuration.getOption("theme"),
       this.configuration.getOption("connectionFunction"),
       this.configuration.getOption("disableLinkOperations"),
-      areaSize
+      this.getHostElement,
+      areaSize,
     );
 
     // initialize renderer
@@ -199,10 +215,12 @@ export class Diagram {
       );
     }
 
-    if (this.configuration.getOption("autosizeOnWindowResize")) {
-      this.wireUpResizer();
-    }
+
+    CSSMiniEngine.instance.compile();
+
     // ...start the rendering loop
+    // this.autoResize();
+    this.wireUpResizer();
     this.renderer.renderStart();
   }
 }

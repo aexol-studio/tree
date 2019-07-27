@@ -2,10 +2,13 @@ import { EventBus } from "../../../EventBus";
 import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { DiagramTheme, Node, NodeDefinition } from "../../../Models";
+import { DiagramTheme, Node, NodeDefinition, Category, AcceptedNodeDefinition } from "../../../Models";
 import { NodeUtils } from "../../../Utils/nodeUtils";
 import { QuadTree } from "../../../QuadTree";
 import { UIManager } from "../uiManager/index";
+import { ConnectionManager } from "../connectionManager/index";
+import { RenameManager } from "../renameManager/index";
+import { HtmlManager } from "../htmlManager/index";
 
 /**
  * NodeManager:
@@ -14,11 +17,14 @@ import { UIManager } from "../uiManager/index";
  */
 export class NodeManager {
   private storeSelectedNodesRelativePosition: ScreenPosition[] = [];
+  private renameManager: RenameManager;
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
     private uiManager: UIManager,
-    private theme: DiagramTheme
+    private theme: DiagramTheme,
+    private connectionManager: ConnectionManager,
+    private htmlManager: HtmlManager,
   ) {
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
@@ -29,10 +35,6 @@ export class NodeManager {
       this.goToNodeType
     );
     this.eventBus.subscribe(
-      Events.IOEvents.ScreenDoubleClick,
-      this.nodeIsRenamed
-    );
-    this.eventBus.subscribe(
       Events.IOEvents.ScreenRightMouseUp,
       this.openNodeMenu
     );
@@ -40,13 +42,23 @@ export class NodeManager {
       Events.IOEvents.ScreenMouseLeave,
       this.handleScreenLeave
     );
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
     this.eventBus.subscribe(
-      Events.DiagramEvents.NodeRenameEnded,
-      this.nodeRenameEnded
+      Events.IOEvents.WorldLeftMouseUp,
+      this.openPortMenu
     );
+    this.eventBus.subscribe(
+      Events.DiagramEvents.NodeCreationRequested,
+      this.createNode
+    );
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
     this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
     this.eventBus.subscribe(Events.IOEvents.BackspacePressed, this.deleteSelectedNodes);
+
+    this.renameManager = new RenameManager(
+      state,
+      this.eventBus,
+      this.htmlManager,
+    );
   }
   handleScreenLeave = () => {
     if (this.state.uiState.draggingElements) {
@@ -99,58 +111,6 @@ export class NodeManager {
     this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
   };
-  descriptionIsRenamed = (node: Node) => {
-    if (node) {
-      const nodePosition = this.uiManager.worldToScreen({
-        x: node.x,
-        y: node.y
-      });
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      this.eventBus.publish(
-        Events.DiagramEvents.DescriptionRenameShowInput,
-        node,
-        nodePosition
-      );
-      if (this.state.isReadOnly) {
-        this.eventBus.publish(Events.DiagramEvents.DescriptionMakeReadOnly);
-      }
-      if (!this.state.isReadOnly) {
-        this.eventBus.publish(Events.DiagramEvents.DescriptionMakeEditable);
-      }
-    }
-  };
-  nodeIsRenamed = () => {
-    const [node] = this.state.selectedNodes;
-    if (node && !this.state.isReadOnly) {
-      const nodePosition = this.uiManager.worldToScreen({
-        x: node.x,
-        y: node.y
-      });
-      this.state.renamed = node;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-      this.eventBus.publish(
-        Events.DiagramEvents.NodeRenameShowInput,
-        node.name,
-        nodePosition
-      );
-    }
-  };
-  nodeRenameEnded = (newName: string) => {
-    this.renameNode(this.state.renamed!, newName);
-    delete this.state.renamed;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  };
-  renameNode = (node: Node, name: string) => {
-    if (this.state.isReadOnly || node.notEditable || node.readonly) {
-      return;
-    }
-    node.name = name;
-    if (node.editsDefinitions) {
-      node.editsDefinitions.forEach(ed => (ed.type = name));
-    }
-    this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  };
   beautifyNodesInPlace = (node: Node) => {
     const graph = NodeUtils.graphFromNode(node);
     const {
@@ -176,6 +136,7 @@ export class NodeManager {
       return;
     }
     const { node } = this.state.hover;
+
     if (node && !this.state.menu) {
       this.state.categories = [
         {
@@ -224,10 +185,8 @@ export class NodeManager {
       if (categories && categories.node) {
         this.state.categories = this.state.categories.concat(categories.node);
       }
-      this.state.menu = {
-        position: { ...e }
-      };
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+
+      this.eventBus.publish(Events.DiagramEvents.MenuRequested, e);
     }
   };
   graphSelect = (e: ScreenPosition) => {
@@ -240,7 +199,6 @@ export class NodeManager {
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
-    this.descriptionIsRenamed(node);
   };
   goToNodeType = (e: ScreenPosition) => {
     const { type, node } = this.state.hover;
@@ -353,11 +311,12 @@ export class NodeManager {
     this.selectSingleNode(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
     if (!createdNode.name) {
-      this.nodeIsRenamed();
+      this.renameManager.startRenaming(createdNode);
     }
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;
   };
+
   getCenter = () => {
     const X: number[] = [];
     const Y: number[] = [];
@@ -366,5 +325,86 @@ export class NodeManager {
       x: 0.5 * (Math.max(...X) + Math.min(...X)),
       y: 0.5 * (Math.max(...Y) + Math.min(...Y))
     };
+  };
+
+  openPortMenu = (e: ScreenPosition) => {
+    if (
+      this.state.isReadOnly ||
+      this.state.menu ||
+      this.state.drawedConnection
+    ) {
+      this.state.drawedConnection = undefined;
+      return;
+    }
+    this.eventBus.publish(Events.DiagramEvents.PickRequested, e);
+    const { io, node } = this.state.hover;
+    if (node && io) {
+      const createConnectedNodesCategory = (n: NodeDefinition): Category => ({
+        name: n.type,
+        help: n.help,
+        action: () => {
+          const createdNode = this.createNode(
+            this.placeConnectedNode(node, io),
+            n
+          );
+          this.connectionManager.makeConnection(
+            io === "i" ? node : createdNode,
+            io === "o" ? node : createdNode
+          );
+          if (this.theme.autoBeuatify) {
+            this.beautifyNodesInPlace(createdNode);
+            this.htmlManager.nodeMoved();
+          }
+        }
+      });
+      const createTopicCategory = (defs: AcceptedNodeDefinition): Category =>
+        defs.definition
+          ? createConnectedNodesCategory(defs.definition)
+          : {
+            name: defs.category!.name,
+            children: defs.category!.definitions.map(createTopicCategory)
+          };
+      let { definition } = node;
+      if (io === "i" && node.inputs) {
+        this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
+          definition,
+          this.state.nodeDefinitions,
+          undefined,
+          this.state.nodes,
+          node
+        ).map(createTopicCategory);
+      } else if (io === "o" && node.outputs) {
+        this.state.categories = NodeUtils.getDefinitionAcceptedOutputCategories(
+          definition,
+          this.state.nodeDefinitions,
+          undefined,
+          this.state.nodes,
+          node
+        ).map(createTopicCategory);
+      }
+
+      const categories = node.definition.categories;
+      if (categories) {
+        if (io === "i" && categories.inputs) {
+          this.state.categories = this.state.categories.concat(
+            categories.inputs
+          );
+        }
+        if (io === "o" && categories.outputs) {
+          this.state.categories = this.state.categories.concat(
+            categories.outputs
+          );
+        }
+      }
+
+      const NodeScreenPosition = this.uiManager.worldToScreen({
+        ...e,
+        x: node.x,
+        y: node.y
+      });
+
+      this.state.hover = {};
+      this.eventBus.publish(Events.DiagramEvents.MenuRequested, NodeScreenPosition);
+    }
   };
 }

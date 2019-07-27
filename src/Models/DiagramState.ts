@@ -33,9 +33,7 @@ export interface DiagramState {
     description?: Node;
   };
   isReadOnly?: boolean;
-  menu?: {
-    position: ScreenPosition;
-  };
+  menu?: boolean;
   drawedConnection?: ScreenPosition;
   uiState: UIState;
 }

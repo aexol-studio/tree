@@ -4,68 +4,101 @@ import { ScreenPosition } from "../../../IO/ScreenPosition";
 import {
   DiagramTheme,
   Category,
-  NodeDefinition,
   DiagramState,
-  AcceptedNodeDefinition
 } from "../../../Models";
-import { NodeManager } from "../nodeManager";
-import { NodeUtils } from "../../../Utils";
-import { ConnectionManager } from "../connectionManager";
+import { Utils } from "../../../Utils";
 import { UIManager } from "../uiManager";
+import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
+import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
+
+const CSS_PREFIX = Utils.getUniquePrefix('MenuManager');
+
+const menuBaseClass = (theme: DiagramTheme) => ({
+  position: "fixed",
+  background: theme.colors.menu.background,
+  padding: theme.menu.padding,
+  borderRadius: theme.menu.borderRadius,
+  maxWidth: `${theme.menu.maxWidth}px`,
+  maxHeight: `${theme.menu.maxHeight}px`,
+  overflowY: "auto",
+  zIndex: "100"
+});
+
+const menuElementClass = (theme: DiagramTheme) => ({
+  position: "relative",
+  textAlign: "left",
+  verticalAlign: "middle",
+  color: theme.colors.menu.text,
+  fontSize: theme.menu.category.fontSize,
+  fontWeight: theme.menu.category.fontWeight,
+  padding: theme.menu.category.padding,
+  cursor: "pointer"
+});
 
 /**
  * MenuManager:
  *
  */
 export class MenuManager {
+  activeMenu: HtmlElementRegistration | null = null;
+  activeCategories: Category[] = [];
+  activeMenuPosition: ScreenPosition = { x: 0, y: 0 };
+  static menuBaseClassName = `${CSS_PREFIX}Base`;
+  static menuElementClassName = `${CSS_PREFIX}Element`;
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
-    private theme: DiagramTheme,
-    private nodeManager: NodeManager,
-    private connectionManager: ConnectionManager,
-    private uiManager: UIManager
+    // private nodeManager: NodeManager,
+    private uiManager: UIManager,
+    private htmlManager: HtmlManager,
   ) {
-    this.eventBus.subscribe(Events.IOEvents.ScreenRightMouseUp, this.openMenu);
+    this.eventBus.subscribe(Events.DiagramEvents.MenuRequested, this.openMenu);
     this.eventBus.subscribe(
       Events.DiagramEvents.MenuItemClicked,
       this.clickMenuItem
     );
     this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseUp,
-      this.openPortMenu
+      Events.IOEvents.WorldLeftMouseClick,
+      this.closeMenus
     );
     this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseClick,
-      this.closeMenu
+      Events.IOEvents.ScreenRightMouseUp,
+      this.openNewNodeMenu
     );
+
+    CSSMiniEngine.instance.addClass(menuBaseClass, MenuManager.menuBaseClassName);
+    CSSMiniEngine.instance.addClass(menuElementClass, MenuManager.menuElementClassName);
   }
   clickMenuItem = (category: Category) => {
     if (category.action) {
       category.action!();
-      this.state.menu = undefined;
-      this.state.hover.menu = undefined;
+      this.closeMenus();
     } else if (category.children) {
       this.state.categories = category.children;
-      this.state.hover.menu = undefined;
+      // this.state.hover.menu = undefined;
+      this.openMenu(this.activeMenuPosition);
     }
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-  closeMenu = (e: ScreenPosition) => {
+  /*closeMenu = (e: ScreenPosition) => {
     if (this.state.menu && !this.state.hover.menu) {
       this.state.menu = undefined;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
+  };*/
+  closeMenus = () => {
+    if (this.activeMenu) {
+      this.activeMenu.remove();
+      this.activeMenu = null;
+    }
   };
-  openMenu = (e: ScreenPosition) => {
+  openNewNodeMenu = (screenPosition: ScreenPosition) => {
     if (this.state.isReadOnly || this.state.draw) {
       return;
     }
     const { node, link } = this.state.hover;
     if (!node && !link) {
-      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
-        e
-      );
+      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(screenPosition);
+      createNodePosition;
       this.state.categories = this.state.nodeDefinitions
         .filter(n => n.root)
         .filter(n => !n.hidden)
@@ -75,102 +108,63 @@ export class MenuManager {
               name: n.type,
               help: n.help,
               action: () => {
-                this.nodeManager.createNode(createNodePosition, n);
+                this.eventBus.publish(Events.DiagramEvents.NodeCreationRequested, createNodePosition, n);
               }
             } as Category)
         );
-      this.state.menu = {
-        position: { ...e }
-      };
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.openMenu(screenPosition);
     }
   };
-  openPortMenu = (e: ScreenPosition) => {
-    if (
-      this.state.isReadOnly ||
-      this.state.menu ||
-      this.state.drawedConnection
-    ) {
-      this.state.drawedConnection = undefined;
+  openMenu = (e: ScreenPosition) => {
+    this.closeMenus();
+
+    if (this.state.categories.length < 1) {
       return;
     }
-    this.eventBus.publish(Events.DiagramEvents.PickRequested, e);
-    const { io, node } = this.state.hover;
-    if (node && io) {
-      const createConnectedNodesCategory = (n: NodeDefinition): Category => ({
-        name: n.type,
-        help: n.help,
-        action: () => {
-          const createdNode = this.nodeManager.createNode(
-            this.nodeManager.placeConnectedNode(node, io),
-            n
-          );
-          this.connectionManager.makeConnection(
-            io === "i" ? node : createdNode,
-            io === "o" ? node : createdNode
-          );
-          if (this.theme.autoBeuatify)
-            this.nodeManager.beautifyNodesInPlace(createdNode);
+
+    if (this.state.isReadOnly || this.state.draw) {
+      return;
+    }
+
+    this.activeMenuPosition = e;
+
+    const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(e);
+    this.activeCategories = [...this.state.categories];
+
+    const elementsMarkup = this.state.categories.map((category, index) =>
+      `<div class="${MenuManager.menuElementClassName}" data-ref="category-btn">${category.name}</div>`
+    ).join('');
+
+    this.activeMenu = this.htmlManager.createElementFromHTML(
+      `
+        <div class="${MenuManager.menuBaseClassName}" data-ref="root">
+          ${elementsMarkup}
+        </div>
+        `,
+      createNodePosition.x,
+      createNodePosition.y,
+      false,
+      { x: 0, y: 0 }
+    );
+    this.activeMenu.refs['root'].querySelectorAll(`.${MenuManager.menuElementClassName}`).forEach((element, index) => {
+      const category = this.activeCategories[index];
+      element.addEventListener('click', () => {
+        this.eventBus.publish(Events.DiagramEvents.MenuItemClicked, category);
+      });
+      element.addEventListener('mouseenter', () => {
+        if (category.help) {
+          this.htmlManager.renderHelp({
+            text: category.help || "",
+            title: category.name
+          });
         }
       });
-      const createTopicCategory = (defs: AcceptedNodeDefinition): Category =>
-        defs.definition
-          ? createConnectedNodesCategory(defs.definition)
-          : {
-              name: defs.category!.name,
-              children: defs.category!.definitions.map(createTopicCategory)
-            };
-      let { definition } = node;
-      if (io === "i" && node.inputs) {
-        this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
-          definition,
-          this.state.nodeDefinitions,
-          undefined,
-          this.state.nodes,
-          node
-        ).map(createTopicCategory);
-      } else if (io === "o" && node.outputs) {
-        this.state.categories = NodeUtils.getDefinitionAcceptedOutputCategories(
-          definition,
-          this.state.nodeDefinitions,
-          undefined,
-          this.state.nodes,
-          node
-        ).map(createTopicCategory);
-      }
-      if (this.state.categories.length) {
-        const NodeScreenPosition = this.uiManager.worldToScreen({
-          ...e,
-          x: node.x,
-          y: node.y
-        });
-        this.state.menu = {
-          position: {
-            x:
-              NodeScreenPosition.x +
-              (io === "i" ? -this.theme.port.width : this.theme.port.width),
-            y:
-              NodeScreenPosition.y +
-              this.theme.node.height +
-              this.theme.menu.spacing.y
-          }
-        };
-      }
-      const categories = node.definition.categories;
-      if (categories) {
-        if (io === "i" && categories.inputs) {
-          this.state.categories = this.state.categories.concat(
-            categories.inputs
-          );
-        }
-        if (io === "o" && categories.outputs) {
-          this.state.categories = this.state.categories.concat(
-            categories.outputs
-          );
-        }
-      }
-      this.state.hover = {};
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    }
+      element.addEventListener('mouseleave', () => {
+        this.htmlManager.hideHelp();
+      });
+    })
+
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
+
 }

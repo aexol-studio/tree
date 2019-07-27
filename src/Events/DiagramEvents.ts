@@ -13,6 +13,7 @@ export enum DiagramEvents {
   NodeRenameFocus = "NodeRenameFocus",
   NodeRenameShowInput = "NodeRenameShowInput",
   NodeRenameEnded = "NodeRenameEnded",
+  NodeCreationRequested = "NodeCreationRequested",
   DescriptionRenameShowInput = "DescriptionRenameShowInput",
   DescriptionRenameEnded = "DescriptionRenameEnded",
   DescriptionRenameFocus = "DescriptionRenameFocus",
@@ -32,6 +33,7 @@ export enum DiagramEvents {
   ViewModelChanged = "ViewModelChanged",
   PanRequested = "PanRequested",
   CenterPanRequested = "CenterPanRequested",
+  MenuRequested = "MenuRequested",
   MenuItemClicked = "MenuItemClicked",
   CenterOnNode = "CenterOnNode"
   // ...
