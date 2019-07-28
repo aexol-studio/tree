@@ -1,35 +1,62 @@
 # Graphsource
+[![npm](https://img.shields.io/npm/v/graphsource.svg?style=flat-square)](https://www.npmjs.com/package/graphsource) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)](http://commitizen.github.io/cz-cli/) [![npm downloads](https://img.shields.io/npm/dm/graphsource.svg?style=flat-square)](https://www.npmjs.com/package/graphsource)
+
+![](assets/recorded-diagram.gif)
 
 Diagram is the tool for making node based systems. Define your own behaviour of this react based diagram system and create your tool. Visual programming is trending right now so this is a good basis.
 
-Providing highest level of abstracion and theming `graphsource` is the most powerful package around the ecosystem. This package contains no dependencies!
+Providing highest level of abstracion and theming `graphsource` is the most powerful package around the ecosystem. This package contains one dependency.
 
-[Project Page](https://diagram.graphqleditor.com)
+## Getting started
 
-## Live demo
-
-Here is [Live Demo](https://app.graphqleditor.com) of diagram used to create node based graphql system
-
-
-## Develop & Contribute
-
-```sh
-$ git clone https://github.com/slothking-online/diagram
-$ npm install
-$ npm run start
+### Javascript
+```js
+import { Diagram } from 'graphsource'
+this.diagram = new Diagram(document.getElementById("root"));
+const createOND = (name) => ({
+  name: `${name}Node`,
+  description: `${name} object node`,
+  inputs: [],
+  outputs: []
+});
+const options = [
+  {
+    name: "required",
+    help:
+      "Check this if this node is required for creation of the type or is required in input | interface"
+  },
+  {
+    name: "array",
+    help:
+      "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings"
+  }
+];
+this.diagram!.setDefinitions([
+  {
+    type: "dummy",
+    help: "Hello I am dummy node this is help I do display",
+    node: createOND("dummy"),
+    options,
+    root: true,
+    acceptsInputs: (d, defs) =>
+      defs.map(
+        def =>
+          ({
+            definition: def
+          })
+      ),
+    acceptsOutputs: (d, defs) =>
+      defs.map(
+        def =>
+          ({
+            definition: def
+          })
+      )
+  }
+]);
 ```
 
-## Creating new nodes
-
-Press RMB to open menu pointing on diagram
-
-## Add to your project
-
-```sh
-$ npm install graphsource
-```
-
-## Usage in project
+### TypeScript
 
 ```ts
 import { Diagram, NodeDefinition, AcceptedNodeDefinition } from 'graphsource'
@@ -77,6 +104,24 @@ this.diagram!.setDefinitions([
 ]);
 ```
 
+
+## Develop & Contribute
+
+```sh
+$ git clone https://github.com/graphql-editor/diagram
+$ npm install
+$ npm run start
+```
+
+## Creating new nodes
+
+Press RMB to open menu pointing on diagram
+
+## Add to your project
+
+```sh
+$ npm install graphsource
+```
 ## Listening to diagram events
 
 It's possible to attach to certain events that occur inside the diagram.
@@ -168,3 +213,7 @@ Feel free to contact us and contribute in graphql editor project. artur@graphqle
 3.  Commit your changes: git commit -am 'Add some feature'
 4.  Push to the branch: git push origin my-new-feature
 5.  Submit a pull request
+
+## Used by
+
+Here is [Live Demo](https://app.graphqleditor.com) of diagram used to create node based graphql system
