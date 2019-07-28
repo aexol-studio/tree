@@ -1,17 +1,13 @@
 import { EventBus } from "../../../EventBus";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import {
-  DiagramTheme,
-  Category,
-  DiagramState,
-} from "../../../Models";
+import { DiagramTheme, Category, DiagramState } from "../../../Models";
 import { Utils } from "../../../Utils";
 import { UIManager } from "../uiManager";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
 import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
 
-const CSS_PREFIX = Utils.getUniquePrefix('MenuManager');
+const CSS_PREFIX = Utils.getUniquePrefix("MenuManager");
 
 const menuBaseClass = (theme: DiagramTheme) => ({
   position: "fixed",
@@ -50,7 +46,7 @@ export class MenuManager {
     private eventBus: EventBus,
     // private nodeManager: NodeManager,
     private uiManager: UIManager,
-    private htmlManager: HtmlManager,
+    private htmlManager: HtmlManager
   ) {
     this.eventBus.subscribe(Events.DiagramEvents.MenuRequested, this.openMenu);
     this.eventBus.subscribe(
@@ -66,8 +62,14 @@ export class MenuManager {
       this.openNewNodeMenu
     );
 
-    CSSMiniEngine.instance.addClass(menuBaseClass, MenuManager.menuBaseClassName);
-    CSSMiniEngine.instance.addClass(menuElementClass, MenuManager.menuElementClassName);
+    CSSMiniEngine.instance.addClass(
+      menuBaseClass,
+      MenuManager.menuBaseClassName
+    );
+    CSSMiniEngine.instance.addClass(
+      menuElementClass,
+      MenuManager.menuElementClassName
+    );
   }
   clickMenuItem = (category: Category) => {
     if (category.action) {
@@ -86,6 +88,7 @@ export class MenuManager {
     }
   };*/
   closeMenus = () => {
+    this.htmlManager.hideHelp();
     if (this.activeMenu) {
       this.activeMenu.remove();
       this.activeMenu = null;
@@ -97,7 +100,9 @@ export class MenuManager {
     }
     const { node, link } = this.state.hover;
     if (!node && !link) {
-      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(screenPosition);
+      const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
+        screenPosition
+      );
       createNodePosition;
       this.state.categories = this.state.nodeDefinitions
         .filter(n => n.root)
@@ -108,7 +113,11 @@ export class MenuManager {
               name: n.type,
               help: n.help,
               action: () => {
-                this.eventBus.publish(Events.DiagramEvents.NodeCreationRequested, createNodePosition, n);
+                this.eventBus.publish(
+                  Events.DiagramEvents.NodeCreationRequested,
+                  createNodePosition,
+                  n
+                );
               }
             } as Category)
         );
@@ -131,9 +140,14 @@ export class MenuManager {
     const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(e);
     this.activeCategories = [...this.state.categories];
 
-    const elementsMarkup = this.state.categories.map((category, index) =>
-      `<div class="${MenuManager.menuElementClassName}" data-ref="category-btn">${category.name}</div>`
-    ).join('');
+    const elementsMarkup = this.state.categories
+      .map(
+        (category, index) =>
+          `<div class="${
+            MenuManager.menuElementClassName
+          }" data-ref="category-btn">${category.name}</div>`
+      )
+      .join("");
 
     this.activeMenu = this.htmlManager.createElementFromHTML(
       `
@@ -146,25 +160,26 @@ export class MenuManager {
       false,
       { x: 0, y: 0 }
     );
-    this.activeMenu.refs['root'].querySelectorAll(`.${MenuManager.menuElementClassName}`).forEach((element, index) => {
-      const category = this.activeCategories[index];
-      element.addEventListener('click', () => {
-        this.eventBus.publish(Events.DiagramEvents.MenuItemClicked, category);
+    this.activeMenu.refs["root"]
+      .querySelectorAll(`.${MenuManager.menuElementClassName}`)
+      .forEach((element, index) => {
+        const category = this.activeCategories[index];
+        element.addEventListener("click", () => {
+          this.eventBus.publish(Events.DiagramEvents.MenuItemClicked, category);
+        });
+        element.addEventListener("mouseenter", () => {
+          if (category.help) {
+            this.htmlManager.renderHelp({
+              text: category.help || "",
+              title: category.name
+            });
+          }
+        });
+        element.addEventListener("mouseleave", () => {
+          this.htmlManager.hideHelp();
+        });
       });
-      element.addEventListener('mouseenter', () => {
-        if (category.help) {
-          this.htmlManager.renderHelp({
-            text: category.help || "",
-            title: category.name
-          });
-        }
-      });
-      element.addEventListener('mouseleave', () => {
-        this.htmlManager.hideHelp();
-      });
-    })
 
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
-
 }
