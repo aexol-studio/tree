@@ -34,6 +34,7 @@ export class Renderer {
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
   private activeLinkRenderer: ActiveLinkRenderer;
+  private previousFrameTime: number = 0;
   /**
    * @param eventBus event bus instance to be used
    * @param context context from the canvas
@@ -51,7 +52,7 @@ export class Renderer {
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);
 
-    this.eventBus.subscribe(DiagramEvents.RenderRequested, this.render);
+    this.eventBus.subscribe(DiagramEvents.RenderRequested, this.renderStart);
 
     this.cssMiniEngine.compile();
   }
@@ -202,14 +203,32 @@ export class Renderer {
     this.zoomPan.setCalculatedMatrix(this.context, uiState);
   }
 
-  renderStart() {
+  renderStart = () => {
     window.requestAnimationFrame(this.render);
-  }
+  };
+  
   renderUpdate = () => {
     window.requestAnimationFrame(this.render);
   };
 
-  render = () => {
+  animate = (timeCoefficient: number) => {
+    return this.stateManager.calculateAnimations(timeCoefficient);
+  }
+
+  calculateTimeDelta = (timePassed: number) => {
+    if (this.previousFrameTime === 0) {
+      return null;
+    } else {
+      return (timePassed - this.previousFrameTime) / 16.0;
+    }
+  }
+
+  resetTimeCounter = () => {
+    this.previousFrameTime = 0;
+  }
+
+  render = (timePassed: number) => {
+    const timeCoefficient = this.calculateTimeDelta(timePassed);
     // render loop
     this.setScreenTransform();
     this.renderBackground();
@@ -218,10 +237,20 @@ export class Renderer {
     this.renderLinks();
     this.renderActiveLink();
     this.renderNodes();
-    // this.rederDescription();
 
     this.setScreenTransform();
     this.renderMinimap();
     this.renderCursor();
+
+    if (timeCoefficient) {
+      if (this.animate(timeCoefficient)) {
+        this.previousFrameTime = timePassed;
+      } else {
+        this.resetTimeCounter();
+      }
+    } else {
+      this.previousFrameTime = timePassed;
+      window.requestAnimationFrame(this.render);
+    }
   };
 }

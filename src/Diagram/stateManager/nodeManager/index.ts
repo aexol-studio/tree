@@ -210,14 +210,7 @@ export class NodeManager {
       );
       if (parentNode) {
         this.selectSingleNode(parentNode);
-        this.eventBus.publish(Events.DiagramEvents.NodeSelected, {
-          x: parentNode.x,
-          y: parentNode.y
-        });
-        this.eventBus.publish(Events.DiagramEvents.CenterPanRequested, {
-          x: parentNode.x,
-          y: parentNode.y
-        });
+        this.eventBus.publish(Events.DiagramEvents.CenterOnNode, parentNode);
       }
     }
   };

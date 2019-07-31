@@ -24,6 +24,7 @@ export interface DiagramOptions {
   height: number | undefined;
   theme: DiagramTheme;
   width: number | undefined;
+  autoPanSmoothing: number;
   drawingDistance: Partial<DiagramDrawingDistanceOptions>
 }
 
@@ -37,6 +38,7 @@ const defaultOptions: DiagramOptions = {
   height: undefined,
   theme: DefaultDiagramTheme,
   width: undefined,
+  autoPanSmoothing: 4.0,
   drawingDistance: {
     nodeTitle: 0.0,
     nodeOptions: 0.0,

@@ -61,7 +61,8 @@ export class StateManager {
         areaSize,
         draggingWorld: false,
         draggingElements: false,
-        draggingMinimap: false
+        draggingMinimap: false,
+        animatingPan: false,
       }
     };
     this.htmlManager = new HtmlManager(
@@ -154,6 +155,9 @@ export class StateManager {
   rebuildTrees = () => {
     this.nodeManager.rebuildTree();
     this.connectionManager.rebuildTree();
+  };
+  calculateAnimations = (timeCoefficient: number) => {
+    return this.uiManager.calculateAnimations(timeCoefficient);
   };
   centerGraph = () => {
     this.uiManager.centerPanTo(this.nodeManager.getCenter());
