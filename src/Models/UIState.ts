@@ -3,6 +3,9 @@ export interface UIState {
   panX?: number,
   panY?: number,
   scale: number,
+  animatingPan: boolean,
+  targetPanX?: number,
+  targetPanY?: number,
   lastDragPosition?: {
     x: number,
     y: number,
