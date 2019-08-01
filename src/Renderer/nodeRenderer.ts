@@ -3,7 +3,10 @@ import {
   RoundedRectangle,
   RoundedRectangleStroke
 } from "./Draw/RoundedRectangle";
-import { ConfigurationManager, DiagramDrawingDistanceOptions } from "../Configuration/index";
+import {
+  ConfigurationManager,
+  DiagramDrawingDistanceOptions
+} from "../Configuration/index";
 export class NodeRenderer {
   distances: DiagramDrawingDistanceOptions;
 
@@ -11,13 +14,15 @@ export class NodeRenderer {
     private context: CanvasRenderingContext2D,
     private theme: DiagramTheme
   ) {
-    this.distances = ConfigurationManager.instance.getOption('drawingDistance') as DiagramDrawingDistanceOptions;
+    this.distances = ConfigurationManager.instance.getOption(
+      "drawingDistance"
+    ) as DiagramDrawingDistanceOptions;
   }
 
   getNodeFont(size: number, weight = "normal") {
     return `${weight} ${size}px ${
       this.context.font.split(" ")[this.context.font.split(" ").length - 1]
-      }`;
+    }`;
   }
   render = ({
     node,
@@ -27,7 +32,7 @@ export class NodeRenderer {
     isRenamed,
     inputActive,
     outputActive,
-    currentScale = 1.0,
+    currentScale = 1.0
   }: {
     node: Node;
     typeIsHovered?: boolean;
@@ -62,12 +67,12 @@ export class NodeRenderer {
       nodeType: distanceNodeType,
       nodeTitle: distanceNodeTitle,
       nodeOptions: distanceNodeOptions,
-      nodeArrows: distanceNodeArrows,
+      nodeArrows: distanceNodeArrows
     } = this.distances;
 
     if (currentScale > distanceNodeType) {
       this.context.fillStyle =
-        colors.node.types[node.definition.type] || colors.node.name;
+        colors.node.types[node.definition.type] || colors.node.type;
       let typeContent = node.definition.type;
       if (typeIsHovered && node.definition.parent) {
         this.context.fillStyle = colors.node.hover.type;
@@ -77,10 +82,18 @@ export class NodeRenderer {
       this.context.textBaseline = "bottom";
       this.context.textAlign = "end";
       this.context.fillText(typeContent, node.x! + width, node.y!);
+    } else {
+      this.context.fillStyle =
+        colors.node.types[node.definition.type] || colors.node.type;
+      this.context.fillRect(
+        node.x! + width - width / 4.0,
+        node.y! - typeSize / 1.5 - 2,
+        width / 4.0,
+        typeSize / 1.5
+      );
     }
 
     if (node.inputs) {
-
       this.context.font = this.getNodeFont(nameSize, "normal");
       this.context.textAlign = "center";
       this.context.textBaseline = "middle";
@@ -161,16 +174,28 @@ export class NodeRenderer {
         xCounter += this.context.measureText(o).width + options.fontSize / 2;
       });
     }
-    if (node.name && !isRenamed && currentScale > distanceNodeTitle) {
+    if (node.name && !isRenamed) {
       this.context.fillStyle = colors.node.name;
-      this.context.font = this.getNodeFont(nameSize, "normal");
-      this.context.textAlign = "center";
-      this.context.textBaseline = "middle";
-      this.context.fillText(
-        node.name,
-        node.x! + width / 2.0,
-        node.y! + height / 2.0
-      );
+      if (currentScale > distanceNodeTitle) {
+        this.context.font = this.getNodeFont(nameSize, "normal");
+        this.context.textAlign = "center";
+        this.context.textBaseline = "middle";
+        this.context.fillText(
+          node.name,
+          node.x! + width / 2.0,
+          node.y! + height / 2.0
+        );
+      } else {
+        this.context.fillStyle = `${colors.node.name}55`;
+        const rectWidth = width / 2.0;
+        const rectHeight = nameSize / 1.5;
+        this.context.fillRect(
+          node.x! + width / 2.0 - rectWidth / 2.0,
+          node.y! + height / 2.0 - rectHeight / 2.0,
+          rectWidth,
+          rectHeight
+        );
+      }
     }
     const radiusRight = node.outputs ? 10 : 0;
     const radiusLeft = node.inputs ? 10 : 0;

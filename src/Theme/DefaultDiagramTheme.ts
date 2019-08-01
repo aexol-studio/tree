@@ -50,11 +50,11 @@ export const DefaultDiagramTheme: DiagramTheme = {
     strokeWidth: 3
   },
   help: {
-    lineHeight: 42,
-    text: 28,
+    lineHeight: 21,
+    text: 14,
     padding: 20,
     title: {
-      text: 28
+      text: 14
     }
   },
   menu: {
@@ -73,12 +73,12 @@ export const DefaultDiagramTheme: DiagramTheme = {
     }
   },
   colors: {
-    background: Colors.grey[6],
+    background: Colors.grey[8],
     node: {
-      background: Colors.grey[5],
+      background: Colors.grey[6],
       selected: Colors.green[0],
       name: Colors.grey[0],
-      type: Colors.green[0],
+      type: Colors.grey[0],
       types: {
         string: Colors.green[0],
         type: Colors.main[0]
