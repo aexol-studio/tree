@@ -177,7 +177,7 @@ export class Renderer {
    */
   renderBackground() {
     const { width, height } = this.context.canvas;
-    this.context.fillStyle = Colors.grey[6];
+    this.context.fillStyle = this.theme.colors.background
     this.context.fillRect(0, 0, width, height);
   }
 
