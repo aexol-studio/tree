@@ -6,3 +6,4 @@ export * from "./Serialization";
 export * from "./Old";
 export * from "./RectanglePacker";
 export * from "./Events";
+export * from './Theme/DefaultDiagramTheme'
