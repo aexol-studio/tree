@@ -206,7 +206,7 @@ export class Renderer {
   renderStart = () => {
     window.requestAnimationFrame(this.render);
   };
-  
+
   renderUpdate = () => {
     window.requestAnimationFrame(this.render);
   };
@@ -217,7 +217,7 @@ export class Renderer {
 
   calculateTimeDelta = (timePassed: number) => {
     if (this.previousFrameTime === 0) {
-      return null;
+      return 1.0;
     } else {
       return (timePassed - this.previousFrameTime) / 16.0;
     }
@@ -229,6 +229,7 @@ export class Renderer {
 
   render = (timePassed: number) => {
     const timeCoefficient = this.calculateTimeDelta(timePassed);
+
     // render loop
     this.setScreenTransform();
     this.renderBackground();
@@ -242,15 +243,10 @@ export class Renderer {
     this.renderMinimap();
     this.renderCursor();
 
-    if (timeCoefficient) {
-      if (this.animate(timeCoefficient)) {
-        this.previousFrameTime = timePassed;
-      } else {
-        this.resetTimeCounter();
-      }
-    } else {
+    if (this.animate(timeCoefficient)) {
       this.previousFrameTime = timePassed;
-      window.requestAnimationFrame(this.render);
+    } else {
+      this.resetTimeCounter();
     }
   };
 }
