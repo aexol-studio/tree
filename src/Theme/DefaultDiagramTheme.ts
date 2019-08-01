@@ -34,11 +34,11 @@ export const DefaultDiagramTheme: DiagramTheme = {
     width: 200,
     paddingHorizontal: 20,
     paddingVertical: 20,
-    fontSize: 24,
+    fontSize: 12,
     triangleHeight: 10,
     triangleWidth: 10,
     triangleDistance: 20,
-    lineHeight: 36
+    lineHeight: 18
   },
   port: {
     width: 40,
