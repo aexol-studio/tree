@@ -52,6 +52,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
   help: {
     lineHeight: 42,
     text: 28,
+    padding: 20,
     title: {
       text: 28
     }

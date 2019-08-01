@@ -63,6 +63,7 @@ export interface DiagramTheme {
   };
   help: {
     lineHeight: number;
+    padding: number;
     title: {
       text: number;
     };
