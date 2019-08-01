@@ -4,7 +4,6 @@ import { ZoomPan } from "./zoomPan";
 import { EventBus } from "../EventBus";
 import { StateManager } from "../Diagram/stateManager";
 import { DiagramEvents } from "../Events";
-import { Colors } from "../Theme/Colors";
 import { DiagramTheme } from "../Models";
 import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
@@ -12,7 +11,6 @@ import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
 import { Region } from "../QuadTree/Region";
 import { CSSMiniEngine } from "./CssMiniEngine";
-
 
 /**
  * Renderer.
@@ -134,7 +132,7 @@ export class Renderer {
         typeIsHovered,
         inputActive,
         outputActive,
-        currentScale,
+        currentScale
       });
     }
   }
@@ -163,11 +161,14 @@ export class Renderer {
   renderLinks() {
     const state = this.stateManager.getState();
     const linksInArea = state.trees.link.queryRange(this.getActiveArea());
-    linksInArea.forEach(l => this.linkRenderer.render(l, "main", state.uiState.scale));
+    linksInArea.forEach(l =>
+      this.linkRenderer.render(l, "main", state.uiState.scale)
+    );
     state.links
       .filter(l => state.selectedNodes.find(n => n === l.i || n === l.o))
       .forEach(l => this.linkRenderer.render(l, "active", state.uiState.scale));
-    state.hover.link && this.linkRenderer.render(state.hover.link, "hover", state.uiState.scale);
+    state.hover.link &&
+      this.linkRenderer.render(state.hover.link, "hover", state.uiState.scale);
   }
 
   /**
@@ -177,7 +178,7 @@ export class Renderer {
    */
   renderBackground() {
     const { width, height } = this.context.canvas;
-    this.context.fillStyle = this.theme.colors.background
+    this.context.fillStyle = this.theme.colors.background;
     this.context.fillRect(0, 0, width, height);
   }
 
@@ -213,7 +214,7 @@ export class Renderer {
 
   animate = (timeCoefficient: number) => {
     return this.stateManager.calculateAnimations(timeCoefficient);
-  }
+  };
 
   calculateTimeDelta = (timePassed: number) => {
     if (this.previousFrameTime === 0) {
@@ -221,11 +222,11 @@ export class Renderer {
     } else {
       return (timePassed - this.previousFrameTime) / 16.0;
     }
-  }
+  };
 
   resetTimeCounter = () => {
     this.previousFrameTime = 0;
-  }
+  };
 
   render = (timePassed: number) => {
     const timeCoefficient = this.calculateTimeDelta(timePassed);

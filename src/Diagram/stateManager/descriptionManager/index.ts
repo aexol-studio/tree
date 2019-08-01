@@ -5,43 +5,43 @@ import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
 import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
 import { Utils } from "../../../Utils/index";
 
-const CSS_PREFIX = Utils.getUniquePrefix('DescriptionManager');
+const CSS_PREFIX = Utils.getUniquePrefix("DescriptionManager");
 
 const containerClass = {
-  position: 'fixed',
-  transformOrigin: 'top left',
+  position: "fixed",
+  transformOrigin: "top left"
 };
 
 const descriptionClass = (theme: DiagramTheme) => ({
-  borderRadius: '3px',
-  padding: '10px',
+  borderRadius: "3px",
+  padding: "10px",
   background: theme.colors.description.background,
   color: theme.colors.description.text,
   width: `${theme.description.width}px`,
-  textAlign: 'center',
-  outline: 'none',
-  font: 'normal 12px Helvetica',
+  textAlign: "center",
+  outline: "none",
+  font: `normal ${theme.description.fontSize}px Helvetica`
 });
 
 const descriptionSpanClass = (theme: DiagramTheme) => ({
-  minHeight: '14px',
-  display: 'inline-block',
-  outline: 'none',
+  minHeight: "14px",
+  display: "inline-block",
+  outline: "none"
 });
 
 const descriptionSeparatorClass = {
-  height: '10px',
-  pointerEvents: 'none',
-  position: 'relative',
+  height: "10px",
+  pointerEvents: "none",
+  position: "relative"
 };
 
 const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
-  left: '50%',
-  width: '10px',
-  height: '10px',
-  position: 'absolute',
-  transform: 'translate(-5px, -5px) rotate(45deg)',
-  background: theme.colors.description.background,
+  left: "50%",
+  width: "10px",
+  height: "10px",
+  position: "absolute",
+  transform: "translate(-5px, -5px) rotate(45deg)",
+  background: theme.colors.description.background
 });
 
 export class DescriptionManager {
@@ -52,7 +52,11 @@ export class DescriptionManager {
   registeredDescriptionElement: HtmlElementRegistration | null = null;
   selectedNode: Node | null = null;
 
-  constructor(private state: DiagramState, private eventBus: EventBus, private htmlManager: HtmlManager) {
+  constructor(
+    private state: DiagramState,
+    private eventBus: EventBus,
+    private htmlManager: HtmlManager
+  ) {
     this.state;
     this.eventBus.subscribe(
       DiagramEvents.NodeSelected,
@@ -63,7 +67,7 @@ export class DescriptionManager {
       containerClassName,
       descriptionClassName,
       separatorClassName,
-      descriptionSpanClassName,
+      descriptionSpanClassName
     } = DescriptionManager;
 
     this.eventBus.subscribe(IOEvents.WorldMouseDrag, this.nodeMoving);
@@ -71,22 +75,34 @@ export class DescriptionManager {
 
     CSSMiniEngine.instance.addClass(containerClass, containerClassName);
     CSSMiniEngine.instance.addClass(descriptionClass, descriptionClassName);
-    CSSMiniEngine.instance.addClass(descriptionSpanClass, descriptionSpanClassName);
-    CSSMiniEngine.instance.addClass(descriptionSeparatorClass, separatorClassName);
-    CSSMiniEngine.instance.addClass(descriptionSeparatorClassAfter, separatorClassName, '::after');
+    CSSMiniEngine.instance.addClass(
+      descriptionSpanClass,
+      descriptionSpanClassName
+    );
+    CSSMiniEngine.instance.addClass(
+      descriptionSeparatorClass,
+      separatorClassName
+    );
+    CSSMiniEngine.instance.addClass(
+      descriptionSeparatorClassAfter,
+      separatorClassName,
+      "::after"
+    );
   }
 
   nodeMoving = () => {
     if (this.selectedNode && this.registeredDescriptionElement) {
       if (this.state.selectedNodes.indexOf(this.selectedNode) > -1) {
-        this.registeredDescriptionElement.refs.container.style.pointerEvents = 'none';
+        this.registeredDescriptionElement.refs.container.style.pointerEvents =
+          "none";
       }
     }
   };
 
   nodeMoved = () => {
     if (this.selectedNode && this.registeredDescriptionElement) {
-      this.registeredDescriptionElement.refs.container.style.pointerEvents = 'all';
+      this.registeredDescriptionElement.refs.container.style.pointerEvents =
+        "all";
     }
   };
 
@@ -97,32 +113,38 @@ export class DescriptionManager {
   };
 
   getNodeDescriptionValue = (node: Node) => {
-    return node.description || 'Put your description here';
+    return node.description || "Put your description here";
   };
 
   nodeSelectionChange = () => {
-    if (this.state.selectedNodes.length === 0 || this.state.selectedNodes.length > 1) {
+    if (
+      this.state.selectedNodes.length === 0 ||
+      this.state.selectedNodes.length > 1
+    ) {
       this.clearDescription();
       return;
     }
 
     this.registerNodeEditedDescription(this.state.selectedNodes[0]);
-  }
+  };
 
   registerNodeEditedDescription = (node: Node) => {
     const {
       containerClassName,
       descriptionClassName,
       separatorClassName,
-      descriptionSpanClassName,
+      descriptionSpanClassName
     } = DescriptionManager;
 
     this.clearDescription();
     const { x, y } = node;
-    const elementRegistration = this.htmlManager.createElementFromHTML(`
+    const elementRegistration = this.htmlManager.createElementFromHTML(
+      `
       <div class="${containerClassName}" data-ref="container">
         <div class="${descriptionClassName}">
-          <span data-ref="span" contenteditable class="${descriptionSpanClassName}">${this.getNodeDescriptionValue(node)}</span>
+          <span data-ref="span" contenteditable class="${descriptionSpanClassName}">${this.getNodeDescriptionValue(
+        node
+      )}</span>
         </div>
         <div class="${separatorClassName}"></div>
       </div>
@@ -130,19 +152,19 @@ export class DescriptionManager {
       x,
       y,
       false,
-      'topCenter',
-      node,
+      "topCenter",
+      node
     );
 
     const { refs } = elementRegistration;
 
-    refs.span.addEventListener('blur', () => {
+    refs.span.addEventListener("blur", () => {
       node.description = (refs.span as HTMLSpanElement).innerHTML;
     });
 
-    refs.span.addEventListener('focus', () => {
+    refs.span.addEventListener("focus", () => {
       if (!node.description) {
-        refs.span.innerText = '';
+        refs.span.innerText = "";
       }
     });
 
