@@ -25,6 +25,7 @@ const descriptionClass = (theme: DiagramTheme) => ({
 });
 
 const descriptionSpanClass = (theme: DiagramTheme) => ({
+  minWidth: "10px",
   minHeight: "14px",
   display: "inline-block",
   outline: "none"
@@ -126,7 +127,14 @@ export class DescriptionManager {
       return;
     }
 
-    this.registerNodeEditedDescription(this.state.selectedNodes[0]);
+    const node = this.state.selectedNodes[0];
+
+    if (this.state.isReadOnly && !node.description) {
+      this.clearDescription();
+      return;
+    }
+
+    this.registerNodeEditedDescription(node);
   };
 
   registerNodeEditedDescription = (node: Node) => {
@@ -139,11 +147,12 @@ export class DescriptionManager {
 
     this.clearDescription();
     const { x, y } = node;
+    const isContentEditable = this.state.isReadOnly ? '' : 'contenteditable';
     const elementRegistration = this.htmlManager.createElementFromHTML(
       `
       <div class="${containerClassName}" data-ref="container">
         <div class="${descriptionClassName}">
-          <span data-ref="span" contenteditable class="${descriptionSpanClassName}">${this.getNodeDescriptionValue(
+          <span data-ref="span" ${isContentEditable} class="${descriptionSpanClassName}">${this.getNodeDescriptionValue(
         node
       )}</span>
         </div>
@@ -165,7 +174,13 @@ export class DescriptionManager {
 
     refs.span.addEventListener("focus", () => {
       if (!node.description) {
-        refs.span.innerText = "";
+        var range = document.createRange();
+        range.selectNodeContents(refs.span);
+        var sel = window.getSelection();
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
       }
     });
 
