@@ -170,6 +170,7 @@ export class DescriptionManager {
 
     refs.span.addEventListener("blur", () => {
       node.description = (refs.span as HTMLSpanElement).innerHTML;
+      this.eventBus.publish(DiagramEvents.NodeChanged);
     });
 
     refs.span.addEventListener("focus", () => {
