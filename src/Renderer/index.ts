@@ -45,7 +45,7 @@ export class Renderer {
     private stateManager: StateManager,
     private theme: DiagramTheme
   ) {
-    this.nodeRenderer = new NodeRenderer(this.context, this.theme);
+    this.nodeRenderer = new NodeRenderer(this.context, this.theme, this.stateManager);
 
     this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
     this.linkRenderer = new LinkRenderer(this.context, this.theme);

@@ -52,7 +52,13 @@ export class HoverManager {
       this.state.hover.node !== node ||
       this.state.hover.type !== type
     ) {
-      this.state.hover = { node, io, type };
+      this.state.hover = { node, type };
+      // disable hovering the "IO" areas of node if we're
+      // in a readonly mode, since it serves no purpose and
+      // provides a confusing UX
+      if (!this.state.isReadOnly) {
+        this.state.hover.io = io;
+      }
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };
