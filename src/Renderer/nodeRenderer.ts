@@ -7,12 +7,14 @@ import {
   ConfigurationManager,
   DiagramDrawingDistanceOptions
 } from "../Configuration/index";
+import { StateManager } from "../Diagram/stateManager/index";
 export class NodeRenderer {
   distances: DiagramDrawingDistanceOptions;
 
   constructor(
     private context: CanvasRenderingContext2D,
-    private theme: DiagramTheme
+    private theme: DiagramTheme,
+    private stateManager: StateManager
   ) {
     this.distances = ConfigurationManager.instance.getOption(
       "drawingDistance"
@@ -48,6 +50,9 @@ export class NodeRenderer {
       node: { width, height, nameSize, typeSize, options },
       port
     } = this.theme;
+    const {
+      isReadOnly
+    } = this.stateManager.pureState();
     this.context.fillStyle = colors.node.background;
     const leftRadius = node.inputs ? 0 : 5;
     const rightRadius = node.outputs ? 0 : 5;
@@ -109,7 +114,7 @@ export class NodeRenderer {
         radiusTopLeft: 10,
         radiusBottomLeft: 10
       });
-      if (currentScale > distanceNodeArrows) {
+      if (currentScale > distanceNodeArrows && !isReadOnly) {
         this.context.fillStyle = colors.port.button;
         this.context.font = this.getNodeFont(12, "normal");
         this.context.fillText(
@@ -140,7 +145,7 @@ export class NodeRenderer {
         radiusTopRight: 10,
         radiusBottomRight: 10
       });
-      if (currentScale > distanceNodeArrows) {
+      if (currentScale > distanceNodeArrows && !isReadOnly) {
         this.context.fillStyle = colors.port.button;
         this.context.font = this.getNodeFont(12, "normal");
         this.context.fillText(
