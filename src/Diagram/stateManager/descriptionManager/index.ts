@@ -110,6 +110,11 @@ export class DescriptionManager {
 
   clearDescription = () => {
     if (this.registeredDescriptionElement) {
+      if (this.selectedNode) {
+        this.selectedNode!.description = (this.registeredDescriptionElement.refs
+          .span as HTMLSpanElement).innerHTML;
+        this.eventBus.publish(DiagramEvents.NodeChanged);
+      }
       this.registeredDescriptionElement.remove();
     }
   };
@@ -147,7 +152,7 @@ export class DescriptionManager {
 
     this.clearDescription();
     const { x, y } = node;
-    const isContentEditable = this.state.isReadOnly ? '' : 'contenteditable';
+    const isContentEditable = this.state.isReadOnly ? "" : "contenteditable";
     const elementRegistration = this.htmlManager.createElementFromHTML(
       `
       <div class="${containerClassName}" data-ref="container">
