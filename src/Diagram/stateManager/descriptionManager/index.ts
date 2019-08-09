@@ -7,8 +7,6 @@ import { Utils } from "../../../Utils";
 import { ConfigurationManager } from "../../../Configuration";
 
 const CSS_PREFIX = Utils.getUniquePrefix("DescriptionManager");
-const DESCRIPTION_PLACEHOLDER = ConfigurationManager.instance.getOption("theme")
-  .description.placeholder;
 
 const containerClass = {
   position: "fixed",
@@ -54,6 +52,8 @@ export class DescriptionManager {
   static descriptionClassName = `${CSS_PREFIX}Description`;
   static descriptionSpanClassName = `${CSS_PREFIX}DescriptionSpan`;
   static separatorClassName = `${CSS_PREFIX}Separator`;
+
+  DESCRIPTION_PLACEHOLDER: string | undefined;
   registeredDescriptionElement: HtmlElementRegistration | null = null;
   selectedNode: Node | null = null;
 
@@ -63,6 +63,9 @@ export class DescriptionManager {
     private htmlManager: HtmlManager
   ) {
     this.state;
+    this.DESCRIPTION_PLACEHOLDER = ConfigurationManager.instance.getOption(
+      "theme"
+    ).description.placeholder;
     this.eventBus.subscribe(
       DiagramEvents.NodeSelected,
       this.nodeSelectionChange
@@ -117,7 +120,7 @@ export class DescriptionManager {
         .span as HTMLSpanElement).innerHTML;
       if (
         this.selectedNode &&
-        descriptionObjectContent !== DESCRIPTION_PLACEHOLDER
+        descriptionObjectContent !== this.DESCRIPTION_PLACEHOLDER
       ) {
         this.selectedNode!.description = descriptionObjectContent;
         this.eventBus.publish(DiagramEvents.NodeChanged);
@@ -133,7 +136,7 @@ export class DescriptionManager {
   };
 
   getNodeDescriptionValue = (node: Node) => {
-    return node.description || DESCRIPTION_PLACEHOLDER;
+    return node.description || this.DESCRIPTION_PLACEHOLDER;
   };
 
   nodeSelectionChange = () => {
