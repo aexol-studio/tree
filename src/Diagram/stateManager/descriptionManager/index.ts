@@ -1,11 +1,14 @@
-import { DiagramState, Node, DiagramTheme } from "../../../Models/index";
-import { EventBus } from "../../../EventBus/index";
-import { DiagramEvents, IOEvents } from "../../../Events/index";
-import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
-import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
-import { Utils } from "../../../Utils/index";
+import { DiagramState, Node, DiagramTheme } from "../../../Models";
+import { EventBus } from "../../../EventBus";
+import { DiagramEvents, IOEvents } from "../../../Events";
+import { HtmlManager, HtmlElementRegistration } from "../htmlManager";
+import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine";
+import { Utils } from "../../../Utils";
+import { ConfigurationManager } from "../../../Configuration";
 
 const CSS_PREFIX = Utils.getUniquePrefix("DescriptionManager");
+const DESCRIPTION_PLACEHOLDER = ConfigurationManager.instance.getOption("theme")
+  .description.placeholder;
 
 const containerClass = {
   position: "fixed",
@@ -108,19 +111,29 @@ export class DescriptionManager {
     }
   };
 
-  clearDescription = () => {
+  assignDescriptionToNode = () => {
     if (this.registeredDescriptionElement) {
-      if (this.selectedNode) {
-        this.selectedNode!.description = (this.registeredDescriptionElement.refs
-          .span as HTMLSpanElement).innerHTML;
+      const descriptionObjectContent = (this.registeredDescriptionElement.refs
+        .span as HTMLSpanElement).innerHTML;
+      if (
+        this.selectedNode &&
+        descriptionObjectContent !== DESCRIPTION_PLACEHOLDER
+      ) {
+        this.selectedNode!.description = descriptionObjectContent;
         this.eventBus.publish(DiagramEvents.NodeChanged);
       }
+    }
+  };
+
+  clearDescription = () => {
+    if (this.registeredDescriptionElement) {
+      this.assignDescriptionToNode();
       this.registeredDescriptionElement.remove();
     }
   };
 
   getNodeDescriptionValue = (node: Node) => {
-    return node.description || "Put your description here";
+    return node.description || DESCRIPTION_PLACEHOLDER;
   };
 
   nodeSelectionChange = () => {
@@ -174,8 +187,7 @@ export class DescriptionManager {
     const { refs } = elementRegistration;
 
     refs.span.addEventListener("blur", () => {
-      node.description = (refs.span as HTMLSpanElement).innerHTML;
-      this.eventBus.publish(DiagramEvents.NodeChanged);
+      this.assignDescriptionToNode();
     });
 
     refs.span.addEventListener("focus", () => {

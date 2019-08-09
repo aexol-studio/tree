@@ -38,7 +38,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
     triangleHeight: 10,
     triangleWidth: 10,
     triangleDistance: 20,
-    lineHeight: 18
+    lineHeight: 18,
+    placeholder: "Put your description here"
   },
   port: {
     width: 40,

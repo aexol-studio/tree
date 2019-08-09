@@ -36,6 +36,7 @@ export interface DiagramTheme {
     triangleWidth: number;
     triangleHeight: number;
     triangleDistance: number;
+    placeholder?:string
   };
   port: {
     gap: number;
