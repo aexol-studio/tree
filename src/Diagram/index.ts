@@ -46,6 +46,9 @@ export class Diagram {
   centerOnNode(node: Node) {
     this.stateManager.centerOnNode(node);
   }
+  selectNode(node: Node) {
+    this.stateManager.selectNode(node);
+  }
   setReadOnly(isReadOnly: boolean) {
     this.stateManager.setReadOnly(isReadOnly);
   }
@@ -130,7 +133,7 @@ export class Diagram {
 
   private getHostElement = () => {
     return this.hostDomElement;
-  }
+  };
 
   constructor(
     private hostDomElement: HTMLElement,
@@ -176,8 +179,8 @@ export class Diagram {
       hostDomElement.removeChild(hostDomElement.firstChild);
     }
 
-    if (window.getComputedStyle(hostDomElement).position === 'static') {
-      hostDomElement.style.position = 'relative';
+    if (window.getComputedStyle(hostDomElement).position === "static") {
+      hostDomElement.style.position = "relative";
     }
 
     hostDomElement.appendChild(this.canvasElement);
@@ -197,7 +200,7 @@ export class Diagram {
       this.configuration.getOption("connectionFunction"),
       this.configuration.getOption("disableLinkOperations"),
       this.getHostElement,
-      areaSize,
+      areaSize
     );
 
     // initialize renderer
@@ -214,7 +217,6 @@ export class Diagram {
         this.configuration.getOption("autosizeInterval")
       );
     }
-
 
     CSSMiniEngine.instance.compile();
 

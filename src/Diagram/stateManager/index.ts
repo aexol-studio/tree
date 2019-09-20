@@ -162,6 +162,9 @@ export class StateManager {
   centerGraph = () => {
     this.uiManager.centerPanTo(this.nodeManager.getCenter());
   };
+  selectNode = (node:Node) => {
+    this.nodeManager.selectSingleNode(node)
+  }
   zeroGraph = () => {
     this.uiManager.panTo({
       x: -this.theme.node.width * 3,
