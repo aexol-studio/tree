@@ -7,7 +7,7 @@
     "start": "tsc --watch",
     "build": "tsc",
     "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open",
-    "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
+    "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
