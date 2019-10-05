@@ -5,3 +5,4 @@ lib
 .tscache
 *.tmp.txt
 docs
+coverage
