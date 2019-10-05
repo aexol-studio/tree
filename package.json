@@ -8,18 +8,13 @@
     "build": "tsc",
     "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open",
     "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
-    "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.5",
     "@types/uuid": "^3.4.4",
     "awesome-typescript-loader": "^5.2.1",
     "chai": "^4.2.0",
     "cz-conventional-changelog": "^2.1.0",
-    "mocha": "^5.2.0",
-    "ts-node": "^8.0.1",
     "typedoc": "^0.14.1",
     "typescript": "^3.3.1",
     "webpack": "^4.28.2",
