@@ -50,9 +50,7 @@ export class NodeRenderer {
       node: { width, height, nameSize, typeSize, options },
       port
     } = this.theme;
-    const {
-      isReadOnly
-    } = this.stateManager.pureState();
+    const isReadOnly = this.stateManager.pureState().isReadOnly || node.readonly;
     this.context.fillStyle = colors.node.background;
     const leftRadius = node.inputs ? 0 : 5;
     const rightRadius = node.outputs ? 0 : 5;
