@@ -53,14 +53,24 @@ export class RenameManager {
     }
   };
 
+  preventCurrentEvent = () => {
+    if (!window.event) {
+      return;
+    }
+    window.event.preventDefault();
+  }
+
   tryToRenameNode = () => {
     if (this.state.selectedNodes.length == 0 || this.state.selectedNodes.length > 1) {
       return;
     }
     const [node] = this.state.selectedNodes;
-    if (node && !this.state.isReadOnly) {
-      this.startRenaming(node);
+    if (!node || node.readonly || this.state.isReadOnly) {
+      this.preventCurrentEvent();
+      return;
     }
+
+    this.startRenaming(node);
   }
 
   startRenaming = (node: Node) => {
