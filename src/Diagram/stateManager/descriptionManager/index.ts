@@ -150,7 +150,8 @@ export class DescriptionManager {
 
     const node = this.state.selectedNodes[0];
 
-    const isReadonly = this.state.isReadOnly || node.readonly;
+    const isReadonly =
+      this.state.isReadOnly || node.readonly || node.notEditable;
 
     if (isReadonly && !node.description) {
       this.clearDescription();
@@ -168,7 +169,8 @@ export class DescriptionManager {
       descriptionSpanClassName
     } = DescriptionManager;
 
-    const isReadonly = this.state.isReadOnly || node.readonly;
+    const isReadonly =
+      this.state.isReadOnly || node.readonly || node.notEditable;
 
     this.clearDescription();
     const { x, y } = node;

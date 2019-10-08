@@ -55,7 +55,10 @@ class App {
       {
         type: "dummy",
         help: "Hello I am dummy node this is help I do display",
-        node: createOND("dummy"),
+        node: {
+          ...createOND("dummy"),
+          notEditable: true
+        },
         options,
         root: true,
         acceptsInputs: (d, defs) =>
