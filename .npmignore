@@ -5,3 +5,5 @@ sandbox
 .tscache
 *.tmp.txt
 docs
+coverage
+jest.json
