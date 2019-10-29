@@ -136,19 +136,19 @@ this.diagram.on(EVENT_NAME, () => {
 ```
 
 Here is the list of all subscribable events:
-*) *DataModelChanged* - fires when a data model (nodes, links placement and content) was changed
-*) *ViewModelChanged* - fires when a view model (pan, zoom) was changed
-*) *NodeMoving* - fires when node is being moved
-*) *NodeMoved* - fires when node stops being moved
-*) *NodeSelected* - fires when node(s) was selected
-*) *NodeCreated* - fires when node was created
-*) *NodeDeleted* - fires when node was deleted
-*) *NodeChanged* - fires when node was modified
-*) *LinkCreated* - fires when a link was created
-*) *LinkDeleted* - fires when a link was deleted
-*) *LinkMoved* - fires when a link stops being moved
-*) *UndoRequested* - fires when undo was requested
-*) *RedoRequested* - fires when redo was requested
+* *DataModelChanged* - fires when a data model (nodes, links placement and content) was changed
+* *ViewModelChanged* - fires when a view model (pan, zoom) was changed
+* *NodeMoving* - fires when node is being moved
+* *NodeMoved* - fires when node stops being moved
+* *NodeSelected* - fires when node(s) was selected
+* *NodeCreated* - fires when node was created
+* *NodeDeleted* - fires when node was deleted
+* *NodeChanged* - fires when node was modified
+* *LinkCreated* - fires when a link was created
+* *LinkDeleted* - fires when a link was deleted
+* *LinkMoved* - fires when a link stops being moved
+* *UndoRequested* - fires when undo was requested
+* *RedoRequested* - fires when redo was requested
 
 You can unsubscribe your listener either by using `.off()`, or by invoking unsubscriber function that is being returned from `.on()`:
 
