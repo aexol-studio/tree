@@ -2,7 +2,13 @@ import { EventBus } from "../../../EventBus";
 import { DiagramState } from "../../../Models/DiagramState";
 import * as Events from "../../../Events";
 import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { DiagramTheme, Node, NodeDefinition, Category, AcceptedNodeDefinition } from "../../../Models";
+import {
+  DiagramTheme,
+  Node,
+  NodeDefinition,
+  Category,
+  AcceptedNodeDefinition
+} from "../../../Models";
 import { NodeUtils } from "../../../Utils/nodeUtils";
 import { QuadTree } from "../../../QuadTree";
 import { UIManager } from "../uiManager/index";
@@ -24,7 +30,7 @@ export class NodeManager {
     private uiManager: UIManager,
     private theme: DiagramTheme,
     private connectionManager: ConnectionManager,
-    private htmlManager: HtmlManager,
+    private htmlManager: HtmlManager
   ) {
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
@@ -52,12 +58,15 @@ export class NodeManager {
     );
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
     this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
-    this.eventBus.subscribe(Events.IOEvents.BackspacePressed, this.deleteSelectedNodes);
+    this.eventBus.subscribe(
+      Events.IOEvents.BackspacePressed,
+      this.deleteSelectedNodes
+    );
 
     this.renameManager = new RenameManager(
       state,
       this.eventBus,
-      this.htmlManager,
+      this.htmlManager
     );
   }
   handleScreenLeave = () => {
@@ -77,7 +86,7 @@ export class NodeManager {
     this.state.selectedNodes = [];
     this.rebuildTree();
   };
-  storeNodes = (e: ScreenPosition) => {
+  storeNodes = ([e]: [ScreenPosition, Node[]]) => {
     this.storeSelectedNodesRelativePosition = this.state.selectedNodes.map(
       sn =>
         ({
@@ -130,7 +139,7 @@ export class NodeManager {
   };
   deleteSelectedNodes = () => {
     this.deleteNodes(this.state.selectedNodes);
-  }
+  };
   openNodeMenu = (e: ScreenPosition) => {
     if (this.state.isReadOnly || this.state.draw) {
       return;
@@ -235,7 +244,10 @@ export class NodeManager {
     } else {
       this.state.selectedNodes = [];
     }
-    this.eventBus.publish(Events.DiagramEvents.NodeSelected, e);
+    this.eventBus.publish(Events.DiagramEvents.NodeSelected, [
+      e,
+      [...this.state.selectedNodes]
+    ]);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   placeConnectedNode = (node: Node, io: "i" | "o") => {
@@ -354,9 +366,9 @@ export class NodeManager {
         defs.definition
           ? createConnectedNodesCategory(defs.definition)
           : {
-            name: defs.category!.name,
-            children: defs.category!.definitions.map(createTopicCategory)
-          };
+              name: defs.category!.name,
+              children: defs.category!.definitions.map(createTopicCategory)
+            };
       let { definition } = node;
       if (io === "i" && node.inputs) {
         this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
@@ -397,7 +409,10 @@ export class NodeManager {
       });
 
       this.state.hover = {};
-      this.eventBus.publish(Events.DiagramEvents.MenuRequested, NodeScreenPosition);
+      this.eventBus.publish(
+        Events.DiagramEvents.MenuRequested,
+        NodeScreenPosition
+      );
     }
   };
 }
