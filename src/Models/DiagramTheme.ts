@@ -1,6 +1,7 @@
 export interface DiagramTheme {
   snappingGridSize?: number;
   autoBeuatify?: boolean;
+  fontFamily:string;
   node: {
     width: number;
     height: number;

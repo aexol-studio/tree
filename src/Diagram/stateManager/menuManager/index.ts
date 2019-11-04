@@ -25,6 +25,7 @@ const menuElementClass = (theme: DiagramTheme) => ({
   textAlign: "left",
   verticalAlign: "middle",
   color: theme.colors.menu.text,
+  fontFamily: theme.fontFamily,
   fontSize: theme.menu.category.fontSize,
   fontWeight: theme.menu.category.fontWeight,
   padding: theme.menu.category.padding,
@@ -143,9 +144,7 @@ export class MenuManager {
     const elementsMarkup = this.state.categories
       .map(
         (category, index) =>
-          `<div class="${
-            MenuManager.menuElementClassName
-          }" data-ref="category-btn">${category.name}</div>`
+          `<div class="${MenuManager.menuElementClassName}" data-ref="category-btn">${category.name}</div>`
       )
       .join("");
 

@@ -21,7 +21,7 @@ const descriptionClass = (theme: DiagramTheme) => ({
   width: `${theme.description.width}px`,
   textAlign: "center",
   outline: "none",
-  font: `normal ${theme.description.fontSize}px Helvetica`,
+  font: `normal ${theme.description.fontSize}px ${theme.fontFamily}`,
   lineHeight: `${theme.description.lineHeight}px`
 });
 

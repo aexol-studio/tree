@@ -152,7 +152,10 @@ export class Diagram {
     this.canvasElement.style.outline = "none";
     const canvasContext = this.canvasElement.getContext("2d");
 
-    canvasContext!.font = "10px Helvetica";
+    canvasContext!.font = `10px ${
+      this.configuration.getOption("theme").fontFamily
+    }`;
+    console.log(canvasContext!.font);
 
     const hostSize = this.calculateElementSize(hostDomElement);
 

@@ -4,6 +4,7 @@ import { Colors } from "./Colors";
 export const DefaultDiagramTheme: DiagramTheme = {
   snappingGridSize: 20,
   autoBeuatify: true,
+  fontFamily: `'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace`,
   node: {
     width: 200,
     height: 110,

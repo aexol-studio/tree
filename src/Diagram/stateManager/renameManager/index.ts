@@ -13,6 +13,7 @@ const containerClass = (theme: DiagramTheme) => ({
   width: `${theme.node.width / 2.0}px`,
   height: `${theme.node.height / 2.0}px`,
   fontSize: `${theme.node.nameSize / 2.0}px`,
+  fontFamily: theme.fontFamily,
   background: "transparent",
   color: theme.colors.node.name,
   textAlign: "center",

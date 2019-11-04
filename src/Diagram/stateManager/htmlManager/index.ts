@@ -33,6 +33,7 @@ const helpContainerClass = (theme: DiagramTheme) => ({
   height: "auto",
   pointerEvents: "none",
   display: "none",
+  fontFamily: theme.fontFamily,
   padding: `${theme.help.padding}px`,
   background: theme.colors.help.background
 });

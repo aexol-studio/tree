@@ -22,9 +22,7 @@ export class NodeRenderer {
   }
 
   getNodeFont(size: number, weight = "normal") {
-    return `${weight} ${size}px ${
-      this.context.font.split(" ")[this.context.font.split(" ").length - 1]
-    }`;
+    return `${weight} ${size}px ${this.theme.fontFamily}`;
   }
   render = ({
     node,
@@ -50,7 +48,8 @@ export class NodeRenderer {
       node: { width, height, nameSize, typeSize, options },
       port
     } = this.theme;
-    const isReadOnly = this.stateManager.pureState().isReadOnly || node.readonly;
+    const isReadOnly =
+      this.stateManager.pureState().isReadOnly || node.readonly;
     this.context.fillStyle = colors.node.background;
     const leftRadius = node.inputs ? 0 : 5;
     const rightRadius = node.outputs ? 0 : 5;
