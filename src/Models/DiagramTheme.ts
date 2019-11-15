@@ -81,6 +81,7 @@ export interface DiagramTheme {
     };
     menu: {
       background: string;
+      borders?: string;
       hover: string;
       text: string;
     };

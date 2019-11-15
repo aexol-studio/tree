@@ -12,6 +12,7 @@ const CSS_PREFIX = Utils.getUniquePrefix("MenuManager");
 const menuBaseClass = (theme: DiagramTheme) => ({
   position: "fixed",
   background: theme.colors.menu.background,
+  border: theme.colors.menu.borders ? `0.5px solid ${theme.colors.menu.borders}` : '',
   padding: theme.menu.padding,
   borderRadius: theme.menu.borderRadius,
   maxWidth: `${theme.menu.maxWidth}px`,
