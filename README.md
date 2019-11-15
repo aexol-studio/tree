@@ -104,6 +104,18 @@ this.diagram!.setDefinitions([
 ]);
 ```
 
+### Light mode
+
+Diagram is in dark mode by defult, but You can easily change the theme to light one. Just add the options while creating Diagram.
+
+```ts
+import { Diagram, DefaultDiagramThemeLight } from 'graphsource'
+this.diagram = new Diagram(document.getElementById("root"),
+{
+  theme: DefaultDiagramThemeLight
+});
+```
+
 
 ## Develop & Contribute
 
