@@ -166,6 +166,13 @@ export class NodeManager {
           action: () => {
             this.beautifyNodesInPlace(node);
           }
+        },
+        {
+          name: "select graph",
+          help: "Select all nodes in graph",
+          action: () => {
+            this.graphSelect(e);
+          }
         }
       ];
       const definitionHasOptions = node.definition.options;
