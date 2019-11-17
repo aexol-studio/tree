@@ -36,4 +36,5 @@ export interface DiagramState {
   menu?: boolean;
   drawedConnection?: ScreenPosition;
   uiState: UIState;
+  screenShotInProgress: boolean;
 }

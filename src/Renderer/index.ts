@@ -11,6 +11,8 @@ import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "../Models/Cursor";
 import { Region } from "../QuadTree/Region";
 import { CSSMiniEngine } from "./CssMiniEngine";
+import { ContextProvider } from "./ContextProvider";
+import { ConfigurationManager } from "../Configuration";
 
 /**
  * Renderer.
@@ -23,16 +25,14 @@ import { CSSMiniEngine } from "./CssMiniEngine";
  */
 export class Renderer {
   private minimapRenderer = new MinimapRenderer();
-  // private zoomPan = new ZoomPan();
-  // private menuRenderer: MenuRenderer;
   private nodeRenderer: NodeRenderer;
-  // private renameRenderer: RenameRenderer;
-  // private descriptionRenderer: DescriptionRenderer;
   private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
   private activeLinkRenderer: ActiveLinkRenderer;
   private previousFrameTime: number = 0;
+  private screenShotCanvasContext: CanvasRenderingContext2D | null = null;
+  private contextProvider: ContextProvider;
   /**
    * @param eventBus event bus instance to be used
    * @param context context from the canvas
@@ -41,19 +41,52 @@ export class Renderer {
    */
   constructor(
     private eventBus: EventBus,
-    private context: CanvasRenderingContext2D,
+    private canvasContext: CanvasRenderingContext2D,
     private stateManager: StateManager,
     private theme: DiagramTheme
   ) {
-    this.nodeRenderer = new NodeRenderer(this.context, this.theme, this.stateManager);
+    this.contextProvider = new ContextProvider(canvasContext);
 
-    this.activeLinkRenderer = new ActiveLinkRenderer(this.context, this.theme);
-    this.linkRenderer = new LinkRenderer(this.context, this.theme);
+    this.nodeRenderer = new NodeRenderer(
+      this.contextProvider,
+      this.theme,
+      this.stateManager
+    );
+
+    this.activeLinkRenderer = new ActiveLinkRenderer(this.contextProvider, this.theme);
+    this.linkRenderer = new LinkRenderer(this.contextProvider, this.theme);
 
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.renderStart);
 
     this.cssMiniEngine.compile();
   }
+  getAllNodesArea = () => {
+    const { nodes } = this.stateManager.pureState();
+
+    const minPoint = nodes.reduce<{ x: number; y: number }>(
+      (acc, curr) => ({
+        x: Math.min(curr.x, acc.x),
+        y: Math.min(curr.y, acc.y)
+      }),
+      {
+        x: Number.MAX_SAFE_INTEGER,
+        y: Number.MAX_SAFE_INTEGER
+      }
+    );
+
+    const maxPoint = nodes.reduce<{ x: number; y: number }>(
+      (acc, curr) => ({
+        x: Math.max(curr.x, acc.x),
+        y: Math.max(curr.y, acc.y)
+      }),
+      {
+        x: Number.MIN_SAFE_INTEGER,
+        y: Number.MIN_SAFE_INTEGER
+      }
+    );
+
+    return new Region(minPoint, maxPoint);
+  };
   getActiveArea = () => {
     const { uiState } = this.stateManager.getState();
     const width = uiState.areaSize.width / uiState.scale;
@@ -70,7 +103,7 @@ export class Renderer {
     );
   };
   setCursor(cursor: Cursor) {
-    this.context.canvas.style.cursor = cursor;
+    this.contextProvider.context.canvas.style.cursor = cursor;
   }
   /**
    * Render cursor.
@@ -111,9 +144,12 @@ export class Renderer {
    * Render nodes.
    */
   renderNodes() {
+    const region = this.stateManager.isScreenShotInProgress()
+      ? this.getAllNodesArea()
+      : this.getActiveArea();
     const state = this.stateManager.getState();
     const nodes = state.trees.node
-      .queryRange(this.getActiveArea())
+      .queryRange(region)
       .concat(state.selectedNodes);
     for (const n of nodes) {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
@@ -160,7 +196,11 @@ export class Renderer {
    */
   renderLinks() {
     const state = this.stateManager.getState();
-    const linksInArea = state.trees.link.queryRange(this.getActiveArea());
+    const region = this.stateManager.isScreenShotInProgress()
+      ? this.getAllNodesArea()
+      : this.getActiveArea();
+
+    const linksInArea = state.trees.link.queryRange(region);
     linksInArea.forEach(l =>
       this.linkRenderer.render(l, "main", state.uiState.scale)
     );
@@ -177,9 +217,12 @@ export class Renderer {
    * @memberof Renderer
    */
   renderBackground() {
-    const { width, height } = this.context.canvas;
-    this.context.fillStyle = this.theme.colors.background;
-    this.context.fillRect(0, 0, width, height);
+    if (this.stateManager.isScreenShotInProgress() && !ConfigurationManager.instance.getOption('screenShotBackground')) {
+      return;
+    }
+    const { width, height } = this.contextProvider.context.canvas;
+    this.contextProvider.context.fillStyle = this.theme.colors.background;
+    this.contextProvider.context.fillRect(0, 0, width, height);
   }
 
   /**
@@ -189,19 +232,19 @@ export class Renderer {
    */
   renderMinimap() {
     this.minimapRenderer.render(
-      this.context,
+      this.contextProvider.context,
       this.theme,
       this.stateManager.getState()
     );
   }
 
   setScreenTransform() {
-    this.zoomPan.setUniformMatrix(this.context);
+    this.zoomPan.setUniformMatrix(this.contextProvider.context);
   }
 
   setWorldTransform() {
     const uiState = this.stateManager.pureState().uiState;
-    this.zoomPan.setCalculatedMatrix(this.context, uiState);
+    this.zoomPan.setCalculatedMatrix(this.contextProvider.context, uiState);
   }
 
   renderStart = () => {
@@ -236,6 +279,9 @@ export class Renderer {
     this.renderBackground();
 
     this.setWorldTransform();
+
+    // this.context.scale(4, 4)
+
     this.renderLinks();
     this.renderActiveLink();
     this.renderNodes();
@@ -249,5 +295,31 @@ export class Renderer {
     } else {
       this.resetTimeCounter();
     }
+
+    if (this.stateManager.isScreenShotInProgress()) {
+      this.eventBus.publish(
+        DiagramEvents.ScreenShotRendered,
+        this.screenShotCanvasContext
+      );
+    }
   };
+
+  createScreenShotContext(startX: number, endX: number, startY: number, endY: number) {
+    const screenShotCanvas = document.createElement("canvas");
+    screenShotCanvas.width = Math.abs(endX - startX);
+    screenShotCanvas.height = Math.abs(endY - startY);
+    this.screenShotCanvasContext = screenShotCanvas.getContext("2d");
+    if (this.screenShotCanvasContext) {
+      this.contextProvider.switchContext(this.screenShotCanvasContext);
+      this.stateManager.getState().uiState.panX = -(startX);
+      this.stateManager.getState().uiState.panY = -(startY);
+      this.stateManager.getState().uiState.scale = 1.0;
+    }
+  }
+
+  releaseScreenShotContext() {
+    this.screenShotCanvasContext = null;
+    this.contextProvider.switchContext(this.canvasContext);
+  }
 }
+
