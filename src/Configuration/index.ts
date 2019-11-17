@@ -25,6 +25,8 @@ export interface DiagramOptions {
   theme: DiagramTheme;
   width: number | undefined;
   autoPanSmoothing: number;
+  screenShotMargin: number;
+  screenShotBackground: boolean;
   drawingDistance: Partial<DiagramDrawingDistanceOptions>
 }
 
@@ -39,6 +41,8 @@ const defaultOptions: DiagramOptions = {
   theme: DefaultDiagramTheme,
   width: undefined,
   autoPanSmoothing: 4.0,
+  screenShotMargin: 300,
+  screenShotBackground: false,
   drawingDistance: {
     nodeTitle: 0.0,
     nodeOptions: 0.0,

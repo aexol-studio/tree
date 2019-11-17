@@ -8,6 +8,7 @@ import { NodeDefinition } from "../Models/NodeDefinition";
 import { NodeUtils } from "../Utils/index";
 import { DiagramOptions, ConfigurationManager } from "../Configuration/index";
 import { CSSMiniEngine } from "../Renderer/CssMiniEngine/index";
+import { DiagramEvents } from "../Events";
 
 /**
  * Diagram:
@@ -97,6 +98,10 @@ export class Diagram {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
   autoResize = () => {
+    if (this.stateManager.isScreenShotInProgress) {
+      return;
+    }
+
     const newHostSize = this.calculateElementSize(this.hostDomElement);
     if (
       newHostSize.width !== this.currentHostSize.width ||
@@ -155,7 +160,6 @@ export class Diagram {
     canvasContext!.font = `10px ${
       this.configuration.getOption("theme").fontFamily
     }`;
-    console.log(canvasContext!.font);
 
     const hostSize = this.calculateElementSize(hostDomElement);
 
@@ -228,4 +232,59 @@ export class Diagram {
     this.wireUpResizer();
     this.renderer.renderStart();
   }
+
+  screenShot = async (type: 'image/png' | 'image/jpeg' = 'image/png'): Promise<Blob | null> => {
+    return new Promise(resolve => {
+      this.stateManager.setScreenShotInProgress(true);
+
+      const currentNodes = this.stateManager.pureState().nodes;
+      const screenShotMargin = this.configuration.getOption('screenShotMargin');
+      const {width: nodeWidth, height: nodeHeight} = this.configuration.getOption('theme').node;
+
+      const rangeX = currentNodes.reduce(
+        (acc, cur) => [Math.min(cur.x, acc[0]), Math.max(cur.x, acc[1])],
+        [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+      );
+
+      const rangeY = currentNodes.reduce(
+        (acc, cur) => [Math.min(cur.y, acc[0]), Math.max(cur.y, acc[1])],
+        [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+      );
+
+      const savedUiState = { ...this.stateManager.getState().uiState };
+      this.renderer.createScreenShotContext(
+        rangeX[0] - screenShotMargin,
+        rangeX[1] + screenShotMargin + nodeWidth,
+        rangeY[0] - screenShotMargin,
+        rangeY[1] + screenShotMargin + nodeHeight
+      );
+
+      if (savedUiState) {
+        const screenShotRenderedCallback = (
+          screenShotContext: CanvasRenderingContext2D
+        ) => {
+          screenShotContext.canvas.toBlob(blob => {
+            resolve(blob);
+          }, type);
+          this.stateManager.setScreenShotInProgress(false);
+          this.renderer.releaseScreenShotContext();
+
+          this.stateManager.getState().uiState.panX = savedUiState.panX;
+          this.stateManager.getState().uiState.panY = savedUiState.panY;
+          this.stateManager.getState().uiState.scale = savedUiState.scale;
+
+          this.eventBus.off(
+            DiagramEvents.ScreenShotRendered,
+            screenShotRenderedCallback
+          );
+        };
+
+        this.eventBus.on(
+          DiagramEvents.ScreenShotRendered,
+          screenShotRenderedCallback
+        );
+        this.eventBus.publish(DiagramEvents.RenderRequested);
+      }
+    });
+  };
 }

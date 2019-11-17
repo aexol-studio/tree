@@ -63,7 +63,8 @@ export class StateManager {
         draggingElements: false,
         draggingMinimap: false,
         animatingPan: false,
-      }
+      },
+      screenShotInProgress: false,
     };
     this.htmlManager = new HtmlManager(
       this.state,
@@ -205,4 +206,10 @@ export class StateManager {
   };
   worldToScreenCoordinates = (e: ScreenPosition) =>
     this.uiManager.worldToScreen(e);
+  setScreenShotInProgress(screenShotInProgress: boolean) {
+    this.state.screenShotInProgress = screenShotInProgress;
+  }
+  isScreenShotInProgress() {
+    return this.state.screenShotInProgress;
+  }
 }

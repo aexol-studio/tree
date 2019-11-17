@@ -1,14 +1,15 @@
 import { DiagramTheme } from "../Models";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { QuadraticPath } from "./Draw/QuadraticPath";
+import { ContextProvider } from "./ContextProvider";
 export class ActiveLinkRenderer {
   constructor(
-    private context: CanvasRenderingContext2D,
+    private contextProvider: ContextProvider,
     private theme: DiagramTheme
   ) {}
   render = ({ from, to }: { from: ScreenPosition; to: ScreenPosition }) => {
     QuadraticPath(
-      this.context,
+      this.contextProvider.context,
       from.x,
       from.y,
       to.x,

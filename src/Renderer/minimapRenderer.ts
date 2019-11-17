@@ -5,7 +5,7 @@ export class MinimapRenderer {
   render(context: CanvasRenderingContext2D, theme: DiagramTheme, state: DiagramState) {
     const uiState = state.uiState;
 
-    if (!uiState.minimapActive) {
+    if (!uiState.minimapActive || state.screenShotInProgress) {
       return;
     }
 

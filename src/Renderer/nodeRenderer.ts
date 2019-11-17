@@ -8,11 +8,12 @@ import {
   DiagramDrawingDistanceOptions
 } from "../Configuration/index";
 import { StateManager } from "../Diagram/stateManager/index";
+import { ContextProvider } from "./ContextProvider";
 export class NodeRenderer {
   distances: DiagramDrawingDistanceOptions;
 
   constructor(
-    private context: CanvasRenderingContext2D,
+    private contextProvider: ContextProvider,
     private theme: DiagramTheme,
     private stateManager: StateManager
   ) {
@@ -239,4 +240,8 @@ export class NodeRenderer {
       });
     }
   };
+
+  get context() {
+    return this.contextProvider.context;
+  }
 }

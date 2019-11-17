@@ -35,6 +35,7 @@ export enum DiagramEvents {
   CenterPanRequested = "CenterPanRequested",
   MenuRequested = "MenuRequested",
   MenuItemClicked = "MenuItemClicked",
-  CenterOnNode = "CenterOnNode"
+  CenterOnNode = "CenterOnNode",
+  ScreenShotRendered = "ScreenShotRendered"
   // ...
 }
