@@ -98,7 +98,7 @@ export class Diagram {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }
   autoResize = () => {
-    if (this.stateManager.isScreenShotInProgress) {
+    if (this.stateManager.isScreenShotInProgress()) {
       return;
     }
 
