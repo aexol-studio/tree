@@ -62,6 +62,9 @@ export class Diagram {
   beautifyDiagram(nodes: Node[]) {
     NodeUtils.beautifyDiagram(nodes, this.configuration.getOption("theme"));
   }
+  forceRender() {
+    this.eventBus.publish(DiagramEvents.RenderRequested);
+  }
   centerDiagram() {
     this.stateManager.centerGraph();
   }
@@ -233,13 +236,18 @@ export class Diagram {
     this.renderer.renderStart();
   }
 
-  screenShot = async (type: 'image/png' | 'image/jpeg' = 'image/png'): Promise<Blob | null> => {
+  screenShot = async (
+    type: "image/png" | "image/jpeg" = "image/png"
+  ): Promise<Blob | null> => {
     return new Promise(resolve => {
       this.stateManager.setScreenShotInProgress(true);
 
       const currentNodes = this.stateManager.pureState().nodes;
-      const screenShotMargin = this.configuration.getOption('screenShotMargin');
-      const {width: nodeWidth, height: nodeHeight} = this.configuration.getOption('theme').node;
+      const screenShotMargin = this.configuration.getOption("screenShotMargin");
+      const {
+        width: nodeWidth,
+        height: nodeHeight
+      } = this.configuration.getOption("theme").node;
 
       const rangeX = currentNodes.reduce(
         (acc, cur) => [Math.min(cur.x, acc[0]), Math.max(cur.x, acc[1])],
