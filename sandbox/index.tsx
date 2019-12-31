@@ -4,12 +4,14 @@ import {
   AcceptedNodeDefinition
 } from "../src/Models/NodeDefinition";
 import { NodeOption } from "../src/Models/NodeOption";
+import { DefaultDiagramThemeLight } from "../src/Theme/DefaultDiagramThemeLight";
 
 class App {
   diagram?: Diagram = undefined;
   constructor() {
     this.diagram = new Diagram(document.getElementById("root")!, {
-      disableLinkOperations: true
+      disableLinkOperations: true,
+      theme: DefaultDiagramThemeLight
     });
     const createOND = (name: string): NodeDefinition["node"] => ({
       name: `${name}`,
