@@ -36,9 +36,14 @@ export class UIManager {
       Events.DiagramEvents.CenterPanRequested,
       this.centerPanTo
     );
-    this.eventBus.subscribe(Events.DiagramEvents.CenterOnNode, this.centerOnNode);
+    this.eventBus.subscribe(
+      Events.DiagramEvents.CenterOnNode,
+      this.centerOnNode
+    );
 
-    this.autoPanSmoothing = ConfigurationManager.instance.getOption('autoPanSmoothing');
+    this.autoPanSmoothing = ConfigurationManager.instance.getOption(
+      "autoPanSmoothing"
+    );
   }
 
   mouseWheel = (delta: number, mouseX: number, mouseY: number) => {
@@ -58,10 +63,10 @@ export class UIManager {
       newScale = 1.5;
     }
 
-    this.state.panX! =
-      this.state.panX! + mouseX / newScale - mouseX / this.state.scale;
-    this.state.panY! =
-      this.state.panY! + mouseY / newScale - mouseY / this.state.scale;
+    this.state.panX =
+      this.state.panX + mouseX / newScale - mouseX / this.state.scale;
+    this.state.panY =
+      this.state.panY + mouseY / newScale - mouseY / this.state.scale;
 
     this.state.scale = newScale;
 
@@ -82,7 +87,10 @@ export class UIManager {
     if (!this.state.panX || !this.state.panY) {
       return;
     }
-    const [deltaX, deltaY] = [this.state.targetPanX - this.state.panX, this.state.targetPanY - this.state.panY];
+    const [deltaX, deltaY] = [
+      this.state.targetPanX - this.state.panX,
+      this.state.targetPanY - this.state.panY
+    ];
 
     if (Math.abs(deltaX) < PAN_EPSILON && Math.abs(deltaY) < PAN_EPSILON) {
       this.state.panX = this.state.targetPanX;
@@ -92,8 +100,10 @@ export class UIManager {
       return false;
     }
 
-    this.state.panX += deltaX / Math.max(this.autoPanSmoothing / timeCoefficient, 1.0);
-    this.state.panY += deltaY / Math.max(this.autoPanSmoothing / timeCoefficient, 1.0);
+    this.state.panX +=
+      deltaX / Math.max(this.autoPanSmoothing / timeCoefficient, 1.0);
+    this.state.panY +=
+      deltaY / Math.max(this.autoPanSmoothing / timeCoefficient, 1.0);
 
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return true;
@@ -101,26 +111,34 @@ export class UIManager {
 
   worldToScreen = (e: ScreenPosition): ScreenPosition => {
     return {
-      x: (e.x + this.state.panX!) * this.state.scale,
-      y: (e.y + this.state.panY!) * this.state.scale,
+      x: (e.x + this.state.panX) * this.state.scale,
+      y: (e.y + this.state.panY) * this.state.scale,
       shiftKey: e.shiftKey
     };
   };
   screenToWorld = (e: ScreenPosition): ScreenPosition => {
     return {
-      x: e.x / this.state.scale - this.state.panX!,
-      y: e.y / this.state.scale - this.state.panY!,
+      x: e.x / this.state.scale - this.state.panX,
+      y: e.y / this.state.scale - this.state.panY,
       shiftKey: e.shiftKey
     };
   };
 
   centerOnNode = (n: Node) => {
     if (!this.autoPanSmoothing) {
-      this.state.panX = -(n.x + this.theme.node.width / 2) + (this.state.areaSize.width / 2 / this.state.scale);
-      this.state.panY = -(n.y + this.theme.node.height / 2) + (this.state.areaSize.height / 2 / this.state.scale);
+      this.state.panX =
+        -(n.x + this.theme.node.width / 2) +
+        this.state.areaSize.width / 2 / this.state.scale;
+      this.state.panY =
+        -(n.y + this.theme.node.height / 2) +
+        this.state.areaSize.height / 2 / this.state.scale;
     } else {
-      this.state.targetPanX = -(n.x + this.theme.node.width / 2) + (this.state.areaSize.width / 2 / this.state.scale);
-      this.state.targetPanY = -(n.y + this.theme.node.height / 2) + (this.state.areaSize.height / 2 / this.state.scale);
+      this.state.targetPanX =
+        -(n.x + this.theme.node.width / 2) +
+        this.state.areaSize.width / 2 / this.state.scale;
+      this.state.targetPanY =
+        -(n.y + this.theme.node.height / 2) +
+        this.state.areaSize.height / 2 / this.state.scale;
       this.state.animatingPan = true;
     }
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
@@ -184,8 +202,8 @@ export class UIManager {
     const calculated = this.screenToWorld(e);
     this.eventBus.publish(Events.IOEvents.WorldMouseDrag, {
       withoutPan: {
-        x: calculated.x + this.state.panX!,
-        y: calculated.y + this.state.panY!,
+        x: calculated.x + this.state.panX,
+        y: calculated.y + this.state.panY,
         shiftKey: calculated.shiftKey
       },
       calculated
@@ -253,19 +271,19 @@ export class UIManager {
     }
     this.state.animatingPan = false;
     this.state.draggingWorld = true;
-    this.state.panX! -= this.state.lastDragPosition.x - e.x;
-    this.state.panY! -= this.state.lastDragPosition.y - e.y;
+    this.state.panX -= this.state.lastDragPosition.x - e.x;
+    this.state.panY -= this.state.lastDragPosition.y - e.y;
     this.state.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   panTo = (e: ScreenPosition) => {
-    this.state.panX! = -e.x;
-    this.state.panY! = -e.y;
+    this.state.panX = -e.x;
+    this.state.panY = -e.y;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   centerPanTo = (e: ScreenPosition) => {
-    this.state.panX! = -e.x + this.state.areaSize.width / 2.0;
-    this.state.panY! = -e.y + this.state.areaSize.height / 2.0;
+    this.state.panX = -e.x + this.state.areaSize.width / 2.0;
+    this.state.panY = -e.y + this.state.areaSize.height / 2.0;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
 }

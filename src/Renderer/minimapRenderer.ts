@@ -2,7 +2,11 @@ import { DiagramTheme, DiagramState } from "../Models";
 import { MinimapUtils } from "../Utils/index";
 
 export class MinimapRenderer {
-  render(context: CanvasRenderingContext2D, theme: DiagramTheme, state: DiagramState) {
+  render(
+    context: CanvasRenderingContext2D,
+    theme: DiagramTheme,
+    state: DiagramState
+  ) {
     const uiState = state.uiState;
 
     if (!uiState.minimapActive || state.screenShotInProgress) {
@@ -10,50 +14,75 @@ export class MinimapRenderer {
     }
 
     context.save();
-    context.globalAlpha = state.hoverMinimap ? theme.minimap.hoverAlpha : theme.minimap.alpha;
+    context.globalAlpha = state.hoverMinimap
+      ? theme.minimap.hoverAlpha
+      : theme.minimap.alpha;
 
-    const minimapStartX = context.canvas.width - theme.minimap.size - theme.minimap.margin;
+    const minimapStartX =
+      context.canvas.width - theme.minimap.size - theme.minimap.margin;
     const minimapStartY = theme.minimap.margin;
 
     const boundingBoxViewport = MinimapUtils.getBoundingBoxViewport(
       {
-        x: uiState.panX!,
-        y: uiState.panY!,
+        x: uiState.panX,
+        y: uiState.panY
       },
       uiState.scale,
-      state.uiState.areaSize,
+      state.uiState.areaSize
     );
 
     const miniMapBoundaries = MinimapUtils.getMiniMapBoundaries(
       boundingBoxViewport,
-      state.uiState.areaSize,
+      state.uiState.areaSize
     );
-
 
     const viewportCoord = MinimapUtils.worldToMapPoint(
       {
         x: boundingBoxViewport.left,
-        y: boundingBoxViewport.top,
+        y: boundingBoxViewport.top
       },
       theme.minimap.size,
-      miniMapBoundaries,
+      miniMapBoundaries
     );
 
     const areaCoordinates = {
-      width: MinimapUtils.worldToMapWidth(boundingBoxViewport.width, miniMapBoundaries, theme.minimap.size),
-      height: MinimapUtils.worldToMapHeight(boundingBoxViewport.height, miniMapBoundaries, theme.minimap.size),
+      width: MinimapUtils.worldToMapWidth(
+        boundingBoxViewport.width,
+        miniMapBoundaries,
+        theme.minimap.size
+      ),
+      height: MinimapUtils.worldToMapHeight(
+        boundingBoxViewport.height,
+        miniMapBoundaries,
+        theme.minimap.size
+      ),
       left: viewportCoord.x - 1,
       top: viewportCoord.y - 1
     };
 
     context.fillStyle = theme.colors.minimap.background;
-    context.fillRect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
+    context.fillRect(
+      minimapStartX,
+      minimapStartY,
+      theme.minimap.size,
+      theme.minimap.size
+    );
     context.strokeStyle = theme.colors.minimap.borders;
     context.lineWidth = 1;
-    context.strokeRect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
+    context.strokeRect(
+      minimapStartX,
+      minimapStartY,
+      theme.minimap.size,
+      theme.minimap.size
+    );
 
     context.beginPath();
-    context.rect(minimapStartX, minimapStartY, theme.minimap.size, theme.minimap.size);
+    context.rect(
+      minimapStartX,
+      minimapStartY,
+      theme.minimap.size,
+      theme.minimap.size
+    );
     context.clip();
 
     context.fillStyle = theme.colors.minimap.visibleArea;
@@ -61,14 +90,14 @@ export class MinimapRenderer {
       minimapStartX + areaCoordinates.left,
       minimapStartY + areaCoordinates.top,
       areaCoordinates.width,
-      areaCoordinates.height,
+      areaCoordinates.height
     );
     context.lineWidth = 1;
     context.strokeRect(
       minimapStartX + areaCoordinates.left,
       minimapStartY + areaCoordinates.top,
       areaCoordinates.width,
-      areaCoordinates.height,
+      areaCoordinates.height
     );
 
     context.fillStyle = theme.colors.minimap.node;
@@ -76,14 +105,14 @@ export class MinimapRenderer {
       const nodePos = MinimapUtils.worldToMapPoint(
         n,
         theme.minimap.size,
-        miniMapBoundaries,
+        miniMapBoundaries
       );
 
       context.fillRect(
         minimapStartX + nodePos.x,
         minimapStartY + nodePos.y,
         6,
-        4,
+        4
       );
     });
 
