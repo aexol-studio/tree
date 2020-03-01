@@ -86,7 +86,7 @@ export class ConnectionManager {
         io,
         initialPos: e
       };
-      this.state.uiState!.draggingElements = true;
+      this.state.uiState.draggingElements = true;
       return;
     }
     this.state.draw = undefined;
@@ -172,7 +172,7 @@ export class ConnectionManager {
       0.1,
       0.9
     );
-    this.state.uiState!.lastDragPosition = { ...e };
+    this.state.uiState.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   movedLink = () => {
@@ -184,8 +184,8 @@ export class ConnectionManager {
     this.state.trees.link.update(
       link,
       {
-        x: this.state.uiState!.lastDragPosition!.x,
-        y: this.state.uiState!.lastDragPosition!.y
+        x: this.state.uiState.lastDragPosition.x,
+        y: this.state.uiState.lastDragPosition.y
       },
       linkTree.bb
     );
@@ -197,15 +197,20 @@ export class ConnectionManager {
     if (!this.state.draw) {
       return;
     }
-    if (this.state.hover.io && this.state.hover.io !== this.state.draw!.io) {
+    if (
+      this.state.hover.io &&
+      this.state.hover.io !== this.state.draw.io &&
+      this.state.hover.node &&
+      this.state.draw.node
+    ) {
       const input =
         this.state.hover.io === "i"
-          ? this.state.hover.node!
-          : this.state.draw!.node;
+          ? this.state.hover.node
+          : this.state.draw.node;
       const output =
         this.state.hover.io === "o"
-          ? this.state.hover.node!
-          : this.state.draw!.node;
+          ? this.state.hover.node
+          : this.state.draw.node;
       this.makeConnection(input, output);
     }
     this.cancelDrawing();

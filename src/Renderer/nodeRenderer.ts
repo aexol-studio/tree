@@ -57,8 +57,8 @@ export class NodeRenderer {
     RoundedRectangle(this.context, {
       width,
       height,
-      x: node.x!,
-      y: node.y!,
+      x: node.x,
+      y: node.y,
       radius: 0,
       radiusBottomLeft: leftRadius,
       radiusTopLeft: leftRadius,
@@ -84,13 +84,13 @@ export class NodeRenderer {
       this.context.font = this.getNodeFont(typeSize, "normal");
       this.context.textBaseline = "bottom";
       this.context.textAlign = "end";
-      this.context.fillText(typeContent, node.x! + width, node.y!);
+      this.context.fillText(typeContent, node.x + width, node.y);
     } else {
       this.context.fillStyle =
         colors.node.types[node.definition.type] || colors.node.type;
       this.context.fillRect(
-        node.x! + width - width / 4.0,
-        node.y! - typeSize / 1.5 - 2,
+        node.x + width - width / 4.0,
+        node.y - typeSize / 1.5 - 2,
         width / 4.0,
         typeSize / 1.5
       );
@@ -185,16 +185,16 @@ export class NodeRenderer {
         this.context.textBaseline = "middle";
         this.context.fillText(
           node.name,
-          node.x! + width / 2.0,
-          node.y! + height / 2.0
+          node.x + width / 2.0,
+          node.y + height / 2.0
         );
       } else {
         this.context.fillStyle = `${colors.node.name}55`;
         const rectWidth = width / 2.0;
         const rectHeight = nameSize / 1.5;
         this.context.fillRect(
-          node.x! + width / 2.0 - rectWidth / 2.0,
-          node.y! + height / 2.0 - rectHeight / 2.0,
+          node.x + width / 2.0 - rectWidth / 2.0,
+          node.y + height / 2.0 - rectHeight / 2.0,
           rectWidth,
           rectHeight
         );
@@ -203,7 +203,7 @@ export class NodeRenderer {
     const radiusRight = node.outputs ? 10 : 0;
     const radiusLeft = node.inputs ? 10 : 0;
     let hoverWidth = width;
-    let hoverX = node.x!;
+    let hoverX = node.x;
     if (node.inputs) {
       hoverX -= port.width;
       hoverWidth += port.width;
@@ -218,7 +218,7 @@ export class NodeRenderer {
         width: hoverWidth,
         height,
         x: hoverX,
-        y: node.y!,
+        y: node.y,
         radius: 0,
         radiusBottomLeft: radiusLeft,
         radiusTopLeft: radiusLeft,
@@ -232,7 +232,7 @@ export class NodeRenderer {
         width: hoverWidth,
         height,
         x: hoverX,
-        y: node.y!,
+        y: node.y,
         radiusBottomLeft: radiusLeft,
         radiusTopLeft: radiusLeft,
         radiusBottomRight: radiusRight,

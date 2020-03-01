@@ -57,7 +57,10 @@ export class ChangesManager {
     this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, payload);
   };
   unsnap = (time: SnapshotType) => {
-    const state = this[time].pop()!;
+    const state = this[time].pop();
+    if (!state) {
+      throw new Error("Cannot make undo snapshot");
+    }
     this.snapshot(time === "past" ? "future" : "past");
     this.state.nodes = [...state.nodes];
     this.state.links = [...state.links];

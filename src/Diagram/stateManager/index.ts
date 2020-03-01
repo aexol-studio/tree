@@ -38,7 +38,7 @@ export class StateManager {
     private connectionFunction: (input: Node, output: Node) => boolean,
     private disableLinkOperations: boolean,
     private getHostElement: () => HTMLElement,
-    areaSize: { width: number; height: number },
+    areaSize: { width: number; height: number }
   ) {
     this.state = {
       links: [],
@@ -58,19 +58,23 @@ export class StateManager {
         panX: 0,
         panY: 0,
         scale: 1.0,
+        lastDragPosition: {
+          x: 0,
+          y: 0
+        },
         areaSize,
         draggingWorld: false,
         draggingElements: false,
         draggingMinimap: false,
-        animatingPan: false,
+        animatingPan: false
       },
-      screenShotInProgress: false,
+      screenShotInProgress: false
     };
     this.htmlManager = new HtmlManager(
       this.state,
       this.eventBus,
       this.getHostElement,
-      this.theme,
+      this.theme
     );
     this.uiManager = new UIManager(
       this.state.uiState,
@@ -87,7 +91,7 @@ export class StateManager {
       this.state,
       this.eventBus,
       this.uiManager,
-      this.htmlManager,
+      this.htmlManager
     );
     this.nodeManager = new NodeManager(
       this.state,
@@ -97,31 +101,17 @@ export class StateManager {
       this.connectionManager,
       this.htmlManager
     );
-    new MinimapManager(
-      this.state,
-      this.eventBus,
-      this.theme
-    );
+    new MinimapManager(this.state, this.eventBus, this.theme);
     this.hoverManager = new HoverManager(
       this.state,
       this.eventBus,
       this.theme,
       this.disableLinkOperations
     );
-    new DescriptionManager(
-      this.state,
-      this.eventBus,
-      this.htmlManager,
-    );
-    new ChangesManager(
-      this.state,
-      this.eventBus,
-    );
+    new DescriptionManager(this.state, this.eventBus, this.htmlManager);
+    new ChangesManager(this.state, this.eventBus);
 
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldMouseDrag,
-      this.mouseDrag
-    );
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
     this.eventBus.subscribe(
       Events.DiagramEvents.RebuildTreeRequested,
       this.rebuildTrees
@@ -163,9 +153,9 @@ export class StateManager {
   centerGraph = () => {
     this.uiManager.centerPanTo(this.nodeManager.getCenter());
   };
-  selectNode = (node:Node) => {
-    this.nodeManager.selectSingleNode(node)
-  }
+  selectNode = (node: Node) => {
+    this.nodeManager.selectSingleNode(node);
+  };
   zeroGraph = () => {
     this.uiManager.panTo({
       x: -this.theme.node.width * 3,

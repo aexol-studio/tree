@@ -10,9 +10,9 @@ export interface DiagramDrawingDistanceOptions {
   nodeOptions: number;
   nodeType: number;
   nodeArrows: number;
-  detailedLinks: number,
-  simplifiedLinks: number,
-};
+  detailedLinks: number;
+  simplifiedLinks: number;
+}
 
 export interface DiagramOptions {
   autosizeWatcher: boolean;
@@ -27,7 +27,7 @@ export interface DiagramOptions {
   autoPanSmoothing: number;
   screenShotMargin: number;
   screenShotBackground: boolean;
-  drawingDistance: Partial<DiagramDrawingDistanceOptions>
+  drawingDistance: Partial<DiagramDrawingDistanceOptions>;
 }
 
 const defaultOptions: DiagramOptions = {
@@ -49,8 +49,8 @@ const defaultOptions: DiagramOptions = {
     nodeType: 0.0,
     nodeArrows: 0.0,
     detailedLinks: 0.7,
-    simplifiedLinks: 0.0,
-  },
+    simplifiedLinks: 0.0
+  }
 };
 
 export class ConfigurationManager {
@@ -69,7 +69,7 @@ export class ConfigurationManager {
       ...providedOptions,
       drawingDistance: {
         ...this.options.drawingDistance,
-        ...providedOptions.drawingDistance,
+        ...providedOptions.drawingDistance
       }
     };
   }
@@ -82,10 +82,13 @@ export class ConfigurationManager {
     return this.options[fieldName];
   }
 
-  public getDistance<T extends keyof DiagramDrawingDistanceOptions>(distanceName: T): number {
-    if (!this.options.drawingDistance[distanceName]) {
+  public getDistance(
+    distanceName: keyof DiagramDrawingDistanceOptions
+  ): number {
+    const { drawingDistance } = this.options;
+    if (typeof drawingDistance[distanceName] === "undefined") {
       return 0.0;
     }
-    return this.options.drawingDistance[distanceName]!;
+    return drawingDistance[distanceName]!;
   }
 }

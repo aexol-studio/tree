@@ -13,21 +13,21 @@ export class MinimapManager {
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
-    private theme: DiagramTheme,
+    private theme: DiagramTheme
   ) {
     this.eventBus.subscribe(
       Events.IOEvents.MinimapMouseMove,
-      this.minimapMouseMove,
+      this.minimapMouseMove
     );
 
     this.eventBus.subscribe(
       Events.IOEvents.MinimapLeftMouseClick,
-      this.minimapLeftMouseClick,
+      this.minimapLeftMouseClick
     );
 
     this.eventBus.subscribe(
       Events.IOEvents.WorldMouseMove,
-      this.worldMouseMove,
+      this.worldMouseMove
     );
   }
 
@@ -35,15 +35,15 @@ export class MinimapManager {
     this.state.uiState.draggingMinimap = true;
   };
 
-  minimapMouseMove = ({x, y}: ScreenPosition) => {
+  minimapMouseMove = ({ x, y }: ScreenPosition) => {
     if (this.state.uiState.draggingMinimap) {
-      this.performPanning({x, y});
+      this.performPanning({ x, y });
     }
 
     this.state.hoverMinimap = true;
     this.state.hover.node = undefined;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  }
+  };
 
   worldMouseMove = () => {
     if (this.state.hoverMinimap) {
@@ -53,11 +53,10 @@ export class MinimapManager {
   };
 
   performPanning(coords: Coords) {
-
     const boundingBoxViewport = MinimapUtils.getBoundingBoxViewport(
       {
-        x: this.state.uiState.panX!,
-        y: this.state.uiState.panY!,
+        x: this.state.uiState.panX,
+        y: this.state.uiState.panY
       },
       this.state.uiState.scale,
       this.state.uiState.areaSize
@@ -65,34 +64,42 @@ export class MinimapManager {
 
     const miniMapBoundaries = MinimapUtils.getMiniMapBoundaries(
       boundingBoxViewport,
-      this.state.uiState.areaSize,
+      this.state.uiState.areaSize
     );
 
-    const worldCoords = MinimapUtils.mapToWorldPoint(coords, miniMapBoundaries, this.theme.minimap.size);
+    const worldCoords = MinimapUtils.mapToWorldPoint(
+      coords,
+      miniMapBoundaries,
+      this.theme.minimap.size
+    );
 
     const newPanValue = {
-      x: -worldCoords.x + (this.state.uiState.areaSize.width / 2 / this.state.uiState.scale),
-      y: -worldCoords.y + (this.state.uiState.areaSize.height / 2 / this.state.uiState.scale),
+      x:
+        -worldCoords.x +
+        this.state.uiState.areaSize.width / 2 / this.state.uiState.scale,
+      y:
+        -worldCoords.y +
+        this.state.uiState.areaSize.height / 2 / this.state.uiState.scale
     };
 
     const newViewport = MinimapUtils.getBoundingBoxViewport(
       newPanValue,
       this.state.uiState.scale,
-      this.state.uiState.areaSize,
+      this.state.uiState.areaSize
     );
 
     if (
       newViewport.left < miniMapBoundaries.left ||
       newViewport.right > miniMapBoundaries.left + miniMapBoundaries.width
     ) {
-      newPanValue.x = this.state.uiState.panX!;
+      newPanValue.x = this.state.uiState.panX;
     }
 
     if (
       newViewport.top < miniMapBoundaries.top ||
       newViewport.bottom > miniMapBoundaries.top + miniMapBoundaries.height
     ) {
-      newPanValue.y = this.state.uiState.panY!;
+      newPanValue.y = this.state.uiState.panY;
     }
 
     this.state.uiState.panX = newPanValue.x;

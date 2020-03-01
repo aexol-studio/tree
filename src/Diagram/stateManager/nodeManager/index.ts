@@ -109,7 +109,7 @@ export class NodeManager {
       n.x = e.x - oldN.x;
       n.y = e.y - oldN.y;
     }
-    this.state.uiState!.lastDragPosition = { ...e };
+    this.state.uiState.lastDragPosition = { ...e };
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   movedNodes = () => {
@@ -288,6 +288,8 @@ export class NodeManager {
   };
   deleteNodes = (nodes: Node[]) => {
     let n = nodes.filter(node => !node.readonly);
+    // Hack to make TS work with it n.editsDefinitions!
+    // TODO: Replace
     const editsDefinitions = n
       .filter(n => n.editsDefinitions)
       .map(n => n.editsDefinitions!)
@@ -369,13 +371,24 @@ export class NodeManager {
           }
         }
       });
-      const createTopicCategory = (defs: AcceptedNodeDefinition): Category =>
-        defs.definition
-          ? createConnectedNodesCategory(defs.definition)
-          : {
-              name: defs.category!.name,
-              children: defs.category!.definitions.map(createTopicCategory)
-            };
+      const createTopicCategory = (defs: AcceptedNodeDefinition): Category => {
+        if (defs.definition) {
+          return createConnectedNodesCategory(defs.definition);
+        }
+        if (!defs.category) {
+          throw new Error(
+            `Cannot create Topic category out of this: ${JSON.stringify(
+              defs,
+              null,
+              4
+            )} `
+          );
+        }
+        return {
+          name: defs.category.name,
+          children: defs.category.definitions.map(createTopicCategory)
+        };
+      };
       let { definition } = node;
       if (io === "i" && node.inputs) {
         this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(

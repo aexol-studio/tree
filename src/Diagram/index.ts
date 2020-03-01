@@ -160,7 +160,11 @@ export class Diagram {
     this.canvasElement.style.outline = "none";
     const canvasContext = this.canvasElement.getContext("2d");
 
-    canvasContext!.font = `10px ${
+    if (!canvasContext) {
+      throw new Error("Can't create canvas context!");
+    }
+
+    canvasContext.font = `10px ${
       this.configuration.getOption("theme").fontFamily
     }`;
 
@@ -194,9 +198,6 @@ export class Diagram {
     }
 
     hostDomElement.appendChild(this.canvasElement);
-    if (!canvasContext) {
-      throw new Error("Can't create canvas context!");
-    }
     // create a main event bus
     this.eventBus = new EventBus();
 

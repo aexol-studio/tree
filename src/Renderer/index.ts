@@ -53,7 +53,10 @@ export class Renderer {
       this.stateManager
     );
 
-    this.activeLinkRenderer = new ActiveLinkRenderer(this.contextProvider, this.theme);
+    this.activeLinkRenderer = new ActiveLinkRenderer(
+      this.contextProvider,
+      this.theme
+    );
     this.linkRenderer = new LinkRenderer(this.contextProvider, this.theme);
 
     this.eventBus.subscribe(DiagramEvents.RenderRequested, this.renderStart);
@@ -93,12 +96,12 @@ export class Renderer {
     const height = uiState.areaSize.height / uiState.scale;
     return new Region(
       {
-        x: 0 - uiState.panX!,
-        y: 0 - uiState.panY!
+        x: 0 - uiState.panX,
+        y: 0 - uiState.panY
       },
       {
-        x: width - uiState.panX!,
-        y: height - uiState.panY!
+        x: width - uiState.panX,
+        y: height - uiState.panY
       }
     );
   };
@@ -217,7 +220,10 @@ export class Renderer {
    * @memberof Renderer
    */
   renderBackground() {
-    if (this.stateManager.isScreenShotInProgress() && !ConfigurationManager.instance.getOption('screenShotBackground')) {
+    if (
+      this.stateManager.isScreenShotInProgress() &&
+      !ConfigurationManager.instance.getOption("screenShotBackground")
+    ) {
       return;
     }
     const { width, height } = this.contextProvider.context.canvas;
@@ -304,15 +310,20 @@ export class Renderer {
     }
   };
 
-  createScreenShotContext(startX: number, endX: number, startY: number, endY: number) {
+  createScreenShotContext(
+    startX: number,
+    endX: number,
+    startY: number,
+    endY: number
+  ) {
     const screenShotCanvas = document.createElement("canvas");
     screenShotCanvas.width = Math.abs(endX - startX);
     screenShotCanvas.height = Math.abs(endY - startY);
     this.screenShotCanvasContext = screenShotCanvas.getContext("2d");
     if (this.screenShotCanvasContext) {
       this.contextProvider.switchContext(this.screenShotCanvasContext);
-      this.stateManager.getState().uiState.panX = -(startX);
-      this.stateManager.getState().uiState.panY = -(startY);
+      this.stateManager.getState().uiState.panX = -startX;
+      this.stateManager.getState().uiState.panY = -startY;
       this.stateManager.getState().uiState.scale = 1.0;
     }
   }
@@ -322,4 +333,3 @@ export class Renderer {
     this.contextProvider.switchContext(this.canvasContext);
   }
 }
-

@@ -116,8 +116,8 @@ export class HtmlManager {
   renderRequested = () => {
     this.elements.forEach(e => {
       const { scale } = this.state.uiState;
-      const x = (this.state.uiState.panX! + e.x) / 2.0;
-      const y = (this.state.uiState.panY! + e.y) / 2.0;
+      const x = (this.state.uiState.panX + e.x) / 2.0;
+      const y = (this.state.uiState.panY + e.y) / 2.0;
       const nodeWidth = this.theme.node.width;
       if (e.scalable) {
         if (e.paddedBy === "topCenter") {

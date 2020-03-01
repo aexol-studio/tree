@@ -33,10 +33,13 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
       this.subdivide();
     }
     let insertedNode = false;
-    if (this.sides!.nw.insert(node)) insertedNode = true;
-    if (this.sides!.ne.insert(node)) insertedNode = true;
-    if (this.sides!.sw.insert(node)) insertedNode = true;
-    if (this.sides!.se.insert(node)) insertedNode = true;
+    if (!this.sides) {
+      throw new Error("Cannot subdivide sides");
+    }
+    if (this.sides.nw.insert(node)) insertedNode = true;
+    if (this.sides.ne.insert(node)) insertedNode = true;
+    if (this.sides.sw.insert(node)) insertedNode = true;
+    if (this.sides.se.insert(node)) insertedNode = true;
     return insertedNode;
   };
   delete = (data: T, e: Coords) => {
@@ -114,10 +117,10 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
     if (!this.sides) return objectsInRange;
     const { nw, ne, sw, se } = this.sides;
     let allObjectsInRange = objectsInRange
-      .concat(nw!.queryRange(bb))
-      .concat(ne!.queryRange(bb))
-      .concat(se!.queryRange(bb))
-      .concat(sw!.queryRange(bb));
+      .concat(nw.queryRange(bb))
+      .concat(ne.queryRange(bb))
+      .concat(se.queryRange(bb))
+      .concat(sw.queryRange(bb));
     return allObjectsInRange.filter(
       (o, i) => allObjectsInRange.indexOf(o) === i
     );
