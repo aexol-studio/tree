@@ -28,7 +28,7 @@ const descriptionClass = (theme: DiagramTheme) => ({
 const descriptionSpanClass = (theme: DiagramTheme) => ({
   minWidth: "10px",
   minHeight: "14px",
-  display: "inline-block",
+  display: "block",
   outline: "none"
 });
 
