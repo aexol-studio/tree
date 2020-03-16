@@ -157,17 +157,19 @@ export class Renderer {
     for (const n of nodes) {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
       const isHovered = state.hover.node === n;
-      const isRenamed = state.renamed && state.renamed === n;
+			const isRenamed = state.renamed && state.renamed === n;
+			const isNodeMenuOpened = state.isNodeMenuOpened;
       const typeIsHovered = isHovered && state.hover.type;
       const inputActive = isHovered && state.hover.io == "i";
       const outputActive = isHovered && state.hover.io == "o";
-      const currentScale = state.uiState.scale;
+			const currentScale = state.uiState.scale;
 
       this.nodeRenderer.render({
         node: n,
         isRenamed,
         isSelected,
-        isHovered,
+				isHovered,
+				isNodeMenuOpened,
         typeIsHovered,
         inputActive,
         outputActive,

@@ -185,11 +185,13 @@ export class NodeManager {
               const hasIndex = node.options.findIndex(n => n === name);
               if (hasIndex !== -1) {
                 node.options.splice(hasIndex, 1);
-                this.eventBus.publish(Events.DiagramEvents.NodeChanged);
+								this.eventBus.publish(Events.DiagramEvents.NodeChanged);
+								this.eventBus.publish(Events.DiagramEvents.RenderRequested);
                 return;
               }
               node.options.push(name);
-              this.eventBus.publish(Events.DiagramEvents.NodeChanged);
+							this.eventBus.publish(Events.DiagramEvents.NodeChanged);
+							this.eventBus.publish(Events.DiagramEvents.RenderRequested);
             }
           }))
         );

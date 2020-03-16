@@ -103,7 +103,8 @@ export interface DiagramTheme {
       options: Record<string, string>;
       hover: {
         type: string;
-      };
+			};
+			menuOpened: string;
     };
     port: {
       background: string;
