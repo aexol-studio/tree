@@ -30,8 +30,8 @@ export class NodeRenderer {
     typeIsHovered,
     isHovered,
     isSelected,
-		isRenamed,
-		isNodeMenuOpened,
+    isRenamed,
+    isNodeMenuOpened,
     inputActive,
     outputActive,
     currentScale = 1.0
@@ -40,8 +40,8 @@ export class NodeRenderer {
     typeIsHovered?: boolean;
     isHovered?: boolean;
     isSelected?: boolean;
-		isRenamed?: boolean;
-		isNodeMenuOpened?: boolean;
+    isRenamed?: boolean;
+    isNodeMenuOpened?: boolean;
     outputActive?: boolean;
     inputActive?: boolean;
     currentScale?: number;
@@ -240,7 +240,7 @@ export class NodeRenderer {
         radiusBottomRight: radiusRight,
         radiusTopRight: radiusRight
       });
-		}
+    }
   };
 
   get context() {

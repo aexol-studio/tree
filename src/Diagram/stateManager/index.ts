@@ -31,8 +31,8 @@ export class StateManager {
   private connectionManager: ConnectionManager;
   private uiManager: UIManager;
   private hoverManager: HoverManager;
-	private htmlManager: HtmlManager;
-	private menuManager: MenuManager;
+  private htmlManager: HtmlManager;
+  private menuManager: MenuManager;
   constructor(
     private eventBus: EventBus,
     private theme: DiagramTheme,
@@ -120,8 +120,8 @@ export class StateManager {
   }
   getState() {
     return {
-			...this.state,
-			isNodeMenuOpened: this.menuManager.activeNodeMenu
+      ...this.state,
+      isNodeMenuOpened: this.menuManager.activeNodeMenu
     };
   }
   pureState = () => this.state;
