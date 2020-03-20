@@ -91,7 +91,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
       },
       hover: {
         type: Colors.yellow[0]
-      }
+      },
+      menuOpened: Colors.red[0]
     },
     minimap: {
       background: Colors.grey[7],

@@ -34,7 +34,6 @@ export class ThemeDiagram {
           "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings"
       }
     ];
-    console.log(this.diagram);
     this.diagram!.setDefinitions([
       {
         type: "www",

@@ -104,6 +104,7 @@ export interface DiagramTheme {
       hover: {
         type: string;
       };
+      menuOpened: string;
     };
     port: {
       background: string;

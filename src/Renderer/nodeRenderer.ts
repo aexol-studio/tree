@@ -31,6 +31,7 @@ export class NodeRenderer {
     isHovered,
     isSelected,
     isRenamed,
+    isNodeMenuOpened,
     inputActive,
     outputActive,
     currentScale = 1.0
@@ -40,6 +41,7 @@ export class NodeRenderer {
     isHovered?: boolean;
     isSelected?: boolean;
     isRenamed?: boolean;
+    isNodeMenuOpened?: boolean;
     outputActive?: boolean;
     inputActive?: boolean;
     currentScale?: number;
@@ -212,7 +214,7 @@ export class NodeRenderer {
       hoverWidth += port.width;
     }
     if (isHovered || isSelected) {
-      this.context.strokeStyle = colors.node.selected;
+      this.context.strokeStyle = isNodeMenuOpened ? colors.node.menuOpened : colors.node.selected;
       this.context.lineWidth = 2;
       RoundedRectangleStroke(this.context, {
         width: hoverWidth,
@@ -227,7 +229,7 @@ export class NodeRenderer {
       });
     }
     if (isSelected) {
-      this.context.fillStyle = `${colors.node.selected}17`;
+      this.context.fillStyle = isNodeMenuOpened ? `${colors.node.menuOpened}17` : `${colors.node.selected}17`;
       RoundedRectangle(this.context, {
         width: hoverWidth,
         height,

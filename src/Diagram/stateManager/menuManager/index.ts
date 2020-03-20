@@ -41,6 +41,7 @@ const menuElementClass = (theme: DiagramTheme) => ({
  */
 export class MenuManager {
   activeMenu: HtmlElementRegistration | null = null;
+  activeNodeMenu: boolean = false;
   activeCategories: Category[] = [];
   activeMenuPosition: ScreenPosition = { x: 0, y: 0 };
   static menuBaseClassName = `${CSS_PREFIX}Base`;
@@ -96,6 +97,7 @@ export class MenuManager {
     if (this.activeMenu) {
       this.activeMenu.remove();
       this.activeMenu = null;
+      this.activeNodeMenu = false
     }
   };
   openNewNodeMenu = (screenPosition: ScreenPosition) => {
@@ -103,7 +105,10 @@ export class MenuManager {
       return;
     }
     const { node, link } = this.state.hover;
-    if (!node && !link) {
+    if(node) {
+      this.activeNodeMenu = true;
+    }
+    else if (!node && !link) {
       const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
         screenPosition
       );

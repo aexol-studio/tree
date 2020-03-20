@@ -158,6 +158,7 @@ export class Renderer {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
       const isHovered = state.hover.node === n;
       const isRenamed = state.renamed && state.renamed === n;
+      const isNodeMenuOpened = state.isNodeMenuOpened;
       const typeIsHovered = isHovered && state.hover.type;
       const inputActive = isHovered && state.hover.io == "i";
       const outputActive = isHovered && state.hover.io == "o";
@@ -168,6 +169,7 @@ export class Renderer {
         isRenamed,
         isSelected,
         isHovered,
+        isNodeMenuOpened,
         typeIsHovered,
         inputActive,
         outputActive,
