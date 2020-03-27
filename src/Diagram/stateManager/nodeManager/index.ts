@@ -15,6 +15,7 @@ import { UIManager } from "../uiManager/index";
 import { ConnectionManager } from "../connectionManager/index";
 import { RenameManager } from "../renameManager/index";
 import { HtmlManager } from "../htmlManager/index";
+import { DescriptionManager } from "../descriptionManager";
 
 /**
  * NodeManager:
@@ -30,7 +31,8 @@ export class NodeManager {
     private uiManager: UIManager,
     private theme: DiagramTheme,
     private connectionManager: ConnectionManager,
-    private htmlManager: HtmlManager
+    private htmlManager: HtmlManager,
+    private descriptionManager: DescriptionManager
   ) {
     this.eventBus.subscribe(
       Events.IOEvents.WorldLeftMouseClick,
@@ -311,6 +313,7 @@ export class NodeManager {
       node => !n.find(nn => nn === node)
     );
     this.rebuildTree();
+    this.descriptionManager.clearDescription();
     this.eventBus.publish(Events.DiagramEvents.NodeDeleted, n);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };

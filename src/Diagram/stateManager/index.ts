@@ -33,6 +33,7 @@ export class StateManager {
   private hoverManager: HoverManager;
   private htmlManager: HtmlManager;
   private menuManager: MenuManager;
+  private descriptionManager: DescriptionManager;
   constructor(
     private eventBus: EventBus,
     private theme: DiagramTheme,
@@ -77,6 +78,11 @@ export class StateManager {
       this.getHostElement,
       this.theme
     );
+    this.descriptionManager = new DescriptionManager(
+      this.state,
+      this.eventBus,
+      this.htmlManager
+    );
     this.uiManager = new UIManager(
       this.state.uiState,
       this.eventBus,
@@ -100,7 +106,8 @@ export class StateManager {
       this.uiManager,
       this.theme,
       this.connectionManager,
-      this.htmlManager
+      this.htmlManager,
+      this.descriptionManager
     );
     new MinimapManager(this.state, this.eventBus, this.theme);
     this.hoverManager = new HoverManager(
@@ -109,7 +116,6 @@ export class StateManager {
       this.theme,
       this.disableLinkOperations
     );
-    new DescriptionManager(this.state, this.eventBus, this.htmlManager);
     new ChangesManager(this.state, this.eventBus);
 
     this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
