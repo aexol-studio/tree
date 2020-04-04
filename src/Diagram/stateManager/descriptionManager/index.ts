@@ -122,7 +122,10 @@ export class DescriptionManager {
         this.selectedNode &&
         descriptionObjectContent !== this.DESCRIPTION_PLACEHOLDER
       ) {
-        this.selectedNode.description = descriptionObjectContent;
+        this.selectedNode.description = descriptionObjectContent.replace(
+          /(<([^>]+)>)/gi,
+          ""
+        );
         this.eventBus.publish(DiagramEvents.NodeChanged);
       }
     }
@@ -194,6 +197,14 @@ export class DescriptionManager {
     );
 
     const { refs } = elementRegistration;
+
+    refs.span.addEventListener("paste", (e: ClipboardEvent) => {
+      e.preventDefault();
+      if (e.clipboardData) {
+        const text = e.clipboardData.getData("text/plain");
+        document.execCommand("insertHTML", false, text);
+      }
+    });
 
     refs.span.addEventListener("blur", () => {
       this.assignDescriptionToNode();
