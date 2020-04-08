@@ -10,7 +10,7 @@ const CSS_PREFIX = Utils.getUniquePrefix("DescriptionManager");
 
 const containerClass = {
   position: "fixed",
-  transformOrigin: "top left"
+  transformOrigin: "top left",
 };
 
 const descriptionClass = (theme: DiagramTheme) => ({
@@ -19,23 +19,23 @@ const descriptionClass = (theme: DiagramTheme) => ({
   background: theme.colors.description.background,
   color: theme.colors.description.text,
   width: `${theme.description.width}px`,
-  textAlign: "center",
+  textAlign: "left",
   outline: "none",
   font: `normal ${theme.description.fontSize}px ${theme.fontFamily}`,
-  lineHeight: `${theme.description.lineHeight}px`
+  lineHeight: `${theme.description.lineHeight}px`,
 });
 
 const descriptionSpanClass = (theme: DiagramTheme) => ({
   minWidth: "10px",
   minHeight: "14px",
   display: "block",
-  outline: "none"
+  outline: "none",
 });
 
 const descriptionSeparatorClass = {
   height: "10px",
   pointerEvents: "none",
-  position: "relative"
+  position: "relative",
 };
 
 const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
@@ -44,7 +44,7 @@ const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
   height: "10px",
   position: "absolute",
   transform: "translate(-5px, -5px) rotate(45deg)",
-  background: theme.colors.description.background
+  background: theme.colors.description.background,
 });
 
 export class DescriptionManager {
@@ -56,6 +56,7 @@ export class DescriptionManager {
   DESCRIPTION_PLACEHOLDER: string | undefined;
   registeredDescriptionElement: HtmlElementRegistration | null = null;
   selectedNode: Node | null = null;
+  editedValue = "";
 
   constructor(
     private state: DiagramState,
@@ -70,12 +71,16 @@ export class DescriptionManager {
       DiagramEvents.NodeSelected,
       this.nodeSelectionChange
     );
+    this.eventBus.subscribe(
+      DiagramEvents.NodeCreated,
+      this.nodeSelectionChange
+    );
 
     const {
       containerClassName,
       descriptionClassName,
       separatorClassName,
-      descriptionSpanClassName
+      descriptionSpanClassName,
     } = DescriptionManager;
 
     this.eventBus.subscribe(IOEvents.WorldMouseDrag, this.nodeMoving);
@@ -116,8 +121,7 @@ export class DescriptionManager {
 
   assignDescriptionToNode = () => {
     if (this.registeredDescriptionElement) {
-      const descriptionObjectContent = (this.registeredDescriptionElement.refs
-        .span as HTMLSpanElement).innerHTML;
+      const descriptionObjectContent = this.editedValue;
       if (
         this.selectedNode &&
         descriptionObjectContent !== this.DESCRIPTION_PLACEHOLDER
@@ -127,10 +131,8 @@ export class DescriptionManager {
       }
     }
   };
-
   clearDescription = () => {
     if (this.registeredDescriptionElement) {
-      this.assignDescriptionToNode();
       this.registeredDescriptionElement.remove();
     }
   };
@@ -140,16 +142,16 @@ export class DescriptionManager {
   };
 
   nodeSelectionChange = () => {
+    this.assignDescriptionToNode();
+    this.clearDescription();
     if (
       this.state.selectedNodes.length === 0 ||
       this.state.selectedNodes.length > 1
     ) {
-      this.clearDescription();
       return;
     }
 
     const node = this.state.selectedNodes[0];
-
     const isReadonly =
       this.state.isReadOnly || node.readonly || node.notEditable;
 
@@ -166,22 +168,18 @@ export class DescriptionManager {
       containerClassName,
       descriptionClassName,
       separatorClassName,
-      descriptionSpanClassName
+      descriptionSpanClassName,
     } = DescriptionManager;
 
     const isReadonly =
       this.state.isReadOnly || node.readonly || node.notEditable;
-
-    this.clearDescription();
     const { x, y } = node;
     const isContentEditable = isReadonly ? "" : "contenteditable";
     const elementRegistration = this.htmlManager.createElementFromHTML(
       `
       <div class="${containerClassName}" data-ref="container">
         <div class="${descriptionClassName}">
-          <span data-ref="span" ${isContentEditable} class="${descriptionSpanClassName}">${this.getNodeDescriptionValue(
-        node
-      )}</span>
+          <span data-ref="span" ${isContentEditable} class="${descriptionSpanClassName}"></span>
         </div>
         <div class="${separatorClassName}"></div>
       </div>
@@ -194,6 +192,18 @@ export class DescriptionManager {
     );
 
     const { refs } = elementRegistration;
+    refs.span.innerText = this.getNodeDescriptionValue(node) || "";
+    this.editedValue = refs.span.innerText;
+    refs.span.addEventListener("paste", (e: ClipboardEvent) => {
+      e.preventDefault();
+      if (e.clipboardData) {
+        const text = e.clipboardData.getData("text/plain");
+        document.execCommand("insertHTML", false, text);
+      }
+    });
+    refs.span.addEventListener("input", (e: any) => {
+      this.editedValue = e.target.innerText;
+    });
 
     refs.span.addEventListener("blur", () => {
       this.assignDescriptionToNode();
@@ -210,6 +220,7 @@ export class DescriptionManager {
         }
       }
     });
+    this.clearDescription();
 
     this.selectedNode = node;
     this.registeredDescriptionElement = elementRegistration;

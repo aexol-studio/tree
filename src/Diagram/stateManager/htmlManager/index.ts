@@ -35,19 +35,19 @@ const helpContainerClass = (theme: DiagramTheme) => ({
   display: "none",
   fontFamily: theme.fontFamily,
   padding: `${theme.help.padding}px`,
-  background: theme.colors.help.background
+  background: theme.colors.help.background,
 });
 
 const helpTitleClass = (theme: DiagramTheme) => ({
   fontSize: `${theme.help.title.text}px`,
   color: theme.colors.help.title,
-  marginBottom: "10px"
+  marginBottom: "10px",
 });
 
 const helpContentClass = (theme: DiagramTheme) => ({
   fontSize: `${theme.help.text}px`,
   color: theme.colors.help.text,
-  lineHeight: `${theme.help.lineHeight}px`
+  lineHeight: `${theme.help.lineHeight}px`,
 });
 
 function createElementFromHTML(htmlString: string) {
@@ -114,33 +114,37 @@ export class HtmlManager {
     divHelp.style.display = "none";
   };
   renderRequested = () => {
-    this.elements.forEach(e => {
+    this.elements.forEach((e) => {
       const { scale } = this.state.uiState;
       const x = (this.state.uiState.panX + e.x) / 2.0;
       const y = (this.state.uiState.panY + e.y) / 2.0;
       const nodeWidth = this.theme.node.width;
       if (e.scalable) {
         if (e.paddedBy === "topCenter") {
-          e.element.style.transform = `scale(${scale}) translate(calc(-50% + ${nodeWidth /
-            4}px), -100%) translate(${x}px, ${y}px)`;
+          e.element.style.transform = `scale(${scale}) translate(calc(-50% + ${
+            nodeWidth / 4
+          }px), -100%) translate(${x}px, ${y}px)`;
         } else {
-          e.element.style.transform = `scale(${scale}) translate(${x +
-            e.paddedBy.x}px, ${y + e.paddedBy.y}px)`;
+          e.element.style.transform = `scale(${scale}) translate(${
+            x + e.paddedBy.x
+          }px, ${y + e.paddedBy.y}px)`;
         }
       } else {
         if (e.paddedBy === "topCenter") {
-          e.element.style.transform = `translate(-50%, -100%) scale(${scale}) translate(${nodeWidth *
-            0.25}px, 0) translate(${x}px, ${y}px) scale(${1 / scale})`;
+          e.element.style.transform = `translate(-50%, -100%) scale(${scale}) translate(${
+            nodeWidth * 0.25
+          }px, 0) translate(${x}px, ${y}px) scale(${1 / scale})`;
         } else {
-          e.element.style.transform = `scale(${scale}) translate(${x +
-            e.paddedBy.x}px, ${y + e.paddedBy.y}px) scale(${1 / scale})`;
+          e.element.style.transform = `scale(${scale}) translate(${
+            x + e.paddedBy.x
+          }px, ${y + e.paddedBy.y}px) scale(${1 / scale})`;
         }
       }
     });
   };
   nodeMoved = () => {
     const node = this.state.selectedNodes[0];
-    this.elements.forEach(e => {
+    this.elements.forEach((e) => {
       if (node && e.node === node) {
         e.x = node.x;
         e.y = node.y;
@@ -150,9 +154,9 @@ export class HtmlManager {
   };
   removeElement = (deletedElement: DiagramHtmlElement) => {
     deletedElement.element.remove();
-    this.elements = this.elements.filter(e => e !== deletedElement);
+    this.elements = this.elements.filter((e) => e !== deletedElement);
     this.nodeAttachedElements = this.nodeAttachedElements.filter(
-      e => e !== deletedElement
+      (e) => e !== deletedElement
     );
   };
   createElementFromHTML(
@@ -170,7 +174,7 @@ export class HtmlManager {
       element,
       id: 123,
       paddedBy,
-      scalable
+      scalable,
     };
 
     this.elements.push(registeredEntity);
@@ -189,7 +193,7 @@ export class HtmlManager {
     ).reduce((acc, currentElement) => {
       return {
         ...acc,
-        [currentElement.getAttribute("data-ref")!]: currentElement
+        [currentElement.getAttribute("data-ref")!]: currentElement,
       };
     }, {});
 
@@ -201,7 +205,7 @@ export class HtmlManager {
 
     return {
       remove: () => this.removeElement(registeredEntity),
-      refs: referencesSet
+      refs: referencesSet,
     };
   }
 }
