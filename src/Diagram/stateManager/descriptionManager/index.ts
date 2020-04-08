@@ -10,7 +10,7 @@ const CSS_PREFIX = Utils.getUniquePrefix("DescriptionManager");
 
 const containerClass = {
   position: "fixed",
-  transformOrigin: "top left"
+  transformOrigin: "top left",
 };
 
 const descriptionClass = (theme: DiagramTheme) => ({
@@ -22,20 +22,20 @@ const descriptionClass = (theme: DiagramTheme) => ({
   textAlign: "center",
   outline: "none",
   font: `normal ${theme.description.fontSize}px ${theme.fontFamily}`,
-  lineHeight: `${theme.description.lineHeight}px`
+  lineHeight: `${theme.description.lineHeight}px`,
 });
 
 const descriptionSpanClass = (theme: DiagramTheme) => ({
   minWidth: "10px",
   minHeight: "14px",
   display: "block",
-  outline: "none"
+  outline: "none",
 });
 
 const descriptionSeparatorClass = {
   height: "10px",
   pointerEvents: "none",
-  position: "relative"
+  position: "relative",
 };
 
 const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
@@ -44,7 +44,7 @@ const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
   height: "10px",
   position: "absolute",
   transform: "translate(-5px, -5px) rotate(45deg)",
-  background: theme.colors.description.background
+  background: theme.colors.description.background,
 });
 
 export class DescriptionManager {
@@ -75,7 +75,7 @@ export class DescriptionManager {
       containerClassName,
       descriptionClassName,
       separatorClassName,
-      descriptionSpanClassName
+      descriptionSpanClassName,
     } = DescriptionManager;
 
     this.eventBus.subscribe(IOEvents.WorldMouseDrag, this.nodeMoving);
@@ -122,7 +122,10 @@ export class DescriptionManager {
         this.selectedNode &&
         descriptionObjectContent !== this.DESCRIPTION_PLACEHOLDER
       ) {
-        this.selectedNode.description = descriptionObjectContent;
+        this.selectedNode.description = descriptionObjectContent.replace(
+          /(<([^>]+)>)/gi,
+          ""
+        );
         this.eventBus.publish(DiagramEvents.NodeChanged);
       }
     }
@@ -166,7 +169,7 @@ export class DescriptionManager {
       containerClassName,
       descriptionClassName,
       separatorClassName,
-      descriptionSpanClassName
+      descriptionSpanClassName,
     } = DescriptionManager;
 
     const isReadonly =
@@ -194,6 +197,14 @@ export class DescriptionManager {
     );
 
     const { refs } = elementRegistration;
+
+    refs.span.addEventListener("paste", (e: ClipboardEvent) => {
+      e.preventDefault();
+      if (e.clipboardData) {
+        const text = e.clipboardData.getData("text/plain");
+        document.execCommand("insertHTML", false, text);
+      }
+    });
 
     refs.span.addEventListener("blur", () => {
       this.assignDescriptionToNode();
