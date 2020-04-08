@@ -1,6 +1,5 @@
 import { EventBus } from "../EventBus";
 import * as Events from "../Events";
-import { ScreenPosition } from "./ScreenPosition";
 
 /**
  * IO:
@@ -11,7 +10,6 @@ import { ScreenPosition } from "./ScreenPosition";
  */
 export class IO {
   private eventBus: EventBus;
-  private currentScreenPosition: ScreenPosition = { x: 0, y: 0 };
   private lastClick = Date.now();
   private elementRect?: ClientRect;
   /**
@@ -21,18 +19,17 @@ export class IO {
   constructor(eventBus: EventBus, private element: HTMLCanvasElement) {
     this.eventBus = eventBus;
     this.calculateClientBoundingRect();
-    element.addEventListener("mouseleave", e => {
+    element.addEventListener("mouseleave", (e) => {
       e.preventDefault();
       this.eventBus.publish(Events.IOEvents.ScreenMouseLeave);
     });
-    element.addEventListener("mousemove", e => {
+    element.addEventListener("mousemove", (e) => {
       e.preventDefault();
       if (!this.elementRect) {
         return;
       }
-      this.currentScreenPosition.x = e.clientX * 2 - this.elementRect.left * 2;
-      this.currentScreenPosition.y = e.clientY * 2 - this.elementRect.top * 2;
-      const mpl = this.createMouseEventPayload();
+
+      const mpl = this.createMouseEventPayload(e);
       this.eventBus.publish(Events.IOEvents.ScreenMouseMove, mpl);
       if (e.buttons === 1) {
         this.eventBus.publish(Events.IOEvents.ScreenMouseDrag, mpl);
@@ -41,11 +38,11 @@ export class IO {
       }
     });
     // ...
-    element.addEventListener("wheel", e => {
+    element.addEventListener("wheel", (e) => {
       e.preventDefault();
       const delta = e.deltaMode === 1 ? e.deltaY * 24 : e.deltaY;
 
-      const coords = this.createMouseEventPayload();
+      const coords = this.createMouseEventPayload(e);
 
       this.eventBus.publish(
         Events.IOEvents.ScreenMouseWheel,
@@ -54,45 +51,43 @@ export class IO {
         coords.y
       );
     });
-    element.addEventListener("mouseup", e => {
+    element.addEventListener("mouseup", (e) => {
       e.preventDefault();
       if (e.which === 1) {
         this.eventBus.publish(
           Events.IOEvents.ScreenLeftMouseUp,
-          this.createMouseEventPayload()
+          this.createMouseEventPayload(e)
         );
       } else if (e.which === 3) {
         this.eventBus.publish(
           Events.IOEvents.ScreenRightMouseUp,
-          this.createMouseEventPayload()
+          this.createMouseEventPayload(e)
         );
       }
     });
-    element.addEventListener("mousedown", e => {
+    element.addEventListener("mousedown", (e) => {
       if (e.which === 1) {
         this.eventBus.publish(
           Events.IOEvents.ScreenLeftMouseClick,
-          this.createMouseEventPayload({
-            shiftKey: e.shiftKey
-          })
+          this.createMouseEventPayload(e, e.shiftKey)
         );
         const clickTime = Date.now();
         const diff = clickTime - this.lastClick;
         if (diff < 250) {
           this.eventBus.publish(
             Events.IOEvents.ScreenDoubleClick,
-            this.createMouseEventPayload()
+            this.createMouseEventPayload(e)
           );
         }
         this.lastClick = clickTime;
       } else if (e.which === 3) {
         this.eventBus.publish(
           Events.IOEvents.ScreenRightMouseClick,
-          this.createMouseEventPayload()
+          this.createMouseEventPayload(e)
         );
       }
     });
-    element.addEventListener("keydown", e => {
+    element.addEventListener("keydown", (e) => {
       const ctrl = e.ctrlKey || e.metaKey;
       if (e.key === "m") {
         this.eventBus.publish(Events.IOEvents.MPressed);
@@ -116,10 +111,16 @@ export class IO {
     this.elementRect = this.element.getBoundingClientRect();
   }
 
-  createMouseEventPayload(e: Partial<ScreenPosition> = {}) {
+  createMouseEventPayload(e: MouseEvent, shiftKey: boolean = false) {
+    const referenceRect = this.elementRect || {
+      left: 0,
+      top: 0,
+    };
+
     return {
-      ...this.currentScreenPosition,
-      ...e
+      x: e.clientX * 2 - referenceRect.left * 2,
+      y: e.clientY * 2 - referenceRect.top * 2,
+      shiftKey,
     };
   }
 }
