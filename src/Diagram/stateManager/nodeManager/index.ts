@@ -16,6 +16,7 @@ import { ConnectionManager } from "../connectionManager/index";
 import { RenameManager } from "../renameManager/index";
 import { HtmlManager } from "../htmlManager/index";
 import { DescriptionManager } from "../descriptionManager";
+import { ConfigurationManager } from "../../../Configuration";
 
 /**
  * NodeManager:
@@ -64,6 +65,14 @@ export class NodeManager {
       Events.IOEvents.BackspacePressed,
       this.deleteSelectedNodes
     );
+    this.eventBus.subscribe(
+      Events.DiagramEvents.BeautifyRequested,
+      this.beautify
+    );
+    this.eventBus.subscribe(
+      Events.DiagramEvents.BeautifySoftRequested,
+      this.softBeautify
+    );
 
     this.renameManager = new RenameManager(
       state,
@@ -71,6 +80,28 @@ export class NodeManager {
       this.htmlManager
     );
   }
+  private softBeautify = () => {
+    NodeUtils.softBeautifyDiagram(
+      this.state.nodes,
+      ConfigurationManager.instance.getOption("theme")
+    );
+    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    if (this.state.selectedNodes.length > 0) {
+      this.eventBus.publish(
+        Events.DiagramEvents.CenterOnNode,
+        this.state.selectedNodes
+      );
+    }
+  };
+  private beautify = () => {
+    NodeUtils.beautifyDiagram(
+      this.state.nodes,
+      ConfigurationManager.instance.getOption("theme")
+    );
+    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
   handleScreenLeave = () => {
     if (this.state.uiState.draggingElements) {
       this.state.uiState.draggingElements = false;
@@ -107,7 +138,10 @@ export class NodeManager {
     this.state.uiState.draggingElements = true;
     for (let i = 0; i < selectedNodes.length; i++) {
       const n = selectedNodes[i];
-      const oldN = this.storeSelectedNodesRelativePosition[i];
+      const oldN = this.storeSelectedNodesRelativePosition[i] || {
+        x: 0,
+        y: 0
+      };
       n.x = e.x - oldN.x;
       n.y = e.y - oldN.y;
     }

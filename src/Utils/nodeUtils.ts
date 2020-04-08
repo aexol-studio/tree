@@ -282,7 +282,17 @@ export class NodeUtils {
   };
   static beautifyDiagram = (nodes: Node[], theme: DiagramTheme) => {
     const graphs = NodeUtils.graphsFromNodes(nodes);
-    RectanglePacker.pack(graphs.map(g => NodeUtils.positionGraph(g)), theme);
+    RectanglePacker.pack(
+      graphs.map(g => NodeUtils.positionGraph(g)),
+      theme
+    );
+  };
+  static softBeautifyDiagram = (nodes: Node[], theme: DiagramTheme) => {
+    const graphs = NodeUtils.graphsFromNodes(nodes);
+    RectanglePacker.softPack(
+      graphs.map(g => NodeUtils.positionGraph(g)),
+      theme
+    );
   };
   static createTreeNode = (
     data: Node,

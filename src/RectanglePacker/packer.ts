@@ -7,7 +7,7 @@ export interface IndexedBoxes {
   box: Box;
   index: number;
 }
-interface Box {
+export interface Box {
   size: Dimensions;
   position: Dimensions;
 }
@@ -131,7 +131,7 @@ function validate(boxes: Box[], box: Box): boolean {
 }
 
 // determines if box `a` and box `b` intersect
-function intersects(a: Box, b: Box): boolean {
+export function intersects(a: Box, b: Box): boolean {
   return (
     a.position[0] < b.position[0] + b.size[0] &&
     a.position[0] + a.size[0] > b.position[0] &&

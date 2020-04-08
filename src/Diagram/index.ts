@@ -59,6 +59,9 @@ export class Diagram {
   rebuildTrees() {
     this.stateManager.rebuildTrees();
   }
+  softBeautifyDiagram(nodes: Node[]) {
+    NodeUtils.softBeautifyDiagram(nodes, this.configuration.getOption("theme"));
+  }
   beautifyDiagram(nodes: Node[]) {
     NodeUtils.beautifyDiagram(nodes, this.configuration.getOption("theme"));
   }

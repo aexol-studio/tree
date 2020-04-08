@@ -109,6 +109,11 @@ export class IO {
       if (e.key === "z" && ctrl && e.shiftKey) {
         this.eventBus.publish(Events.DiagramEvents.RedoRequested);
       }
+      if (e.key === "b") {
+        this.eventBus.publish(Events.DiagramEvents.BeautifySoftRequested);
+        e.preventDefault();
+        e.stopPropagation();
+      }
     });
   }
 
