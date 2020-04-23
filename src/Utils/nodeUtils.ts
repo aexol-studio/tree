@@ -199,7 +199,7 @@ export class NodeUtils {
     let usedNodes: Node[] = [];
     const graphs: Graph[] = [];
     for (const node of nodes) {
-      if (usedNodes.find(un => un === node)) {
+      if (usedNodes.find(un => un.id === node.id)) {
         continue;
       }
       const graph = NodeUtils.graphFromNode(node);
@@ -229,19 +229,17 @@ export class NodeUtils {
     const levelsKeys = Object.keys(levels).map(k => parseInt(k));
     levelsKeys.sort((a, b) => a - b);
     const { node, port } = theme;
-    const width =
-      levelsKeys.length * (node.width + node.spacing.x + port.width * 2) -
-      node.spacing.x;
+    const width = node.width + node.spacing.x + port.width * 2;
     levelsKeys.forEach((x, i) => {
       let lastNode = 0;
-      if (i === 0)
+      if (i === 0) {
         levels[x].sort((a, b) => {
           const aOutput = a.outputs![0].id;
           const bOutput = b.outputs![0].id;
           if (aOutput === bOutput) return 0;
           return aOutput > bOutput ? 1 : -1;
         });
-      else
+      } else {
         levels[x].sort((a, b) => {
           if (!b.inputs || b.inputs.length === 0) return -2;
           if (a.inputs === b.inputs) return 0;
@@ -249,20 +247,15 @@ export class NodeUtils {
             (b.inputs ? b.inputs.length : 0)
             ? 1
             : -1;
-        });
+        })
+      };
       levels[x].forEach((n, index, a) => {
-        n.x = (i * width) / levelsKeys.length;
+        n.x = i * width;
         if (n.inputs && n.inputs.length > 0) {
           const yS = n.inputs.map(i => i.y);
           const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
           n.y = (minY + maxY) / 2.0;
           lastNode = lastNode > n.y ? lastNode : n.y;
-        } else {
-        }
-      });
-      levels[x].forEach((n, index, a) => {
-        n.x = (i * width) / levelsKeys.length;
-        if (n.inputs && n.inputs.length > 0) {
         } else {
           n.y = lastNode + node.height + node.spacing.y;
           lastNode = n.y;
