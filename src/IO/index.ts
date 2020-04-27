@@ -12,6 +12,7 @@ export class IO {
   private eventBus: EventBus;
   private lastClick = Date.now();
   private elementRect?: ClientRect;
+  private hasContainerFocus = false;
   /**
    * @param eventBus event bus to be used
    * @param element HTML <canvas> elements to put listeners on
@@ -25,7 +26,7 @@ export class IO {
     });
     element.addEventListener("mousemove", (e) => {
       e.preventDefault();
-      if (!this.elementRect) {
+      if (!this.elementRect || !this.hasContainerFocus) {
         return;
       }
 
@@ -66,6 +67,7 @@ export class IO {
       }
     });
     element.addEventListener("mousedown", (e) => {
+      this.hasContainerFocus = true;
       if (e.which === 1) {
         this.eventBus.publish(
           Events.IOEvents.ScreenLeftMouseClick,
@@ -86,6 +88,9 @@ export class IO {
           this.createMouseEventPayload(e)
         );
       }
+    });
+    element.addEventListener("mouseout", (e) => {
+        this.hasContainerFocus = false;
     });
     element.addEventListener("keydown", (e) => {
       const ctrl = e.ctrlKey || e.metaKey;
