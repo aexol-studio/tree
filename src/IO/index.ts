@@ -11,6 +11,7 @@ import * as Events from "../Events";
 export class IO {
   private eventBus: EventBus;
   private lastClick = Date.now();
+  private touchStartTime = Date.now();
   private elementRect?: ClientRect;
   private hasContainerFocus = false;
   /**
@@ -110,21 +111,54 @@ export class IO {
         this.eventBus.publish(Events.DiagramEvents.RedoRequested);
       }
     });
+    element.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.eventBus.publish(
+        Events.IOEvents.ScreenLeftMouseClick,
+        this.createTouchEventPayload(e)
+      );
+      this.touchStartTime = Date.now();
+    });
+    element.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      const touchEndTime = Date.now();
+      const diff = touchEndTime - this.touchStartTime;
+      if (diff > 500) {
+        this.eventBus.publish(
+          Events.IOEvents.ScreenRightMouseUp,
+          this.createTouchEventPayload(e));
+      }
+      this.touchStartTime = touchEndTime;
+    });
   }
 
   calculateClientBoundingRect() {
     this.elementRect = this.element.getBoundingClientRect();
   }
 
-  createMouseEventPayload(e: MouseEvent, shiftKey: boolean = false) {
-    const referenceRect = this.elementRect || {
+  getReferenceRect() {
+    return this.elementRect || {
       left: 0,
       top: 0,
     };
+  }
+
+  createMouseEventPayload(e: MouseEvent, shiftKey: boolean = false) {
+    const referenceRect = this.getReferenceRect();
 
     return {
       x: e.clientX * 2 - referenceRect.left * 2,
       y: e.clientY * 2 - referenceRect.top * 2,
+      shiftKey,
+    };
+  }
+
+  createTouchEventPayload(e: TouchEvent, shiftKey: boolean = false) {
+    const referenceRect = this.getReferenceRect();
+
+    return {
+      x: e.changedTouches[0].clientX * 2 - referenceRect.left * 2,
+      y: e.changedTouches[0].clientY * 2 - referenceRect.top * 2,
       shiftKey,
     };
   }
