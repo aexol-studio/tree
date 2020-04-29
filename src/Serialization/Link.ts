@@ -17,5 +17,6 @@ export const deserializeLink = (
 ): Link => ({
   centerPoint,
   i: nodes.find(n => n.id === iId)!,
-  o: nodes.find(n => n.id === oId)!
+  o: nodes.find(n => n.id === oId)!,
+  circularReference: iId === oId
 });
