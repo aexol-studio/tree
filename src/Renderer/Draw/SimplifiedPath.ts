@@ -1,5 +1,8 @@
 import { LinkUtils } from "../../Utils/linkUtils";
 
+const NODE_CR_HORIZONTAL_VECTOR = 150;
+const NODE_CR_VERTICAL_VECTOR = 50;
+
 export const SimplifiedPath = (
   context: CanvasRenderingContext2D,
   x1: number,
@@ -12,15 +15,13 @@ export const SimplifiedPath = (
   circularReference: boolean
 ): void => {
   const centerX = LinkUtils.calculateLinkXCenterMath(x1, x2, centerPoint);
-  const hv = 150; // horizontal vector
-  let vv = 100; // vertical vector
   context.beginPath();
   context.moveTo(x1, y1);
   if (circularReference) {
-    context.lineTo(x1 + hv, y1);
-    context.lineTo(x1 + hv, y1 + vv);
-    context.lineTo(x2 - hv, y2 + vv);
-    context.lineTo(x2 - hv, y2);
+    context.lineTo(x1 + NODE_CR_HORIZONTAL_VECTOR, y1);
+    context.lineTo(x1 + NODE_CR_HORIZONTAL_VECTOR, y1 + NODE_CR_VERTICAL_VECTOR);
+    context.lineTo(x2 - NODE_CR_HORIZONTAL_VECTOR, y2 + NODE_CR_VERTICAL_VECTOR);
+    context.lineTo(x2 - NODE_CR_HORIZONTAL_VECTOR, y2);
     context.lineTo(x2, y2);
   }
   else {
