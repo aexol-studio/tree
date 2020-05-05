@@ -49,7 +49,8 @@ export const DefaultDiagramTheme: DiagramTheme = {
   link: {
     cornerRadius: 5,
     defaultCenterPoint: 0.5,
-    strokeWidth: 3
+    strokeWidth: 3,
+    hidden: false
   },
   help: {
     lineHeight: 21,

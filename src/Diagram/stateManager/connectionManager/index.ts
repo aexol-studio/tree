@@ -138,7 +138,8 @@ export class ConnectionManager {
     const newLink: Link = {
       o: o,
       i: i,
-      centerPoint: this.theme.link.defaultCenterPoint
+      centerPoint: this.theme.link.defaultCenterPoint,
+      hidden: false
     };
     this.state.links.push(newLink);
     i.inputs!.push(o);

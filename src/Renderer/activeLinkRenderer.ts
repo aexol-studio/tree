@@ -6,7 +6,7 @@ export class ActiveLinkRenderer {
   constructor(
     private contextProvider: ContextProvider,
     private theme: DiagramTheme
-  ) {}
+  ) { }
   render = ({ from, to }: { from: ScreenPosition; to: ScreenPosition }) => {
     QuadraticPath(
       this.contextProvider.context,
@@ -17,7 +17,8 @@ export class ActiveLinkRenderer {
       this.theme.link.cornerRadius,
       this.theme.link.strokeWidth,
       this.theme.colors.link.main,
-      this.theme.link.defaultCenterPoint
+      this.theme.link.defaultCenterPoint,
+      this.theme.link.hidden
     );
   };
 }

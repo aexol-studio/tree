@@ -4,4 +4,5 @@ export interface Link {
   i: Node;
   o: Node;
   centerPoint: number;
+  hidden?: boolean;
 }

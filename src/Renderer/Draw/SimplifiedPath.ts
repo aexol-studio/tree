@@ -8,7 +8,8 @@ export const SimplifiedPath = (
   y2: number,
   strokeWidth: number,
   color: string,
-  centerPoint: number = 0.5
+  centerPoint: number = 0.5,
+  hidden: boolean
 ): void => {
   const centerX = LinkUtils.calculateLinkXCenterMath(x1, x2, centerPoint);
   context.beginPath();

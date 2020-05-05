@@ -28,20 +28,22 @@ export class LinkRenderer {
         this.theme.link.cornerRadius,
         this.theme.link.strokeWidth,
         this.theme.colors.link[status],
-        l.centerPoint || this.theme.link.defaultCenterPoint
+        l.centerPoint || this.theme.link.defaultCenterPoint,
+        this.theme.link.hidden
       )
     }
 
     if (currentScale > this.distances.simplifiedLinks) {
       return SimplifiedPath(
         context,
-        l.o.x + width,
-        l.o.y + height / 2.0,
         l.i.x,
         l.i.y + height / 2.0,
+        l.o.x + width,
+        l.o.y + height / 2.0,
         this.theme.link.strokeWidth,
         this.theme.colors.link[status],
-        l.centerPoint || this.theme.link.defaultCenterPoint
+        l.centerPoint || this.theme.link.defaultCenterPoint,
+        this.theme.link.hidden
       )
     }
   };

@@ -47,6 +47,7 @@ export interface DiagramTheme {
     strokeWidth: number;
     cornerRadius: number;
     defaultCenterPoint: number;
+    hidden: boolean;
   };
   menu: {
     maxWidth: number;
