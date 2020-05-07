@@ -28,7 +28,8 @@ export class LinkRenderer {
         this.theme.link.cornerRadius,
         this.theme.link.strokeWidth,
         this.theme.colors.link[status],
-        l.centerPoint || this.theme.link.defaultCenterPoint
+        l.centerPoint || this.theme.link.defaultCenterPoint,
+        l.o.x === l.i.x && l.o.y === l.i.y
       )
     }
 
@@ -41,7 +42,8 @@ export class LinkRenderer {
         l.i.y + height / 2.0,
         this.theme.link.strokeWidth,
         this.theme.colors.link[status],
-        l.centerPoint || this.theme.link.defaultCenterPoint
+        l.centerPoint || this.theme.link.defaultCenterPoint,
+        l.o.x === l.i.x && l.o.y === l.i.y
       )
     }
   };
