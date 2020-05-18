@@ -34,7 +34,6 @@
     "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
-    "url-loader": "^4.1.0",
     "uuid": "^3.3.2"
   },
   "config": {
