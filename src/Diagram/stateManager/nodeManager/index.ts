@@ -58,11 +58,21 @@ export class NodeManager {
       Events.DiagramEvents.NodeCreationRequested,
       this.createNode
     );
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
-    this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
+    this.eventBus.subscribe(
+      Events.IOEvents.WorldMouseDragEnd,
+      this.movedNodes
+    );
+    this.eventBus.subscribe(
+      Events.DiagramEvents.NodeSelected,
+      this.storeNodes
+    );
     this.eventBus.subscribe(
       Events.IOEvents.BackspacePressed,
       this.deleteSelectedNodes
+    );
+    this.eventBus.subscribe(
+      Events.DiagramEvents.FoldNodes,
+      this.foldNodes
     );
 
     this.renameManager = new RenameManager(
@@ -175,8 +185,15 @@ export class NodeManager {
           action: () => {
             this.graphSelect(e);
           }
-        }
-      ];
+        },
+        {
+          name: "fold/unfold children",
+          help: "Fold/unfold children in graph",
+          action: () => {
+            this.foldUnfoldChildren();
+          }
+        }];
+               
       const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
         this.state.categories = this.state.categories.concat(
@@ -198,7 +215,6 @@ export class NodeManager {
           }))
         );
       }
-
       const categories =
         node.definition.categories ||
         (node.definition.parent && node.definition.parent.categories);
@@ -215,6 +231,53 @@ export class NodeManager {
       const nodeGraph = NodeUtils.graphFromNode(node);
       this.state.selectedNodes = nodeGraph.nodes;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    }
+  };
+  foldUnfoldChildren = () => {
+    const { node, io } = this.state.hover;
+    if (node && !io) {
+      const root = this.state.nodes.find(f => f.id === node.id);
+      const childrenToFold = new Array<Node>();
+      let foundChildren = new Array<Node>();
+      let foundAllChildren = false;
+
+      if (root === undefined) {
+        return;
+      }
+      let newParents = [root];
+      while (!foundAllChildren) {
+        foundChildren = this.findChildren(newParents);
+        newParents = foundChildren;
+        childrenToFold.push(...foundChildren);
+        foundAllChildren = foundChildren.length === 0 ? true : foundAllChildren;
+      } 
+      if (childrenToFold.length > 0) {
+        childrenToFold.forEach(child => {
+          let node = this.state.nodes.find(f => f.id === child.id);
+          node!.hidden = !(node!.hidden);
+          
+          let link = this.state.links.find(f => f.i.id === child.id);
+          link!.hidden = !(link!.hidden);;
+        });
+      }
+    }
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  };
+  findChildren = (parents: Node[]) => {
+    let children = new Array<Node>();
+    parents.forEach(parent => {
+      let foundLinkIds = this.state.links.filter(f => f.o.id === parent.id).map(m => m.i.id);
+      foundLinkIds.forEach(id => {
+        children.push(...this.state.nodes.filter(f => f.id === id));
+      });
+    });
+
+    return children;
+  };
+  foldNodes = (nodes: Node[]) => {
+    if (nodes !== undefined) {
+      nodes.forEach(element => {
+      });
     }
   };
   selectSingleNode = (node: Node) => {

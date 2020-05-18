@@ -53,7 +53,8 @@ export class NodeUtils {
       options: [],
       definition: nodeDefinition,
       ...nodeD,
-      ...node
+      ...node,
+      hidden:false
     };
   }
 

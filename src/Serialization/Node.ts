@@ -87,6 +87,7 @@ export const deserializeNode = (
     definition: deserializeNodeDefinition(definition, definitions),
     editsDefinitions:
       editsDefinitions &&
-      editsDefinitions.map(def => deserializeNodeDefinition(def, definitions))
+      editsDefinitions.map(def => deserializeNodeDefinition(def, definitions)),
+      hidden: false
   };
 };

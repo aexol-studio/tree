@@ -18,7 +18,7 @@ export class LinkRenderer {
 
     const {context} = this.contextProvider;
 
-    if (currentScale > this.distances.detailedLinks) {
+    if (currentScale > this.distances.detailedLinks && !l.i.hidden) {
       return QuadraticPath(
         context,
         l.o.x + width,
@@ -33,7 +33,7 @@ export class LinkRenderer {
       )
     }
 
-    if (currentScale > this.distances.simplifiedLinks) {
+    if (currentScale > this.distances.simplifiedLinks && !l.i.hidden) {
       return SimplifiedPath(
         context,
         l.i.x,

@@ -13,6 +13,7 @@ export enum DiagramEvents {
   NodeRenameFocus = "NodeRenameFocus",
   NodeRenameShowInput = "NodeRenameShowInput",
   NodeRenameEnded = "NodeRenameEnded",
+  FoldNodes = "FoldNodes",
   NodeCreationRequested = "NodeCreationRequested",
   DescriptionRenameShowInput = "DescriptionRenameShowInput",
   DescriptionRenameEnded = "DescriptionRenameEnded",
