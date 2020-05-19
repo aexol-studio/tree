@@ -257,7 +257,7 @@ export class NodeManager {
           node!.hidden = !(node!.hidden);
           
           let link = this.state.links.find(f => f.i.id === child.id);
-          link!.hidden = !(link!.hidden);;
+          link!.hidden = !(link!.hidden);
         });
       }
     }

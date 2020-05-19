@@ -29,6 +29,7 @@ export class LinkRenderer {
         this.theme.link.strokeWidth,
         this.theme.colors.link[status],
         l.centerPoint || this.theme.link.defaultCenterPoint,
+        l.o.x === l.i.x && l.o.y === l.i.y,
         this.theme.link.hidden
       )
     }
@@ -43,6 +44,7 @@ export class LinkRenderer {
         this.theme.link.strokeWidth,
         this.theme.colors.link[status],
         l.centerPoint || this.theme.link.defaultCenterPoint,
+        l.o.x === l.i.x && l.o.y === l.i.y,
         this.theme.link.hidden
       )
     }

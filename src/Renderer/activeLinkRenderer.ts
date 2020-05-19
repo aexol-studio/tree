@@ -17,7 +17,8 @@ export class ActiveLinkRenderer {
       this.theme.link.cornerRadius,
       this.theme.link.strokeWidth,
       this.theme.colors.link.main,
-      this.theme.link.defaultCenterPoint,
+      this.theme.link.defaultCenterPoint,      
+      from.x === to.x && from.y === to.y,
       this.theme.link.hidden
     );
   };

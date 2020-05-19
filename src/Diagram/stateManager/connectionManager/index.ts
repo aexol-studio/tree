@@ -139,6 +139,7 @@ export class ConnectionManager {
       o: o,
       i: i,
       centerPoint: this.theme.link.defaultCenterPoint,
+      circularReference: i.id === o.id,
       hidden: false
     };
     this.state.links.push(newLink);
