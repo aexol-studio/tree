@@ -18,7 +18,6 @@ export const QuadraticPath = (
 ): void => {
   context.beginPath();
   context.moveTo(x1, y1);
-    console.log(x1, y1);
   if (circularReference) {
     context.lineTo(x1 + 100 + NODE_CIRCULAR_VECTOR, y1);
     context.arcTo(x1 + NODE_CR_HORIZONTAL_VECTOR, y1, x1 + NODE_CR_HORIZONTAL_VECTOR + 50, y1 + 2 * NODE_CR_VERTICAL_VECTOR, cornerRadius );

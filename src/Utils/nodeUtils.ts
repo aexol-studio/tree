@@ -171,8 +171,15 @@ export class NodeUtils {
       n.outputs && n.outputs.map(spawnConnections);
     };
     spawnConnections(n);
+    console.log("graphNodes");
+    console.log(graphNodes);
     const graphX = graphNodes.map(n => n.x);
     const graphY = graphNodes.map(n => n.y);
+
+    console.log("graphX");
+    console.log(graphX);
+    console.log("graphY");
+    console.log(graphY);
     const graphBB = {
       min: {
         x: Math.min(...graphX),
@@ -185,6 +192,8 @@ export class NodeUtils {
     };
     const width = Math.abs(graphBB.min.x - graphBB.max.x);
     const height = Math.abs(graphBB.min.y - graphBB.max.y);
+    console.log("height");
+    console.log(height);
     return {
       nodes: graphNodes,
       width,
@@ -231,7 +240,7 @@ export class NodeUtils {
     const { node, port } = theme;
     const width = node.width + node.spacing.x + port.width * 2;
     levelsKeys.forEach((x, i) => {
-      let lastNode = 0;
+      let lastNode: Node;
       if (i === 0) {
         levels[x].sort((a, b) => {
           const aOutput = a.outputs![0].id;
@@ -250,16 +259,18 @@ export class NodeUtils {
         })
       };
       levels[x].forEach((n, index, a) => {
+        if (lastNode == undefined) {
+          lastNode = n;
+        }
         n.x = i * width;
         if (n.inputs && n.inputs.length > 0) {
           const yS = n.inputs.map(i => i.y);
           const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
           n.y = (minY + maxY) / 2.0;
-          lastNode = lastNode > n.y ? lastNode : n.y;
         } else {
-          n.y = lastNode + node.height + node.spacing.y;
-          lastNode = n.y;
+          n.y = lastNode.y + node.height + node.spacing.y;
         }
+        lastNode = n;
       });
     });
     const newGraph = NodeUtils.graphFromNode(graph.nodes[0]);
