@@ -7,7 +7,7 @@ import {
   Node,
   NodeDefinition,
   Category,
-  AcceptedNodeDefinition
+  AcceptedNodeDefinition,
 } from "../../../Models";
 import { NodeUtils } from "../../../Utils/nodeUtils";
 import { QuadTree } from "../../../QuadTree";
@@ -58,21 +58,11 @@ export class NodeManager {
       Events.DiagramEvents.NodeCreationRequested,
       this.createNode
     );
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldMouseDragEnd,
-      this.movedNodes
-    );
-    this.eventBus.subscribe(
-      Events.DiagramEvents.NodeSelected,
-      this.storeNodes
-    );
+    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
+    this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
     this.eventBus.subscribe(
       Events.IOEvents.BackspacePressed,
       this.deleteSelectedNodes
-    );
-    this.eventBus.subscribe(
-      Events.DiagramEvents.FoldNodes,
-      this.foldNodes
     );
 
     this.renameManager = new RenameManager(
@@ -89,9 +79,11 @@ export class NodeManager {
   };
   rebuildTree = () => {
     this.state.trees.node = new QuadTree<Node>();
-    this.state.nodes.forEach(n =>
-      this.state.trees.node.insert(NodeUtils.createTreeNode(n, this.theme))
-    );
+    this.state.nodes
+      .filter((n) => !n.hidden)
+      .forEach((n) =>
+        this.state.trees.node.insert(NodeUtils.createTreeNode(n, this.theme))
+      );
   };
   loadNodes = (nodes: Node[]) => {
     this.state.nodes = nodes;
@@ -100,10 +92,10 @@ export class NodeManager {
   };
   storeNodes = ([e]: [ScreenPosition, Node[]]) => {
     this.storeSelectedNodesRelativePosition = this.state.selectedNodes.map(
-      sn =>
+      (sn) =>
         ({
           x: e.x - sn.x,
-          y: e.y - sn.y
+          y: e.y - sn.y,
         } as ScreenPosition)
     );
   };
@@ -135,14 +127,14 @@ export class NodeManager {
   beautifyNodesInPlace = (node: Node) => {
     const graph = NodeUtils.graphFromNode(node);
     const {
-      center: { x, y }
+      center: { x, y },
     } = graph;
     const graph2 = NodeUtils.positionGraph(graph, this.theme);
     const diff = {
       x: x - graph2.center.x,
-      y: y - graph2.center.y
+      y: y - graph2.center.y,
     };
-    graph2.nodes.forEach(n => {
+    graph2.nodes.forEach((n) => {
       n.x += diff.x;
       n.y += diff.y;
     });
@@ -156,7 +148,7 @@ export class NodeManager {
     if (this.state.isReadOnly || this.state.draw) {
       return;
     }
-    const { node } = this.state.hover;
+    const { node, io } = this.state.hover;
 
     if (node && !this.state.menu) {
       this.state.categories = [
@@ -170,30 +162,37 @@ export class NodeManager {
             } else {
               this.deleteNodes([node]);
             }
-          }
+          },
         },
         {
           name: "beautify graph",
           help: "Beautify graph and put nodes in good positions",
           action: () => {
             this.beautifyNodesInPlace(node);
-          }
+          },
         },
         {
           name: "select graph",
           help: "Select all nodes in graph",
           action: () => {
             this.graphSelect(e);
-          }
+          },
         },
         {
-          name: "fold/unfold children",
-          help: "Fold/unfold children in graph",
+          name: node.hideChildren ? "unfold" : "fold",
+          help: (node.hideChildren ? "unfold" : "fold") + " children in graph",
           action: () => {
-            this.foldUnfoldChildren();
-          }
-        }];
-               
+            if (!io && node) {
+              if (node.hideChildren) {
+                this.foldChildren(node, true);
+                return;
+              }
+              this.foldChildren(node);
+            }
+          },
+        },
+      ];
+
       const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
         this.state.categories = this.state.categories.concat(
@@ -201,7 +200,7 @@ export class NodeManager {
             name,
             help,
             action: () => {
-              const hasIndex = node.options.findIndex(n => n === name);
+              const hasIndex = node.options.findIndex((n) => n === name);
               if (hasIndex !== -1) {
                 node.options.splice(hasIndex, 1);
                 this.eventBus.publish(Events.DiagramEvents.NodeChanged);
@@ -211,7 +210,7 @@ export class NodeManager {
               node.options.push(name);
               this.eventBus.publish(Events.DiagramEvents.NodeChanged);
               this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-            }
+            },
           }))
         );
       }
@@ -233,52 +232,18 @@ export class NodeManager {
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
   };
-  foldUnfoldChildren = () => {
-    const { node, io } = this.state.hover;
-    if (node && !io) {
-      const root = this.state.nodes.find(f => f.id === node.id);
-      const childrenToFold = new Array<Node>();
-      let foundChildren = new Array<Node>();
-      let foundAllChildren = false;
-
-      if (root === undefined) {
-        return;
-      }
-      let newParents = [root];
-      while (!foundAllChildren) {
-        foundChildren = this.findChildren(newParents);
-        newParents = foundChildren;
-        childrenToFold.push(...foundChildren);
-        foundAllChildren = foundChildren.length === 0 ? true : foundAllChildren;
-      } 
-      if (childrenToFold.length > 0) {
-        childrenToFold.forEach(child => {
-          let node = this.state.nodes.find(f => f.id === child.id);
-          node!.hidden = !(node!.hidden);
-          
-          let link = this.state.links.find(f => f.i.id === child.id);
-          link!.hidden = !(link!.hidden);
-        });
-      }
+  foldChildren = (node: Node, unfold?: boolean) => {
+    const childrenToFold = NodeUtils.findAllConnectedNodes(node).filter(
+      (n) => n !== node
+    );
+    if (childrenToFold.length > 0) {
+      childrenToFold.forEach((child) => {
+        child.hidden = !unfold;
+      });
+      node.hideChildren = !unfold;
     }
+    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-  };
-  findChildren = (parents: Node[]) => {
-    let children = new Array<Node>();
-    parents.forEach(parent => {
-      let foundLinkIds = this.state.links.filter(f => f.o.id === parent.id).map(m => m.i.id);
-      foundLinkIds.forEach(id => {
-        children.push(...this.state.nodes.filter(f => f.id === id));
-      });
-    });
-
-    return children;
-  };
-  foldNodes = (nodes: Node[]) => {
-    if (nodes !== undefined) {
-      nodes.forEach(element => {
-      });
-    }
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
@@ -287,9 +252,9 @@ export class NodeManager {
     const { type, node } = this.state.hover;
     if (type && node && node.definition.parent) {
       const parentNode = this.state.nodes.find(
-        n =>
+        (n) =>
           !!n.editsDefinitions &&
-          !!n.editsDefinitions.find(e => e === node.definition)
+          !!n.editsDefinitions.find((e) => e === node.definition)
       );
       if (parentNode) {
         this.selectSingleNode(parentNode);
@@ -320,7 +285,7 @@ export class NodeManager {
     }
     this.eventBus.publish(Events.DiagramEvents.NodeSelected, [
       e,
-      [...this.state.selectedNodes]
+      [...this.state.selectedNodes],
     ]);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
@@ -343,37 +308,37 @@ export class NodeManager {
     }
     y += this.theme.node.height + this.theme.node.spacing.y;
     const tooClose = this.state.nodes.filter(
-      n =>
+      (n) =>
         Math.abs(n.y - y) < this.theme.node.height &&
         Math.abs(n.x - x) < this.theme.node.width
     );
     if (tooClose.length) {
-      y = Math.max(...tooClose.map(tc => tc.y));
+      y = Math.max(...tooClose.map((tc) => tc.y));
       y += this.theme.node.height + this.theme.node.spacing.y;
     }
     return { x, y };
   };
   deleteNodes = (nodes: Node[]) => {
-    let n = nodes.filter(node => !node.readonly);
+    let n = nodes.filter((node) => !node.readonly);
     // Hack to make TS work with it n.editsDefinitions!
     // TODO: Replace
     const editsDefinitions = n
-      .filter(n => n.editsDefinitions)
-      .map(n => n.editsDefinitions!)
+      .filter((n) => n.editsDefinitions)
+      .map((n) => n.editsDefinitions!)
       .reduce((a, b) => a.concat(b), []);
     n = n.concat(
-      this.state.nodes.filter(node =>
-        editsDefinitions.find(e => e === node.definition)
+      this.state.nodes.filter((node) =>
+        editsDefinitions.find((e) => e === node.definition)
       )
     );
     this.state.nodeDefinitions = this.state.nodeDefinitions.filter(
-      n => !editsDefinitions.find(o => o === n)
+      (n) => !editsDefinitions.find((o) => o === n)
     );
     this.state.selectedNodes = this.state.selectedNodes.filter(
-      node => !n.find(nn => nn === node)
+      (node) => !n.find((nn) => nn === node)
     );
     this.state.nodes = this.state.nodes.filter(
-      node => !n.find(nn => nn === node)
+      (node) => !n.find((nn) => nn === node)
     );
     this.rebuildTree();
     this.descriptionManager.clearDescription();
@@ -402,10 +367,10 @@ export class NodeManager {
   getCenter = () => {
     const X: number[] = [];
     const Y: number[] = [];
-    this.state.nodes.forEach(n => X.push(n.x) && Y.push(n.y));
+    this.state.nodes.forEach((n) => X.push(n.x) && Y.push(n.y));
     return {
       x: 0.5 * (Math.max(...X) + Math.min(...X)),
-      y: 0.5 * (Math.max(...Y) + Math.min(...Y))
+      y: 0.5 * (Math.max(...Y) + Math.min(...Y)),
     };
   };
 
@@ -425,6 +390,9 @@ export class NodeManager {
         name: n.type,
         help: n.help,
         action: () => {
+          if (node.hideChildren) {
+            this.foldChildren(node, true);
+          }
           const createdNode = this.createNode(
             this.placeConnectedNode(node, io),
             n
@@ -437,7 +405,7 @@ export class NodeManager {
             this.beautifyNodesInPlace(createdNode);
             this.htmlManager.nodeMoved();
           }
-        }
+        },
       });
       const createTopicCategory = (defs: AcceptedNodeDefinition): Category => {
         if (defs.definition) {
@@ -454,7 +422,7 @@ export class NodeManager {
         }
         return {
           name: defs.category.name,
-          children: defs.category.definitions.map(createTopicCategory)
+          children: defs.category.definitions.map(createTopicCategory),
         };
       };
       let { definition } = node;
@@ -493,7 +461,7 @@ export class NodeManager {
       const NodeScreenPosition = this.uiManager.worldToScreen({
         ...e,
         x: node.x,
-        y: node.y
+        y: node.y,
       });
 
       this.state.hover = {};

@@ -18,12 +18,12 @@ export const serializeNodeDefinition = ({
   type,
   root,
   main,
-  parent
+  parent,
 }: NodeDefinition): NodeDefinitionSerialized => ({
   main,
   root,
   type,
-  parent: parent && serializeNodeDefinition(parent)
+  parent: parent && serializeNodeDefinition(parent),
 });
 
 export const deserializeNodeDefinition = (
@@ -31,7 +31,7 @@ export const deserializeNodeDefinition = (
   definitions: NodeDefinition[]
 ): NodeDefinition => {
   return definitions.find(
-    d =>
+    (d) =>
       d.type === type &&
       d.root === root &&
       d.main === main &&
@@ -48,7 +48,7 @@ export const serializeNode = ({
   options,
   readonly,
   definition,
-  editsDefinitions
+  editsDefinitions,
 }: Node): NodeSerialized => ({
   id,
   name,
@@ -59,7 +59,7 @@ export const serializeNode = ({
   readonly,
   definition: serializeNodeDefinition(definition),
   editsDefinitions:
-    editsDefinitions && editsDefinitions.map(serializeNodeDefinition)
+    editsDefinitions && editsDefinitions.map(serializeNodeDefinition),
 });
 
 export const deserializeNode = (
@@ -72,7 +72,7 @@ export const deserializeNode = (
     definition,
     description,
     editsDefinitions,
-    readonly
+    readonly,
   }: NodeSerialized,
   definitions: NodeDefinition[]
 ): Node => {
@@ -87,7 +87,8 @@ export const deserializeNode = (
     definition: deserializeNodeDefinition(definition, definitions),
     editsDefinitions:
       editsDefinitions &&
-      editsDefinitions.map(def => deserializeNodeDefinition(def, definitions)),
-      hidden: false
+      editsDefinitions.map((def) =>
+        deserializeNodeDefinition(def, definitions)
+      ),
   };
 };

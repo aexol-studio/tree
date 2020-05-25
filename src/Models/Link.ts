@@ -4,6 +4,5 @@ export interface Link {
   i: Node;
   o: Node;
   centerPoint: number;
-  circularReference: boolean;
-  hidden: boolean;
+  circularReference?: boolean;
 }

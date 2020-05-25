@@ -12,24 +12,46 @@ export const QuadraticPath = (
   strokeWidth: number,
   color: string,
   centerPoint: number = 0.5,
-  circularReference: boolean,
-  hidden: boolean
+  circularReference?: boolean
 ): void => {
   context.beginPath();
   context.moveTo(x1, y1);
-    console.log(x1, y1);
   if (circularReference) {
     context.lineTo(x1 + 100 + NODE_CIRCULAR_VECTOR, y1);
-    context.arcTo(x1 + NODE_CR_HORIZONTAL_VECTOR, y1, x1 + NODE_CR_HORIZONTAL_VECTOR + 50, y1 + 2 * NODE_CR_VERTICAL_VECTOR, cornerRadius );
-    context.arcTo(x1 + NODE_CR_HORIZONTAL_VECTOR + NODE_CIRCULAR_VECTOR, y1 + 3 * NODE_CR_VERTICAL_VECTOR, x1 + NODE_CR_HORIZONTAL_VECTOR, y1 + 3 * NODE_CR_VERTICAL_VECTOR, cornerRadius);
-    context.arcTo(x2 - NODE_CR_HORIZONTAL_VECTOR - NODE_CIRCULAR_VECTOR, y1 + 3 * NODE_CR_VERTICAL_VECTOR, x2 - NODE_CR_HORIZONTAL_VECTOR, y1 - 3 * NODE_CR_VERTICAL_VECTOR, cornerRadius);
-    context.arcTo(x2 - NODE_CR_HORIZONTAL_VECTOR - NODE_CIRCULAR_VECTOR, y1, x2 - NODE_CR_HORIZONTAL_VECTOR, y1, cornerRadius);
+    context.arcTo(
+      x1 + NODE_CR_HORIZONTAL_VECTOR,
+      y1,
+      x1 + NODE_CR_HORIZONTAL_VECTOR + 50,
+      y1 + 2 * NODE_CR_VERTICAL_VECTOR,
+      cornerRadius
+    );
+    context.arcTo(
+      x1 + NODE_CR_HORIZONTAL_VECTOR + NODE_CIRCULAR_VECTOR,
+      y1 + 3 * NODE_CR_VERTICAL_VECTOR,
+      x1 + NODE_CR_HORIZONTAL_VECTOR,
+      y1 + 3 * NODE_CR_VERTICAL_VECTOR,
+      cornerRadius
+    );
+    context.arcTo(
+      x2 - NODE_CR_HORIZONTAL_VECTOR - NODE_CIRCULAR_VECTOR,
+      y1 + 3 * NODE_CR_VERTICAL_VECTOR,
+      x2 - NODE_CR_HORIZONTAL_VECTOR,
+      y1 - 3 * NODE_CR_VERTICAL_VECTOR,
+      cornerRadius
+    );
+    context.arcTo(
+      x2 - NODE_CR_HORIZONTAL_VECTOR - NODE_CIRCULAR_VECTOR,
+      y1,
+      x2 - NODE_CR_HORIZONTAL_VECTOR,
+      y1,
+      cornerRadius
+    );
     context.lineTo(x2, y2);
-  }
-  else {
+  } else {
     const centerX = LinkUtils.calculateLinkXCenterMath(x1, x2, centerPoint);
     const ydiff = Math.abs(y2 - y1);
-    const cr = ydiff > cornerRadius * 2 ? cornerRadius : Math.floor(ydiff / 2.0);
+    const cr =
+      ydiff > cornerRadius * 2 ? cornerRadius : Math.floor(ydiff / 2.0);
     const crx = x2 > x1 ? cr : -cr;
     const cry = y2 > y1 ? cr : -cr;
     context.beginPath();

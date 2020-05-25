@@ -45,22 +45,24 @@ export class ConnectionManager {
   };
   rebuildTree = () => {
     this.state.trees.link = new QuadTree<Link>();
-    this.state.links.forEach(l =>
-      this.state.trees.link.insert(LinkUtils.linkToTree(l, this.theme))
-    );
+    this.state.links
+      .filter((l) => !(l.i.hidden || l.o.hidden))
+      .forEach((l) =>
+        this.state.trees.link.insert(LinkUtils.linkToTree(l, this.theme))
+      );
   };
   onNodesDelete = (nodes: Node[]) => {
     this.deleteLinks(
-      this.state.links.filter(l => nodes.find(n => n === l.i || n === l.o))
+      this.state.links.filter((l) => nodes.find((n) => n === l.i || n === l.o))
     );
   };
   deleteLinks = (links: Link[]) => {
     this.state.links = this.state.links.filter(
-      l => !links.find(lf => lf === l)
+      (l) => !links.find((lf) => lf === l)
     );
-    links.forEach(l => {
-      l.o.outputs = l.o.outputs!.filter(o => o !== l.i);
-      l.i.inputs = l.i.inputs!.filter(i => i !== l.o);
+    links.forEach((l) => {
+      l.o.outputs = l.o.outputs!.filter((o) => o !== l.i);
+      l.i.inputs = l.i.inputs!.filter((i) => i !== l.o);
     });
     this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
@@ -72,8 +74,8 @@ export class ConnectionManager {
     this.state.categories = [
       {
         name: "delete",
-        action: () => this.deleteLinks([link])
-      }
+        action: () => this.deleteLinks([link]),
+      },
     ];
     this.state.menu = true;
   };
@@ -84,7 +86,7 @@ export class ConnectionManager {
       this.state.draw = {
         node,
         io,
-        initialPos: e
+        initialPos: e,
       };
       this.state.uiState.draggingElements = true;
       return;
@@ -107,7 +109,7 @@ export class ConnectionManager {
   };
   makeConnection = (i: Node, o: Node) => {
     const linkExists = () =>
-      !!this.state.links.find(l => l.i === i && l.o === o);
+      !!this.state.links.find((l) => l.i === i && l.o === o);
     const correctType = () => {
       const acceptsInputs = NodeUtils.getDefinitionAcceptedInputs(
         i.definition,
@@ -140,7 +142,6 @@ export class ConnectionManager {
       i: i,
       centerPoint: this.theme.link.defaultCenterPoint,
       circularReference: i.id === o.id,
-      hidden: false
     };
     this.state.links.push(newLink);
     i.inputs!.push(o);
@@ -150,8 +151,8 @@ export class ConnectionManager {
     return newLink;
   };
   onNodeMoved = (nodes: Node[]) => {
-    const links = this.state.links.filter(l =>
-      nodes.find(n => n === l.i || n === l.o)
+    const links = this.state.links.filter((l) =>
+      nodes.find((n) => n === l.i || n === l.o)
     );
     for (const l of links.map(this.linkToTree))
       this.state.trees.link.update(
@@ -187,7 +188,7 @@ export class ConnectionManager {
       link,
       {
         x: this.state.uiState.lastDragPosition.x,
-        y: this.state.uiState.lastDragPosition.y
+        y: this.state.uiState.lastDragPosition.y,
       },
       linkTree.bb
     );

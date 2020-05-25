@@ -1,7 +1,7 @@
 export interface DiagramTheme {
   snappingGridSize?: number;
   autoBeuatify?: boolean;
-  fontFamily:string;
+  fontFamily: string;
   node: {
     width: number;
     height: number;
@@ -37,7 +37,7 @@ export interface DiagramTheme {
     triangleWidth: number;
     triangleHeight: number;
     triangleDistance: number;
-    placeholder?:string
+    placeholder?: string;
   };
   port: {
     gap: number;
@@ -47,7 +47,6 @@ export interface DiagramTheme {
     strokeWidth: number;
     cornerRadius: number;
     defaultCenterPoint: number;
-    hidden: boolean;
   };
   menu: {
     maxWidth: number;
