@@ -240,7 +240,7 @@ export class NodeUtils {
     const { node, port } = theme;
     const width = node.width + node.spacing.x + port.width * 2;
     levelsKeys.forEach((x, i) => {
-      let lastNode: Node;
+      let lastNode: number;
       if (i === 0) {
         levels[x].sort((a, b) => {
           const aOutput = a.outputs![0].id;
@@ -259,18 +259,19 @@ export class NodeUtils {
         })
       };
       levels[x].forEach((n, index, a) => {
-        if (lastNode == undefined) {
-          lastNode = n;
-        }
+        lastNode = n.y;
         n.x = i * width;
         if (n.inputs && n.inputs.length > 0) {
           const yS = n.inputs.map(i => i.y);
           const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
           n.y = (minY + maxY) / 2.0;
         } else {
-          n.y = lastNode.y + node.height + node.spacing.y;
+          if (a.find(x => x.y != n.y)) { n.y = lastNode + node.height + node.spacing.y; }
+          else {
+            let maxY = Math.max(...a.map(x => x.y));
+            n.y = maxY + ++i * node.height + node.spacing.y;
+          }
         }
-        lastNode = n;
       });
     });
     const newGraph = NodeUtils.graphFromNode(graph.nodes[0]);
