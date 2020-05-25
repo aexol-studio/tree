@@ -231,7 +231,7 @@ export class NodeUtils {
     const { node, port } = theme;
     const width = node.width + node.spacing.x + port.width * 2;
     levelsKeys.forEach((x, i) => {
-      let lastNode: number;
+      let lastNode = 0;
       if (i === 0) {
         levels[x].sort((a, b) => {
           const aOutput = a.outputs![0].id;
@@ -249,22 +249,24 @@ export class NodeUtils {
             : -1;
         })
       };
-      levels[x].forEach((n, index, a) => {
-        lastNode = n.y;
+      levels[x].filter(n => n.inputs && n.inputs.length > 0).forEach((n, index, a) => {
         n.x = i * width;
-        if (n.inputs && n.inputs.length > 0) {
-          const yS = n.inputs.map(i => i.y);
-          const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
-          n.y = (minY + maxY) / 2.0;
-        } else {
-          if (a.find(x => x.y != n.y)) { n.y = lastNode + node.height + node.spacing.y; }
-          else {
-            let maxY = Math.max(...a.map(x => x.y));
-            n.y = maxY + node.height + node.spacing.y;
-          }
-        }
+        const yS = n.inputs!.map(i => i.y);
+        const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
+        n.y = (minY + maxY) / 2.0;
       });
-    });
+
+      let maxYWithInput = Math.max(0, ...levels[x].filter(x => x.inputs!.length > 0).map(x => x.y));
+      let minYWithoutInput = Math.min(...levels[x].filter(x => x.inputs!.length < 1).map(x => x.y));
+      lastNode = Math.max(maxYWithInput, minYWithoutInput);
+
+      levels[x].filter(n => n.inputs!.length < 1).forEach((n, index, a) => {
+        n.x = i * width;
+        n.y = lastNode + node.height + node.spacing.y;
+        lastNode = n.y;
+      });
+    }
+    );
     const newGraph = NodeUtils.graphFromNode(graph.nodes[0]);
     const diff = {
       x: center.x - newGraph.center.x,
