@@ -263,7 +263,7 @@ export class NodeUtils {
         n.y = lastNode + node.height + node.spacing.y;
         lastNode = n.y;
       });
-    });
+    );
     const newGraph = NodeUtils.graphFromNode(graph.nodes[0]);
     const diff = {
       x: center.x - newGraph.center.x,
