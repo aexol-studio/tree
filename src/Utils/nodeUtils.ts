@@ -240,7 +240,8 @@ export class NodeUtils {
         });
       } else {
         levels[x].sort((a, b) => {
-          if (!b.inputs || b.inputs.length === 0) return -2;
+          if (!b.inputs) return -2;
+          if (b.inputs.length === 0) return -2;
           if (a.inputs === b.inputs) return 0;
           return (a.inputs ? a.inputs.length : 0) >
             (b.inputs ? b.inputs.length : 0)
@@ -250,24 +251,31 @@ export class NodeUtils {
       }
       levels[x]
         .filter((n) => n.inputs && n.inputs.length > 0)
-        .forEach((n, index, a) => {
+        .forEach((n) => {
+          if (!n.inputs) {
+            return;
+          }
           n.x = i * width;
-          const yS = n.inputs!.map((i) => i.y);
+          const yS = n.inputs.map((i) => i.y);
           const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
           n.y = (minY + maxY) / 2.0;
         });
 
       let maxYWithInput = Math.max(
         0,
-        ...levels[x].filter((x) => x.inputs!.length > 0).map((x) => x.y)
+        ...levels[x]
+          .filter((x) => x.inputs && x.inputs.length > 0)
+          .map((x) => x.y)
       );
       let minYWithoutInput = Math.min(
-        ...levels[x].filter((x) => x.inputs!.length < 1).map((x) => x.y)
+        ...levels[x]
+          .filter((x) => !x.inputs || x.inputs.length < 1)
+          .map((x) => x.y)
       );
       let lastNode = Math.max(maxYWithInput, minYWithoutInput);
       levels[x]
-        .filter((n) => n.inputs!.length < 1)
-        .forEach((n, index, a) => {
+        .filter((n) => !n.inputs || n.inputs.length < 1)
+        .forEach((n) => {
           n.x = i * width;
           n.y = lastNode + node.height + node.spacing.y;
           lastNode = n.y;
