@@ -7,7 +7,7 @@ import {
   Node,
   NodeDefinition,
   Category,
-  AcceptedNodeDefinition
+  AcceptedNodeDefinition,
 } from "../../../Models";
 import { NodeUtils } from "../../../Utils/nodeUtils";
 import { QuadTree } from "../../../QuadTree";
@@ -79,7 +79,7 @@ export class NodeManager {
   };
   rebuildTree = () => {
     this.state.trees.node = new QuadTree<Node>();
-    this.state.nodes.forEach(n =>
+    this.state.nodes.forEach((n) =>
       this.state.trees.node.insert(NodeUtils.createTreeNode(n, this.theme))
     );
   };
@@ -90,10 +90,10 @@ export class NodeManager {
   };
   storeNodes = ([e]: [ScreenPosition, Node[]]) => {
     this.storeSelectedNodesRelativePosition = this.state.selectedNodes.map(
-      sn =>
+      (sn) =>
         ({
           x: e.x - sn.x,
-          y: e.y - sn.y
+          y: e.y - sn.y,
         } as ScreenPosition)
     );
   };
@@ -125,14 +125,14 @@ export class NodeManager {
   beautifyNodesInPlace = (node: Node) => {
     const graph = NodeUtils.graphFromNode(node);
     const {
-      center: { x, y }
+      center: { x, y },
     } = graph;
     const graph2 = NodeUtils.positionGraph(graph, this.theme);
     const diff = {
       x: x - graph2.center.x,
-      y: y - graph2.center.y
+      y: y - graph2.center.y,
     };
-    graph2.nodes.forEach(n => {
+    graph2.nodes.forEach((n) => {
       n.x += diff.x;
       n.y += diff.y;
     });
@@ -160,22 +160,22 @@ export class NodeManager {
             } else {
               this.deleteNodes([node]);
             }
-          }
+          },
         },
         {
           name: "beautify graph",
           help: "Beautify graph and put nodes in good positions",
           action: () => {
             this.beautifyNodesInPlace(node);
-          }
+          },
         },
         {
           name: "select graph",
           help: "Select all nodes in graph",
           action: () => {
             this.graphSelect(e);
-          }
-        }
+          },
+        },
       ];
       const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
@@ -184,7 +184,7 @@ export class NodeManager {
             name,
             help,
             action: () => {
-              const hasIndex = node.options.findIndex(n => n === name);
+              const hasIndex = node.options.findIndex((n) => n === name);
               if (hasIndex !== -1) {
                 node.options.splice(hasIndex, 1);
                 this.eventBus.publish(Events.DiagramEvents.NodeChanged);
@@ -194,7 +194,7 @@ export class NodeManager {
               node.options.push(name);
               this.eventBus.publish(Events.DiagramEvents.NodeChanged);
               this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-            }
+            },
           }))
         );
       }
@@ -224,9 +224,9 @@ export class NodeManager {
     const { type, node } = this.state.hover;
     if (type && node && node.definition.parent) {
       const parentNode = this.state.nodes.find(
-        n =>
+        (n) =>
           !!n.editsDefinitions &&
-          !!n.editsDefinitions.find(e => e === node.definition)
+          !!n.editsDefinitions.find((e) => e === node.definition)
       );
       if (parentNode) {
         this.selectSingleNode(parentNode);
@@ -257,7 +257,7 @@ export class NodeManager {
     }
     this.eventBus.publish(Events.DiagramEvents.NodeSelected, [
       e,
-      [...this.state.selectedNodes]
+      [...this.state.selectedNodes],
     ]);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
@@ -280,37 +280,37 @@ export class NodeManager {
     }
     y += this.theme.node.height + this.theme.node.spacing.y;
     const tooClose = this.state.nodes.filter(
-      n =>
+      (n) =>
         Math.abs(n.y - y) < this.theme.node.height &&
         Math.abs(n.x - x) < this.theme.node.width
     );
     if (tooClose.length) {
-      y = Math.max(...tooClose.map(tc => tc.y));
+      y = Math.max(...tooClose.map((tc) => tc.y));
       y += this.theme.node.height + this.theme.node.spacing.y;
     }
     return { x, y };
   };
   deleteNodes = (nodes: Node[]) => {
-    let n = nodes.filter(node => !node.readonly);
+    let n = nodes.filter((node) => !node.readonly);
     // Hack to make TS work with it n.editsDefinitions!
     // TODO: Replace
     const editsDefinitions = n
-      .filter(n => n.editsDefinitions)
-      .map(n => n.editsDefinitions!)
+      .filter((n) => n.editsDefinitions)
+      .map((n) => n.editsDefinitions!)
       .reduce((a, b) => a.concat(b), []);
     n = n.concat(
-      this.state.nodes.filter(node =>
-        editsDefinitions.find(e => e === node.definition)
+      this.state.nodes.filter((node) =>
+        editsDefinitions.find((e) => e === node.definition)
       )
     );
     this.state.nodeDefinitions = this.state.nodeDefinitions.filter(
-      n => !editsDefinitions.find(o => o === n)
+      (n) => !editsDefinitions.find((o) => o === n)
     );
     this.state.selectedNodes = this.state.selectedNodes.filter(
-      node => !n.find(nn => nn === node)
+      (node) => !n.find((nn) => nn === node)
     );
     this.state.nodes = this.state.nodes.filter(
-      node => !n.find(nn => nn === node)
+      (node) => !n.find((nn) => nn === node)
     );
     this.rebuildTree();
     this.descriptionManager.clearDescription();
@@ -329,9 +329,14 @@ export class NodeManager {
     );
     this.selectSingleNode(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
-    if (!createdNode.name) {
+    if (
+      !createdNode.name &&
+      !createdNode.notEditable &&
+      !createdNode.readonly
+    ) {
       this.renameManager.startRenaming(createdNode);
     }
+    this.state.hover.node = undefined;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;
   };
@@ -339,10 +344,10 @@ export class NodeManager {
   getCenter = () => {
     const X: number[] = [];
     const Y: number[] = [];
-    this.state.nodes.forEach(n => X.push(n.x) && Y.push(n.y));
+    this.state.nodes.forEach((n) => X.push(n.x) && Y.push(n.y));
     return {
       x: 0.5 * (Math.max(...X) + Math.min(...X)),
-      y: 0.5 * (Math.max(...Y) + Math.min(...Y))
+      y: 0.5 * (Math.max(...Y) + Math.min(...Y)),
     };
   };
 
@@ -374,7 +379,7 @@ export class NodeManager {
             this.beautifyNodesInPlace(createdNode);
             this.htmlManager.nodeMoved();
           }
-        }
+        },
       });
       const createTopicCategory = (defs: AcceptedNodeDefinition): Category => {
         if (defs.definition) {
@@ -391,7 +396,7 @@ export class NodeManager {
         }
         return {
           name: defs.category.name,
-          children: defs.category.definitions.map(createTopicCategory)
+          children: defs.category.definitions.map(createTopicCategory),
         };
       };
       let { definition } = node;
@@ -430,7 +435,7 @@ export class NodeManager {
       const NodeScreenPosition = this.uiManager.worldToScreen({
         ...e,
         x: node.x,
-        y: node.y
+        y: node.y,
       });
 
       this.state.hover = {};

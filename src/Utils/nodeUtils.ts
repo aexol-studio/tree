@@ -5,7 +5,7 @@ import {
   NodeDefinition,
   DiagramTheme,
   DataObjectInTree,
-  AcceptedNodeDefinition
+  AcceptedNodeDefinition,
 } from "../Models";
 import { ScreenPosition } from "../IO/ScreenPosition";
 import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
@@ -17,7 +17,7 @@ export class NodeUtils {
   ): NodeDefinition[] {
     if (!nodeDefinition.instances) return [];
     return nodeDefinition.instances.map(
-      instance =>
+      (instance) =>
         ({
           ...nodeDefinition,
           type,
@@ -30,8 +30,8 @@ export class NodeUtils {
             ...nodeDefinition.node,
             inputs: [],
             outputs: [],
-            ...((instance && instance.node) || {})
-          }
+            ...((instance && instance.node) || {}),
+          },
         } as NodeDefinition)
     );
   }
@@ -53,7 +53,7 @@ export class NodeUtils {
       options: [],
       definition: nodeDefinition,
       ...nodeD,
-      ...node
+      ...node,
     };
   }
 
@@ -82,7 +82,7 @@ export class NodeUtils {
   ): NodeDefinition[] => {
     const nodeDefinitions: NodeDefinition[] = [];
     const recurisveExtractDefinitions = (ndc: AcceptedNodeDefinition[]) => {
-      ndc.forEach(nd => {
+      ndc.forEach((nd) => {
         if (nd.definition) nodeDefinitions.push(nd.definition);
         if (nd.category) recurisveExtractDefinitions(nd.category.definitions);
       });
@@ -165,23 +165,23 @@ export class NodeUtils {
   static graphFromNode = (n: Node): Graph => {
     const graphNodes: Node[] = [];
     const spawnConnections = (n: Node) => {
-      if (graphNodes.find(no => no === n)) return;
+      if (graphNodes.find((no) => no === n)) return;
       graphNodes.push(n);
       n.inputs && n.inputs.map(spawnConnections);
       n.outputs && n.outputs.map(spawnConnections);
     };
     spawnConnections(n);
-    const graphX = graphNodes.map(n => n.x);
-    const graphY = graphNodes.map(n => n.y);
+    const graphX = graphNodes.map((n) => n.x);
+    const graphY = graphNodes.map((n) => n.y);
     const graphBB = {
       min: {
         x: Math.min(...graphX),
-        y: Math.min(...graphY)
+        y: Math.min(...graphY),
       },
       max: {
         x: Math.max(...graphX),
-        y: Math.max(...graphY)
-      }
+        y: Math.max(...graphY),
+      },
     };
     const width = Math.abs(graphBB.min.x - graphBB.max.x);
     const height = Math.abs(graphBB.min.y - graphBB.max.y);
@@ -191,15 +191,15 @@ export class NodeUtils {
       height,
       center: {
         x: graphBB.min.x + width / 2.0,
-        y: graphBB.min.y + height / 2.0
-      }
+        y: graphBB.min.y + height / 2.0,
+      },
     };
   };
   static graphsFromNodes = (nodes: Node[]) => {
     let usedNodes: Node[] = [];
     const graphs: Graph[] = [];
     for (const node of nodes) {
-      if (usedNodes.find(un => un.id === node.id)) {
+      if (usedNodes.find((un) => un.id === node.id)) {
         continue;
       }
       const graph = NodeUtils.graphFromNode(node);
@@ -217,16 +217,16 @@ export class NodeUtils {
     const repositioned: Node[] = [];
     const { center } = graph;
     const repositionNode = (n: Node, level: number = 0) => {
-      if (repositioned.find(r => r === n)) return;
+      if (repositioned.find((r) => r === n)) return;
       levels[level] = levels[level] || [];
       repositioned.push(n);
       levels[level].push(n);
-      n.inputs && n.inputs.forEach(i => repositionNode(i, level - 1));
+      n.inputs && n.inputs.forEach((i) => repositionNode(i, level - 1));
     };
     repositionNode(
-      graph.nodes.find(n => !n.outputs || n.outputs.length === 0)!
+      graph.nodes.find((n) => !n.outputs || n.outputs.length === 0)!
     );
-    const levelsKeys = Object.keys(levels).map(k => parseInt(k));
+    const levelsKeys = Object.keys(levels).map((k) => parseInt(k));
     levelsKeys.sort((a, b) => a - b);
     const { node, port } = theme;
     const width = node.width + node.spacing.x + port.width * 2;
@@ -246,30 +246,39 @@ export class NodeUtils {
             (b.inputs ? b.inputs.length : 0)
             ? 1
             : -1;
-        })
-      };
-      levels[x].filter(n => n.inputs && n.inputs.length > 0).forEach((n, index, a) => {
-        n.x = i * width;
-        const yS = n.inputs!.map(i => i.y);
-        const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
-        n.y = (minY + maxY) / 2.0;
-      });
+        });
+      }
+      levels[x]
+        .filter((n) => n.inputs && n.inputs.length > 0)
+        .forEach((n, index, a) => {
+          n.x = i * width;
+          const yS = n.inputs!.map((i) => i.y);
+          const [minY, maxY] = [Math.min(...yS), Math.max(...yS)];
+          n.y = (minY + maxY) / 2.0;
+        });
 
-      let maxYWithInput = Math.max(0, ...levels[x].filter(x => x.inputs!.length > 0).map(x => x.y));
-      let minYWithoutInput = Math.min(...levels[x].filter(x => x.inputs!.length < 1).map(x => x.y));
+      let maxYWithInput = Math.max(
+        0,
+        ...levels[x].filter((x) => x.inputs!.length > 0).map((x) => x.y)
+      );
+      let minYWithoutInput = Math.min(
+        ...levels[x].filter((x) => x.inputs!.length < 1).map((x) => x.y)
+      );
       let lastNode = Math.max(maxYWithInput, minYWithoutInput);
-      levels[x].filter(n => n.inputs!.length < 1).forEach((n, index, a) => {
-        n.x = i * width;
-        n.y = lastNode + node.height + node.spacing.y;
-        lastNode = n.y;
-      });
-    );
+      levels[x]
+        .filter((n) => n.inputs!.length < 1)
+        .forEach((n, index, a) => {
+          n.x = i * width;
+          n.y = lastNode + node.height + node.spacing.y;
+          lastNode = n.y;
+        });
+    });
     const newGraph = NodeUtils.graphFromNode(graph.nodes[0]);
     const diff = {
       x: center.x - newGraph.center.x,
-      y: center.y - newGraph.center.y
+      y: center.y - newGraph.center.y,
     };
-    newGraph.nodes.forEach(n => {
+    newGraph.nodes.forEach((n) => {
       n.x += diff.x;
       n.y += diff.y;
     });
@@ -277,7 +286,10 @@ export class NodeUtils {
   };
   static beautifyDiagram = (nodes: Node[], theme: DiagramTheme) => {
     const graphs = NodeUtils.graphsFromNodes(nodes);
-    RectanglePacker.pack(graphs.map(g => NodeUtils.positionGraph(g)), theme);
+    RectanglePacker.pack(
+      graphs.map((g) => NodeUtils.positionGraph(g)),
+      theme
+    );
   };
   static createTreeNode = (
     data: Node,
@@ -287,12 +299,12 @@ export class NodeUtils {
     bb: {
       min: {
         x: data.x - theme.port.width,
-        y: data.y - theme.node.typeSize
+        y: data.y - theme.node.typeSize,
       },
       max: {
         x: data.x + theme.node.width + theme.port.width,
-        y: data.y + theme.node.height
-      }
-    }
+        y: data.y + theme.node.height,
+      },
+    },
   });
 }

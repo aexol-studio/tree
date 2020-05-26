@@ -26,6 +26,7 @@ export class HoverManager {
   };
   hover = (e: ScreenPosition) => {
     const node = this.state.trees.node.pick(e);
+    console.log("picking");
     if (!node) {
       if (this.state.draw) return;
       let link;
@@ -38,7 +39,7 @@ export class HoverManager {
     }
     const distance = {
       x: e.x - node.x,
-      y: e.y - node.y
+      y: e.y - node.y,
     };
     const io =
       distance.x > this.theme.node.width && node.outputs
