@@ -357,9 +357,14 @@ export class NodeManager {
     );
     this.selectSingleNode(createdNode);
     this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
-    if (!createdNode.name) {
+    if (
+      !createdNode.name &&
+      !createdNode.notEditable &&
+      !createdNode.readonly
+    ) {
       this.renameManager.startRenaming(createdNode);
     }
+    this.state.hover.node = undefined;
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     return createdNode;
   };

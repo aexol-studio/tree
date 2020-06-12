@@ -3,7 +3,7 @@ import { Utils } from "../Utils/index";
 import { Node } from "../Models/Node";
 import { Link } from "../Models/Link";
 import { Serializer } from "./index";
-import { ConfigurationManager } from '../Configuration';
+import { ConfigurationManager } from "../Configuration";
 
 // TODO Due to current realization of ConfigurationManager test will fail (singleton instance is undefined).
 // TODO So we force creating instance.
@@ -19,19 +19,21 @@ describe("Serialize and Deserialize", () => {
         id: Utils.generateId(),
         type: "dummy",
         node: {
-          name: "dummy"
-        }
+          name: "dummy",
+        },
       },
       {
         id: Utils.generateId(),
         type: "type",
         root: true,
         node: {
-          name: "dummy"
-        }
-      }
+          name: "dummy",
+        },
+      },
     ];
-    nodeDefinitions[0].acceptsInputs = (allDefinitions) => [{definition:nodeDefinitions[0]}];
+    nodeDefinitions[0].acceptsInputs = (allDefinitions) => [
+      { definition: nodeDefinitions[0] },
+    ];
     nodeDefinitions.push({
       id: Utils.generateId(),
       type: "Person",
@@ -39,8 +41,8 @@ describe("Serialize and Deserialize", () => {
       node: {
         name: "Person",
         inputs: [],
-        outputs: []
-      }
+        outputs: [],
+      },
     });
     const nodes: Node[] = [
       {
@@ -52,7 +54,7 @@ describe("Serialize and Deserialize", () => {
         y: 0,
         description: "Hello world",
         editsDefinitions: undefined,
-        readonly: undefined
+        readonly: undefined,
       },
       {
         definition: nodeDefinitions[0],
@@ -63,7 +65,7 @@ describe("Serialize and Deserialize", () => {
         y: 0,
         description: "Hello world 2",
         editsDefinitions: undefined,
-        readonly: undefined
+        readonly: undefined,
       },
       {
         name: "Person",
@@ -74,19 +76,19 @@ describe("Serialize and Deserialize", () => {
         description: "Hello world 2",
         definition: nodeDefinitions[1],
         editsDefinitions: [nodeDefinitions[2]],
-        readonly: undefined
-      }
+        readonly: undefined,
+      },
     ];
     const links: Link[] = [
       {
         centerPoint: 0.5,
         i: nodes[0],
-        o: nodes[1]
-      }
+        o: nodes[1],
+      },
     ];
     const serialized = Serializer.serialize({
       nodes,
-      links
+      links,
     });
     const deserialize = Serializer.deserialize(serialized, nodeDefinitions);
     console.log(JSON.stringify(serialized, null, 4));

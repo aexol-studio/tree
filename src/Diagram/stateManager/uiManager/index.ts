@@ -89,7 +89,7 @@ export class UIManager {
     }
     const [deltaX, deltaY] = [
       this.state.targetPanX - this.state.panX,
-      this.state.targetPanY - this.state.panY
+      this.state.targetPanY - this.state.panY,
     ];
 
     if (Math.abs(deltaX) < PAN_EPSILON && Math.abs(deltaY) < PAN_EPSILON) {
@@ -113,14 +113,14 @@ export class UIManager {
     return {
       x: (e.x + this.state.panX) * this.state.scale,
       y: (e.y + this.state.panY) * this.state.scale,
-      shiftKey: e.shiftKey
+      shiftKey: e.shiftKey,
     };
   };
   screenToWorld = (e: ScreenPosition): ScreenPosition => {
     return {
       x: e.x / this.state.scale - this.state.panX,
       y: e.y / this.state.scale - this.state.panY,
-      shiftKey: e.shiftKey
+      shiftKey: e.shiftKey,
     };
   };
 
@@ -152,7 +152,7 @@ export class UIManager {
         this.theme.minimap.margin,
       right: this.state.areaSize.width - this.theme.minimap.margin,
       top: this.theme.minimap.margin,
-      bottom: this.theme.minimap.margin + this.theme.minimap.size
+      bottom: this.theme.minimap.margin + this.theme.minimap.size,
     };
 
     if (
@@ -163,7 +163,7 @@ export class UIManager {
     ) {
       return {
         x: e.x - minimapConstraints.left,
-        y: e.y - minimapConstraints.top
+        y: e.y - minimapConstraints.top,
       };
     }
 
@@ -204,9 +204,9 @@ export class UIManager {
       withoutPan: {
         x: calculated.x + this.state.panX,
         y: calculated.y + this.state.panY,
-        shiftKey: calculated.shiftKey
+        shiftKey: calculated.shiftKey,
       },
-      calculated
+      calculated,
     });
   };
 
@@ -214,9 +214,9 @@ export class UIManager {
     return {
       pan: {
         x: this.state.panX,
-        y: this.state.panY
+        y: this.state.panY,
       },
-      scale: this.state.scale
+      scale: this.state.scale,
     };
   }
 
@@ -252,7 +252,7 @@ export class UIManager {
 
     this.state.lastDragPosition = {
       x: e.x / this.state.scale,
-      y: e.y / this.state.scale
+      y: e.y / this.state.scale,
     };
 
     this.eventBus.publish(
@@ -260,7 +260,7 @@ export class UIManager {
       this.screenToWorld(e),
       {
         x: this.state.panX,
-        y: this.state.panY
+        y: this.state.panY,
       }
     );
   };

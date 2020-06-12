@@ -30,7 +30,6 @@ export class IO {
       if (!this.elementRect || !this.hasContainerFocus) {
         return;
       }
-
       const mpl = this.createMouseEventPayload(e);
       this.eventBus.publish(Events.IOEvents.ScreenMouseMove, mpl);
       if (e.buttons === 1) {
@@ -90,9 +89,6 @@ export class IO {
         );
       }
     });
-    element.addEventListener("mouseout", (e) => {
-        this.hasContainerFocus = false;
-    });
     element.addEventListener("keydown", (e) => {
       const ctrl = e.ctrlKey || e.metaKey;
       if (e.key === "m") {
@@ -126,7 +122,8 @@ export class IO {
       if (diff > 500) {
         this.eventBus.publish(
           Events.IOEvents.ScreenRightMouseUp,
-          this.createTouchEventPayload(e));
+          this.createTouchEventPayload(e)
+        );
       }
       this.touchStartTime = touchEndTime;
     });
@@ -137,10 +134,12 @@ export class IO {
   }
 
   getReferenceRect() {
-    return this.elementRect || {
-      left: 0,
-      top: 0,
-    };
+    return (
+      this.elementRect || {
+        left: 0,
+        top: 0,
+      }
+    );
   }
 
   createMouseEventPayload(e: MouseEvent, shiftKey: boolean = false) {

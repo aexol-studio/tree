@@ -26,6 +26,7 @@ export class HoverManager {
   };
   hover = (e: ScreenPosition) => {
     const node = this.state.trees.node.pick(e);
+    console.log("picking");
     if (!node) {
       if (this.state.draw) return;
       let link;
