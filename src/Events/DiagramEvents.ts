@@ -36,6 +36,7 @@ export enum DiagramEvents {
   MenuRequested = "MenuRequested",
   MenuItemClicked = "MenuItemClicked",
   CenterOnNode = "CenterOnNode",
-  ScreenShotRendered = "ScreenShotRendered"
+  ScreenShotRendered = "ScreenShotRendered",
+  MenuInputKeyUp = "MenuInputKeyUp"
   // ...
 }

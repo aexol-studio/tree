@@ -62,10 +62,17 @@ export const DefaultDiagramTheme: DiagramTheme = {
   menu: {
     maxWidth: 300,
     maxHeight: 300,
+    minWidth: 190,
+    minHeight: 0,
     padding: `15px`,
     borderRadius: `5px`,
     category: {
       padding: `5px`,
+      fontSize: `11px`,
+      fontWeight: `bold`
+    },
+    input: {
+      minWidth: 160,
       fontSize: `11px`,
       fontWeight: `bold`
     },

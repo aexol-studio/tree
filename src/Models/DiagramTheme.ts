@@ -51,10 +51,17 @@ export interface DiagramTheme {
   menu: {
     maxWidth: number;
     maxHeight: number;
+    minWidth: number;
+    minHeight: number;
     padding: string;
     borderRadius: string;
     category: {
       padding: string;
+      fontSize: string;
+      fontWeight: string;
+    };
+    input: {
+      minWidth: number;
       fontSize: string;
       fontWeight: string;
     };
