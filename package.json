@@ -9,7 +9,8 @@
     "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js --content-base ./sandbox/ --hot --inline --open",
     "showcase": "webpack-dev-server --config ./showcase/webpack.showcase.config.js --content-base ./showcase/ --hot --inline --open",
     "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
@@ -18,8 +19,12 @@
     "@types/react": "^16.9.36",
     "@types/react-dom": "^16.9.8",
     "@types/uuid": "^3.4.9",
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
     "awesome-typescript-loader": "^5.2.1",
     "cz-conventional-changelog": "^2.1.0",
+    "eslint": "^7.2.0",
+    "eslint-plugin-react": "^7.20.0",
     "jest": "^24.9.0",
     "query-string": "^6.13.1",
     "react": "^16.13.1",
