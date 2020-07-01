@@ -79,9 +79,11 @@ export class NodeManager {
   };
   rebuildTree = () => {
     this.state.trees.node = new QuadTree<Node>();
-    this.state.nodes.forEach((n) =>
-      this.state.trees.node.insert(NodeUtils.createTreeNode(n, this.theme))
-    );
+    this.state.nodes
+      .filter((n) => !n.hidden)
+      .forEach((n) =>
+        this.state.trees.node.insert(NodeUtils.createTreeNode(n, this.theme))
+      );
   };
   loadNodes = (nodes: Node[]) => {
     this.state.nodes = nodes;
@@ -146,7 +148,7 @@ export class NodeManager {
     if (this.state.isReadOnly || this.state.draw) {
       return;
     }
-    const { node } = this.state.hover;
+    const { node, io } = this.state.hover;
 
     if (node && !this.state.menu) {
       this.state.categories = [
@@ -176,7 +178,21 @@ export class NodeManager {
             this.graphSelect(e);
           },
         },
+        {
+          name: node.hideChildren ? "unfold" : "fold",
+          help: (node.hideChildren ? "unfold" : "fold") + " children in graph",
+          action: () => {
+            if (!io && node) {
+              if (node.hideChildren) {
+                this.foldChildren(node, true);
+                return;
+              }
+              this.foldChildren(node);
+            }
+          },
+        },
       ];
+
       const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
         this.state.categories = this.state.categories.concat(
@@ -198,7 +214,6 @@ export class NodeManager {
           }))
         );
       }
-
       const categories =
         node.definition.categories ||
         (node.definition.parent && node.definition.parent.categories);
@@ -216,6 +231,19 @@ export class NodeManager {
       this.state.selectedNodes = nodeGraph.nodes;
       this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     }
+  };
+  foldChildren = (node: Node, unfold?: boolean) => {
+    const childrenToFold = NodeUtils.findAllConnectedNodes(node).filter(
+      (n) => n !== node
+    );
+    if (childrenToFold.length > 0) {
+      childrenToFold.forEach((child) => {
+        child.hidden = !unfold;
+      });
+      node.hideChildren = !unfold;
+    }
+    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
+    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
@@ -367,6 +395,9 @@ export class NodeManager {
         name: n.type,
         help: n.help,
         action: () => {
+          if (node.hideChildren) {
+            this.foldChildren(node, true);
+          }
           const createdNode = this.createNode(
             this.placeConnectedNode(node, io),
             n

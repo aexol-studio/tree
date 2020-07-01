@@ -9,14 +9,14 @@ export interface LinkSerialized extends Pick<Link, "centerPoint"> {
 export const serializeLink = ({ centerPoint, i, o }: Link): LinkSerialized => ({
   centerPoint,
   iId: i.id,
-  oId: o.id
+  oId: o.id,
 });
 export const deserializeLink = (
   { centerPoint, iId, oId }: LinkSerialized,
   nodes: Node[]
 ): Link => ({
   centerPoint,
-  i: nodes.find(n => n.id === iId)!,
-  o: nodes.find(n => n.id === oId)!,
-  circularReference: iId === oId
+  i: nodes.find((n) => n.id === iId)!,
+  o: nodes.find((n) => n.id === oId)!,
+  circularReference: iId === oId,
 });

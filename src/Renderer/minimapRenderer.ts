@@ -25,7 +25,7 @@ export class MinimapRenderer {
     const boundingBoxViewport = MinimapUtils.getBoundingBoxViewport(
       {
         x: uiState.panX,
-        y: uiState.panY
+        y: uiState.panY,
       },
       uiState.scale,
       state.uiState.areaSize
@@ -39,7 +39,7 @@ export class MinimapRenderer {
     const viewportCoord = MinimapUtils.worldToMapPoint(
       {
         x: boundingBoxViewport.left,
-        y: boundingBoxViewport.top
+        y: boundingBoxViewport.top,
       },
       theme.minimap.size,
       miniMapBoundaries
@@ -57,7 +57,7 @@ export class MinimapRenderer {
         theme.minimap.size
       ),
       left: viewportCoord.x - 1,
-      top: viewportCoord.y - 1
+      top: viewportCoord.y - 1,
     };
 
     context.fillStyle = theme.colors.minimap.background;
@@ -101,20 +101,22 @@ export class MinimapRenderer {
     );
 
     context.fillStyle = theme.colors.minimap.node;
-    state.nodes.forEach(n => {
-      const nodePos = MinimapUtils.worldToMapPoint(
-        n,
-        theme.minimap.size,
-        miniMapBoundaries
-      );
+    state.nodes
+      .filter((n) => !n.hidden)
+      .forEach((n) => {
+        const nodePos = MinimapUtils.worldToMapPoint(
+          n,
+          theme.minimap.size,
+          miniMapBoundaries
+        );
 
-      context.fillRect(
-        minimapStartX + nodePos.x,
-        minimapStartY + nodePos.y,
-        6,
-        4
-      );
-    });
+        context.fillRect(
+          minimapStartX + nodePos.x,
+          minimapStartY + nodePos.y,
+          6,
+          4
+        );
+      });
 
     context.restore();
   }

@@ -13,4 +13,6 @@ export interface Node<Data = {}> {
   editsDefinitions?: NodeDefinition<Data>[];
   readonly?: boolean;
   notEditable?: boolean;
+  hidden?: boolean;
+  hideChildren?: boolean;
 }

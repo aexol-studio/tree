@@ -162,7 +162,7 @@ export class NodeUtils {
       );
     return Utils.dedupe(defs);
   };
-  static graphFromNode = (n: Node): Graph => {
+  static findAllConnectedNodes = (n: Node): Node[] => {
     const graphNodes: Node[] = [];
     const spawnConnections = (n: Node) => {
       if (graphNodes.find((no) => no === n)) return;
@@ -171,6 +171,10 @@ export class NodeUtils {
       n.outputs && n.outputs.map(spawnConnections);
     };
     spawnConnections(n);
+    return graphNodes;
+  };
+  static graphFromNode = (n: Node): Graph => {
+    const graphNodes: Node[] = NodeUtils.findAllConnectedNodes(n);
     const graphX = graphNodes.map((n) => n.x);
     const graphY = graphNodes.map((n) => n.y);
     const graphBB = {
