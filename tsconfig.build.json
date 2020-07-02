@@ -1,6 +1,6 @@
 {
   "include": ["./src/**/*"],
-  "exclude": ["node_modules","sandbox"],
+  "exclude": ["node_modules","sandbox","showcase"],
   "compilerOptions": {
     "target": "es5",
     "outDir": "lib",
