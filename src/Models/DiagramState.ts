@@ -1,10 +1,10 @@
 import { Node } from "./Node";
 import { Category } from "./Category";
 import { Link } from "./Link";
-import { ScreenPosition } from "../IO/ScreenPosition";
+import { ScreenPosition } from "@io";
 import { NodeDefinition } from "./NodeDefinition";
 import { UIState } from "./UIState";
-import { QuadTree } from "../QuadTree/index";
+import { QuadTree } from "@quadTree";
 
 export interface DiagramState {
   links: Link[];

@@ -1,9 +1,9 @@
-import { DiagramState, Node, DiagramTheme } from "../../../Models/index";
-import { EventBus } from "../../../EventBus/index";
-import { DiagramEvents, IOEvents } from "../../../Events/index";
+import { DiagramState, Node, DiagramTheme } from "@models";
+import { EventBus } from "@eventBus";
+import { DiagramEvents, IOEvents } from "@events";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
-import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
-import { Utils } from "../../../Utils/index";
+import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
+import { Utils } from "@utils";
 
 const CSS_PREFIX = Utils.getUniquePrefix("RenameManager");
 
@@ -18,7 +18,7 @@ const containerClass = (theme: DiagramTheme) => ({
   color: theme.colors.node.name,
   textAlign: "center",
   border: "0",
-  outline: "0"
+  outline: "0",
 });
 
 export class RenameManager {
@@ -111,7 +111,7 @@ export class RenameManager {
 
     refs.input.addEventListener("blur", saveNewName);
 
-    refs.input.addEventListener("keydown", e => {
+    refs.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         saveNewName();
       }
@@ -146,7 +146,7 @@ export class RenameManager {
       }
       node.name = newName;
       if (node.editsDefinitions) {
-        node.editsDefinitions.forEach(ed => (ed.type = newName));
+        node.editsDefinitions.forEach((ed) => (ed.type = newName));
       }
       this.eventBus.publish(DiagramEvents.NodeChanged);
       this.eventBus.publish(DiagramEvents.RenderRequested);

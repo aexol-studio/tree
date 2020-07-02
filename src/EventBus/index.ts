@@ -1,4 +1,4 @@
-import { DiagramEvents, IOEvents } from "../Events";
+import { DiagramEvents, IOEvents } from "@events";
 
 /**
  * Event bus:
@@ -23,7 +23,7 @@ export class EventBus {
   publish(topic: Topic, ...args: any[]) {
     this.que.push({
       topic,
-      args
+      args,
     });
     if (this.que.length > 1) {
       return;
@@ -32,9 +32,9 @@ export class EventBus {
       const [q] = this.que;
       const all = [
         ...(this.topics[q.topic] || []),
-        ...(this.externalSubscribers[q.topic] || [])
+        ...(this.externalSubscribers[q.topic] || []),
       ];
-      all.forEach(callback => callback(...q.args));
+      all.forEach((callback) => callback(...q.args));
       this.que.shift()!;
     }
   }
@@ -55,7 +55,7 @@ export class EventBus {
     }
 
     this.externalSubscribers[topic] = this.externalSubscribers[topic].filter(
-      existingCallback => existingCallback !== callback
+      (existingCallback) => existingCallback !== callback
     );
   }
 }

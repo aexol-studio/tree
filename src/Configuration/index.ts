@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import { DiagramTheme, Node } from "../Models/index";
-import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
+import { DiagramTheme, Node } from "@models";
+import { DefaultDiagramTheme } from "@theme/DefaultDiagramTheme";
 
 // We're doing a singleton here, so config can be easily accessible across code files
 let _instance: ConfigurationManager;
@@ -49,8 +49,8 @@ const defaultOptions: DiagramOptions = {
     nodeType: 0.0,
     nodeArrows: 0.0,
     detailedLinks: 0.7,
-    simplifiedLinks: 0.0
-  }
+    simplifiedLinks: 0.0,
+  },
 };
 
 export class ConfigurationManager {
@@ -69,8 +69,8 @@ export class ConfigurationManager {
       ...providedOptions,
       drawingDistance: {
         ...this.options.drawingDistance,
-        ...providedOptions.drawingDistance
-      }
+        ...providedOptions.drawingDistance,
+      },
     };
   }
 

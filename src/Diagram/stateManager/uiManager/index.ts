@@ -1,9 +1,8 @@
-import { EventBus } from "../../../EventBus";
-import { UIState } from "../../../Models/UIState";
-import { ScreenPosition } from "../../../IO/ScreenPosition";
-import * as Events from "../../../Events";
-import { DiagramTheme, Node } from "../../../Models";
-import { ConfigurationManager } from "../../../Configuration/index";
+import { EventBus } from "@eventBus";
+import { ScreenPosition } from "@io";
+import * as Events from "@events";
+import { DiagramTheme, Node, UIState } from "@models";
+import { ConfigurationManager } from "@configuration";
 
 const PAN_EPSILON = 2;
 
@@ -51,7 +50,7 @@ export class UIManager {
       return false;
     }
 
-    let scaleChange = delta / -800.0;
+    const scaleChange = delta / -800.0;
 
     let newScale = this.state.scale + scaleChange;
 

@@ -1,5 +1,5 @@
-import { Link } from "../Models/Link";
-import { Node } from "../Models/Node";
+import { Link } from "@models";
+import { Node } from "@models";
 
 export interface LinkSerialized extends Pick<Link, "centerPoint"> {
   iId: string;

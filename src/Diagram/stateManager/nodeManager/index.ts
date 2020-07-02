@@ -1,16 +1,16 @@
-import { EventBus } from "../../../EventBus";
-import { DiagramState } from "../../../Models/DiagramState";
-import * as Events from "../../../Events";
-import { ScreenPosition } from "../../../IO/ScreenPosition";
+import { EventBus } from "@eventBus";
+import * as Events from "@events";
+import { ScreenPosition } from "@io";
 import {
+  DiagramState,
   DiagramTheme,
   Node,
   NodeDefinition,
   Category,
   AcceptedNodeDefinition,
-} from "../../../Models";
-import { NodeUtils } from "../../../Utils/nodeUtils";
-import { QuadTree } from "../../../QuadTree";
+} from "@models";
+import { NodeUtils } from "@utils";
+import { QuadTree } from "@quadTree";
 import { UIManager } from "../uiManager/index";
 import { ConnectionManager } from "../connectionManager/index";
 import { RenameManager } from "../renameManager/index";
@@ -110,6 +110,9 @@ export class NodeManager {
     for (let i = 0; i < selectedNodes.length; i++) {
       const n = selectedNodes[i];
       const oldN = this.storeSelectedNodesRelativePosition[i];
+      if (!oldN) {
+        continue;
+      }
       n.x = e.x - oldN.x;
       n.y = e.y - oldN.y;
     }
@@ -430,7 +433,7 @@ export class NodeManager {
           children: defs.category.definitions.map(createTopicCategory),
         };
       };
-      let { definition } = node;
+      const { definition } = node;
       if (io === "i" && node.inputs) {
         this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
           definition,

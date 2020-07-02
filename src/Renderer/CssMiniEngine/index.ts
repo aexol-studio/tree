@@ -1,21 +1,29 @@
-import { DiagramTheme } from "../../Models/index";
-import { ConfigurationManager } from "../../Configuration/index";
+import { DiagramTheme } from "@models";
+import { ConfigurationManager } from "@configuration";
 
-type classNameParameter = ((theme: DiagramTheme) => Partial<CSSStyleDeclaration>) | Partial<CSSStyleDeclaration>;
+type classNameParameter =
+  | ((theme: DiagramTheme) => Partial<CSSStyleDeclaration>)
+  | Partial<CSSStyleDeclaration>;
 
-function classToStyle(classArgument: classNameParameter, className: string, afterBefore: string) {
+function classToStyle(
+  classArgument: classNameParameter,
+  className: string,
+  afterBefore: string
+) {
   let o: Partial<CSSStyleDeclaration>;
-  if (typeof classArgument === 'function') {
-    o = classArgument(ConfigurationManager.instance.getOption('theme'));
+  if (typeof classArgument === "function") {
+    o = classArgument(ConfigurationManager.instance.getOption("theme"));
   } else {
     o = classArgument;
   }
-  var elm = new Option();
-  Object.keys(o).forEach(function(a: string) {
+  const elm = new Option();
+  Object.keys(o).forEach(function (a: string) {
     (elm.style as any)[a as any] = o[a as any];
   });
   if (afterBefore) {
-    return `.${className}${afterBefore}{\ncontent:'';${elm.getAttribute("style")}\n}`;
+    return `.${className}${afterBefore}{\ncontent:'';${elm.getAttribute(
+      "style"
+    )}\n}`;
   } else {
     return `.${className}${afterBefore}{\n${elm.getAttribute("style")}\n}`;
   }
@@ -36,7 +44,7 @@ export class CSSMiniEngine {
    * @param {Partial<CSSStyleDeclaration>} o
    * @param {string} className
    */
-  addClass = (o: classNameParameter, className: string, afterBefore: string = '') => {
+  addClass = (o: classNameParameter, className: string, afterBefore = "") => {
     this.classes.push(classToStyle(o, className, afterBefore));
   };
   /**
@@ -51,7 +59,7 @@ export class CSSMiniEngine {
     style.type = "text/css";
     style.appendChild(document.createTextNode(this.classes.join("\n")));
   };
-
+  static createStyle = (style: Partial<CSSStyleDeclaration>) => style;
   static get instance() {
     return _instance;
   }

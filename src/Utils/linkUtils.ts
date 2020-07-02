@@ -1,5 +1,5 @@
-import { Link, DataObjectInTree, DiagramTheme } from "../Models";
-import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
+import { Link, DataObjectInTree, DiagramTheme } from "@models";
+import { DefaultDiagramTheme } from "@theme/DefaultDiagramTheme";
 
 export class LinkUtils {
   static linkToTree = (
@@ -13,13 +13,13 @@ export class LinkUtils {
       bb: {
         min: {
           x: xCenter - 15,
-          y: (o.y <= i.y ? o.y : i.y) + theme.node.height / 2.0
+          y: (o.y <= i.y ? o.y : i.y) + theme.node.height / 2.0,
         },
         max: {
           x: xCenter + 15,
-          y: (o.y > i.y ? o.y : i.y) + theme.node.height / 2.0
-        }
-      }
+          y: (o.y > i.y ? o.y : i.y) + theme.node.height / 2.0,
+        },
+      },
     };
   };
   static calculateLinkCenterPoint = <T extends { x: number }>(

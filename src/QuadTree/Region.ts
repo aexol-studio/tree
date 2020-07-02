@@ -1,5 +1,5 @@
-import { RegionInterface, BoundingBox } from "../Models/QuadTree";
-import { Coords } from "../Models/index";
+import { RegionInterface, BoundingBox } from "@models";
+import { Coords } from "@models";
 
 const MAX_INFINITY = 100000000000000000000;
 
@@ -11,7 +11,7 @@ export class Region implements RegionInterface {
   center = (): Coords => {
     return {
       x: (this.min.x + this.max.x) / 2.0,
-      y: (this.min.y + this.max.y) / 2.0
+      y: (this.min.y + this.max.y) / 2.0,
     };
   };
   intersect = (bb: BoundingBox) =>

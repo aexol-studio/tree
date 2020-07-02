@@ -3,11 +3,11 @@ import {
   Sides,
   RegionInterface,
   BoundingBox,
-  DataObjectInTree
-} from "../Models/QuadTree";
+  DataObjectInTree,
+} from "@models";
 import { Region } from "./Region";
-import { Coords } from "../Models/index";
-
+import { Coords } from "@models";
+export { Region };
 export class QuadTree<T> implements QuadTreeInterface<T> {
   objects: DataObjectInTree<T>[] = [];
   sides?: Sides<T>;
@@ -44,7 +44,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
   };
   delete = (data: T, e: Coords) => {
     const tree = this.pickTree({
-      ...e
+      ...e,
     })!;
     let index = 0;
     for (const o of tree.objects) {
@@ -56,7 +56,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
     this.delete(data, e);
     this.insert({
       data,
-      bb
+      bb,
     });
   };
   subdivide = () => {
@@ -72,11 +72,11 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
         new Region(
           {
             x: c.x,
-            y: this.bb.min.y
+            y: this.bb.min.y,
           },
           {
             x: this.bb.max.x,
-            y: c.y
+            y: c.y,
           }
         ),
         this.capacity,
@@ -87,11 +87,11 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
         new Region(
           {
             x: this.bb.min.x,
-            y: c.y
+            y: c.y,
           },
           {
             x: c.x,
-            y: this.bb.max.y
+            y: this.bb.max.y,
           }
         ),
         this.capacity,
@@ -103,7 +103,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
         this.capacity,
         this.maxDepth,
         this.depth + 1
-      )
+      ),
     };
     for (const object of this.objects) this.insert(object);
   };
@@ -116,7 +116,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
 
     if (!this.sides) return objectsInRange;
     const { nw, ne, sw, se } = this.sides;
-    let allObjectsInRange = objectsInRange
+    const allObjectsInRange = objectsInRange
       .concat(nw.queryRange(bb))
       .concat(ne.queryRange(bb))
       .concat(se.queryRange(bb))

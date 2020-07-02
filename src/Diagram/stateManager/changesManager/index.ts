@@ -1,7 +1,6 @@
-import { EventBus } from "../../../EventBus";
-import { DiagramState } from "../../../Models/DiagramState";
-import * as Events from "../../../Events";
-import { SnapshotType, Snapshot } from "../../../Models/Snapshot";
+import { EventBus } from "@eventBus";
+import * as Events from "@events";
+import { SnapshotType, Snapshot, DiagramState } from "@models";
 
 /**
  * Changes manager:
@@ -12,8 +11,8 @@ export class ChangesManager {
   past: Snapshot[] = [
     {
       nodes: [],
-      links: []
-    }
+      links: [],
+    },
   ];
   future: Snapshot[] = [];
   constructor(private state: DiagramState, private eventBus: EventBus) {
@@ -45,14 +44,14 @@ export class ChangesManager {
     this.snapshot("past");
     const payload = {
       nodes: this.state.nodes,
-      links: this.state.links
+      links: this.state.links,
     };
     this.eventBus.publish(Events.DiagramEvents.DataModelChanged, payload);
   };
   positionChange = () => {
     const payload = {
       nodes: this.state.nodes,
-      links: this.state.links
+      links: this.state.links,
     };
     this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, payload);
   };
@@ -89,7 +88,7 @@ export class ChangesManager {
     }
     this[time].push({
       nodes: [...this.state.nodes],
-      links: [...this.state.links]
+      links: [...this.state.links],
     });
   };
 }

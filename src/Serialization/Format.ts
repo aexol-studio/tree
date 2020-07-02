@@ -1,9 +1,9 @@
 import { NodeSerialized } from "./Node";
 import { LinkSerialized } from "./Link";
-import { DiagramTheme } from "../Models/index";
+import { DiagramTheme } from "@models";
 
-export interface Format{
-    nodes:NodeSerialized[],
-    links:LinkSerialized[],
-    theme?:DiagramTheme;
+export interface Format {
+  nodes: NodeSerialized[];
+  links: LinkSerialized[];
+  theme?: DiagramTheme;
 }

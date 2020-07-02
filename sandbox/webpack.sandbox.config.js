@@ -1,39 +1,46 @@
-var webpack = require("webpack");
+/*global __dirname*/
+/*global module*/
+
 var path = require("path");
 
-var sourcePath = path.resolve(__dirname, "./");
-var outPath = path.resolve(__dirname, "./");
-const { CheckerPlugin } = require("awesome-typescript-loader");
-/* var HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-var WebpackCleanupPlugin = require('webpack-cleanup-plugin'); */
+var sourcePath = path.resolve(__dirname, "../");
+var outPath = path.resolve(__dirname, "../");
+const TsConfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 module.exports = {
   context: sourcePath,
   entry: {
-    app: "./index.tsx"
+    app: "./sandbox/index.ts",
   },
   mode: "development",
   output: {
     path: outPath,
     filename: "bundle.js",
-    publicPath: "/"
+    publicPath: "/",
   },
   target: "web",
   resolve: {
     extensions: [".mjs", ".js", ".jsx", ".ts", ".tsx"],
     mainFields: ["module", "browser", "main"],
-    alias: {
-      diagramSrc: path.resolve(__dirname, "../src")
-    }
+    plugins: [
+      new TsConfigPathsPlugin({
+        configFile: path.resolve(__dirname, "../tsconfig.json"),
+      }),
+    ],
+  },
+  devServer: {
+    publicPath: "/",
+    contentBase: "./sandbox",
+    hot: true,
   },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        loader: "awesome-typescript-loader"
-      }
-    ]
+        use: {
+          loader: "ts-loader",
+        },
+      },
+    ],
   },
-  plugins: [new CheckerPlugin()]
 };

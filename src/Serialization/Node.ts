@@ -1,5 +1,5 @@
-import { Node } from "../Models/Node";
-import { NodeDefinition } from "../Models/NodeDefinition";
+import { Node } from "@models";
+import { NodeDefinition } from "@models";
 
 export interface NodeDefinitionSerialized
   extends Pick<NodeDefinition, "type" | "root" | "main"> {

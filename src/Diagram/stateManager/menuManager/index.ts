@@ -1,51 +1,75 @@
-import { EventBus } from "../../../EventBus";
-import * as Events from "../../../Events";
-import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { DiagramTheme, Category, DiagramState } from "../../../Models";
-import { Utils } from "../../../Utils";
+import { EventBus } from "@eventBus";
+import * as Events from "@events";
+import { ScreenPosition } from "@io";
+import { DiagramTheme, Category, DiagramState } from "@models";
+import { Utils } from "@utils";
 import { UIManager } from "../uiManager";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
-import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
+import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
 
 const CSS_PREFIX = Utils.getUniquePrefix("MenuManager");
 
-const menuBaseClass = (theme: DiagramTheme) => ({
-  position: "fixed",
-  background: theme.colors.menu.background,
-  border: theme.colors.menu.borders
-    ? `0.5px solid ${theme.colors.menu.borders}`
-    : "",
-  padding: theme.menu.padding,
-  borderRadius: theme.menu.borderRadius,
-  maxWidth: `${theme.menu.maxWidth}px`,
-  maxHeight: `${theme.menu.maxHeight}px`,
-  overflowY: "auto",
-  zIndex: "100"
-});
+const menuBaseClass = (theme: DiagramTheme) =>
+  CSSMiniEngine.createStyle({
+    position: "fixed",
+    background: theme.colors.menu.background,
+    border: theme.colors.menu.borders
+      ? `0.5px solid ${theme.colors.menu.borders}`
+      : "",
+    padding: theme.menu.padding,
+    borderRadius: theme.menu.borderRadius,
+    width: `${theme.menu.width ? `${theme.menu.width}px` : "auto"}`,
+    maxWidth: `${theme.menu.maxWidth}px`,
+    maxHeight: `${theme.menu.maxHeight}px`,
+    overflowY: "auto",
+    zIndex: "100",
+  });
 
-const menuElementClass = (theme: DiagramTheme) => ({
-  position: "relative",
-  textAlign: "left",
-  verticalAlign: "middle",
-  color: theme.colors.menu.text,
-  fontFamily: theme.fontFamily,
-  fontSize: theme.menu.category.fontSize,
-  fontWeight: theme.menu.category.fontWeight,
-  padding: theme.menu.category.padding,
-  cursor: "pointer"
-});
+const menuElementClass = (theme: DiagramTheme) =>
+  CSSMiniEngine.createStyle({
+    position: "relative",
+    textAlign: "left",
+    verticalAlign: "middle",
+    color: theme.colors.menu.text,
+    fontFamily: theme.fontFamily,
+    fontSize: theme.menu.category.fontSize,
+    fontWeight: theme.menu.category.fontWeight,
+    padding: theme.menu.category.padding,
+    transition: "all 0.25s",
+    cursor: "pointer",
+  });
 
+const menuTitleClass = (theme: DiagramTheme) =>
+  CSSMiniEngine.createStyle({
+    position: "relative",
+    textTransform: "uppercase",
+    verticalAlign: "middle",
+    color: theme.colors.menu.title,
+    fontFamily: theme.fontFamily,
+    fontSize: theme.menu.title.fontSize,
+    padding: theme.menu.category.padding,
+    cursor: "pointer",
+    marginBottom: "10px",
+    fontWeight: theme.menu.title.fontWeight,
+  });
+
+const menuElementClassHover = (theme: DiagramTheme) =>
+  CSSMiniEngine.createStyle({
+    color: theme.colors.menu.hover,
+  });
 /**
  * MenuManager:
  *
  */
 export class MenuManager {
   activeMenu: HtmlElementRegistration | null = null;
-  activeNodeMenu: boolean = false;
+  activeNodeMenu = false;
   activeCategories: Category[] = [];
   activeMenuPosition: ScreenPosition = { x: 0, y: 0 };
+  static menuTitleClassName = `${CSS_PREFIX}Title`;
   static menuBaseClassName = `${CSS_PREFIX}Base`;
   static menuElementClassName = `${CSS_PREFIX}Element`;
+  static menuElementHoverClassName = `${CSS_PREFIX}ElementHover`;
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
@@ -75,6 +99,14 @@ export class MenuManager {
       menuElementClass,
       MenuManager.menuElementClassName
     );
+    CSSMiniEngine.instance.addClass(
+      menuTitleClass,
+      MenuManager.menuTitleClassName
+    );
+    CSSMiniEngine.instance.addClass(
+      menuElementClassHover,
+      MenuManager.menuElementHoverClassName
+    );
   }
   clickMenuItem = (category: Category) => {
     if (category.action) {
@@ -97,7 +129,7 @@ export class MenuManager {
     if (this.activeMenu) {
       this.activeMenu.remove();
       this.activeMenu = null;
-      this.activeNodeMenu = false
+      this.activeNodeMenu = false;
     }
   };
   openNewNodeMenu = (screenPosition: ScreenPosition) => {
@@ -105,19 +137,18 @@ export class MenuManager {
       return;
     }
     const { node, link } = this.state.hover;
-    if(node) {
+    if (node) {
       this.activeNodeMenu = true;
-    }
-    else if (!node && !link) {
+    } else if (!node && !link) {
       const createNodePosition: ScreenPosition = this.uiManager.screenToWorld(
         screenPosition
       );
       createNodePosition;
       this.state.categories = this.state.nodeDefinitions
-        .filter(n => n.root)
-        .filter(n => !n.hidden)
+        .filter((n) => n.root)
+        .filter((n) => !n.hidden)
         .map(
-          n =>
+          (n) =>
             ({
               name: n.type,
               help: n.help,
@@ -127,7 +158,7 @@ export class MenuManager {
                   createNodePosition,
                   n
                 );
-              }
+              },
             } as Category)
         );
       this.openMenu(screenPosition);
@@ -159,6 +190,7 @@ export class MenuManager {
     this.activeMenu = this.htmlManager.createElementFromHTML(
       `
         <div class="${MenuManager.menuBaseClassName}" data-ref="root">
+          <div class="${MenuManager.menuTitleClassName}">Create Node</div>
           ${elementsMarkup}
         </div>
         `,
@@ -174,15 +206,17 @@ export class MenuManager {
         element.addEventListener("click", () => {
           this.eventBus.publish(Events.DiagramEvents.MenuItemClicked, category);
         });
-        element.addEventListener("mouseenter", () => {
+        element.addEventListener("mouseenter", (e) => {
+          element.classList.add(MenuManager.menuElementHoverClassName);
           if (category.help) {
             this.htmlManager.renderHelp({
               text: category.help || "",
-              title: category.name
+              title: category.name,
             });
           }
         });
         element.addEventListener("mouseleave", () => {
+          element.classList.remove(MenuManager.menuElementHoverClassName);
           this.htmlManager.hideHelp();
         });
       });

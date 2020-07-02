@@ -1,4 +1,4 @@
-import { DiagramTheme } from "../Models";
+import { DiagramTheme } from "@models";
 import { Colors } from "./Colors";
 
 export const DefaultDiagramTheme: DiagramTheme = {
@@ -43,7 +43,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     placeholder: "Put your description here",
   },
   port: {
-    width: 40,
+    width: 50,
     gap: 2,
   },
   link: {
@@ -60,14 +60,19 @@ export const DefaultDiagramTheme: DiagramTheme = {
     },
   },
   menu: {
+    width: 200,
     maxWidth: 300,
     maxHeight: 300,
     padding: `15px`,
-    borderRadius: `5px`,
+    borderRadius: `0px`,
     category: {
       padding: `5px`,
       fontSize: `11px`,
-      fontWeight: `bold`,
+      fontWeight: `normal`,
+    },
+    title: {
+      fontSize: "10px",
+      fontWeight: "bold",
     },
     spacing: {
       x: 20,
@@ -101,7 +106,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
       borders: Colors.grey[4],
     },
     description: {
-      background: Colors.grey[8],
+      background: Colors.grey[9],
       text: Colors.grey[1],
     },
     port: {
@@ -115,9 +120,10 @@ export const DefaultDiagramTheme: DiagramTheme = {
       active: Colors.green[0],
     },
     menu: {
-      background: Colors.grey[7],
+      background: "#151515",
       text: Colors.grey[3],
       hover: Colors.grey[1],
+      title: Colors.grey[4],
     },
     help: {
       background: Colors.grey[7],

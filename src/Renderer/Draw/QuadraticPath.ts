@@ -1,4 +1,4 @@
-import { LinkUtils } from "../../Utils/linkUtils";
+import { LinkUtils } from "@utils";
 const NODE_CR_HORIZONTAL_VECTOR = 150;
 const NODE_CR_VERTICAL_VECTOR = 50;
 const NODE_CIRCULAR_VECTOR = 2.5;
@@ -11,7 +11,7 @@ export const QuadraticPath = (
   cornerRadius: number,
   strokeWidth: number,
   color: string,
-  centerPoint: number = 0.5,
+  centerPoint = 0.5,
   circularReference?: boolean
 ): void => {
   context.beginPath();

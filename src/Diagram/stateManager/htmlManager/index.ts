@@ -1,8 +1,8 @@
-import { DiagramState, Node, DiagramTheme } from "../../../Models/index";
-import { EventBus } from "../../../EventBus/index";
-import * as Events from "../../../Events/index";
-import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine/index";
-import { Utils } from "../../../Utils/index";
+import { DiagramState, Node, DiagramTheme } from "@models";
+import { EventBus } from "@eventBus";
+import * as Events from "@events";
+import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
+import { Utils } from "@utils";
 
 export type DiagramHtmlElementPaddedBy = { x: number; y: number } | "topCenter";
 
@@ -60,7 +60,7 @@ export class HtmlManager {
   elements: DiagramHtmlElement[];
   nodeAttachedElements: DiagramHtmlElement[];
   helpElements?: [HTMLDivElement, HTMLDivElement, HTMLDivElement];
-  created: boolean = false;
+  created = false;
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,

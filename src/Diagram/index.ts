@@ -1,14 +1,12 @@
-import { Renderer } from "../Renderer";
-import { EventBus, Topic } from "../EventBus";
+import { Renderer } from "@renderer/index";
+import { EventBus, Topic } from "@eventBus";
 import { StateManager } from "./stateManager";
-import { IO } from "../IO";
-import { Node, Size, Link } from "../Models";
-
-import { NodeDefinition } from "../Models/NodeDefinition";
-import { NodeUtils } from "../Utils/index";
-import { DiagramOptions, ConfigurationManager } from "../Configuration/index";
-import { CSSMiniEngine } from "../Renderer/CssMiniEngine/index";
-import { DiagramEvents } from "../Events";
+import { IO, ScreenPosition } from "@io";
+import { Node, Size, Link, NodeDefinition } from "@models";
+import { NodeUtils } from "@utils";
+import { DiagramOptions, ConfigurationManager } from "@configuration";
+import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
+import { DiagramEvents } from "@events";
 
 /**
  * Diagram:
@@ -26,6 +24,9 @@ export class Diagram {
   private io: IO;
   public configuration: ConfigurationManager;
 
+  openMenu = (e: ScreenPosition) => {
+    this.stateManager.openMenu(e);
+  };
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
   }
@@ -74,14 +75,14 @@ export class Diagram {
   resize(width: number, height: number) {
     const targetSize = {
       width,
-      height
+      height,
     };
 
     this.currentHostSize = targetSize;
 
     const areaSize = {
       width: targetSize.width * 2,
-      height: targetSize.height * 2
+      height: targetSize.height * 2,
     };
 
     this.canvasElement.width = areaSize.width;
@@ -92,7 +93,7 @@ export class Diagram {
 
     this.stateManager.areaResized({
       width: this.canvasElement.width,
-      height: this.canvasElement.height
+      height: this.canvasElement.height,
     });
 
     this.io.calculateClientBoundingRect();
@@ -114,7 +115,7 @@ export class Diagram {
 
       const areaSize = {
         width: newHostSize.width * 2,
-        height: newHostSize.height * 2
+        height: newHostSize.height * 2,
       };
 
       this.canvasElement.width = areaSize.width;
@@ -125,7 +126,7 @@ export class Diagram {
 
       this.stateManager.areaResized({
         width: this.canvasElement.width,
-        height: this.canvasElement.height
+        height: this.canvasElement.height,
       });
       this.io.calculateClientBoundingRect();
     }
@@ -180,7 +181,7 @@ export class Diagram {
 
     const areaSize = {
       width: targetWidth * 2,
-      height: targetHeight * 2
+      height: targetHeight * 2,
     };
 
     this.canvasElement.width = areaSize.width;
@@ -240,14 +241,14 @@ export class Diagram {
   screenShot = async (
     type: "image/png" | "image/jpeg" = "image/png"
   ): Promise<Blob | null> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.stateManager.setScreenShotInProgress(true);
 
       const currentNodes = this.stateManager.pureState().nodes;
       const screenShotMargin = this.configuration.getOption("screenShotMargin");
       const {
         width: nodeWidth,
-        height: nodeHeight
+        height: nodeHeight,
       } = this.configuration.getOption("theme").node;
 
       const rangeX = currentNodes.reduce(
@@ -272,7 +273,7 @@ export class Diagram {
         const screenShotRenderedCallback = (
           screenShotContext: CanvasRenderingContext2D
         ) => {
-          screenShotContext.canvas.toBlob(blob => {
+          screenShotContext.canvas.toBlob((blob) => {
             resolve(blob);
           }, type);
           this.stateManager.setScreenShotInProgress(false);

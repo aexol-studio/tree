@@ -1,8 +1,8 @@
-import { EventBus } from "../../../EventBus";
-import { ScreenPosition } from "../../../IO/ScreenPosition";
-import * as Events from "../../../Events";
-import { DiagramTheme, DiagramState, Coords } from "../../../Models";
-import { MinimapUtils } from "../../../Utils/index";
+import { EventBus } from "@eventBus";
+import { ScreenPosition } from "@io";
+import * as Events from "@events";
+import { DiagramTheme, DiagramState, Coords } from "@models";
+import { MinimapUtils } from "@utils";
 
 /**
  * UIManager:
@@ -56,7 +56,7 @@ export class MinimapManager {
     const boundingBoxViewport = MinimapUtils.getBoundingBoxViewport(
       {
         x: this.state.uiState.panX,
-        y: this.state.uiState.panY
+        y: this.state.uiState.panY,
       },
       this.state.uiState.scale,
       this.state.uiState.areaSize
@@ -79,7 +79,7 @@ export class MinimapManager {
         this.state.uiState.areaSize.width / 2 / this.state.uiState.scale,
       y:
         -worldCoords.y +
-        this.state.uiState.areaSize.height / 2 / this.state.uiState.scale
+        this.state.uiState.areaSize.height / 2 / this.state.uiState.scale,
     };
 
     const newViewport = MinimapUtils.getBoundingBoxViewport(
