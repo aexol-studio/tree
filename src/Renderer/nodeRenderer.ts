@@ -1,13 +1,13 @@
-import { Node, DiagramTheme } from "../Models";
+import { Node, DiagramTheme } from "@models";
 import {
   RoundedRectangle,
-  RoundedRectangleStroke
+  RoundedRectangleStroke,
 } from "./Draw/RoundedRectangle";
 import {
   ConfigurationManager,
-  DiagramDrawingDistanceOptions
-} from "../Configuration/index";
-import { StateManager } from "../Diagram/stateManager/index";
+  DiagramDrawingDistanceOptions,
+} from "@configuration";
+import { StateManager } from "@diagram/stateManager";
 import { ContextProvider } from "./ContextProvider";
 export class NodeRenderer {
   distances: DiagramDrawingDistanceOptions;
@@ -34,7 +34,7 @@ export class NodeRenderer {
     isNodeMenuOpened,
     inputActive,
     outputActive,
-    currentScale = 1.0
+    currentScale = 1.0,
   }: {
     node: Node;
     typeIsHovered?: boolean;
@@ -50,9 +50,10 @@ export class NodeRenderer {
       const {
         colors,
         node: { width, height, nameSize, typeSize, options },
-        port
+        port,
       } = this.theme;
-      const isReadOnly = this.stateManager.pureState().isReadOnly || node.readonly;
+      const isReadOnly =
+        this.stateManager.pureState().isReadOnly || node.readonly;
       this.context.fillStyle = colors.node.background;
       const leftRadius = node.inputs ? 0 : 5;
       const rightRadius = node.outputs ? 0 : 5;
@@ -65,14 +66,14 @@ export class NodeRenderer {
         radiusBottomLeft: leftRadius,
         radiusTopLeft: leftRadius,
         radiusBottomRight: rightRadius,
-        radiusTopRight: rightRadius
+        radiusTopRight: rightRadius,
       });
 
       const {
         nodeType: distanceNodeType,
         nodeTitle: distanceNodeTitle,
         nodeOptions: distanceNodeOptions,
-        nodeArrows: distanceNodeArrows
+        nodeArrows: distanceNodeArrows,
       } = this.distances;
 
       if (currentScale > distanceNodeType) {
@@ -112,7 +113,7 @@ export class NodeRenderer {
           x: node.x - port.width,
           y: node.y,
           radiusTopLeft: 10,
-          radiusBottomLeft: 10
+          radiusBottomLeft: 10,
         });
         if (currentScale > distanceNodeArrows && !isReadOnly) {
           this.context.fillStyle = colors.port.button;
@@ -130,7 +131,7 @@ export class NodeRenderer {
             width: port.gap,
             x: node.x,
             y: node.y,
-            radius: 0
+            radius: 0,
           });
       }
       if (node.outputs) {
@@ -143,7 +144,7 @@ export class NodeRenderer {
           x: node.x + width,
           y: node.y,
           radiusTopRight: 10,
-          radiusBottomRight: 10
+          radiusBottomRight: 10,
         });
         if (currentScale > distanceNodeArrows && !isReadOnly) {
           this.context.fillStyle = colors.port.button;
@@ -161,12 +162,12 @@ export class NodeRenderer {
             width: port.gap,
             x: node.x + width,
             y: node.y,
-            radius: 0
+            radius: 0,
           });
       }
       if (node.options && currentScale > distanceNodeOptions) {
         let xCounter = 0;
-        node.options.forEach(o => {
+        node.options.forEach((o) => {
           this.context.fillStyle = colors.node.options[o] || colors.node.name;
           this.context.font = this.getNodeFont(options.fontSize, "normal");
           this.context.textAlign = "left";
@@ -214,7 +215,9 @@ export class NodeRenderer {
         hoverWidth += port.width;
       }
       if (isHovered || isSelected) {
-        this.context.strokeStyle = isNodeMenuOpened ? colors.node.menuOpened : colors.node.selected;
+        this.context.strokeStyle = isNodeMenuOpened
+          ? colors.node.menuOpened
+          : colors.node.selected;
         this.context.lineWidth = 2;
         RoundedRectangleStroke(this.context, {
           width: hoverWidth,
@@ -225,11 +228,13 @@ export class NodeRenderer {
           radiusBottomLeft: radiusLeft,
           radiusTopLeft: radiusLeft,
           radiusBottomRight: radiusRight,
-          radiusTopRight: radiusRight
+          radiusTopRight: radiusRight,
         });
       }
       if (isSelected) {
-        this.context.fillStyle = isNodeMenuOpened ? `${colors.node.menuOpened}17` : `${colors.node.selected}17`;
+        this.context.fillStyle = isNodeMenuOpened
+          ? `${colors.node.menuOpened}17`
+          : `${colors.node.selected}17`;
         RoundedRectangle(this.context, {
           width: hoverWidth,
           height,
@@ -238,7 +243,7 @@ export class NodeRenderer {
           radiusBottomLeft: radiusLeft,
           radiusTopLeft: radiusLeft,
           radiusBottomRight: radiusRight,
-          radiusTopRight: radiusRight
+          radiusTopRight: radiusRight,
         });
       }
     }

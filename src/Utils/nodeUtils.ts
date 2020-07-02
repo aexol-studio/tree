@@ -6,10 +6,10 @@ import {
   DiagramTheme,
   DataObjectInTree,
   AcceptedNodeDefinition,
-} from "../Models";
-import { ScreenPosition } from "../IO/ScreenPosition";
-import { DefaultDiagramTheme } from "../Theme/DefaultDiagramTheme";
-import { RectanglePacker } from "../RectanglePacker/index";
+} from "@models";
+import { ScreenPosition } from "@io";
+import { DefaultDiagramTheme } from "@theme/DefaultDiagramTheme";
+import { RectanglePacker } from "@rectanglePacker";
 export class NodeUtils {
   static createObjectDefinition(
     nodeDefinition: NodeDefinition,
@@ -217,10 +217,10 @@ export class NodeUtils {
     theme: DiagramTheme = DefaultDiagramTheme
   ): Graph => {
     if (graph.nodes.length === 0) return graph;
-    let levels: Record<string, Node[]> = {};
+    const levels: Record<string, Node[]> = {};
     const repositioned: Node[] = [];
     const { center } = graph;
-    const repositionNode = (n: Node, level: number = 0) => {
+    const repositionNode = (n: Node, level = 0) => {
       if (repositioned.find((r) => r === n)) return;
       levels[level] = levels[level] || [];
       repositioned.push(n);
@@ -265,13 +265,13 @@ export class NodeUtils {
           n.y = (minY + maxY) / 2.0;
         });
 
-      let maxYWithInput = Math.max(
+      const maxYWithInput = Math.max(
         0,
         ...levels[x]
           .filter((x) => x.inputs && x.inputs.length > 0)
           .map((x) => x.y)
       );
-      let minYWithoutInput = Math.min(
+      const minYWithoutInput = Math.min(
         ...levels[x]
           .filter((x) => !x.inputs || x.inputs.length < 1)
           .map((x) => x.y)

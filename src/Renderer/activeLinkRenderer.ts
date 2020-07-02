@@ -1,5 +1,5 @@
-import { DiagramTheme } from "../Models";
-import { ScreenPosition } from "../IO/ScreenPosition";
+import { DiagramTheme } from "@models";
+import { ScreenPosition } from "@io";
 import { QuadraticPath } from "./Draw/QuadraticPath";
 import { ContextProvider } from "./ContextProvider";
 export class ActiveLinkRenderer {

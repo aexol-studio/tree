@@ -1,10 +1,10 @@
-import { DiagramState, Node, DiagramTheme } from "../../../Models";
-import { EventBus } from "../../../EventBus";
-import { DiagramEvents, IOEvents } from "../../../Events";
+import { DiagramState, Node, DiagramTheme } from "@models";
+import { EventBus } from "@eventBus";
+import { DiagramEvents, IOEvents } from "@events";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager";
-import { CSSMiniEngine } from "../../../Renderer/CssMiniEngine";
-import { Utils } from "../../../Utils";
-import { ConfigurationManager } from "../../../Configuration";
+import { CSSMiniEngine } from "@renderer/CssMiniEngine";
+import { Utils } from "@utils";
+import { ConfigurationManager } from "@configuration";
 
 const CSS_PREFIX = Utils.getUniquePrefix("DescriptionManager");
 
@@ -211,9 +211,9 @@ export class DescriptionManager {
 
     refs.span.addEventListener("focus", () => {
       if (!node.description) {
-        var range = document.createRange();
+        const range = document.createRange();
         range.selectNodeContents(refs.span);
-        var sel = window.getSelection();
+        const sel = window.getSelection();
         if (sel) {
           sel.removeAllRanges();
           sel.addRange(range);

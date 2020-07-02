@@ -1,10 +1,10 @@
-import { DiagramTheme, Link } from "../Models";
+import { DiagramTheme, Link } from "@models";
 import { QuadraticPath } from "./Draw/QuadraticPath";
 import { SimplifiedPath } from "./Draw/SimplifiedPath";
 import {
   DiagramDrawingDistanceOptions,
   ConfigurationManager,
-} from "../Configuration/index";
+} from "@configuration";
 import { ContextProvider } from "./ContextProvider";
 export class LinkRenderer {
   distances: DiagramDrawingDistanceOptions;
@@ -19,7 +19,7 @@ export class LinkRenderer {
   render = (
     l: Link,
     status: keyof DiagramTheme["colors"]["link"],
-    currentScale: number = 1.0
+    currentScale = 1.0
   ) => {
     const {
       node: { width, height },

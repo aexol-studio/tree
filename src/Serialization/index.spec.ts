@@ -1,17 +1,13 @@
-import { NodeDefinition } from "../Models/NodeDefinition";
-import { Utils } from "../Utils/index";
-import { Node } from "../Models/Node";
-import { Link } from "../Models/Link";
+import { NodeDefinition } from "@models";
+import { Utils } from "@utils";
+import { Node } from "@models";
+import { Link } from "@models";
 import { Serializer } from "./index";
-import { ConfigurationManager } from "../Configuration";
+import { ConfigurationManager } from "@configuration";
 
 // TODO Due to current realization of ConfigurationManager test will fail (singleton instance is undefined).
 // TODO So we force creating instance.
-// @ts-ignore
-const configManager = new ConfigurationManager({});
-
-// TODO: This test case should be improved to test more complicated schemas
-
+new ConfigurationManager({});
 describe("Serialize and Deserialize", () => {
   it("should serialize and deserialize", () => {
     const nodeDefinitions: NodeDefinition[] = [

@@ -2,8 +2,8 @@ import { Diagram } from "../src/index";
 import {
   NodeDefinition,
   AcceptedNodeDefinition,
-} from "../src/Models/NodeDefinition";
-import { NodeOption } from "../src/Models/NodeOption";
+  NodeOption,
+} from "../src/Models";
 import { DefaultDiagramTheme } from "../src/Theme/DefaultDiagramTheme";
 
 class App {
@@ -11,7 +11,7 @@ class App {
   constructor() {
     this.diagram = new Diagram(document.getElementById("root")!, {
       disableLinkOperations: true,
-      theme: DefaultDiagramTheme,
+      theme: { ...DefaultDiagramTheme, fontFamily: `"Roboto"` },
     });
     const createOND = (name: string): NodeDefinition["node"] => ({
       name: `${name}`,
@@ -31,7 +31,7 @@ class App {
           "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings",
       },
     ];
-    this.diagram!.setDefinitions([
+    this.diagram?.setDefinitions([
       {
         type: "www",
         help: "Hello I am dummy node this is help I do display",

@@ -1,12 +1,11 @@
-import { EventBus } from "../../../EventBus";
-import { DiagramState } from "../../../Models/DiagramState";
-import * as Events from "../../../Events";
-import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { Node, Link, DiagramTheme } from "../../../Models";
-import { Utils, NodeUtils } from "../../../Utils";
-import { DataObjectInTree } from "../../../Models/QuadTree";
-import { LinkUtils } from "../../../Utils/linkUtils";
-import { QuadTree } from "../../../QuadTree/index";
+import { EventBus } from "@eventBus";
+import { DiagramState } from "@models";
+import * as Events from "@events";
+import { ScreenPosition } from "@io";
+import { Node, Link, DiagramTheme, DataObjectInTree } from "@models";
+import { Utils, NodeUtils } from "@utils";
+import { LinkUtils } from "@utils";
+import { QuadTree } from "@quadTree";
 
 /**
  * ConnectionManager:
@@ -61,14 +60,14 @@ export class ConnectionManager {
       (l) => !links.find((lf) => lf === l)
     );
     links.forEach((l) => {
-      l.o.outputs = l.o.outputs!.filter((o) => o !== l.i);
-      l.i.inputs = l.i.inputs!.filter((i) => i !== l.o);
+      l.o.outputs = l.o.outputs?.filter((o) => o !== l.i);
+      l.i.inputs = l.i.inputs?.filter((i) => i !== l.o);
     });
     this.rebuildTree();
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
     this.eventBus.publish(Events.DiagramEvents.LinkDeleted);
   };
-  openLinkMenu = (e: ScreenPosition) => {
+  openLinkMenu = () => {
     const { link } = this.state.hover;
     if (this.state.isReadOnly || !link || this.state.menu) return;
     this.state.categories = [
@@ -144,8 +143,11 @@ export class ConnectionManager {
       circularReference: i.id === o.id,
     };
     this.state.links.push(newLink);
-    i.inputs!.push(o);
-    o.outputs!.push(i);
+    if (!i.inputs || !o.outputs) {
+      throw new Error("Cannot make a connection");
+    }
+    i.inputs.push(o);
+    o.outputs.push(i);
     this.state.trees.link.insert(this.linkToTree(newLink));
     this.eventBus.publish(Events.DiagramEvents.LinkCreated);
     return newLink;
@@ -196,7 +198,7 @@ export class ConnectionManager {
   };
   linkToTree = (l: Link): DataObjectInTree<Link> =>
     LinkUtils.linkToTree(l, this.theme);
-  endDrawingConnector = (e: ScreenPosition) => {
+  endDrawingConnector = () => {
     if (!this.state.draw) {
       return;
     }

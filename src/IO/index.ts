@@ -1,6 +1,6 @@
-import { EventBus } from "../EventBus";
-import * as Events from "../Events";
-
+import { EventBus } from "@eventBus";
+import * as Events from "@events";
+export * from "./ScreenPosition";
 /**
  * IO:
  *
@@ -142,7 +142,7 @@ export class IO {
     );
   }
 
-  createMouseEventPayload(e: MouseEvent, shiftKey: boolean = false) {
+  createMouseEventPayload(e: MouseEvent, shiftKey = false) {
     const referenceRect = this.getReferenceRect();
 
     return {
@@ -152,7 +152,7 @@ export class IO {
     };
   }
 
-  createTouchEventPayload(e: TouchEvent, shiftKey: boolean = false) {
+  createTouchEventPayload(e: TouchEvent, shiftKey = false) {
     const referenceRect = this.getReferenceRect();
 
     return {

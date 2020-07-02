@@ -1,8 +1,8 @@
-import { EventBus } from "../../../EventBus";
-import { DiagramState } from "../../../Models/DiagramState";
-import * as Events from "../../../Events";
-import { ScreenPosition } from "../../../IO/ScreenPosition";
-import { DiagramTheme } from "../../../Models";
+import { EventBus } from "@eventBus";
+import { DiagramState } from "@models";
+import * as Events from "@events";
+import { ScreenPosition } from "@io";
+import { DiagramTheme } from "@models";
 
 /**
  * HoverManager:
@@ -22,11 +22,10 @@ export class HoverManager {
 
   somethingHovered = () => {
     for (const k of Object.keys(this.state.hover))
-      if (!!(this.state.hover.valueOf() as any)[k]) return true;
+      if ((this.state.hover.valueOf() as any)[k]) return true;
   };
   hover = (e: ScreenPosition) => {
     const node = this.state.trees.node.pick(e);
-    console.log("picking");
     if (!node) {
       if (this.state.draw) return;
       let link;

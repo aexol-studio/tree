@@ -1,17 +1,17 @@
-import { EventBus } from "../../EventBus";
-import { DiagramState } from "../../Models/DiagramState";
-import * as Events from "../../Events";
-import { ScreenPosition } from "../../IO/ScreenPosition";
-import { DiagramTheme, Node, Size, Link } from "../../Models";
-import { Utils } from "../../Utils";
-import { NodeDefinition } from "../../Models/NodeDefinition";
+import { EventBus } from "@eventBus";
+import { DiagramState } from "@models";
+import * as Events from "@events";
+import { ScreenPosition } from "@io";
+import { DiagramTheme, Node, Size, Link } from "@models";
+import { Utils } from "@utils";
+import { NodeDefinition } from "@models";
 import { NodeManager } from "./nodeManager";
 import { ConnectionManager } from "./connectionManager";
 import { UIManager } from "./uiManager";
 import { MinimapManager } from "./minimapManager";
 import { HoverManager } from "./hoverManager";
 import { MenuManager } from "./menuManager/index";
-import { QuadTree } from "../../QuadTree/index";
+import { QuadTree } from "@quadTree";
 import { ChangesManager } from "./changesManager/index";
 import { HtmlManager } from "./htmlManager/index";
 import { DescriptionManager } from "./descriptionManager/index";
@@ -53,7 +53,7 @@ export class StateManager {
       hoverMinimap: false,
       trees: {
         node: new QuadTree<Node>(),
-        link: new QuadTree<Link>()
+        link: new QuadTree<Link>(),
       },
       uiState: {
         minimapActive: true,
@@ -62,15 +62,15 @@ export class StateManager {
         scale: 1.0,
         lastDragPosition: {
           x: 0,
-          y: 0
+          y: 0,
         },
         areaSize,
         draggingWorld: false,
         draggingElements: false,
         draggingMinimap: false,
-        animatingPan: false
+        animatingPan: false,
       },
-      screenShotInProgress: false
+      screenShotInProgress: false,
     };
     this.htmlManager = new HtmlManager(
       this.state,
@@ -127,7 +127,7 @@ export class StateManager {
   getState() {
     return {
       ...this.state,
-      isNodeMenuOpened: this.menuManager.activeNodeMenu
+      isNodeMenuOpened: this.menuManager.activeNodeMenu,
     };
   }
   pureState = () => this.state;
@@ -167,7 +167,7 @@ export class StateManager {
   zeroGraph = () => {
     this.uiManager.panTo({
       x: -this.theme.node.width * 3,
-      y: -this.theme.node.height * 3
+      y: -this.theme.node.height * 3,
     });
   };
   centerOnNode = (node: Node) => {
@@ -178,7 +178,7 @@ export class StateManager {
   };
   mouseDrag = ({
     withoutPan,
-    calculated
+    calculated,
   }: {
     withoutPan: ScreenPosition;
     calculated: ScreenPosition;
@@ -210,4 +210,7 @@ export class StateManager {
   isScreenShotInProgress() {
     return this.state.screenShotInProgress;
   }
+  openMenu = (e: ScreenPosition) => {
+    this.menuManager.openNewNodeMenu(e);
+  };
 }

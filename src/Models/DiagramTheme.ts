@@ -49,10 +49,15 @@ export interface DiagramTheme {
     defaultCenterPoint: number;
   };
   menu: {
+    width?: number;
     maxWidth: number;
     maxHeight: number;
     padding: string;
     borderRadius: string;
+    title: {
+      fontSize: string;
+      fontWeight: string;
+    };
     category: {
       padding: string;
       fontSize: string;
@@ -84,6 +89,7 @@ export interface DiagramTheme {
       borders?: string;
       hover: string;
       text: string;
+      title: string;
     };
     help: {
       background: string;

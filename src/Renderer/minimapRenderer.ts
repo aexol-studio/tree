@@ -1,5 +1,5 @@
-import { DiagramTheme, DiagramState } from "../Models";
-import { MinimapUtils } from "../Utils/index";
+import { DiagramTheme, DiagramState } from "@models";
+import { MinimapUtils } from "@utils";
 
 export class MinimapRenderer {
   render(

@@ -1,18 +1,18 @@
 import { MinimapRenderer } from "./minimapRenderer";
 import { ZoomPan } from "./zoomPan";
 // import { MenuRenderer } from "./menuRenderer";
-import { EventBus } from "../EventBus";
-import { StateManager } from "../Diagram/stateManager";
-import { DiagramEvents } from "../Events";
-import { DiagramTheme } from "../Models";
+import { EventBus } from "@eventBus";
+import { StateManager } from "@diagram/stateManager";
+import { DiagramEvents } from "@events";
+import { DiagramTheme } from "@models";
 import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
-import { Cursor } from "../Models/Cursor";
-import { Region } from "../QuadTree/Region";
+import { Cursor } from "@models";
+import { Region } from "@quadTree";
 import { CSSMiniEngine } from "./CssMiniEngine";
 import { ContextProvider } from "./ContextProvider";
-import { ConfigurationManager } from "../Configuration";
+import { ConfigurationManager } from "@configuration";
 
 /**
  * Renderer.
@@ -30,7 +30,7 @@ export class Renderer {
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
   private activeLinkRenderer: ActiveLinkRenderer;
-  private previousFrameTime: number = 0;
+  private previousFrameTime = 0;
   private screenShotCanvasContext: CanvasRenderingContext2D | null = null;
   private contextProvider: ContextProvider;
   /**
@@ -69,22 +69,22 @@ export class Renderer {
     const minPoint = nodes.reduce<{ x: number; y: number }>(
       (acc, curr) => ({
         x: Math.min(curr.x, acc.x),
-        y: Math.min(curr.y, acc.y)
+        y: Math.min(curr.y, acc.y),
       }),
       {
         x: Number.MAX_SAFE_INTEGER,
-        y: Number.MAX_SAFE_INTEGER
+        y: Number.MAX_SAFE_INTEGER,
       }
     );
 
     const maxPoint = nodes.reduce<{ x: number; y: number }>(
       (acc, curr) => ({
         x: Math.max(curr.x, acc.x),
-        y: Math.max(curr.y, acc.y)
+        y: Math.max(curr.y, acc.y),
       }),
       {
         x: Number.MIN_SAFE_INTEGER,
-        y: Number.MIN_SAFE_INTEGER
+        y: Number.MIN_SAFE_INTEGER,
       }
     );
 
@@ -97,11 +97,11 @@ export class Renderer {
     return new Region(
       {
         x: 0 - uiState.panX,
-        y: 0 - uiState.panY
+        y: 0 - uiState.panY,
       },
       {
         x: width - uiState.panX,
-        y: height - uiState.panY
+        y: height - uiState.panY,
       }
     );
   };
@@ -124,7 +124,7 @@ export class Renderer {
         return;
       }
       if (state.hover.io) {
-        this.setCursor("crosshair");
+        this.setCursor("pointer");
         return;
       }
       return;
@@ -173,7 +173,7 @@ export class Renderer {
         typeIsHovered,
         inputActive,
         outputActive,
-        currentScale
+        currentScale,
       });
     }
   }
@@ -191,7 +191,7 @@ export class Renderer {
     if (state.drawedConnection) {
       this.activeLinkRenderer.render({
         from: state.draw.initialPos,
-        to: state.drawedConnection
+        to: state.drawedConnection,
       });
     }
   }
@@ -206,12 +206,14 @@ export class Renderer {
       : this.getActiveArea();
 
     const linksInArea = state.trees.link.queryRange(region);
-    linksInArea.forEach(l =>
+    linksInArea.forEach((l) =>
       this.linkRenderer.render(l, "main", state.uiState.scale)
     );
     state.links
-      .filter(l => state.selectedNodes.find(n => n === l.i || n === l.o))
-      .forEach(l => this.linkRenderer.render(l, "active", state.uiState.scale));
+      .filter((l) => state.selectedNodes.find((n) => n === l.i || n === l.o))
+      .forEach((l) =>
+        this.linkRenderer.render(l, "active", state.uiState.scale)
+      );
     state.hover.link &&
       this.linkRenderer.render(state.hover.link, "hover", state.uiState.scale);
   }
