@@ -224,7 +224,10 @@ export class NodeManager {
         this.state.categories = this.state.categories.concat(categories.node);
       }
 
-      this.eventBus.publish(Events.DiagramEvents.MenuRequested, e);
+      this.eventBus.publish(Events.DiagramEvents.MenuRequested, {
+        e,
+        title: `Edit ${node.name}`,
+      });
     }
   };
   graphSelect = (e: ScreenPosition) => {
@@ -473,10 +476,10 @@ export class NodeManager {
       });
 
       this.state.hover = {};
-      this.eventBus.publish(
-        Events.DiagramEvents.MenuRequested,
-        NodeScreenPosition
-      );
+      this.eventBus.publish(Events.DiagramEvents.MenuRequested, {
+        e: NodeScreenPosition,
+        title: `Create ${node.name} field`,
+      });
     }
   };
 }

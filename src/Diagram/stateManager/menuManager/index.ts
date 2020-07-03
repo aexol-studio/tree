@@ -115,7 +115,7 @@ export class MenuManager {
     } else if (category.children) {
       this.state.categories = category.children;
       // this.state.hover.menu = undefined;
-      this.openMenu(this.activeMenuPosition);
+      this.openMenu({ e: this.activeMenuPosition, title: category.name });
     }
   };
   /*closeMenu = (e: ScreenPosition) => {
@@ -161,10 +161,10 @@ export class MenuManager {
               },
             } as Category)
         );
-      this.openMenu(screenPosition);
+      this.openMenu({ e: screenPosition, title: "Create node" });
     }
   };
-  openMenu = (e: ScreenPosition) => {
+  openMenu = ({ e, title }: { e: ScreenPosition; title: string }) => {
     this.closeMenus();
 
     if (this.state.categories.length < 1) {
@@ -190,7 +190,7 @@ export class MenuManager {
     this.activeMenu = this.htmlManager.createElementFromHTML(
       `
         <div class="${MenuManager.menuBaseClassName}" data-ref="root">
-          <div class="${MenuManager.menuTitleClassName}">Create Node</div>
+          <div class="${MenuManager.menuTitleClassName}">${title}</div>
           ${elementsMarkup}
         </div>
         `,
