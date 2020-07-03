@@ -20,8 +20,7 @@ export class Utils {
   static clamp = (v: number, min: number, max: number) =>
     Math.max(Math.min(v, max), min);
   static dedupe = <T>(a: T[]) => a.filter((b, i) => a.indexOf(b) === i);
-  static deepCopy = <T extends Record<string, unknown>>(o: T): T =>
-    JSON.parse(JSON.stringify(o));
+  static deepCopy = <T extends {}>(o: T): T => JSON.parse(JSON.stringify(o));
   static snap = <T extends ScreenPosition>(
     e: T,
     snappingGridSize: number

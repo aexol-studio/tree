@@ -1,6 +1,6 @@
 import { NodeDefinition } from "./NodeDefinition";
 
-export interface Node<Data = Record<string, unknown>> {
+export interface Node<Data = {}> {
   id: string;
   name: string;
   description?: string;
