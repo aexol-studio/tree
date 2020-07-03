@@ -4,9 +4,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "start": "tsc --watch",
-    "build": "tsc --build tsconfig.build.json",
-    "sandbox": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js  --hot --inline --open",
+    "build": "webpack --config ./webpack.build.config.js -p --progress",
+    "start": "webpack-dev-server --config ./sandbox/webpack.sandbox.config.js  --hot --inline --open",
     "showcase": "webpack-dev-server --config ./showcase/webpack.showcase.config.js --content-base ./showcase/ --hot --inline --open",
     "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
     "test": "jest",
