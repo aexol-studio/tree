@@ -23,6 +23,12 @@
       "@rectanglePacker":["src/RectanglePacker/index"],
       "@io":["src/IO/index"]
     },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths",
+        "afterDeclarations": true
+      }
+    ],
     "noUnusedLocals": true
   }
 }

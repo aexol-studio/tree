@@ -2,6 +2,7 @@
 node_modules
 src
 sandbox
+showcase
 .tscache
 *.tmp.txt
 docs
