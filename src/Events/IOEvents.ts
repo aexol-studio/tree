@@ -29,5 +29,7 @@ export enum IOEvents {
   MPressed = "MPressed",
   DeletePressed = "DeletePressed",
   BackspacePressed = "BackspacePressed",
-  RenamerChanged = "RenamerChanged"
+  RenamerChanged = "RenamerChanged",
+
+  FocusBroughtBack = "FocusBroughtBack"
 }

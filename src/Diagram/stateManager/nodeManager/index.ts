@@ -316,6 +316,7 @@ export class NodeManager {
     this.descriptionManager.clearDescription();
     this.eventBus.publish(Events.DiagramEvents.NodeDeleted, n);
     this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish(Events.IOEvents.FocusBroughtBack);
   };
   createNode = (e: ScreenPosition, nodeDefinition: NodeDefinition) => {
     const createdNode: Node = NodeUtils.createNode(

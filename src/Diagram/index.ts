@@ -8,7 +8,7 @@ import { NodeDefinition } from "../Models/NodeDefinition";
 import { NodeUtils } from "../Utils/index";
 import { DiagramOptions, ConfigurationManager } from "../Configuration/index";
 import { CSSMiniEngine } from "../Renderer/CssMiniEngine/index";
-import { DiagramEvents } from "../Events";
+import { DiagramEvents, IOEvents } from "../Events";
 
 /**
  * Diagram:
@@ -235,6 +235,7 @@ export class Diagram {
     // this.autoResize();
     this.wireUpResizer();
     this.renderer.renderStart();
+    this.eventBus.subscribe(IOEvents.FocusBroughtBack, this.bringBackFocus);
   }
 
   screenShot = async (
@@ -296,4 +297,8 @@ export class Diagram {
       }
     });
   };
+
+  bringBackFocus() {
+    this.canvasElement.focus();
+  }
 }
