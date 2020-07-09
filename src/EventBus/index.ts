@@ -1,9 +1,4 @@
-import {
-  DiagramEvents,
-  IOEvents,
-  DiagramEventsPayloads,
-  IOEventsPayloads,
-} from "@events";
+import { DiagramEvents } from "@events";
 
 /**
  * Event bus:
@@ -12,8 +7,8 @@ import {
  * - providing possibility of subscribing to particular topics
  * - providing possibility of publishing events to particular topics
  */
-export type Topic = DiagramEvents | IOEvents;
-export type TopicPayload = DiagramEventsPayloads & IOEventsPayloads;
+export type Topic = keyof DiagramEvents;
+export type TopicPayload = DiagramEvents;
 export type TopicArgs<T> = T extends keyof TopicPayload
   ? TopicPayload[T]
   : never;

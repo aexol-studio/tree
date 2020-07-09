@@ -32,14 +32,14 @@ class App {
     helper.style.justifyContent = "center";
     helper.style.cursor = "pointer";
     helper.onclick = () => {
-      this.diagram?.publish("MenuCreateNodeRequested", {
+      this.diagram?.eventBus.publish("MenuCreateNodeRequested", {
         position: {
           x: helper.getBoundingClientRect().x * 2,
           y: helper.getBoundingClientRect().y * 2,
         },
       });
     };
-    this.diagram.on("NodeCreated", () => helper.remove());
+    this.diagram.eventBus.on("NodeCreated", () => helper.remove());
     document.body.appendChild(helper);
     const createOND = (name: string): NodeDefinition["node"] => ({
       name: `${name}`,

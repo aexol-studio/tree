@@ -1,5 +1,5 @@
 import { Renderer } from "@renderer/index";
-import { EventBus, Topic, TopicArgs } from "@eventBus";
+import { EventBus } from "@eventBus";
 import { StateManager } from "./stateManager";
 import { IO, ScreenPosition } from "@io";
 import { Node, Size, Link, NodeDefinition } from "@models";
@@ -16,11 +16,11 @@ import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
  */
 export class Diagram {
   private renderer: Renderer;
-  private eventBus: EventBus;
   private currentHostSize: Size;
   private stateManager: StateManager;
   private canvasElement: HTMLCanvasElement;
   private io: IO;
+  public eventBus: EventBus;
   public configuration: ConfigurationManager;
 
   openMenu = (e: ScreenPosition) => {
@@ -29,12 +29,6 @@ export class Diagram {
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
   }
-  publish = <T extends Topic>(topic: T, args?: TopicArgs<T>) =>
-    this.eventBus.publish(topic, args);
-  on = <T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) =>
-    this.eventBus.on(topic, callback);
-  off = <T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) =>
-    this.eventBus.off(topic, callback);
   setNodes(nodes: Node[], beautify?: boolean) {
     if (beautify) {
       this.beautifyDiagram(nodes);
