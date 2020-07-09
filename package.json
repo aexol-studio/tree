@@ -1,10 +1,6 @@
 {
   "name": "graphsource",
-<<<<<<< HEAD
   "version": "1.7.1",
-=======
-  "version": "1.7.0",
->>>>>>> 245470b56b502ef23841ba4ea3573a7dd2f2f8a1
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
