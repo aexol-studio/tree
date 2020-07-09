@@ -1,5 +1,4 @@
 import { EventBus } from "@eventBus";
-import * as Events from "@events";
 export * from "./ScreenPosition";
 /**
  * IO:
@@ -23,19 +22,19 @@ export class IO {
     this.calculateClientBoundingRect();
     element.addEventListener("mouseleave", (e) => {
       e.preventDefault();
-      this.eventBus.publish(Events.IOEvents.ScreenMouseLeave);
+      this.eventBus.publish("ScreenMouseLeave");
     });
-    element.addEventListener("mousemove", (e) => {
-      e.preventDefault();
+    element.addEventListener("mousemove", (event) => {
+      event.preventDefault();
       if (!this.elementRect || !this.hasContainerFocus) {
         return;
       }
-      const mpl = this.createMouseEventPayload(e);
-      this.eventBus.publish(Events.IOEvents.ScreenMouseMove, mpl);
-      if (e.buttons === 1) {
-        this.eventBus.publish(Events.IOEvents.ScreenMouseDrag, mpl);
+      const e = { position: this.createMouseEventPayload(event) };
+      this.eventBus.publish("ScreenMouseMove", e);
+      if (event.buttons === 1) {
+        this.eventBus.publish("ScreenMouseDrag", e);
       } else {
-        this.eventBus.publish(Events.IOEvents.ScreenMouseOverMove, mpl);
+        this.eventBus.publish("ScreenMouseOverMove", e);
       }
     });
     // ...
@@ -45,85 +44,76 @@ export class IO {
 
       const coords = this.createMouseEventPayload(e);
 
-      this.eventBus.publish(
-        Events.IOEvents.ScreenMouseWheel,
+      this.eventBus.publish("ScreenMouseWheel", {
         delta,
-        coords.x,
-        coords.y
-      );
+        position: coords,
+      });
     });
-    element.addEventListener("mouseup", (e) => {
-      e.preventDefault();
-      if (e.which === 1) {
-        this.eventBus.publish(
-          Events.IOEvents.ScreenLeftMouseUp,
-          this.createMouseEventPayload(e)
-        );
-      } else if (e.which === 3) {
-        this.eventBus.publish(
-          Events.IOEvents.ScreenRightMouseUp,
-          this.createMouseEventPayload(e)
-        );
+    element.addEventListener("mouseup", (event) => {
+      event.preventDefault();
+      if (event.which === 1) {
+        this.eventBus.publish("ScreenLeftMouseUp", {
+          position: this.createMouseEventPayload(event),
+        });
+      } else if (event.which === 3) {
+        this.eventBus.publish("ScreenRightMouseUp", {
+          position: this.createMouseEventPayload(event),
+        });
       }
     });
-    element.addEventListener("mousedown", (e) => {
+    element.addEventListener("mousedown", (event) => {
       this.hasContainerFocus = true;
-      if (e.which === 1) {
-        this.eventBus.publish(
-          Events.IOEvents.ScreenLeftMouseClick,
-          this.createMouseEventPayload(e, e.shiftKey)
-        );
+      if (event.which === 1) {
+        this.eventBus.publish("ScreenLeftMouseClick", {
+          position: this.createMouseEventPayload(event, event.shiftKey),
+        });
         const clickTime = Date.now();
         const diff = clickTime - this.lastClick;
         if (diff < 250) {
-          this.eventBus.publish(
-            Events.IOEvents.ScreenDoubleClick,
-            this.createMouseEventPayload(e)
-          );
+          this.eventBus.publish("ScreenDoubleClick", {
+            position: this.createMouseEventPayload(event),
+          });
         }
         this.lastClick = clickTime;
-      } else if (e.which === 3) {
-        this.eventBus.publish(
-          Events.IOEvents.ScreenRightMouseClick,
-          this.createMouseEventPayload(e)
-        );
+      } else if (event.which === 3) {
+        this.eventBus.publish("ScreenRightMouseClick", {
+          position: this.createMouseEventPayload(event),
+        });
       }
     });
-    element.addEventListener("keydown", (e) => {
-      const ctrl = e.ctrlKey || e.metaKey;
-      if (e.key === "m") {
-        this.eventBus.publish(Events.IOEvents.MPressed);
+    element.addEventListener("keydown", (event) => {
+      const ctrl = event.ctrlKey || event.metaKey;
+      if (event.key === "m") {
+        this.eventBus.publish("MPressed");
       }
-      if (e.key === "Delete") {
-        this.eventBus.publish(Events.IOEvents.DeletePressed);
+      if (event.key === "Delete") {
+        this.eventBus.publish("DeletePressed");
       }
-      if (e.key === "Backspace") {
-        this.eventBus.publish(Events.IOEvents.BackspacePressed);
+      if (event.key === "Backspace") {
+        this.eventBus.publish("BackspacePressed");
       }
-      if (e.key === "z" && ctrl && !e.shiftKey) {
-        this.eventBus.publish(Events.DiagramEvents.UndoRequested);
+      if (event.key === "z" && ctrl && !event.shiftKey) {
+        this.eventBus.publish("UndoRequested");
       }
-      if (e.key === "z" && ctrl && e.shiftKey) {
-        this.eventBus.publish(Events.DiagramEvents.RedoRequested);
+      if (event.key === "z" && ctrl && event.shiftKey) {
+        this.eventBus.publish("RedoRequested");
       }
     });
-    element.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      this.eventBus.publish(
-        Events.IOEvents.ScreenLeftMouseClick,
-        this.createTouchEventPayload(e)
-      );
+    element.addEventListener("touchstart", (event) => {
+      event.preventDefault();
+      this.eventBus.publish("ScreenLeftMouseClick", {
+        position: this.createTouchEventPayload(event),
+      });
       this.touchStartTime = Date.now();
     });
-    element.addEventListener("touchend", (e) => {
-      e.preventDefault();
+    element.addEventListener("touchend", (event) => {
+      event.preventDefault();
       const touchEndTime = Date.now();
       const diff = touchEndTime - this.touchStartTime;
       if (diff > 500) {
-        this.eventBus.publish(
-          Events.IOEvents.ScreenRightMouseUp,
-          this.createTouchEventPayload(e)
-        );
+        this.eventBus.publish("ScreenRightMouseUp", {
+          position: this.createTouchEventPayload(event),
+        });
       }
       this.touchStartTime = touchEndTime;
     });
@@ -142,22 +132,22 @@ export class IO {
     );
   }
 
-  createMouseEventPayload(e: MouseEvent, shiftKey = false) {
+  createMouseEventPayload(position: MouseEvent, shiftKey = false) {
     const referenceRect = this.getReferenceRect();
 
     return {
-      x: e.clientX * 2 - referenceRect.left * 2,
-      y: e.clientY * 2 - referenceRect.top * 2,
+      x: position.clientX * 2 - referenceRect.left * 2,
+      y: position.clientY * 2 - referenceRect.top * 2,
       shiftKey,
     };
   }
 
-  createTouchEventPayload(e: TouchEvent, shiftKey = false) {
+  createTouchEventPayload(position: TouchEvent, shiftKey = false) {
     const referenceRect = this.getReferenceRect();
 
     return {
-      x: e.changedTouches[0].clientX * 2 - referenceRect.left * 2,
-      y: e.changedTouches[0].clientY * 2 - referenceRect.top * 2,
+      x: position.changedTouches[0].clientX * 2 - referenceRect.left * 2,
+      y: position.changedTouches[0].clientY * 2 - referenceRect.top * 2,
       shiftKey,
     };
   }

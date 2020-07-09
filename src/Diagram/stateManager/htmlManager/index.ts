@@ -1,6 +1,5 @@
 import { DiagramState, Node, DiagramTheme } from "@models";
 import { EventBus } from "@eventBus";
-import * as Events from "@events";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
 import { Utils } from "@utils";
 
@@ -70,11 +69,8 @@ export class HtmlManager {
     this.elements = [];
     this.nodeAttachedElements = [];
     this.state;
-    this.eventBus.subscribe(
-      Events.DiagramEvents.RenderRequested,
-      this.renderRequested
-    );
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.nodeMoved);
+    this.eventBus.subscribe("RenderRequested", this.renderRequested);
+    this.eventBus.subscribe("WorldMouseDrag", this.nodeMoved);
 
     CSSMiniEngine.instance.addClass(
       helpContainerClass,
@@ -148,7 +144,7 @@ export class HtmlManager {
       if (node && e.node === node) {
         e.x = node.x;
         e.y = node.y;
-        this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+        this.eventBus.publish("RenderRequested");
       }
     });
   };

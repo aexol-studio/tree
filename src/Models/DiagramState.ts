@@ -1,5 +1,4 @@
 import { Node } from "./Node";
-import { Category } from "./Category";
 import { Link } from "./Link";
 import { ScreenPosition } from "@io";
 import { NodeDefinition } from "./NodeDefinition";
@@ -9,7 +8,6 @@ import { QuadTree } from "@quadTree";
 export interface DiagramState {
   links: Link[];
   nodes: Node[];
-  categories: Category[];
   nodeDefinitions: NodeDefinition[];
   selectedLinks: Link[];
   selectedNodes: Node[];
@@ -33,7 +31,6 @@ export interface DiagramState {
     description?: Node;
   };
   isReadOnly?: boolean;
-  menu?: boolean;
   drawedConnection?: ScreenPosition;
   uiState: UIState;
   screenShotInProgress: boolean;

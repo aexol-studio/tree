@@ -1,6 +1,5 @@
 import { DiagramState, Node, DiagramTheme } from "@models";
 import { EventBus } from "@eventBus";
-import { DiagramEvents, IOEvents } from "@events";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine";
 import { Utils } from "@utils";
@@ -67,14 +66,8 @@ export class DescriptionManager {
     this.DESCRIPTION_PLACEHOLDER = ConfigurationManager.instance.getOption(
       "theme"
     ).description.placeholder;
-    this.eventBus.subscribe(
-      DiagramEvents.NodeSelected,
-      this.nodeSelectionChange
-    );
-    this.eventBus.subscribe(
-      DiagramEvents.NodeCreated,
-      this.nodeSelectionChange
-    );
+    this.eventBus.subscribe("NodeSelected", this.nodeSelectionChange);
+    this.eventBus.subscribe("NodeCreated", this.nodeSelectionChange);
 
     const {
       containerClassName,
@@ -83,8 +76,8 @@ export class DescriptionManager {
       descriptionSpanClassName,
     } = DescriptionManager;
 
-    this.eventBus.subscribe(IOEvents.WorldMouseDrag, this.nodeMoving);
-    this.eventBus.subscribe(DiagramEvents.NodeMoved, this.nodeMoved);
+    this.eventBus.subscribe("WorldMouseDrag", this.nodeMoving);
+    this.eventBus.subscribe("NodeMoved", this.nodeMoved);
 
     CSSMiniEngine.instance.addClass(containerClass, containerClassName);
     CSSMiniEngine.instance.addClass(descriptionClass, descriptionClassName);
@@ -127,7 +120,7 @@ export class DescriptionManager {
         descriptionObjectContent !== this.DESCRIPTION_PLACEHOLDER
       ) {
         this.selectedNode.description = descriptionObjectContent;
-        this.eventBus.publish(DiagramEvents.NodeChanged);
+        this.eventBus.publish("NodeChanged", { node: this.selectedNode });
       }
     }
   };
@@ -224,6 +217,6 @@ export class DescriptionManager {
 
     this.selectedNode = node;
     this.registeredDescriptionElement = elementRegistration;
-    this.eventBus.publish(DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
 }

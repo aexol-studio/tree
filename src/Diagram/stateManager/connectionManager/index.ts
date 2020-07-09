@@ -1,6 +1,5 @@
 import { EventBus } from "@eventBus";
-import { DiagramState } from "@models";
-import * as Events from "@events";
+import { DiagramState, Category } from "@models";
 import { ScreenPosition } from "@io";
 import { Node, Link, DiagramTheme, DataObjectInTree } from "@models";
 import { Utils, NodeUtils } from "@utils";
@@ -19,24 +18,12 @@ export class ConnectionManager {
     private theme: DiagramTheme,
     private connectionFunction: (input: Node, output: Node) => boolean
   ) {
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseClick,
-      this.startDrawingConnector
-    );
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldMouseDragEnd,
-      this.endDrawingConnector
-    );
-    this.eventBus.subscribe(Events.DiagramEvents.NodeMoved, this.onNodeMoved);
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedLink);
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenRightMouseClick,
-      this.openLinkMenu
-    );
-    this.eventBus.subscribe(
-      Events.DiagramEvents.NodeDeleted,
-      this.onNodesDelete
-    );
+    this.eventBus.subscribe("WorldLeftMouseClick", this.startDrawingConnector);
+    this.eventBus.subscribe("WorldMouseDragEnd", this.endDrawingConnector);
+    this.eventBus.subscribe("NodeMoved", this.onNodeMoved);
+    this.eventBus.subscribe("WorldMouseDragEnd", this.movedLink);
+    this.eventBus.subscribe("ScreenRightMouseClick", this.openLinkMenu);
+    this.eventBus.subscribe("NodeDeleted", this.onNodesDelete);
   }
   loadLinks = (links: Link[]) => {
     this.state.links = links;
@@ -50,7 +37,7 @@ export class ConnectionManager {
         this.state.trees.link.insert(LinkUtils.linkToTree(l, this.theme))
       );
   };
-  onNodesDelete = (nodes: Node[]) => {
+  onNodesDelete = ({ nodes }: { nodes: Node[] }) => {
     this.deleteLinks(
       this.state.links.filter((l) => nodes.find((n) => n === l.i || n === l.o))
     );
@@ -64,28 +51,32 @@ export class ConnectionManager {
       l.i.inputs = l.i.inputs?.filter((i) => i !== l.o);
     });
     this.rebuildTree();
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    this.eventBus.publish(Events.DiagramEvents.LinkDeleted);
+    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("LinksDeleted", { links });
   };
   openLinkMenu = () => {
     const { link } = this.state.hover;
-    if (this.state.isReadOnly || !link || this.state.menu) return;
-    this.state.categories = [
+    if (this.state.isReadOnly || !link) return;
+    const menuCategories: Category[] = [
       {
         name: "delete",
         action: () => this.deleteLinks([link]),
       },
     ];
-    this.state.menu = true;
+    this.eventBus.publish("MenuRequested", {
+      e: this.state.uiState.lastDragPosition,
+      title: `Edit link`,
+      categories: menuCategories,
+    });
   };
-  startDrawingConnector = (e: ScreenPosition) => {
+  startDrawingConnector = ({ position }: { position: ScreenPosition }) => {
     if (this.state.isReadOnly) return;
     const { io, node, menu } = this.state.hover;
     if (io && node && !menu) {
       this.state.draw = {
         node,
         io,
-        initialPos: e,
+        initialPos: position,
       };
       this.state.uiState.draggingElements = true;
       return;
@@ -101,7 +92,7 @@ export class ConnectionManager {
       return;
     }
     this.state.drawedConnection = { ...e };
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
   cancelDrawing = () => {
     this.state.draw = undefined;
@@ -133,7 +124,7 @@ export class ConnectionManager {
       return false;
     };
     if (!this.connectionFunction(i, o) || linkExists() || !correctType()) {
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.eventBus.publish("RenderRequested");
       return;
     }
     const newLink: Link = {
@@ -149,12 +140,12 @@ export class ConnectionManager {
     i.inputs.push(o);
     o.outputs.push(i);
     this.state.trees.link.insert(this.linkToTree(newLink));
-    this.eventBus.publish(Events.DiagramEvents.LinkCreated);
+    this.eventBus.publish("LinkCreated", { link: newLink });
     return newLink;
   };
-  onNodeMoved = (nodes: Node[]) => {
+  onNodeMoved = ({ selectedNodes }: { selectedNodes: Node[] }) => {
     const links = this.state.links.filter((l) =>
-      nodes.find((n) => n === l.i || n === l.o)
+      selectedNodes.find((n) => n === l.i || n === l.o)
     );
     for (const l of links.map(this.linkToTree))
       this.state.trees.link.update(
@@ -178,7 +169,7 @@ export class ConnectionManager {
       0.9
     );
     this.state.uiState.lastDragPosition = { ...e };
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
   movedLink = () => {
     const { link } = this.state.hover;
@@ -194,7 +185,7 @@ export class ConnectionManager {
       },
       linkTree.bb
     );
-    this.eventBus.publish(Events.DiagramEvents.LinkMoved);
+    this.eventBus.publish("LinkMoved", { link });
   };
   linkToTree = (l: Link): DataObjectInTree<Link> =>
     LinkUtils.linkToTree(l, this.theme);
@@ -219,6 +210,6 @@ export class ConnectionManager {
       this.makeConnection(input, output);
     }
     this.cancelDrawing();
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
 }

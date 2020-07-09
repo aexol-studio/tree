@@ -3,7 +3,6 @@ import { ZoomPan } from "./zoomPan";
 // import { MenuRenderer } from "./menuRenderer";
 import { EventBus } from "@eventBus";
 import { StateManager } from "@diagram/stateManager";
-import { DiagramEvents } from "@events";
 import { DiagramTheme } from "@models";
 import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
@@ -59,7 +58,7 @@ export class Renderer {
     );
     this.linkRenderer = new LinkRenderer(this.contextProvider, this.theme);
 
-    this.eventBus.subscribe(DiagramEvents.RenderRequested, this.renderStart);
+    this.eventBus.subscribe("RenderRequested", this.renderStart);
 
     this.cssMiniEngine.compile();
   }
@@ -306,11 +305,13 @@ export class Renderer {
       this.resetTimeCounter();
     }
 
-    if (this.stateManager.isScreenShotInProgress()) {
-      this.eventBus.publish(
-        DiagramEvents.ScreenShotRendered,
-        this.screenShotCanvasContext
-      );
+    if (
+      this.stateManager.isScreenShotInProgress() &&
+      this.screenShotCanvasContext
+    ) {
+      this.eventBus.publish("ScreenShotRendered", {
+        context: this.screenShotCanvasContext,
+      });
     }
   };
 

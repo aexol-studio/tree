@@ -1,6 +1,5 @@
 import { DiagramState, Node, DiagramTheme } from "@models";
 import { EventBus } from "@eventBus";
-import { DiagramEvents, IOEvents } from "@events";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
 import { Utils } from "@utils";
@@ -34,9 +33,9 @@ export class RenameManager {
     this.state;
     this.htmlManager;
 
-    this.eventBus.subscribe(IOEvents.ScreenDoubleClick, this.tryToRenameNode);
-    this.eventBus.subscribe(IOEvents.WorldMouseDrag, this.nodeMoving);
-    this.eventBus.subscribe(DiagramEvents.NodeMoved, this.nodeMoved);
+    this.eventBus.subscribe("ScreenDoubleClick", this.tryToRenameNode);
+    this.eventBus.subscribe("WorldMouseDrag", this.nodeMoving);
+    this.eventBus.subscribe("NodeMoved", this.nodeMoved);
 
     CSSMiniEngine.instance.addClass(
       containerClass,
@@ -122,7 +121,7 @@ export class RenameManager {
     });
 
     this.registeredRenameElement = elementRegistration;
-    this.eventBus.publish(DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
 
   clearRenameInputs = () => {
@@ -134,7 +133,7 @@ export class RenameManager {
   cancelRenaming = () => {
     delete this.state.renamed;
     this.clearRenameInputs();
-    this.eventBus.publish(DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
 
   finalizeRenaming = (newName: string) => {
@@ -148,13 +147,13 @@ export class RenameManager {
       if (node.editsDefinitions) {
         node.editsDefinitions.forEach((ed) => (ed.type = newName));
       }
-      this.eventBus.publish(DiagramEvents.NodeChanged);
-      this.eventBus.publish(DiagramEvents.RenderRequested);
+      this.eventBus.publish("NodeChanged", { node });
+      this.eventBus.publish("RenderRequested");
     }
 
     delete this.state.renamed;
     this.clearRenameInputs();
-    this.eventBus.publish(DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
 
   nodeSelectionChange = () => {

@@ -1,2 +1,2 @@
-export { IOEvents } from './IOEvents';
-export { DiagramEvents } from './DiagramEvents';
+export { IOEvents, IOEventsPayloads } from "./IOEvents";
+export { DiagramEvents, DiagramEventsPayloads } from "./DiagramEvents";

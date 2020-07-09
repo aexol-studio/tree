@@ -1,6 +1,5 @@
 import { EventBus } from "@eventBus";
 import { ScreenPosition } from "@io";
-import * as Events from "@events";
 import { DiagramTheme, DiagramState, Coords } from "@models";
 import { MinimapUtils } from "@utils";
 
@@ -15,40 +14,34 @@ export class MinimapManager {
     private eventBus: EventBus,
     private theme: DiagramTheme
   ) {
-    this.eventBus.subscribe(
-      Events.IOEvents.MinimapMouseMove,
-      this.minimapMouseMove
-    );
+    this.eventBus.subscribe("MinimapMouseMove", this.minimapMouseMove);
 
     this.eventBus.subscribe(
-      Events.IOEvents.MinimapLeftMouseClick,
+      "MinimapLeftMouseClick",
       this.minimapLeftMouseClick
     );
 
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldMouseMove,
-      this.worldMouseMove
-    );
+    this.eventBus.subscribe("WorldMouseMove", this.worldMouseMove);
   }
 
   minimapLeftMouseClick = () => {
     this.state.uiState.draggingMinimap = true;
   };
 
-  minimapMouseMove = ({ x, y }: ScreenPosition) => {
+  minimapMouseMove = ({ position: { x, y } }: { position: ScreenPosition }) => {
     if (this.state.uiState.draggingMinimap) {
       this.performPanning({ x, y });
     }
 
     this.state.hoverMinimap = true;
     this.state.hover.node = undefined;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
 
   worldMouseMove = () => {
     if (this.state.hoverMinimap) {
       this.state.hoverMinimap = false;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.eventBus.publish("RenderRequested");
     }
   };
 
@@ -104,6 +97,6 @@ export class MinimapManager {
 
     this.state.uiState.panX = newPanValue.x;
     this.state.uiState.panY = newPanValue.y;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   }
 }

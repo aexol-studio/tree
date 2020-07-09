@@ -35,7 +35,7 @@ const defaultOptions: DiagramOptions = {
   autosizeInterval: 1000,
   autosizeOnWindowResize: true,
   disableLinkOperations: false,
-  connectionFunction: (input, output) => true,
+  connectionFunction: () => true,
   generateIdFn: uuidv4,
   height: undefined,
   theme: DefaultDiagramTheme,

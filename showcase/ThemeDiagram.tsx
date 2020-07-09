@@ -3,13 +3,20 @@ import {
   DefaultDiagramTheme,
   DefaultDiagramThemeLight,
 } from "../src/index";
-import { NodeDefinition, AcceptedNodeDefinition } from "@models";
-import { NodeOption } from "@models";
+import {
+  NodeDefinition,
+  AcceptedNodeDefinition,
+  NodeOption,
+} from "../src/Models";
 
 export class ThemeDiagram {
   diagram?: Diagram = undefined;
   constructor(type) {
-    this.diagram = new Diagram(document.getElementById("root")!, {
+    const root = document.getElementById("root");
+    if (!root) {
+      throw new Error("No root html element");
+    }
+    this.diagram = new Diagram(root, {
       disableLinkOperations: true,
       theme: type === "dark" ? DefaultDiagramTheme : DefaultDiagramThemeLight,
     });
@@ -31,7 +38,7 @@ export class ThemeDiagram {
           "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings",
       },
     ];
-    this.diagram!.setDefinitions([
+    this.diagram.setDefinitions([
       {
         type: "www",
         help: "Hello I am dummy node this is help I do display",

@@ -1,6 +1,5 @@
 import { EventBus } from "@eventBus";
 import { DiagramState } from "@models";
-import * as Events from "@events";
 import { ScreenPosition } from "@io";
 import { DiagramTheme } from "@models";
 
@@ -16,29 +15,29 @@ export class HoverManager {
     private theme: DiagramTheme,
     private disableLinkOperations: boolean
   ) {
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseOverMove, this.hover);
-    this.eventBus.subscribe(Events.DiagramEvents.PickRequested, this.hover);
+    this.eventBus.subscribe("WorldMouseOverMove", this.hover);
+    this.eventBus.subscribe("PickRequested", this.hover);
   }
 
   somethingHovered = () => {
     for (const k of Object.keys(this.state.hover))
       if ((this.state.hover.valueOf() as any)[k]) return true;
   };
-  hover = (e: ScreenPosition) => {
-    const node = this.state.trees.node.pick(e);
+  hover = ({ position }: { position: ScreenPosition }) => {
+    const node = this.state.trees.node.pick(position);
     if (!node) {
       if (this.state.draw) return;
       let link;
       if (!this.disableLinkOperations) {
-        link = this.state.trees.link.pick(e);
+        link = this.state.trees.link.pick(position);
       }
       this.state.hover = { link };
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.eventBus.publish("RenderRequested");
       return;
     }
     const distance = {
-      x: e.x - node.x,
-      y: e.y - node.y,
+      x: position.x - node.x,
+      y: position.y - node.y,
     };
     const io =
       distance.x > this.theme.node.width && node.outputs
@@ -59,7 +58,7 @@ export class HoverManager {
       if (!this.state.isReadOnly) {
         this.state.hover.io = io;
       }
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.eventBus.publish("RenderRequested");
     }
   };
 }

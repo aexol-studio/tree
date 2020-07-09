@@ -1,4 +1,9 @@
-import { DiagramEvents, IOEvents } from "@events";
+import {
+  DiagramEvents,
+  IOEvents,
+  DiagramEventsPayloads,
+  IOEventsPayloads,
+} from "@events";
 
 /**
  * Event bus:
@@ -8,11 +13,16 @@ import { DiagramEvents, IOEvents } from "@events";
  * - providing possibility of publishing events to particular topics
  */
 export type Topic = DiagramEvents | IOEvents;
+export type TopicPayload = DiagramEventsPayloads & IOEventsPayloads;
+export type TopicArgs<T> = T extends keyof TopicPayload
+  ? TopicPayload[T]
+  : never;
+
 export class EventBus {
   private topics: { [key: string]: Function[] } = {};
   private externalSubscribers: { [key: string]: Function[] } = {};
-  private que: Array<{ topic: Topic; args: any[] }> = [];
-  subscribe(topic: Topic, callback: Function) {
+  private que: Array<{ topic: Topic; args?: any }> = [];
+  subscribe<T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) {
     if (!this.topics[topic]) {
       this.topics[topic] = [];
     }
@@ -20,7 +30,7 @@ export class EventBus {
     this.topics[topic].push(callback);
   }
 
-  publish(topic: Topic, ...args: any[]) {
+  publish<T extends Topic>(topic: T, args?: TopicArgs<T>) {
     this.que.push({
       topic,
       args,
@@ -34,12 +44,12 @@ export class EventBus {
         ...(this.topics[q.topic] || []),
         ...(this.externalSubscribers[q.topic] || []),
       ];
-      all.forEach((callback) => callback(...q.args));
-      this.que.shift()!;
+      all.forEach((callback) => callback(q.args));
+      this.que.shift();
     }
   }
 
-  on(topic: Topic | string, callback: Function) {
+  on<T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) {
     if (!this.externalSubscribers[topic]) {
       this.externalSubscribers[topic] = [];
     }
@@ -49,7 +59,7 @@ export class EventBus {
     return () => this.off(topic, callback);
   }
 
-  off(topic: Topic | string, callback: Function) {
+  off<T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) {
     if (!this.externalSubscribers[topic]) {
       return;
     }

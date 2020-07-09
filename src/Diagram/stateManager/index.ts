@@ -1,6 +1,5 @@
 import { EventBus } from "@eventBus";
 import { DiagramState } from "@models";
-import * as Events from "@events";
 import { ScreenPosition } from "@io";
 import { DiagramTheme, Node, Size, Link } from "@models";
 import { Utils } from "@utils";
@@ -46,7 +45,6 @@ export class StateManager {
       links: [],
       nodes: [],
       nodeDefinitions: [],
-      categories: [],
       selectedLinks: [],
       selectedNodes: [],
       hover: {},
@@ -118,11 +116,8 @@ export class StateManager {
     );
     new ChangesManager(this.state, this.eventBus);
 
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDrag, this.mouseDrag);
-    this.eventBus.subscribe(
-      Events.DiagramEvents.RebuildTreeRequested,
-      this.rebuildTrees
-    );
+    this.eventBus.subscribe("WorldMouseDrag", this.mouseDrag);
+    this.eventBus.subscribe("RebuildTreeRequested", this.rebuildTrees);
   }
   getState() {
     return {
@@ -149,7 +144,7 @@ export class StateManager {
     this.state.isReadOnly = isReadOnly;
   }
   requestSerialise = () => {
-    this.eventBus.publish(Events.DiagramEvents.SerialisationRequested);
+    this.eventBus.publish("SerialisationRequested");
   };
   rebuildTrees = () => {
     this.nodeManager.rebuildTree();
@@ -159,21 +154,23 @@ export class StateManager {
     return this.uiManager.calculateAnimations(timeCoefficient);
   };
   centerGraph = () => {
-    this.uiManager.centerPanTo(this.nodeManager.getCenter());
+    this.uiManager.centerPanTo({ position: this.nodeManager.getCenter() });
   };
   selectNode = (node: Node) => {
     this.nodeManager.selectSingleNode(node);
   };
   zeroGraph = () => {
     this.uiManager.panTo({
-      x: -this.theme.node.width * 3,
-      y: -this.theme.node.height * 3,
+      position: {
+        x: -this.theme.node.width * 3,
+        y: -this.theme.node.height * 3,
+      },
     });
   };
   centerOnNode = (node: Node) => {
     const foundIndex = this.state.nodes.indexOf(node);
     if (foundIndex > -1) {
-      this.eventBus.publish(Events.DiagramEvents.CenterOnNode, node);
+      this.eventBus.publish("CenterOnNode", { node });
     }
   };
   mouseDrag = ({
@@ -190,27 +187,27 @@ export class StateManager {
     if (selectedNodes.length > 0) {
       this.nodeManager.moveNodes(calculated);
     } else if (this.state.draw) {
-      this.hoverManager.hover(calculated);
+      this.hoverManager.hover({ position: calculated });
       this.connectionManager.drawConnector(calculated);
     } else if (this.state.hover.link) {
       this.connectionManager.moveLink(calculated);
     } else {
-      this.uiManager.panScreen(withoutPan);
+      this.uiManager.panScreen({ position: withoutPan });
     }
   };
   areaResized = (newSize: Size) => {
     this.state.uiState.areaSize = newSize;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
-  worldToScreenCoordinates = (e: ScreenPosition) =>
-    this.uiManager.worldToScreen(e);
+  worldToScreenCoordinates = (position: ScreenPosition) =>
+    this.uiManager.worldToScreen({ position });
   setScreenShotInProgress(screenShotInProgress: boolean) {
     this.state.screenShotInProgress = screenShotInProgress;
   }
   isScreenShotInProgress() {
     return this.state.screenShotInProgress;
   }
-  openMenu = (e: ScreenPosition) => {
-    this.menuManager.openNewNodeMenu(e);
+  openMenu = (position: ScreenPosition) => {
+    this.menuManager.openNewNodeMenu({ position });
   };
 }

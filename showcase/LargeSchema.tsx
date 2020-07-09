@@ -6,10 +6,14 @@ const definitions = require("./definitions.json");
 export class LargeSchema {
   diagram?: Diagram = undefined;
   constructor() {
-    this.diagram = new Diagram(document.getElementById("root")!, {
+    const root = document.getElementById("root");
+    if (!root) {
+      throw new Error("No root html element");
+    }
+    this.diagram = new Diagram(root, {
       disableLinkOperations: true,
     });
-    this.diagram!.setReadOnly(true);
+    this.diagram.setReadOnly(true);
     const links = Serializer.deserialize(json, definitions).links;
     const nodes = Serializer.deserialize(json, definitions).nodes;
     const ioNodes = nodes.map((el) => {
@@ -30,8 +34,8 @@ export class LargeSchema {
         o: ioNodes.find((n) => n.id === el.o.id),
       };
     });
-    this.diagram!.setLinks(ioLinks);
-    this.diagram!.setNodes(ioNodes);
-    this.diagram!.zeroDiagram();
+    this.diagram.setLinks(ioLinks);
+    this.diagram.setNodes(ioNodes);
+    this.diagram.zeroDiagram();
   }
 }

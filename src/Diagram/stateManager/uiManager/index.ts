@@ -1,6 +1,5 @@
 import { EventBus } from "@eventBus";
 import { ScreenPosition } from "@io";
-import * as Events from "@events";
 import { DiagramTheme, Node, UIState } from "@models";
 import { ConfigurationManager } from "@configuration";
 
@@ -18,34 +17,28 @@ export class UIManager {
     private eventBus: EventBus,
     private theme: DiagramTheme
   ) {
-    this.eventBus.subscribe(Events.IOEvents.ScreenMouseMove, this.mouseMove);
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenMouseOverMove,
-      this.mouseOverMove
-    );
-    this.eventBus.subscribe(Events.IOEvents.ScreenMouseWheel, this.mouseWheel);
-    this.eventBus.subscribe(Events.IOEvents.ScreenMouseDrag, this.mouseDrag);
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenLeftMouseClick,
-      this.LMBPressed
-    );
-    this.eventBus.subscribe(Events.IOEvents.ScreenLeftMouseUp, this.LMBUp);
-    this.eventBus.subscribe(Events.DiagramEvents.PanRequested, this.panTo);
-    this.eventBus.subscribe(
-      Events.DiagramEvents.CenterPanRequested,
-      this.centerPanTo
-    );
-    this.eventBus.subscribe(
-      Events.DiagramEvents.CenterOnNode,
-      this.centerOnNode
-    );
+    this.eventBus.subscribe("ScreenMouseMove", this.mouseMove);
+    this.eventBus.subscribe("ScreenMouseOverMove", this.mouseOverMove);
+    this.eventBus.subscribe("ScreenMouseWheel", this.mouseWheel);
+    this.eventBus.subscribe("ScreenMouseDrag", this.mouseDrag);
+    this.eventBus.subscribe("ScreenLeftMouseClick", this.LMBPressed);
+    this.eventBus.subscribe("ScreenLeftMouseUp", this.LMBUp);
+    this.eventBus.subscribe("PanRequested", this.panTo);
+    this.eventBus.subscribe("CenterPanRequested", this.centerPanTo);
+    this.eventBus.subscribe("CenterOnNode", this.centerOnNode);
 
     this.autoPanSmoothing = ConfigurationManager.instance.getOption(
       "autoPanSmoothing"
     );
   }
 
-  mouseWheel = (delta: number, mouseX: number, mouseY: number) => {
+  mouseWheel = ({
+    delta,
+    position,
+  }: {
+    delta: number;
+    position: ScreenPosition;
+  }) => {
     if (this.state.animatingPan) {
       return false;
     }
@@ -63,17 +56,14 @@ export class UIManager {
     }
 
     this.state.panX =
-      this.state.panX + mouseX / newScale - mouseX / this.state.scale;
+      this.state.panX + position.x / newScale - position.x / this.state.scale;
     this.state.panY =
-      this.state.panY + mouseY / newScale - mouseY / this.state.scale;
+      this.state.panY + position.y / newScale - position.y / this.state.scale;
 
     this.state.scale = newScale;
 
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    this.eventBus.publish(
-      Events.DiagramEvents.ViewModelChanged,
-      this.getViewModel()
-    );
+    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("ViewModelChanged", this.getViewModel());
   };
 
   calculateAnimations = (timeCoefficient: number) => {
@@ -104,46 +94,54 @@ export class UIManager {
     this.state.panY +=
       deltaY / Math.max(this.autoPanSmoothing / timeCoefficient, 1.0);
 
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
     return true;
   };
 
-  worldToScreen = (e: ScreenPosition): ScreenPosition => {
+  worldToScreen = ({
+    position,
+  }: {
+    position: ScreenPosition;
+  }): ScreenPosition => {
     return {
-      x: (e.x + this.state.panX) * this.state.scale,
-      y: (e.y + this.state.panY) * this.state.scale,
-      shiftKey: e.shiftKey,
+      x: (position.x + this.state.panX) * this.state.scale,
+      y: (position.y + this.state.panY) * this.state.scale,
+      shiftKey: position.shiftKey,
     };
   };
-  screenToWorld = (e: ScreenPosition): ScreenPosition => {
+  screenToWorld = ({
+    position,
+  }: {
+    position: ScreenPosition;
+  }): ScreenPosition => {
     return {
-      x: e.x / this.state.scale - this.state.panX,
-      y: e.y / this.state.scale - this.state.panY,
-      shiftKey: e.shiftKey,
+      x: position.x / this.state.scale - this.state.panX,
+      y: position.y / this.state.scale - this.state.panY,
+      shiftKey: position.shiftKey,
     };
   };
 
-  centerOnNode = (n: Node) => {
+  centerOnNode = ({ node }: { node: Node }) => {
     if (!this.autoPanSmoothing) {
       this.state.panX =
-        -(n.x + this.theme.node.width / 2) +
+        -(node.x + this.theme.node.width / 2) +
         this.state.areaSize.width / 2 / this.state.scale;
       this.state.panY =
-        -(n.y + this.theme.node.height / 2) +
+        -(node.y + this.theme.node.height / 2) +
         this.state.areaSize.height / 2 / this.state.scale;
     } else {
       this.state.targetPanX =
-        -(n.x + this.theme.node.width / 2) +
+        -(node.x + this.theme.node.width / 2) +
         this.state.areaSize.width / 2 / this.state.scale;
       this.state.targetPanY =
-        -(n.y + this.theme.node.height / 2) +
+        -(node.y + this.theme.node.height / 2) +
         this.state.areaSize.height / 2 / this.state.scale;
       this.state.animatingPan = true;
     }
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
 
-  calculateMinimapPosition = (e: ScreenPosition) => {
+  calculateMinimapPosition = ({ position }: { position: ScreenPosition }) => {
     const minimapConstraints = {
       left:
         this.state.areaSize.width -
@@ -155,51 +153,49 @@ export class UIManager {
     };
 
     if (
-      e.x > minimapConstraints.left &&
-      e.x < minimapConstraints.right &&
-      e.y > minimapConstraints.top &&
-      e.y < minimapConstraints.bottom
+      position.x > minimapConstraints.left &&
+      position.x < minimapConstraints.right &&
+      position.y > minimapConstraints.top &&
+      position.y < minimapConstraints.bottom
     ) {
       return {
-        x: e.x - minimapConstraints.left,
-        y: e.y - minimapConstraints.top,
+        x: position.x - minimapConstraints.left,
+        y: position.y - minimapConstraints.top,
       };
     }
 
     return null;
   };
-  mouseOverMove = (e: ScreenPosition) => {
-    const minimapPosition = this.calculateMinimapPosition(e);
+  mouseOverMove = ({ position }: { position: ScreenPosition }) => {
+    const minimapPosition = this.calculateMinimapPosition({ position });
     if (minimapPosition && !this.state.draggingWorld) {
       return;
     }
-    this.eventBus.publish(
-      Events.IOEvents.WorldMouseOverMove,
-      this.screenToWorld(e)
-    );
+    this.eventBus.publish("WorldMouseOverMove", {
+      position: this.screenToWorld({ position }),
+    });
   };
 
-  mouseMove = (e: ScreenPosition) => {
-    const minimapPosition = this.calculateMinimapPosition(e);
+  mouseMove = ({ position }: { position: ScreenPosition }) => {
+    const minimapPosition = this.calculateMinimapPosition({ position });
 
     if (minimapPosition && !this.state.draggingWorld) {
-      this.eventBus.publish(Events.IOEvents.MinimapMouseMove, minimapPosition);
+      this.eventBus.publish("MinimapMouseMove", { position: minimapPosition });
       return;
     }
 
-    this.eventBus.publish(
-      Events.IOEvents.WorldMouseMove,
-      this.screenToWorld(e)
-    );
+    this.eventBus.publish("WorldMouseMove", {
+      position: this.screenToWorld({ position }),
+    });
   };
 
-  mouseDrag = (e: ScreenPosition) => {
-    const isInsideMinimap = this.calculateMinimapPosition(e);
+  mouseDrag = ({ position }: { position: ScreenPosition }) => {
+    const isInsideMinimap = this.calculateMinimapPosition({ position });
     if (isInsideMinimap && !this.state.draggingElements) {
       return;
     }
-    const calculated = this.screenToWorld(e);
-    this.eventBus.publish(Events.IOEvents.WorldMouseDrag, {
+    const calculated = this.screenToWorld({ position });
+    this.eventBus.publish("WorldMouseDrag", {
       withoutPan: {
         x: calculated.x + this.state.panX,
         y: calculated.y + this.state.panY,
@@ -219,70 +215,60 @@ export class UIManager {
     };
   }
 
-  LMBUp = (e: ScreenPosition) => {
+  LMBUp = ({ position }: { position: ScreenPosition }) => {
     if (this.state.draggingElements) {
-      this.eventBus.publish(Events.IOEvents.WorldMouseDragEnd);
+      this.eventBus.publish("WorldMouseDragEnd");
     }
     if (this.state.draggingWorld) {
-      this.eventBus.publish(
-        Events.DiagramEvents.ViewModelChanged,
-        this.getViewModel()
-      );
+      this.eventBus.publish("ViewModelChanged", this.getViewModel());
     }
-    this.eventBus.publish(
-      Events.IOEvents.WorldLeftMouseUp,
-      this.screenToWorld(e)
-    );
+    this.eventBus.publish("WorldLeftMouseUp", {
+      position: this.screenToWorld({ position }),
+    });
     this.state.draggingWorld = false;
     this.state.draggingElements = false;
     this.state.draggingMinimap = false;
   };
 
-  LMBPressed = (e: ScreenPosition) => {
-    const coordsInsideMinimap = this.calculateMinimapPosition(e);
+  LMBPressed = ({ position }: { position: ScreenPosition }) => {
+    const coordsInsideMinimap = this.calculateMinimapPosition({ position });
 
     if (coordsInsideMinimap) {
-      this.eventBus.publish(
-        Events.IOEvents.MinimapLeftMouseClick,
-        coordsInsideMinimap
-      );
+      this.eventBus.publish("MinimapLeftMouseClick", {
+        position: coordsInsideMinimap,
+      });
       return;
     }
 
     this.state.lastDragPosition = {
-      x: e.x / this.state.scale,
-      y: e.y / this.state.scale,
+      x: position.x / this.state.scale,
+      y: position.y / this.state.scale,
     };
 
-    this.eventBus.publish(
-      Events.IOEvents.WorldLeftMouseClick,
-      this.screenToWorld(e),
-      {
-        x: this.state.panX,
-        y: this.state.panY,
-      }
-    );
+    this.eventBus.publish("WorldLeftMouseClick", {
+      position: this.screenToWorld({ position }),
+    });
   };
 
-  panScreen = (e: ScreenPosition) => {
+  panScreen = ({ position }: { position: ScreenPosition }) => {
     if (!this.state.lastDragPosition) {
       return;
     }
     this.state.animatingPan = false;
     this.state.draggingWorld = true;
-    this.state.panX -= this.state.lastDragPosition.x - e.x;
-    this.state.panY -= this.state.lastDragPosition.y - e.y;
-    this.state.lastDragPosition = { ...e };
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.state.panX -= this.state.lastDragPosition.x - position.x;
+    this.state.panY -= this.state.lastDragPosition.y - position.y;
+    this.state.lastDragPosition = { ...position };
+    this.eventBus.publish("RenderRequested");
   };
-  panTo = (e: ScreenPosition) => {
-    this.state.panX = -e.x;
-    this.state.panY = -e.y;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  panTo = ({ position }: { position: ScreenPosition }) => {
+    this.state.panX = -position.x;
+    this.state.panY = -position.y;
+    this.eventBus.publish("RenderRequested");
   };
-  centerPanTo = (e: ScreenPosition) => {
-    this.state.panX = -e.x + this.state.areaSize.width / 2.0;
-    this.state.panY = -e.y + this.state.areaSize.height / 2.0;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+  centerPanTo = ({ position }: { position: ScreenPosition }) => {
+    this.state.panX = position.x + this.state.areaSize.width / 2.0;
+    this.state.panY = position.y + this.state.areaSize.height / 2.0;
+    this.eventBus.publish("RenderRequested");
   };
 }

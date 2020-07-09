@@ -1,12 +1,11 @@
 import { Renderer } from "@renderer/index";
-import { EventBus, Topic } from "@eventBus";
+import { EventBus, Topic, TopicArgs } from "@eventBus";
 import { StateManager } from "./stateManager";
 import { IO, ScreenPosition } from "@io";
 import { Node, Size, Link, NodeDefinition } from "@models";
 import { NodeUtils } from "@utils";
 import { DiagramOptions, ConfigurationManager } from "@configuration";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
-import { DiagramEvents } from "@events";
 
 /**
  * Diagram:
@@ -30,12 +29,12 @@ export class Diagram {
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
   }
-  on(topic: Topic | string, callback: Function) {
-    return this.eventBus.on(topic, callback);
-  }
-  off(topic: Topic | string, callback: Function) {
-    return this.eventBus.off(topic, callback);
-  }
+  publish = <T extends Topic>(topic: T, args?: TopicArgs<T>) =>
+    this.eventBus.publish(topic, args);
+  on = <T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) =>
+    this.eventBus.on(topic, callback);
+  off = <T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) =>
+    this.eventBus.off(topic, callback);
   setNodes(nodes: Node[], beautify?: boolean) {
     if (beautify) {
       this.beautifyDiagram(nodes);
@@ -64,7 +63,7 @@ export class Diagram {
     NodeUtils.beautifyDiagram(nodes, this.configuration.getOption("theme"));
   }
   forceRender() {
-    this.eventBus.publish(DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   }
   centerDiagram() {
     this.stateManager.centerGraph();
@@ -270,10 +269,12 @@ export class Diagram {
       );
 
       if (savedUiState) {
-        const screenShotRenderedCallback = (
-          screenShotContext: CanvasRenderingContext2D
-        ) => {
-          screenShotContext.canvas.toBlob((blob) => {
+        const screenShotRenderedCallback = ({
+          context,
+        }: {
+          context: CanvasRenderingContext2D;
+        }) => {
+          context.canvas.toBlob((blob) => {
             resolve(blob);
           }, type);
           this.stateManager.setScreenShotInProgress(false);
@@ -283,17 +284,11 @@ export class Diagram {
           this.stateManager.getState().uiState.panY = savedUiState.panY;
           this.stateManager.getState().uiState.scale = savedUiState.scale;
 
-          this.eventBus.off(
-            DiagramEvents.ScreenShotRendered,
-            screenShotRenderedCallback
-          );
+          this.eventBus.off("ScreenShotRendered", screenShotRenderedCallback);
         };
 
-        this.eventBus.on(
-          DiagramEvents.ScreenShotRendered,
-          screenShotRenderedCallback
-        );
-        this.eventBus.publish(DiagramEvents.RenderRequested);
+        this.eventBus.on("ScreenShotRendered", screenShotRenderedCallback);
+        this.eventBus.publish("RenderRequested");
       }
     });
   };

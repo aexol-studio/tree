@@ -1,5 +1,4 @@
 import { EventBus } from "@eventBus";
-import * as Events from "@events";
 import { SnapshotType, Snapshot, DiagramState } from "@models";
 
 /**
@@ -16,29 +15,17 @@ export class ChangesManager {
   ];
   future: Snapshot[] = [];
   constructor(private state: DiagramState, private eventBus: EventBus) {
-    this.eventBus.subscribe(
-      Events.DiagramEvents.DescriptionRenameEnded,
-      this.dataChange
-    );
-    this.eventBus.subscribe(Events.DiagramEvents.NodeCreated, this.dataChange);
-    this.eventBus.subscribe(Events.DiagramEvents.NodeDeleted, this.dataChange);
-    this.eventBus.subscribe(Events.DiagramEvents.NodeChanged, this.dataChange);
-    this.eventBus.subscribe(Events.DiagramEvents.LinkCreated, this.dataChange);
-    this.eventBus.subscribe(Events.DiagramEvents.LinkDeleted, this.dataChange);
-    this.eventBus.subscribe(Events.DiagramEvents.UndoRequested, this.undo);
-    this.eventBus.subscribe(Events.DiagramEvents.RedoRequested, this.redo);
-    this.eventBus.subscribe(
-      Events.DiagramEvents.SerialisationRequested,
-      this.dataChange
-    );
-    this.eventBus.subscribe(
-      Events.DiagramEvents.LinkMoved,
-      this.positionChange
-    );
-    this.eventBus.subscribe(
-      Events.DiagramEvents.NodeMoved,
-      this.positionChange
-    );
+    this.eventBus.subscribe("DescriptionRenameEnded", this.dataChange);
+    this.eventBus.subscribe("NodeCreated", this.dataChange);
+    this.eventBus.subscribe("NodeDeleted", this.dataChange);
+    this.eventBus.subscribe("NodeChanged", this.dataChange);
+    this.eventBus.subscribe("LinkCreated", this.dataChange);
+    this.eventBus.subscribe("LinksDeleted", this.dataChange);
+    this.eventBus.subscribe("UndoRequested", this.undo);
+    this.eventBus.subscribe("RedoRequested", this.redo);
+    this.eventBus.subscribe("SerialisationRequested", this.dataChange);
+    this.eventBus.subscribe("LinkMoved", this.positionChange);
+    this.eventBus.subscribe("NodeMoved", this.positionChange);
   }
   dataChange = () => {
     this.snapshot("past");
@@ -46,14 +33,14 @@ export class ChangesManager {
       nodes: this.state.nodes,
       links: this.state.links,
     };
-    this.eventBus.publish(Events.DiagramEvents.DataModelChanged, payload);
+    this.eventBus.publish("DataModelChanged", payload);
   };
   positionChange = () => {
     const payload = {
       nodes: this.state.nodes,
       links: this.state.links,
     };
-    this.eventBus.publish(Events.DiagramEvents.ViewModelChanged, payload);
+    this.eventBus.publish("DataModelChanged", payload);
   };
   unsnap = (time: SnapshotType) => {
     const state = this[time].pop();
@@ -63,9 +50,9 @@ export class ChangesManager {
     this.snapshot(time === "past" ? "future" : "past");
     this.state.nodes = [...state.nodes];
     this.state.links = [...state.links];
-    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
-    this.eventBus.publish(Events.DiagramEvents.SerialisationRequested);
+    this.eventBus.publish("RebuildTreeRequested");
+    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("SerialisationRequested");
   };
   undo = () => {
     if (this.past.length > 1) {

@@ -9,10 +9,38 @@ import { DefaultDiagramTheme } from "../src/Theme/DefaultDiagramTheme";
 class App {
   diagram?: Diagram = undefined;
   constructor() {
-    this.diagram = new Diagram(document.getElementById("root")!, {
+    const root = document.getElementById("root");
+    if (!root) {
+      throw new Error("No root html element");
+    }
+    this.diagram = new Diagram(root, {
       disableLinkOperations: true,
       theme: { ...DefaultDiagramTheme, fontFamily: `"Roboto"` },
     });
+    const helper = document.createElement("div");
+    helper.innerHTML = "Create first Node";
+    helper.style.position = "fixed";
+    helper.style.left = "calc(50vw - 100px)";
+    helper.style.top = "calc(50vh - 20px)";
+    helper.style.width = "200px";
+    (helper.style.display = "flex"),
+      (helper.style.height = "40px"),
+      (helper.style.background = "#153");
+    helper.style.color = "#fff";
+    helper.style.fontSize = "12px";
+    helper.style.alignItems = "center";
+    helper.style.justifyContent = "center";
+    helper.style.cursor = "pointer";
+    helper.onclick = () => {
+      this.diagram?.publish("MenuCreateNodeRequested", {
+        position: {
+          x: helper.getBoundingClientRect().x * 2,
+          y: helper.getBoundingClientRect().y * 2,
+        },
+      });
+    };
+    this.diagram.on("NodeCreated", () => helper.remove());
+    document.body.appendChild(helper);
     const createOND = (name: string): NodeDefinition["node"] => ({
       name: `${name}`,
       description: ``,
@@ -31,7 +59,7 @@ class App {
           "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings",
       },
     ];
-    this.diagram?.setDefinitions([
+    this.diagram.setDefinitions([
       {
         type: "www",
         help: "Hello I am dummy node this is help I do display",

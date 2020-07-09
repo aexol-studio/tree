@@ -1,33 +1,40 @@
+import { ScreenPosition } from "@io";
+
 /**
  * IOEvents:
  *
  * Set of IO-specific events, e.g. mouse button or key was pressed
  * Used by IO service to put events on a bus
  */
-export enum IOEvents {
-  ScreenMouseLeave = "ScreenMouseLeave",
-  ScreenMouseMove = "ScreenMouseMove",
-  ScreenMouseDrag = "ScreenMouseDrag",
-  ScreenMouseOverMove = "ScreenMouseOverMove",
-  ScreenLeftMouseUp = "ScreenLeftMouseUp",
-  ScreenRightMouseUp = "ScreenRightMouseUp",
-  ScreenLeftMouseClick = "ScreenLeftMouseClick",
-  ScreenDoubleClick = "ScreenDoubleClick",
-  ScreenMouseWheel = "ScreenMouseWheel",
+export type IOEvents = keyof IOEventsPayloads;
 
-  WorldMouseMove = "WorldMouseMove",
-  WorldMouseOverMove = "WorldMouseOverMove",
-  WorldMouseDrag = "WorldMouseDrag",
-  WorldMouseDragEnd = "WorldMouseDragEnd",
-  WorldLeftMouseClick = "WorldLeftMouseClick",
-  WorldLeftMouseUp = "WorldLeftMouseUp",
+export interface IOEventsPayloads {
+  ScreenMouseLeave: { position: ScreenPosition };
+  ScreenMouseMove: { position: ScreenPosition };
+  ScreenMouseDrag: { position: ScreenPosition };
+  ScreenMouseOverMove: { position: ScreenPosition };
+  ScreenLeftMouseUp: { position: ScreenPosition };
+  ScreenRightMouseUp: { position: ScreenPosition };
+  ScreenLeftMouseClick: { position: ScreenPosition };
+  ScreenDoubleClick: { position: ScreenPosition };
+  ScreenMouseWheel: { position: ScreenPosition; delta: number };
 
-  MinimapMouseMove = "MinimapMouseMove",
-  MinimapLeftMouseClick = "MinimapLeftMouseClick",
+  WorldMouseMove: { position: ScreenPosition };
+  WorldMouseOverMove: { position: ScreenPosition };
+  WorldMouseDrag: {
+    withoutPan: ScreenPosition;
+    calculated: ScreenPosition;
+  };
+  WorldMouseDragEnd: { position: ScreenPosition };
+  WorldLeftMouseClick: { position: ScreenPosition };
+  WorldLeftMouseUp: { position: ScreenPosition };
 
-  ScreenRightMouseClick = "ScreenRightMouseClick",
-  MPressed = "MPressed",
-  DeletePressed = "DeletePressed",
-  BackspacePressed = "BackspacePressed",
-  RenamerChanged = "RenamerChanged"
+  MinimapMouseMove: { position: ScreenPosition };
+  MinimapLeftMouseClick: { position: ScreenPosition };
+
+  ScreenRightMouseClick: { position: ScreenPosition };
+  MPressed: { position: ScreenPosition };
+  DeletePressed: { position: ScreenPosition };
+  BackspacePressed: { position: ScreenPosition };
+  RenamerChanged: { position: ScreenPosition };
 }

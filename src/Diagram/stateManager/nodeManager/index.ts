@@ -1,5 +1,4 @@
 import { EventBus } from "@eventBus";
-import * as Events from "@events";
 import { ScreenPosition } from "@io";
 import {
   DiagramState,
@@ -34,36 +33,15 @@ export class NodeManager {
     private htmlManager: HtmlManager,
     private descriptionManager: DescriptionManager
   ) {
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseClick,
-      this.selectNode
-    );
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseClick,
-      this.goToNodeType
-    );
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenRightMouseUp,
-      this.openNodeMenu
-    );
-    this.eventBus.subscribe(
-      Events.IOEvents.ScreenMouseLeave,
-      this.handleScreenLeave
-    );
-    this.eventBus.subscribe(
-      Events.IOEvents.WorldLeftMouseUp,
-      this.openPortMenu
-    );
-    this.eventBus.subscribe(
-      Events.DiagramEvents.NodeCreationRequested,
-      this.createNode
-    );
-    this.eventBus.subscribe(Events.IOEvents.WorldMouseDragEnd, this.movedNodes);
-    this.eventBus.subscribe(Events.DiagramEvents.NodeSelected, this.storeNodes);
-    this.eventBus.subscribe(
-      Events.IOEvents.BackspacePressed,
-      this.deleteSelectedNodes
-    );
+    this.eventBus.subscribe("WorldLeftMouseClick", this.selectNode);
+    this.eventBus.subscribe("WorldLeftMouseClick", this.goToNodeType);
+    this.eventBus.subscribe("ScreenRightMouseUp", this.openNodeMenu);
+    this.eventBus.subscribe("ScreenMouseLeave", this.handleScreenLeave);
+    this.eventBus.subscribe("WorldLeftMouseUp", this.openPortMenu);
+    this.eventBus.subscribe("NodeCreationRequested", this.createNode);
+    this.eventBus.subscribe("WorldMouseDragEnd", this.movedNodes);
+    this.eventBus.subscribe("NodeSelected", this.storeNodes);
+    this.eventBus.subscribe("BackspacePressed", this.deleteSelectedNodes);
 
     this.renameManager = new RenameManager(
       state,
@@ -90,7 +68,7 @@ export class NodeManager {
     this.state.selectedNodes = [];
     this.rebuildTree();
   };
-  storeNodes = ([e]: [ScreenPosition, Node[]]) => {
+  storeNodes = ({ e }: { e: ScreenPosition }) => {
     this.storeSelectedNodesRelativePosition = this.state.selectedNodes.map(
       (sn) =>
         ({
@@ -117,7 +95,7 @@ export class NodeManager {
       n.y = e.y - oldN.y;
     }
     this.state.uiState.lastDragPosition = { ...e };
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
   };
   movedNodes = () => {
     const { selectedNodes } = this.state;
@@ -125,7 +103,7 @@ export class NodeManager {
       return;
     }
     this.rebuildTree();
-    this.eventBus.publish(Events.DiagramEvents.NodeMoved, selectedNodes);
+    this.eventBus.publish("NodeMoved", { selectedNodes });
   };
   beautifyNodesInPlace = (node: Node) => {
     const graph = NodeUtils.graphFromNode(node);
@@ -141,20 +119,20 @@ export class NodeManager {
       n.x += diff.x;
       n.y += diff.y;
     });
-    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RebuildTreeRequested");
+    this.eventBus.publish("RenderRequested");
   };
   deleteSelectedNodes = () => {
     this.deleteNodes(this.state.selectedNodes);
   };
-  openNodeMenu = (e: ScreenPosition) => {
+  openNodeMenu = ({ position }: { position: ScreenPosition }) => {
     if (this.state.isReadOnly || this.state.draw) {
       return;
     }
     const { node, io } = this.state.hover;
-
-    if (node && !this.state.menu) {
-      this.state.categories = [
+    if (node) {
+      const menuCategories: Category[] = [];
+      menuCategories.push(
         {
           name: "delete",
           help:
@@ -178,7 +156,7 @@ export class NodeManager {
           name: "select graph",
           help: "Select all nodes in graph",
           action: () => {
-            this.graphSelect(e);
+            this.graphSelect();
           },
         },
         {
@@ -193,26 +171,26 @@ export class NodeManager {
               this.foldChildren(node);
             }
           },
-        },
-      ];
+        }
+      );
 
       const definitionHasOptions = node.definition.options;
       if (definitionHasOptions) {
-        this.state.categories = this.state.categories.concat(
-          definitionHasOptions.map(({ help, name }) => ({
+        menuCategories.push(
+          ...definitionHasOptions.map(({ help, name }) => ({
             name,
             help,
             action: () => {
               const hasIndex = node.options.findIndex((n) => n === name);
               if (hasIndex !== -1) {
                 node.options.splice(hasIndex, 1);
-                this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-                this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+                this.eventBus.publish("NodeChanged", { node });
+                this.eventBus.publish("RenderRequested");
                 return;
               }
               node.options.push(name);
-              this.eventBus.publish(Events.DiagramEvents.NodeChanged);
-              this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+              this.eventBus.publish("NodeChanged", { node });
+              this.eventBus.publish("RenderRequested");
             },
           }))
         );
@@ -221,21 +199,22 @@ export class NodeManager {
         node.definition.categories ||
         (node.definition.parent && node.definition.parent.categories);
       if (categories && categories.node) {
-        this.state.categories = this.state.categories.concat(categories.node);
+        menuCategories.push(...categories.node);
       }
 
-      this.eventBus.publish(Events.DiagramEvents.MenuRequested, {
-        e,
+      this.eventBus.publish("MenuRequested", {
+        e: position,
         title: `Edit ${node.name}`,
+        categories: menuCategories,
       });
     }
   };
-  graphSelect = (e: ScreenPosition) => {
+  graphSelect = () => {
     const { node, io } = this.state.hover;
     if (node && !io) {
       const nodeGraph = NodeUtils.graphFromNode(node);
       this.state.selectedNodes = nodeGraph.nodes;
-      this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+      this.eventBus.publish("RenderRequested");
     }
   };
   foldChildren = (node: Node, unfold?: boolean) => {
@@ -248,13 +227,13 @@ export class NodeManager {
       });
       node.hideChildren = !unfold;
     }
-    this.eventBus.publish(Events.DiagramEvents.RebuildTreeRequested);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RebuildTreeRequested");
+    this.eventBus.publish("RenderRequested");
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
   };
-  goToNodeType = (e: ScreenPosition) => {
+  goToNodeType = () => {
     const { type, node } = this.state.hover;
     if (type && node && node.definition.parent) {
       const parentNode = this.state.nodes.find(
@@ -264,14 +243,14 @@ export class NodeManager {
       );
       if (parentNode) {
         this.selectSingleNode(parentNode);
-        this.eventBus.publish(Events.DiagramEvents.CenterOnNode, parentNode);
+        this.eventBus.publish("CenterOnNode", { node: parentNode });
       }
     }
   };
-  selectNode = (e: ScreenPosition) => {
+  selectNode = ({ position }: { position: ScreenPosition }) => {
     const { node, io, type } = this.state.hover;
     if (node && !io && !type) {
-      if (e.shiftKey) {
+      if (position.shiftKey) {
         const hasIndex = this.state.selectedNodes.indexOf(node);
         if (hasIndex !== -1) {
           this.state.selectedNodes.splice(hasIndex);
@@ -289,11 +268,11 @@ export class NodeManager {
     } else {
       this.state.selectedNodes = [];
     }
-    this.eventBus.publish(Events.DiagramEvents.NodeSelected, [
-      e,
-      [...this.state.selectedNodes],
-    ]);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("NodeSelected", {
+      e: position,
+      selectedNodes: [...this.state.selectedNodes],
+    });
+    this.eventBus.publish("RenderRequested");
   };
   placeConnectedNode = (node: Node, io: "i" | "o") => {
     let x = node.x,
@@ -301,13 +280,19 @@ export class NodeManager {
     const xAdd =
       this.theme.node.width + this.theme.port.width + this.theme.node.spacing.x;
     if (io === "i") {
-      for (const input of node.inputs!) {
+      if (!node.inputs) {
+        throw new Error("Cannot connect to node without inputs");
+      }
+      for (const input of node.inputs) {
         y = input.y > y ? input.y : y;
       }
       x -= xAdd;
     }
     if (io === "o") {
-      for (const output of node.outputs!) {
+      if (!node.outputs) {
+        throw new Error("Cannot connect to node without outputs");
+      }
+      for (const output of node.outputs) {
         y = output.y > y ? output.y : y;
       }
       x += this.theme.node.width + xAdd;
@@ -348,12 +333,18 @@ export class NodeManager {
     );
     this.rebuildTree();
     this.descriptionManager.clearDescription();
-    this.eventBus.publish(Events.DiagramEvents.NodeDeleted, n);
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("NodeDeleted", { nodes: n });
+    this.eventBus.publish("RenderRequested");
   };
-  createNode = (e: ScreenPosition, nodeDefinition: NodeDefinition) => {
+  createNode = ({
+    position,
+    nodeDefinition,
+  }: {
+    position: ScreenPosition;
+    nodeDefinition: NodeDefinition;
+  }) => {
     const createdNode: Node = NodeUtils.createNode(
-      e,
+      position,
       nodeDefinition,
       this.state.nodeDefinitions
     );
@@ -362,7 +353,7 @@ export class NodeManager {
       NodeUtils.createTreeNode(createdNode, this.theme)
     );
     this.selectSingleNode(createdNode);
-    this.eventBus.publish(Events.DiagramEvents.NodeCreated, createdNode);
+    this.eventBus.publish("NodeCreated", { node: createdNode });
     if (
       !createdNode.name &&
       !createdNode.notEditable &&
@@ -371,7 +362,7 @@ export class NodeManager {
       this.renameManager.startRenaming(createdNode);
     }
     this.state.hover.node = undefined;
-    this.eventBus.publish(Events.DiagramEvents.RenderRequested);
+    this.eventBus.publish("RenderRequested");
     return createdNode;
   };
 
@@ -385,16 +376,12 @@ export class NodeManager {
     };
   };
 
-  openPortMenu = (e: ScreenPosition) => {
-    if (
-      this.state.isReadOnly ||
-      this.state.menu ||
-      this.state.drawedConnection
-    ) {
+  openPortMenu = ({ position }: { position: ScreenPosition }) => {
+    if (this.state.isReadOnly || this.state.drawedConnection) {
       this.state.drawedConnection = undefined;
       return;
     }
-    this.eventBus.publish(Events.DiagramEvents.PickRequested, e);
+    this.eventBus.publish("PickRequested", { position });
     const { io, node } = this.state.hover;
     if (node && io) {
       const createConnectedNodesCategory = (n: NodeDefinition): Category => ({
@@ -404,10 +391,10 @@ export class NodeManager {
           if (node.hideChildren) {
             this.foldChildren(node, true);
           }
-          const createdNode = this.createNode(
-            this.placeConnectedNode(node, io),
-            n
-          );
+          const createdNode = this.createNode({
+            position: this.placeConnectedNode(node, io),
+            nodeDefinition: n,
+          });
           this.connectionManager.makeConnection(
             io === "i" ? node : createdNode,
             io === "o" ? node : createdNode
@@ -437,48 +424,52 @@ export class NodeManager {
         };
       };
       const { definition } = node;
+      const menuCategories: Category[] = [];
       if (io === "i" && node.inputs) {
-        this.state.categories = NodeUtils.getDefinitionAcceptedInputCategories(
-          definition,
-          this.state.nodeDefinitions,
-          undefined,
-          this.state.nodes,
-          node
-        ).map(createTopicCategory);
+        menuCategories.push(
+          ...NodeUtils.getDefinitionAcceptedInputCategories(
+            definition,
+            this.state.nodeDefinitions,
+            undefined,
+            this.state.nodes,
+            node
+          ).map(createTopicCategory)
+        );
       } else if (io === "o" && node.outputs) {
-        this.state.categories = NodeUtils.getDefinitionAcceptedOutputCategories(
-          definition,
-          this.state.nodeDefinitions,
-          undefined,
-          this.state.nodes,
-          node
-        ).map(createTopicCategory);
+        menuCategories.push(
+          ...NodeUtils.getDefinitionAcceptedOutputCategories(
+            definition,
+            this.state.nodeDefinitions,
+            undefined,
+            this.state.nodes,
+            node
+          ).map(createTopicCategory)
+        );
       }
 
-      const categories = node.definition.categories;
+      const { categories } = node.definition;
       if (categories) {
         if (io === "i" && categories.inputs) {
-          this.state.categories = this.state.categories.concat(
-            categories.inputs
-          );
+          menuCategories.push(...categories.inputs);
         }
         if (io === "o" && categories.outputs) {
-          this.state.categories = this.state.categories.concat(
-            categories.outputs
-          );
+          menuCategories.push(...categories.outputs);
         }
       }
 
       const NodeScreenPosition = this.uiManager.worldToScreen({
-        ...e,
-        x: node.x,
-        y: node.y,
+        position: {
+          ...position,
+          x: node.x,
+          y: node.y,
+        },
       });
 
       this.state.hover = {};
-      this.eventBus.publish(Events.DiagramEvents.MenuRequested, {
+      this.eventBus.publish("MenuRequested", {
         e: NodeScreenPosition,
         title: `Create ${node.name} field`,
+        categories: menuCategories,
       });
     }
   };
