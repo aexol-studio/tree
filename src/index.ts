@@ -1,5 +1,4 @@
 export { Diagram } from "@diagram/index";
-export { Topic } from "@eventBus";
 export * from "./Utils";
 export * from "@models";
 export * from "./Serialization";

@@ -7,17 +7,14 @@ import { DiagramEvents } from "@events";
  * - providing possibility of subscribing to particular topics
  * - providing possibility of publishing events to particular topics
  */
-export type Topic = keyof DiagramEvents;
-export type TopicPayload = DiagramEvents;
-export type TopicArgs<T> = T extends keyof TopicPayload
-  ? TopicPayload[T]
-  : never;
-
 export class EventBus {
   private topics: { [key: string]: Function[] } = {};
   private externalSubscribers: { [key: string]: Function[] } = {};
-  private que: Array<{ topic: Topic; args?: any }> = [];
-  subscribe<T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) {
+  private que: Array<{ topic: keyof DiagramEvents; args?: any }> = [];
+  subscribe<T extends keyof DiagramEvents>(
+    topic: T,
+    callback: (args: DiagramEvents[T]) => any
+  ) {
     if (!this.topics[topic]) {
       this.topics[topic] = [];
     }
@@ -25,7 +22,7 @@ export class EventBus {
     this.topics[topic].push(callback);
   }
 
-  publish<T extends Topic>(topic: T, args?: TopicArgs<T>) {
+  publish<T extends keyof DiagramEvents>(topic: T, args?: DiagramEvents[T]) {
     this.que.push({
       topic,
       args,
@@ -44,7 +41,10 @@ export class EventBus {
     }
   }
 
-  on<T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) {
+  on<T extends keyof DiagramEvents>(
+    topic: T,
+    callback: (args: DiagramEvents[T]) => any
+  ) {
     if (!this.externalSubscribers[topic]) {
       this.externalSubscribers[topic] = [];
     }
@@ -54,7 +54,10 @@ export class EventBus {
     return () => this.off(topic, callback);
   }
 
-  off<T extends Topic>(topic: T, callback: (args: TopicArgs<T>) => any) {
+  off<T extends keyof DiagramEvents>(
+    topic: T,
+    callback: (args: DiagramEvents[T]) => any
+  ) {
     if (!this.externalSubscribers[topic]) {
       return;
     }
