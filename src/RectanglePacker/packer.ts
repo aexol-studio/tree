@@ -17,13 +17,13 @@ interface Layout {
 }
 
 export function packBoxes(sizes: IndexedDimensions[]): IndexedBoxes[] {
-  let layout: Layout = { size: [0, 0], boxes: [] };
-  let order = new Array(sizes.length);
+  const layout: Layout = { size: [0, 0], boxes: [] };
+  const order = new Array(sizes.length);
   for (let i = 0; i < sizes.length; i++) {
     order[i] = i;
   }
 
-  order.sort(function(a, b) {
+  order.sort(function (a, b) {
     return (
       sizes[b].dimensions[0] * sizes[b].dimensions[1] -
       sizes[a].dimensions[0] * sizes[a].dimensions[1]
@@ -31,31 +31,31 @@ export function packBoxes(sizes: IndexedDimensions[]): IndexedBoxes[] {
   });
 
   for (let i = 0; i < sizes.length; i++) {
-    let size: Dimensions = sizes[order[i]].dimensions;
-    let positions: Dimensions[] = [[0, 0]];
+    const size: Dimensions = sizes[order[i]].dimensions;
+    const positions: Dimensions[] = [[0, 0]];
     for (let j = 0; j < layout.boxes.length; j++) {
-      let box = layout.boxes[j];
+      const box = layout.boxes[j];
       positions.push(
         [box.position[0], box.position[1] + box.size[1]],
         [box.position[0] + box.size[0], box.position[1]]
       );
     }
 
-    let best: {
+    const best: {
       position: Dimensions;
       score: number;
     } = { score: Infinity, position: positions[0] };
     if (positions.length > 1) {
       for (let j = 0; j < positions.length; j++) {
-        let position = positions[j];
-        let box: Box = { size: size, position: position };
+        const position = positions[j];
+        const box: Box = { size: size, position: position };
         if (validate(layout.boxes, box)) {
-          let boxes = layout.boxes.slice();
+          const boxes = layout.boxes.slice();
           boxes.push(box);
 
-          let score = rate({
+          const score = rate({
             size: bounds(boxes),
-            boxes: boxes
+            boxes: boxes,
           });
 
           if (score < best.score) {
@@ -66,12 +66,12 @@ export function packBoxes(sizes: IndexedDimensions[]): IndexedBoxes[] {
       }
     }
 
-    let box: Box = { size: size, position: best.position };
+    const box: Box = { size: size, position: best.position };
     layout.boxes.push(box);
     layout.size = bounds(layout.boxes);
   }
 
-  let boxes = layout.boxes.slice();
+  const boxes = layout.boxes.slice();
   for (let i = 0; i < boxes.length; i++) {
     layout.boxes[order[i]] = boxes[i];
   }
@@ -80,7 +80,7 @@ export function packBoxes(sizes: IndexedDimensions[]): IndexedBoxes[] {
     (box, i) =>
       ({
         index: order[i],
-        box
+        box,
       } as IndexedBoxes)
   );
 }
@@ -94,7 +94,7 @@ function rate(layout: Layout) {
 export function whitespace(layout: Layout): number {
   let whitespace = layout.size[0] * layout.size[1];
   for (let i = 0; i < layout.boxes.length; i++) {
-    let box = layout.boxes[i];
+    const box = layout.boxes[i];
     whitespace -= box.size[0] * box.size[1];
   }
   return whitespace;
@@ -105,9 +105,9 @@ function bounds(boxes: Box[]): Dimensions {
   let width = 0;
   let height = 0;
   for (let i = 0; i < boxes.length; i++) {
-    let box = boxes[i];
-    let right = box.position[0] + box.size[0];
-    let bottom = box.position[1] + box.size[1];
+    const box = boxes[i];
+    const right = box.position[0] + box.size[0];
+    const bottom = box.position[1] + box.size[1];
     if (right > width) {
       width = right;
     }
@@ -120,9 +120,9 @@ function bounds(boxes: Box[]): Dimensions {
 
 // determines if the region specified by `box` is clear of all other `boxes`
 function validate(boxes: Box[], box: Box): boolean {
-  let a = box;
+  const a = box;
   for (let i = 0; i < boxes.length; i++) {
-    let b = boxes[i];
+    const b = boxes[i];
     if (intersects(a, b)) {
       return false;
     }

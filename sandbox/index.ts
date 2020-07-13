@@ -31,15 +31,6 @@ class App {
     helper.style.alignItems = "center";
     helper.style.justifyContent = "center";
     helper.style.cursor = "pointer";
-    helper.onclick = () => {
-      this.diagram?.eventBus.publish("MenuCreateNodeRequested", {
-        position: {
-          x: helper.getBoundingClientRect().x * 2,
-          y: helper.getBoundingClientRect().y * 2,
-        },
-      });
-    };
-    this.diagram.eventBus.on("NodeCreated", () => helper.remove());
     document.body.appendChild(helper);
     const createOND = (name: string): NodeDefinition["node"] => ({
       name: `${name}`,
@@ -59,6 +50,36 @@ class App {
           "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings",
       },
     ];
+    const dummyDef: NodeDefinition = {
+      type: "dummy",
+      help: "Hello I am dummy node this is help I do display",
+      node: {
+        ...createOND("dummy"),
+        notEditable: true,
+      },
+      options,
+      root: true,
+      acceptsInputs: (d, defs) =>
+        defs.map(
+          (def) =>
+            ({
+              definition: def,
+            } as AcceptedNodeDefinition)
+        ),
+      acceptsOutputs: (d, defs) =>
+        defs.map(
+          (def) =>
+            ({
+              definition: def,
+            } as AcceptedNodeDefinition)
+        ),
+    };
+    helper.onclick = () => {
+      this.diagram?.eventBus.publish("NodeCreationRequested", {
+        nodeDefinition: dummyDef,
+        center: true,
+      });
+    };
     this.diagram.setDefinitions([
       {
         type: "www",
@@ -82,30 +103,7 @@ class App {
               } as AcceptedNodeDefinition)
           ),
       },
-      {
-        type: "dummy",
-        help: "Hello I am dummy node this is help I do display",
-        node: {
-          ...createOND("dummy"),
-          notEditable: true,
-        },
-        options,
-        root: true,
-        acceptsInputs: (d, defs) =>
-          defs.map(
-            (def) =>
-              ({
-                definition: def,
-              } as AcceptedNodeDefinition)
-          ),
-        acceptsOutputs: (d, defs) =>
-          defs.map(
-            (def) =>
-              ({
-                definition: def,
-              } as AcceptedNodeDefinition)
-          ),
-      },
+      dummyDef,
     ]);
   }
 }

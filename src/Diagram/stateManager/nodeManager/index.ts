@@ -337,14 +337,26 @@ export class NodeManager {
     this.eventBus.publish("RenderRequested");
   };
   createNode = ({
+    center,
     position,
     nodeDefinition,
   }: {
-    position: ScreenPosition;
+    center?: boolean;
+    position?: ScreenPosition;
     nodeDefinition: NodeDefinition;
   }) => {
+    const p = position || {
+      x:
+        Math.max(...this.state.nodes.map((n) => n.x), 0) +
+        this.theme.node.width +
+        this.theme.node.spacing.x,
+      y:
+        Math.max(...this.state.nodes.map((n) => n.y), 0) +
+        this.theme.node.height +
+        this.theme.node.spacing.y,
+    };
     const createdNode: Node = NodeUtils.createNode(
-      position,
+      p,
       nodeDefinition,
       this.state.nodeDefinitions
     );
@@ -363,6 +375,14 @@ export class NodeManager {
     }
     this.state.hover.node = undefined;
     this.eventBus.publish("RenderRequested");
+    if (center) {
+      this.eventBus.publish("CenterPanRequested", {
+        position: {
+          x: -p.x,
+          y: -p.y,
+        },
+      });
+    }
     return createdNode;
   };
 

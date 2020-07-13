@@ -40,8 +40,9 @@ export interface DiagramEvents {
     node: Node;
   };
   NodeCreationRequested: {
+    center?: boolean;
     nodeDefinition: NodeDefinition;
-    position: ScreenPosition;
+    position?: ScreenPosition;
   };
   // not handled yet
   DescriptionRenameShowInput: {
