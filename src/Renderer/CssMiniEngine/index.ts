@@ -29,6 +29,16 @@ function classToStyle(
   }
 }
 
+export const css = (
+  css: TemplateStringsArray,
+  ...expr: (string | number)[]
+): string => {
+  let str = "";
+  css.forEach((string, i) => {
+    str += string + (expr[i] || "");
+  });
+  return str;
+};
 /**
  * Class responsible for small css functionalities rendered in HTML like menu
  *
@@ -46,6 +56,9 @@ export class CSSMiniEngine {
    */
   addClass = (o: classNameParameter, className: string, afterBefore = "") => {
     this.classes.push(classToStyle(o, className, afterBefore));
+  };
+  addCss = (css: string) => {
+    this.classes.push(css);
   };
   /**
    * compile to style tag in head

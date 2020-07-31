@@ -15,8 +15,8 @@ export class HoverManager {
     private theme: DiagramTheme,
     private disableLinkOperations: boolean
   ) {
-    this.eventBus.subscribe("WorldMouseOverMove", this.hover);
-    this.eventBus.subscribe("PickRequested", this.hover);
+    // this.eventBus.subscribe("WorldMouseOverMove", this.hover);
+    // this.eventBus.subscribe("PickRequested", this.hover);
   }
 
   somethingHovered = () => {

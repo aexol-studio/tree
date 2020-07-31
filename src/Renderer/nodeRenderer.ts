@@ -1,25 +1,77 @@
-import { Node, DiagramTheme } from "@models";
-import {
-  RoundedRectangle,
-  RoundedRectangleStroke,
-} from "./Draw/RoundedRectangle";
+import { Node, DiagramTheme, UIState } from "@models";
 import {
   ConfigurationManager,
   DiagramDrawingDistanceOptions,
 } from "@configuration";
 import { StateManager } from "@diagram/stateManager";
-import { ContextProvider } from "./ContextProvider";
+import { CSSMiniEngine, css } from "./CssMiniEngine";
 export class NodeRenderer {
   distances: DiagramDrawingDistanceOptions;
 
   constructor(
-    private contextProvider: ContextProvider,
     private theme: DiagramTheme,
-    private stateManager: StateManager
+    private stateManager: StateManager,
+    private cssMiniEngine: CSSMiniEngine
   ) {
     this.distances = ConfigurationManager.instance.getOption(
       "drawingDistance"
     ) as DiagramDrawingDistanceOptions;
+    this.cssMiniEngine.addCss(css`
+      .Node {
+        position: relative;
+        width: ${theme.node.width}px;
+        background-color: ${theme.colors.node.background};
+        border: 1px solid transparent;
+        border-radius: 10px;
+        transition: border-color 0.25s ease-in-out;
+      }
+      .Node:hover {
+        border: 1px solid ${theme.colors.node.selected};
+      }
+      .NodeInfo {
+        width: ${theme.node.width}px;
+        height: 30px;
+        margin-top: -${theme.node.nameSize * 1.5}px;
+        display: flex;
+        position: absolute;
+      }
+      .NodeName {
+        margin-right: 5px;
+        color: ${theme.colors.node.name};
+        font-size: ${theme.node.nameSize}px;
+      }
+      .NodeType {
+        margin-right: 5px;
+        color: ${theme.colors.node.type};
+        font-size: ${theme.node.nameSize}px;
+      }
+      .NodeField {
+        width: 100%;
+        display: flex;
+      }
+      .NodeFieldCreate {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: ${theme.colors.port.button};
+        width: ${theme.node.nameSize}px;
+        height: ${theme.node.nameSize}px;
+        margin-right: ${theme.port.gap}px;
+      }
+      .NodeFieldName {
+        margin-right: 5px;
+        color: ${theme.colors.node.name};
+        font-size: ${theme.node.nameSize}px;
+      }
+      .NodeFieldType {
+        color: ${theme.colors.node.type};
+        font-size: ${theme.node.typeSize}px;
+      }
+      .AddNode {
+        position: absolute;
+        bottom: -${theme.node.nameSize * 1.5}px;
+      }
+    `);
   }
 
   getNodeFont(size: number, weight = "normal") {
@@ -27,15 +79,10 @@ export class NodeRenderer {
   }
   render = ({
     node,
-    typeIsHovered,
-    isHovered,
+    uiState,
     isSelected,
-    isRenamed,
-    isNodeMenuOpened,
-    inputActive,
-    outputActive,
-    currentScale = 1.0,
   }: {
+    uiState: UIState;
     node: Node;
     typeIsHovered?: boolean;
     isHovered?: boolean;
@@ -46,210 +93,72 @@ export class NodeRenderer {
     inputActive?: boolean;
     currentScale?: number;
   }) => {
-    if (!node.hidden) {
-      const {
-        colors,
-        node: { width, height, nameSize, typeSize, options },
-        port,
-      } = this.theme;
-      const isReadOnly =
-        this.stateManager.pureState().isReadOnly || node.readonly;
-      this.context.fillStyle = colors.node.background;
-      const leftRadius = node.inputs ? 0 : 5;
-      const rightRadius = node.outputs ? 0 : 5;
-      RoundedRectangle(this.context, {
-        width,
-        height,
-        x: node.x,
-        y: node.y,
-        radius: 0,
-        radiusBottomLeft: leftRadius,
-        radiusTopLeft: leftRadius,
-        radiusBottomRight: rightRadius,
-        radiusTopRight: rightRadius,
-      });
-
-      const {
-        nodeType: distanceNodeType,
-        nodeTitle: distanceNodeTitle,
-        nodeOptions: distanceNodeOptions,
-        nodeArrows: distanceNodeArrows,
-      } = this.distances;
-
-      if (currentScale > distanceNodeType) {
-        this.context.fillStyle =
-          colors.node.types[node.definition.type] || colors.node.type;
-        let typeContent = node.definition.type;
-        if (typeIsHovered && node.definition.parent) {
-          this.context.fillStyle = colors.node.hover.type;
-          typeContent += " >";
-        }
-        this.context.font = this.getNodeFont(typeSize, "normal");
-        this.context.textBaseline = "bottom";
-        this.context.textAlign = "end";
-        this.context.fillText(typeContent, node.x + width, node.y);
-      } else {
-        this.context.fillStyle =
-          colors.node.types[node.definition.type] || colors.node.type;
-        this.context.fillRect(
-          node.x + width - width / 4.0,
-          node.y - typeSize / 1.5 - 2,
-          width / 4.0,
-          typeSize / 1.5
-        );
-      }
-
-      if (node.inputs) {
-        this.context.font = this.getNodeFont(nameSize, "normal");
-        this.context.textAlign = "center";
-        this.context.textBaseline = "middle";
-
-        this.context.fillStyle = inputActive
-          ? colors.port.backgroundActive
-          : colors.port.background;
-        RoundedRectangle(this.context, {
-          height,
-          width: port.width,
-          x: node.x - port.width,
-          y: node.y,
-          radiusTopLeft: 10,
-          radiusBottomLeft: 10,
-        });
-        if (currentScale > distanceNodeArrows && !isReadOnly) {
-          this.context.fillStyle = colors.port.button;
-          this.context.font = this.getNodeFont(12, "normal");
-          this.context.fillText(
-            "◀",
-            node.x - port.width / 2.0,
-            node.y + height / 2.0 + 2
-          );
-        }
-        this.context.fillStyle = colors.background;
-        port.gap &&
-          RoundedRectangle(this.context, {
-            height,
-            width: port.gap,
-            x: node.x,
-            y: node.y,
-            radius: 0,
-          });
-      }
-      if (node.outputs) {
-        this.context.fillStyle = outputActive
-          ? colors.port.backgroundActive
-          : colors.port.background;
-        RoundedRectangle(this.context, {
-          height,
-          width: port.width,
-          x: node.x + width,
-          y: node.y,
-          radiusTopRight: 10,
-          radiusBottomRight: 10,
-        });
-        if (currentScale > distanceNodeArrows && !isReadOnly) {
-          this.context.fillStyle = colors.port.button;
-          this.context.font = this.getNodeFont(12, "normal");
-          this.context.fillText(
-            "▶",
-            node.x + width + port.width / 2.0,
-            node.y + height / 2.0 + 2
-          );
-        }
-        this.context.fillStyle = colors.background;
-        port.gap &&
-          RoundedRectangle(this.context, {
-            height,
-            width: port.gap,
-            x: node.x + width,
-            y: node.y,
-            radius: 0,
-          });
-      }
-      if (node.options && currentScale > distanceNodeOptions) {
-        let xCounter = 0;
-        node.options.forEach((o) => {
-          this.context.fillStyle = colors.node.options[o] || colors.node.name;
-          this.context.font = this.getNodeFont(options.fontSize, "normal");
-          this.context.textAlign = "left";
-          this.context.fillText(
-            o,
-            node.x + xCounter,
-            node.y + height + options.fontSize,
-            width
-          );
-          xCounter += this.context.measureText(o).width + options.fontSize / 2;
-        });
-      }
-      if (node.name && !isRenamed) {
-        this.context.fillStyle = colors.node.name;
-        if (currentScale > distanceNodeTitle) {
-          this.context.font = this.getNodeFont(nameSize, "normal");
-          this.context.textAlign = "center";
-          this.context.textBaseline = "middle";
-          this.context.fillText(
-            node.name,
-            node.x + width / 2.0,
-            node.y + height / 2.0
-          );
-        } else {
-          this.context.fillStyle = `${colors.node.name}55`;
-          const rectWidth = width / 2.0;
-          const rectHeight = nameSize / 1.5;
-          this.context.fillRect(
-            node.x + width / 2.0 - rectWidth / 2.0,
-            node.y + height / 2.0 - rectHeight / 2.0,
-            rectWidth,
-            rectHeight
-          );
-        }
-      }
-      const radiusRight = node.outputs ? 10 : 0;
-      const radiusLeft = node.inputs ? 10 : 0;
-      let hoverWidth = width;
-      let hoverX = node.x;
-      if (node.inputs) {
-        hoverX -= port.width;
-        hoverWidth += port.width;
-      }
-      if (node.outputs) {
-        hoverWidth += port.width;
-      }
-      if (isHovered || isSelected) {
-        this.context.strokeStyle = isNodeMenuOpened
-          ? colors.node.menuOpened
-          : colors.node.selected;
-        this.context.lineWidth = 2;
-        RoundedRectangleStroke(this.context, {
-          width: hoverWidth,
-          height,
-          x: hoverX,
-          y: node.y,
-          radius: 0,
-          radiusBottomLeft: radiusLeft,
-          radiusTopLeft: radiusLeft,
-          radiusBottomRight: radiusRight,
-          radiusTopRight: radiusRight,
-        });
-      }
-      if (isSelected) {
-        this.context.fillStyle = isNodeMenuOpened
-          ? `${colors.node.menuOpened}17`
-          : `${colors.node.selected}17`;
-        RoundedRectangle(this.context, {
-          width: hoverWidth,
-          height,
-          x: hoverX,
-          y: node.y,
-          radiusBottomLeft: radiusLeft,
-          radiusTopLeft: radiusLeft,
-          radiusBottomRight: radiusRight,
-          radiusTopRight: radiusRight,
-        });
-      }
+    if (node.hidden) {
+      return "";
     }
-  };
+    if (!node.inputs?.length && !!node.outputs?.length) {
+      return "";
+    }
+    const {
+      node: { width, height: nodeHeight },
+      port,
+    } = this.theme;
+    const height = nodeHeight * (node.inputs?.length || 1);
+    const isReadOnly =
+      this.stateManager.pureState().isReadOnly || node.readonly;
+    isReadOnly;
+    const inputs = node.inputs || [];
 
-  get context() {
-    return this.contextProvider.context;
-  }
+    const { scale } = uiState;
+    const x = (uiState.panX + node.x - port.width) / 2.0;
+    const y = (uiState.panY + node.y) / 2.0;
+    return `<div 
+      class="Node Type-${node.definition.type} Name-${node.name}" style="
+      transform: scale(${scale}) translate(${x}px,${y}px);
+      height:${height}px;
+      width:${width}px;
+      ">
+        <div class="NodeInfo">
+          <div class="NodeName">
+            ${node.name}
+          </div>
+          <div class="NodeType">
+            ${node.definition.type}
+          </div>
+        </div>
+        <div class="NodeFields">
+        ${inputs
+          .map(
+            (i) => `
+        <div class="NodeField">
+          <div class="NodeFieldCreate">
+            +
+          </div>
+          <div class="NodeFieldName">
+            ${i.name}
+          </div> 
+          <div class="NodeFieldType">
+            ${i.definition.type}
+          </div>
+        </div>
+        `
+          )
+          .join("")}
+        </div>
+        ${
+          isSelected
+            ? `<div class="AddNode">
+          <div class="NodeField">
+            <div class="NodeFieldCreate">
+              +
+            </div>
+            <div class="NodeFieldName">
+              add field
+            </div> 
+          </div>
+        </div>`
+            : ""
+        }
+      </div>`;
+  };
 }

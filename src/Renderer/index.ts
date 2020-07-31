@@ -9,7 +9,7 @@ import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "@models";
 import { Region } from "@quadTree";
-import { CSSMiniEngine } from "./CssMiniEngine";
+import { CSSMiniEngine, css } from "./CssMiniEngine";
 import { ContextProvider } from "./ContextProvider";
 import { ConfigurationManager } from "@configuration";
 
@@ -41,15 +41,16 @@ export class Renderer {
   constructor(
     private eventBus: EventBus,
     private canvasContext: CanvasRenderingContext2D,
+    private htmlElement: HTMLDivElement,
     private stateManager: StateManager,
     private theme: DiagramTheme
   ) {
     this.contextProvider = new ContextProvider(canvasContext);
 
     this.nodeRenderer = new NodeRenderer(
-      this.contextProvider,
       this.theme,
-      this.stateManager
+      this.stateManager,
+      this.cssMiniEngine
     );
 
     this.activeLinkRenderer = new ActiveLinkRenderer(
@@ -59,7 +60,14 @@ export class Renderer {
     this.linkRenderer = new LinkRenderer(this.contextProvider, this.theme);
 
     this.eventBus.subscribe("RenderRequested", this.renderStart);
-
+    this.cssMiniEngine.addCss(css`
+      .DiagramHTMLRoot {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 100;
+      }
+    `);
     this.cssMiniEngine.compile();
   }
   getAllNodesArea = () => {
@@ -153,28 +161,32 @@ export class Renderer {
     const nodes = state.trees.node
       .queryRange(region)
       .concat(state.selectedNodes);
-    for (const n of nodes) {
-      const isSelected = state.selectedNodes.indexOf(n) !== -1;
-      const isHovered = state.hover.node === n;
-      const isRenamed = state.renamed && state.renamed === n;
-      const isNodeMenuOpened = state.isNodeMenuOpened;
-      const typeIsHovered = isHovered && state.hover.type;
-      const inputActive = isHovered && state.hover.io == "i";
-      const outputActive = isHovered && state.hover.io == "o";
-      const currentScale = state.uiState.scale;
+    const { uiState } = this.stateManager.getState();
+    return nodes
+      .map((n) => {
+        const isSelected = state.selectedNodes.indexOf(n) !== -1;
+        const isHovered = state.hover.node === n;
+        const isRenamed = state.renamed && state.renamed === n;
+        const isNodeMenuOpened = state.isNodeMenuOpened;
+        const typeIsHovered = isHovered && state.hover.type;
+        const inputActive = isHovered && state.hover.io == "i";
+        const outputActive = isHovered && state.hover.io == "o";
+        const currentScale = state.uiState.scale;
 
-      this.nodeRenderer.render({
-        node: n,
-        isRenamed,
-        isSelected,
-        isHovered,
-        isNodeMenuOpened,
-        typeIsHovered,
-        inputActive,
-        outputActive,
-        currentScale,
-      });
-    }
+        return this.nodeRenderer.render({
+          node: n,
+          uiState,
+          isRenamed,
+          isSelected,
+          isHovered,
+          isNodeMenuOpened,
+          typeIsHovered,
+          inputActive,
+          outputActive,
+          currentScale,
+        });
+      })
+      .join("");
   }
 
   /**
@@ -293,8 +305,7 @@ export class Renderer {
 
     this.renderLinks();
     this.renderActiveLink();
-    this.renderNodes();
-
+    this.htmlElement.innerHTML = this.renderNodes();
     this.setScreenTransform();
     this.renderMinimap();
     this.renderCursor();

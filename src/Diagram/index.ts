@@ -19,6 +19,7 @@ export class Diagram {
   private currentHostSize: Size;
   private stateManager: StateManager;
   private canvasElement: HTMLCanvasElement;
+  private htmlElement: HTMLDivElement;
   private io: IO;
   public eventBus: EventBus;
   public configuration: ConfigurationManager;
@@ -162,6 +163,9 @@ export class Diagram {
       this.configuration.getOption("theme").fontFamily
     }`;
 
+    this.htmlElement = document.createElement("div");
+    this.htmlElement.classList.add("DiagramHTMLRoot");
+
     const hostSize = this.calculateElementSize(hostDomElement);
 
     this.currentHostSize = hostSize;
@@ -192,6 +196,7 @@ export class Diagram {
     }
 
     hostDomElement.appendChild(this.canvasElement);
+    hostDomElement.appendChild(this.htmlElement);
     // create a main event bus
     this.eventBus = new EventBus();
 
@@ -212,6 +217,7 @@ export class Diagram {
     this.renderer = new Renderer(
       this.eventBus,
       canvasContext,
+      this.htmlElement,
       this.stateManager,
       this.configuration.getOption("theme")
     );
