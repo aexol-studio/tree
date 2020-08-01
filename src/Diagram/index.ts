@@ -199,7 +199,7 @@ export class Diagram {
     hostDomElement.appendChild(this.htmlElement);
     // create a main event bus
     this.eventBus = new EventBus();
-
+    window.graphsource = this.eventBus;
     // initialize IO: mouse/keyboard logic will be there
     this.io = new IO(this.eventBus, this.canvasElement);
 

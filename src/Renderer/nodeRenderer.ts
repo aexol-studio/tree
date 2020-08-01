@@ -5,6 +5,7 @@ import {
 } from "@configuration";
 import { StateManager } from "@diagram/stateManager";
 import { CSSMiniEngine, css } from "./CssMiniEngine";
+import { ScreenPosition } from "@io";
 export class NodeRenderer {
   distances: DiagramDrawingDistanceOptions;
 
@@ -31,7 +32,7 @@ export class NodeRenderer {
       .NodeInfo {
         width: ${theme.node.width}px;
         height: 30px;
-        margin-top: -${theme.node.nameSize * 1.5}px;
+        margin-top: -30px;
         display: flex;
         position: absolute;
       }
@@ -43,23 +44,33 @@ export class NodeRenderer {
       .NodeType {
         margin-right: 5px;
         color: ${theme.colors.node.type};
-        font-size: ${theme.node.nameSize}px;
+        font-size: ${theme.node.typeSize}px;
+      }
+      .NodeFields {
+        padding: 5px 0;
       }
       .NodeField {
-        width: 100%;
+        padding: 5px 10px;
         display: flex;
+        align-items: center;
       }
-      .NodeFieldCreate {
+      .AddNodePlus,
+      .NodeFieldPlus {
         display: flex;
         align-items: center;
         justify-content: center;
         color: ${theme.colors.port.button};
-        width: ${theme.node.nameSize}px;
-        height: ${theme.node.nameSize}px;
-        margin-right: ${theme.port.gap}px;
+        width: ${theme.addNode.fontSize}px;
+        height: ${theme.addNode.fontSize}px;
+      }
+      .NodeFieldPlus {
+        border-radius: ${theme.addNode.fontSize * 0.7}px;
+        border: 1px solid;
+        width: ${theme.addNode.fontSize * 1.4}px;
+        height: ${theme.addNode.fontSize * 1.4}px;
       }
       .NodeFieldName {
-        margin-right: 5px;
+        margin: 0 5px;
         color: ${theme.colors.node.name};
         font-size: ${theme.node.nameSize}px;
       }
@@ -67,9 +78,48 @@ export class NodeRenderer {
         color: ${theme.colors.node.type};
         font-size: ${theme.node.typeSize}px;
       }
-      .AddNode {
+      .BottomNodeGrid {
         position: absolute;
-        bottom: -${theme.node.nameSize * 1.5}px;
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        grid-gap: 10px;
+        width: 100%;
+        height: ${theme.addNode.fontSize * 2}px;
+        bottom: -${theme.addNode.fontSize * 2 + 10}px;
+      }
+      .AddNode {
+        cursor: pointer;
+        background: ${theme.colors.addNode.background};
+        display: flex;
+        padding: 0 10px;
+        justify-content: flex-start;
+        align-items: center;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        transition: border-color 0.25s ease-in-out;
+      }
+      .AddNode:hover {
+        border-color: ${theme.colors.addNode.hover.borderColor};
+      }
+      .EditNode:hover {
+        border-color: ${theme.colors.addNode.hover.borderColor};
+      }
+      .AddNodeName {
+        color: ${theme.colors.addNode.color};
+        font-size: ${theme.addNode.fontSize}px;
+        margin-left: 10px;
+      }
+      .EditNode {
+        cursor: pointer;
+        display: flex;
+        border-radius: 4px;
+        justify-content: center;
+        align-items: center;
+        font-size: ${theme.addNode.fontSize}px;
+        color: ${theme.colors.addNode.color};
+        background: ${theme.colors.addNode.background};
+        border: 1px solid transparent;
+        transition: border-color 0.25s ease-in-out;
       }
     `);
   }
@@ -77,13 +127,91 @@ export class NodeRenderer {
   getNodeFont(size: number, weight = "normal") {
     return `${weight} ${size}px ${this.theme.fontFamily}`;
   }
+  renderInputs = ({
+    inputs,
+    node,
+    position,
+  }: {
+    inputs: Node[];
+    position: ScreenPosition;
+    node: Node;
+  }) => {
+    const inputCounter = 0;
+    return `
+    <div class="NodeFields">
+      ${inputs
+        .map((i) =>
+          this.renderInput({
+            node: i,
+            indent: 0,
+            inputCounter,
+            position: {
+              x: node.x,
+              y: position.y + inputCounter * 30,
+            },
+          })
+        )
+        .join("")}
+    </div>`;
+  };
+  renderInput = ({
+    position,
+    node,
+    indent,
+    inputCounter,
+  }: {
+    position: ScreenPosition;
+    node: Node;
+    indent: number;
+    inputCounter: number;
+  }): string => {
+    inputCounter += 1;
+    return `
+    <div class="NodeField" style="margin-left:${indent * 20}">
+      <div 
+        class="NodeFieldPlus"
+        onclick='graphsource.publish("NodeOpenFieldMenu", {
+          io: "i",
+          nodeId: "${node.id}",
+          position:{
+            x:${position.x},
+            y:${position.y}
+          }
+        })'>
+        +
+      </div>
+      <div class="NodeFieldName">
+        ${node.name}
+      </div> 
+      <div class="NodeFieldType">
+        ${node.definition.type}
+      </div>
+  </div>${
+    node.inputs
+      ?.map((i, index) =>
+        this.renderInput({
+          node: i,
+          indent: indent + 1,
+          inputCounter,
+          position: {
+            x: position.x + indent * 20,
+            y: position.y + inputCounter * 30,
+          },
+        })
+      )
+      .join("") || ""
+  }
+    `;
+  };
   render = ({
     node,
     uiState,
     isSelected,
+    position,
   }: {
     uiState: UIState;
     node: Node;
+    position?: ScreenPosition;
     typeIsHovered?: boolean;
     isHovered?: boolean;
     isSelected?: boolean;
@@ -96,26 +224,22 @@ export class NodeRenderer {
     if (node.hidden) {
       return "";
     }
-    if (!node.inputs?.length && !!node.outputs?.length) {
-      return "";
-    }
     const {
-      node: { width, height: nodeHeight },
+      node: { width },
       port,
     } = this.theme;
-    const height = nodeHeight * (node.inputs?.length || 1);
+    const pos = position || { x: node.x, y: node.y };
     const isReadOnly =
       this.stateManager.pureState().isReadOnly || node.readonly;
     isReadOnly;
     const inputs = node.inputs || [];
 
     const { scale } = uiState;
-    const x = (uiState.panX + node.x - port.width) / 2.0;
-    const y = (uiState.panY + node.y) / 2.0;
+    const x = (uiState.panX + pos.x - port.width) / 2.0;
+    const y = (uiState.panY + pos.y) / 2.0;
     return `<div 
       class="Node Type-${node.definition.type} Name-${node.name}" style="
       transform: scale(${scale}) translate(${x}px,${y}px);
-      height:${height}px;
       width:${width}px;
       ">
         <div class="NodeInfo">
@@ -126,39 +250,31 @@ export class NodeRenderer {
             ${node.definition.type}
           </div>
         </div>
-        <div class="NodeFields">
-        ${inputs
-          .map(
-            (i) => `
-        <div class="NodeField">
-          <div class="NodeFieldCreate">
-            +
-          </div>
-          <div class="NodeFieldName">
-            ${i.name}
-          </div> 
-          <div class="NodeFieldType">
-            ${i.definition.type}
-          </div>
-        </div>
-        `
-          )
-          .join("")}
-        </div>
-        ${
-          isSelected
-            ? `<div class="AddNode">
-          <div class="NodeField">
-            <div class="NodeFieldCreate">
-              +
+        ${this.renderInputs({
+          inputs,
+          node,
+          position: pos,
+        })}
+        ${`
+            <div class="BottomNodeGrid">
+              <div class="AddNode" onclick='graphsource.publish("NodeOpenFieldMenu", {
+                  io: "i",
+                  nodeId: "${node.id}",
+                  position:{
+                    x:${pos.x},
+                    y:${pos.y}
+                  }
+                })'>
+                <div class="AddNodePlus">+</div>
+                <div class="AddNodeName">
+                  add field
+                </div> 
+              </div>
+              <div class="EditNode">
+                <span>edit</span>
+              </div>
             </div>
-            <div class="NodeFieldName">
-              add field
-            </div> 
-          </div>
-        </div>`
-            : ""
-        }
+        `}
       </div>`;
   };
 }

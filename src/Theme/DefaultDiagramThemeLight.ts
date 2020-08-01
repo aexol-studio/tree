@@ -9,15 +9,15 @@ export const DefaultDiagramThemeLight: DiagramTheme = {
     node: {
       background: Colors.grey[2],
       selected: Colors.green[0],
-      name: Colors.grey[11],
+      name: Colors.grey[6],
       type: Colors.grey[6],
       types: {
         string: Colors.green[0],
-        type: Colors.grey[11],
+        type: Colors.grey[6],
       },
       options: {
         required: Colors.red[0],
-        array: Colors.yellow[7],
+        array: Colors.yellow[6],
       },
       hover: {
         type: Colors.yellow[0],
@@ -27,12 +27,12 @@ export const DefaultDiagramThemeLight: DiagramTheme = {
     minimap: {
       background: Colors.grey[0],
       visibleArea: Colors.grey[1],
-      node: Colors.grey[11],
+      node: Colors.grey[6],
       borders: Colors.grey[4],
     },
     description: {
       background: Colors.grey[2],
-      text: Colors.grey[11],
+      text: Colors.grey[6],
     },
     port: {
       background: Colors.grey[3],
@@ -47,12 +47,12 @@ export const DefaultDiagramThemeLight: DiagramTheme = {
     menu: {
       background: Colors.grey[2],
       borders: Colors.grey[3],
-      text: Colors.grey[11],
+      text: Colors.grey[6],
       hover: Colors.grey[1],
     },
     help: {
       background: Colors.grey[2],
-      text: Colors.grey[11],
+      text: Colors.grey[6],
       title: Colors.main[0],
     },
   },

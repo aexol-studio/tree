@@ -6,7 +6,6 @@ import { StateManager } from "@diagram/stateManager";
 import { DiagramTheme } from "@models";
 import { NodeRenderer } from "./nodeRenderer";
 import { ActiveLinkRenderer } from "./activeLinkRenderer";
-import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "@models";
 import { Region } from "@quadTree";
 import { CSSMiniEngine, css } from "./CssMiniEngine";
@@ -25,7 +24,6 @@ import { ConfigurationManager } from "@configuration";
 export class Renderer {
   private minimapRenderer = new MinimapRenderer();
   private nodeRenderer: NodeRenderer;
-  private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
   private activeLinkRenderer: ActiveLinkRenderer;
@@ -57,7 +55,6 @@ export class Renderer {
       this.contextProvider,
       this.theme
     );
-    this.linkRenderer = new LinkRenderer(this.contextProvider, this.theme);
 
     this.eventBus.subscribe("RenderRequested", this.renderStart);
     this.cssMiniEngine.addCss(css`
@@ -163,6 +160,7 @@ export class Renderer {
       .concat(state.selectedNodes);
     const { uiState } = this.stateManager.getState();
     return nodes
+      .filter((n) => !n.outputs || n.outputs.length === 0)
       .map((n) => {
         const isSelected = state.selectedNodes.indexOf(n) !== -1;
         const isHovered = state.hover.node === n;
@@ -205,28 +203,6 @@ export class Renderer {
         to: state.drawedConnection,
       });
     }
-  }
-
-  /**
-   * Render links
-   */
-  renderLinks() {
-    const state = this.stateManager.getState();
-    const region = this.stateManager.isScreenShotInProgress()
-      ? this.getAllNodesArea()
-      : this.getActiveArea();
-
-    const linksInArea = state.trees.link.queryRange(region);
-    linksInArea.forEach((l) =>
-      this.linkRenderer.render(l, "main", state.uiState.scale)
-    );
-    state.links
-      .filter((l) => state.selectedNodes.find((n) => n === l.i || n === l.o))
-      .forEach((l) =>
-        this.linkRenderer.render(l, "active", state.uiState.scale)
-      );
-    state.hover.link &&
-      this.linkRenderer.render(state.hover.link, "hover", state.uiState.scale);
   }
 
   /**
@@ -303,7 +279,6 @@ export class Renderer {
 
     // this.context.scale(4, 4)
 
-    this.renderLinks();
     this.renderActiveLink();
     this.htmlElement.innerHTML = this.renderNodes();
     this.setScreenTransform();

@@ -2,6 +2,9 @@ export interface DiagramTheme {
   snappingGridSize?: number;
   autoBeuatify?: boolean;
   fontFamily: string;
+  addNode: {
+    fontSize: number;
+  };
   node: {
     width: number;
     height: number;
@@ -99,6 +102,13 @@ export interface DiagramTheme {
     description: {
       background: string;
       text: string;
+    };
+    addNode: {
+      background: string;
+      color: string;
+      hover: {
+        borderColor: string;
+      };
     };
     node: {
       background: string;

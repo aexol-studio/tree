@@ -8,16 +8,19 @@ export const DefaultDiagramTheme: DiagramTheme = {
   node: {
     width: 200,
     height: 110,
-    nameSize: 24,
-    typeSize: 20,
+    nameSize: 12,
+    typeSize: 10,
     maxCharacters: 12,
     spacing: {
       x: 100,
       y: 100,
     },
     options: {
-      fontSize: 18,
+      fontSize: 10,
     },
+  },
+  addNode: {
+    fontSize: 12,
   },
   graph: {
     spacing: {
@@ -80,6 +83,13 @@ export const DefaultDiagramTheme: DiagramTheme = {
     },
   },
   colors: {
+    addNode: {
+      background: Colors.blue[8],
+      color: Colors.grey[0],
+      hover: {
+        borderColor: Colors.blue[2],
+      },
+    },
     background: Colors.grey[8],
     node: {
       background: Colors.grey[6],

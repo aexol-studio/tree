@@ -23,6 +23,11 @@ export interface DiagramEvents {
   NodeChanged: {
     node: Node;
   };
+  NodeOpenFieldMenu: {
+    nodeId: string;
+    io: "i" | "o";
+    position: ScreenPosition;
+  };
   // not handled yet
   NodeRenameFocus: {
     node: Node;

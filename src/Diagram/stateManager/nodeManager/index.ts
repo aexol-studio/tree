@@ -35,9 +35,9 @@ export class NodeManager {
   ) {
     this.eventBus.subscribe("WorldLeftMouseClick", this.selectNode);
     this.eventBus.subscribe("WorldLeftMouseClick", this.goToNodeType);
+    this.eventBus.subscribe("NodeOpenFieldMenu", this.openPortMenu);
     this.eventBus.subscribe("ScreenRightMouseUp", this.openNodeMenu);
     this.eventBus.subscribe("ScreenMouseLeave", this.handleScreenLeave);
-    this.eventBus.subscribe("WorldLeftMouseUp", this.openPortMenu);
     this.eventBus.subscribe("NodeCreationRequested", this.createNode);
     this.eventBus.subscribe("WorldMouseDragEnd", this.movedNodes);
     this.eventBus.subscribe("NodeSelected", this.storeNodes);
@@ -396,101 +396,102 @@ export class NodeManager {
     };
   };
 
-  openPortMenu = ({ position }: { position: ScreenPosition }) => {
-    if (this.state.isReadOnly || this.state.drawedConnection) {
+  openPortMenu = ({
+    nodeId,
+    io,
+    position,
+  }: {
+    nodeId: string;
+    io: "i" | "o";
+    position: ScreenPosition;
+  }) => {
+    const node = this.state.nodes.find((n) => n.id === nodeId);
+    if (this.state.isReadOnly || this.state.drawedConnection || !node) {
       this.state.drawedConnection = undefined;
       return;
     }
-    this.eventBus.publish("PickRequested", { position });
-    const { io, node } = this.state.hover;
-    if (node && io) {
-      const createConnectedNodesCategory = (n: NodeDefinition): Category => ({
-        name: n.type,
-        help: n.help,
-        action: () => {
-          if (node.hideChildren) {
-            this.foldChildren(node, true);
-          }
-          const createdNode = this.createNode({
-            position: this.placeConnectedNode(node, io),
-            nodeDefinition: n,
-          });
-          this.connectionManager.makeConnection(
-            io === "i" ? node : createdNode,
-            io === "o" ? node : createdNode
-          );
-          if (this.theme.autoBeuatify) {
-            this.beautifyNodesInPlace(createdNode);
-            this.htmlManager.nodeMoved();
-          }
-        },
-      });
-      const createTopicCategory = (defs: AcceptedNodeDefinition): Category => {
-        if (defs.definition) {
-          return createConnectedNodesCategory(defs.definition);
+    const createConnectedNodesCategory = (n: NodeDefinition): Category => ({
+      name: n.type,
+      help: n.help,
+      action: () => {
+        if (node.hideChildren) {
+          this.foldChildren(node, true);
         }
-        if (!defs.category) {
-          throw new Error(
-            `Cannot create Topic category out of this: ${JSON.stringify(
-              defs,
-              null,
-              4
-            )} `
-          );
+        const createdNode = this.createNode({
+          position: this.placeConnectedNode(node, io),
+          nodeDefinition: n,
+        });
+        this.connectionManager.makeConnection(
+          io === "i" ? node : createdNode,
+          io === "o" ? node : createdNode
+        );
+        if (this.theme.autoBeuatify) {
+          this.beautifyNodesInPlace(createdNode);
+          this.htmlManager.nodeMoved();
         }
-        return {
-          name: defs.category.name,
-          children: defs.category.definitions.map(createTopicCategory),
-        };
+      },
+    });
+    const createTopicCategory = (defs: AcceptedNodeDefinition): Category => {
+      if (defs.definition) {
+        return createConnectedNodesCategory(defs.definition);
+      }
+      if (!defs.category) {
+        throw new Error(
+          `Cannot create Topic category out of this: ${JSON.stringify(
+            defs,
+            null,
+            4
+          )} `
+        );
+      }
+      return {
+        name: defs.category.name,
+        children: defs.category.definitions.map(createTopicCategory),
       };
-      const { definition } = node;
-      const menuCategories: Category[] = [];
-      if (io === "i" && node.inputs) {
-        menuCategories.push(
-          ...NodeUtils.getDefinitionAcceptedInputCategories(
-            definition,
-            this.state.nodeDefinitions,
-            undefined,
-            this.state.nodes,
-            node
-          ).map(createTopicCategory)
-        );
-      } else if (io === "o" && node.outputs) {
-        menuCategories.push(
-          ...NodeUtils.getDefinitionAcceptedOutputCategories(
-            definition,
-            this.state.nodeDefinitions,
-            undefined,
-            this.state.nodes,
-            node
-          ).map(createTopicCategory)
-        );
-      }
-
-      const { categories } = node.definition;
-      if (categories) {
-        if (io === "i" && categories.inputs) {
-          menuCategories.push(...categories.inputs);
-        }
-        if (io === "o" && categories.outputs) {
-          menuCategories.push(...categories.outputs);
-        }
-      }
-
-      const NodeScreenPosition = this.uiManager.worldToScreen({
-        position: {
-          ...position,
-          x: node.x,
-          y: node.y,
-        },
-      });
-
-      this.state.hover = {};
-      this.eventBus.publish("MenuRequested", {
-        e: NodeScreenPosition,
-        title: `Create ${node.name} field`,
-        categories: menuCategories,
-      });
+    };
+    const { definition } = node;
+    const menuCategories: Category[] = [];
+    if (io === "i" && node.inputs) {
+      menuCategories.push(
+        ...NodeUtils.getDefinitionAcceptedInputCategories(
+          definition,
+          this.state.nodeDefinitions,
+          undefined,
+          this.state.nodes,
+          node
+        ).map(createTopicCategory)
+      );
+    } else if (io === "o" && node.outputs) {
+      menuCategories.push(
+        ...NodeUtils.getDefinitionAcceptedOutputCategories(
+          definition,
+          this.state.nodeDefinitions,
+          undefined,
+          this.state.nodes,
+          node
+        ).map(createTopicCategory)
+      );
     }
+
+    const { categories } = node.definition;
+    if (categories) {
+      if (io === "i" && categories.inputs) {
+        menuCategories.push(...categories.inputs);
+      }
+      if (io === "o" && categories.outputs) {
+        menuCategories.push(...categories.outputs);
+      }
+    }
+
+    const NodeScreenPosition = this.uiManager.worldToScreen({
+      position,
+    });
+
+    this.state.hover = {};
+    this.eventBus.publish("MenuRequested", {
+      e: NodeScreenPosition,
+      title: `Create ${node.name} field`,
+      categories: menuCategories,
+    });
   };
 }
