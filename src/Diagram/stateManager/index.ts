@@ -7,10 +7,7 @@ import { NodeDefinition } from "@models";
 import { NodeManager } from "./nodeManager";
 import { ConnectionManager } from "./connectionManager";
 import { UIManager } from "./uiManager";
-import { MinimapManager } from "./minimapManager";
-import { HoverManager } from "./hoverManager";
 import { MenuManager } from "./menuManager/index";
-import { QuadTree } from "@quadTree";
 import { ChangesManager } from "./changesManager/index";
 import { HtmlManager } from "./htmlManager/index";
 import { DescriptionManager } from "./descriptionManager/index";
@@ -29,7 +26,6 @@ export class StateManager {
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
   private uiManager: UIManager;
-  private hoverManager: HoverManager;
   private htmlManager: HtmlManager;
   private menuManager: MenuManager;
   private descriptionManager: DescriptionManager;
@@ -37,7 +33,6 @@ export class StateManager {
     private eventBus: EventBus,
     private theme: DiagramTheme,
     private connectionFunction: (input: Node, output: Node) => boolean,
-    private disableLinkOperations: boolean,
     private getHostElement: () => HTMLElement,
     areaSize: { width: number; height: number }
   ) {
@@ -47,12 +42,7 @@ export class StateManager {
       nodeDefinitions: [],
       selectedLinks: [],
       selectedNodes: [],
-      hover: {},
       hoverMinimap: false,
-      trees: {
-        node: new QuadTree<Node>(),
-        link: new QuadTree<Link>(),
-      },
       uiState: {
         minimapActive: true,
         panX: 0,
@@ -107,17 +97,9 @@ export class StateManager {
       this.htmlManager,
       this.descriptionManager
     );
-    new MinimapManager(this.state, this.eventBus, this.theme);
-    this.hoverManager = new HoverManager(
-      this.state,
-      this.eventBus,
-      this.theme,
-      this.disableLinkOperations
-    );
     new ChangesManager(this.state, this.eventBus);
 
     this.eventBus.subscribe("WorldMouseDrag", this.mouseDrag);
-    this.eventBus.subscribe("RebuildTreeRequested", this.rebuildTrees);
   }
   getState() {
     return {
@@ -145,10 +127,6 @@ export class StateManager {
   }
   requestSerialise = () => {
     this.eventBus.publish("SerialisationRequested");
-  };
-  rebuildTrees = () => {
-    this.nodeManager.rebuildTree();
-    this.connectionManager.rebuildTree();
   };
   calculateAnimations = (timeCoefficient: number) => {
     return this.uiManager.calculateAnimations(timeCoefficient);
@@ -186,11 +164,6 @@ export class StateManager {
     const { selectedNodes } = this.state;
     if (selectedNodes.length > 0) {
       this.nodeManager.moveNodes(calculated);
-    } else if (this.state.draw) {
-      this.hoverManager.hover({ position: calculated });
-      this.connectionManager.drawConnector(calculated);
-    } else if (this.state.hover.link) {
-      this.connectionManager.moveLink(calculated);
     } else {
       this.uiManager.panScreen({ position: withoutPan });
     }

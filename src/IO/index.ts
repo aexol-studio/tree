@@ -17,7 +17,7 @@ export class IO {
    * @param eventBus event bus to be used
    * @param element HTML <canvas> elements to put listeners on
    */
-  constructor(eventBus: EventBus, private element: HTMLCanvasElement) {
+  constructor(eventBus: EventBus, private element: HTMLElement) {
     this.eventBus = eventBus;
     this.calculateClientBoundingRect();
     element.addEventListener("mouseleave", (e) => {
@@ -136,8 +136,8 @@ export class IO {
     const referenceRect = this.getReferenceRect();
 
     return {
-      x: position.clientX * 2 - referenceRect.left * 2,
-      y: position.clientY * 2 - referenceRect.top * 2,
+      x: position.clientX - referenceRect.left,
+      y: position.clientY - referenceRect.top,
       shiftKey,
     };
   }
@@ -146,8 +146,8 @@ export class IO {
     const referenceRect = this.getReferenceRect();
 
     return {
-      x: position.changedTouches[0].clientX * 2 - referenceRect.left * 2,
-      y: position.changedTouches[0].clientY * 2 - referenceRect.top * 2,
+      x: position.changedTouches[0].clientX - referenceRect.left,
+      y: position.changedTouches[0].clientY - referenceRect.top,
       shiftKey,
     };
   }

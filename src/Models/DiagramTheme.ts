@@ -25,12 +25,6 @@ export interface DiagramTheme {
       y: number;
     };
   };
-  minimap: {
-    alpha: number;
-    hoverAlpha: number;
-    size: number;
-    margin: number;
-  };
   description: {
     width: number;
     fontSize: number;
@@ -81,56 +75,8 @@ export interface DiagramTheme {
   };
   colors: {
     background: string;
-    minimap: {
-      background: string;
-      visibleArea: string;
-      borders: string;
-      node: string;
-    };
-    menu: {
-      background: string;
-      borders?: string;
-      hover: string;
-      text: string;
-      title: string;
-    };
-    help: {
-      background: string;
-      title: string;
-      text: string;
-    };
-    description: {
-      background: string;
-      text: string;
-    };
-    addNode: {
-      background: string;
-      color: string;
-      hover: {
-        borderColor: string;
-      };
-    };
-    node: {
-      background: string;
-      selected: string;
-      name: string;
-      type: string;
-      types: Record<string, string>;
-      options: Record<string, string>;
-      hover: {
-        type: string;
-      };
-      menuOpened: string;
-    };
-    port: {
-      background: string;
-      backgroundActive: string;
-      button: string;
-    };
     link: {
       main: string;
-      active: string;
-      hover: string;
     };
   };
 }

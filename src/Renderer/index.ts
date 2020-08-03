@@ -1,13 +1,10 @@
-import { MinimapRenderer } from "./minimapRenderer";
 import { ZoomPan } from "./zoomPan";
 // import { MenuRenderer } from "./menuRenderer";
 import { EventBus } from "@eventBus";
 import { StateManager } from "@diagram/stateManager";
 import { DiagramTheme } from "@models";
 import { NodeRenderer } from "./nodeRenderer";
-import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { Cursor } from "@models";
-import { Region } from "@quadTree";
 import { CSSMiniEngine, css } from "./CssMiniEngine";
 import { ContextProvider } from "./ContextProvider";
 import { ConfigurationManager } from "@configuration";
@@ -22,11 +19,9 @@ import { ConfigurationManager } from "@configuration";
  *
  */
 export class Renderer {
-  private minimapRenderer = new MinimapRenderer();
   private nodeRenderer: NodeRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
-  private activeLinkRenderer: ActiveLinkRenderer;
   private previousFrameTime = 0;
   private screenShotCanvasContext: CanvasRenderingContext2D | null = null;
   private contextProvider: ContextProvider;
@@ -51,11 +46,6 @@ export class Renderer {
       this.cssMiniEngine
     );
 
-    this.activeLinkRenderer = new ActiveLinkRenderer(
-      this.contextProvider,
-      this.theme
-    );
-
     this.eventBus.subscribe("RenderRequested", this.renderStart);
     this.cssMiniEngine.addCss(css`
       .DiagramHTMLRoot {
@@ -67,142 +57,33 @@ export class Renderer {
     `);
     this.cssMiniEngine.compile();
   }
-  getAllNodesArea = () => {
-    const { nodes } = this.stateManager.pureState();
 
-    const minPoint = nodes.reduce<{ x: number; y: number }>(
-      (acc, curr) => ({
-        x: Math.min(curr.x, acc.x),
-        y: Math.min(curr.y, acc.y),
-      }),
-      {
-        x: Number.MAX_SAFE_INTEGER,
-        y: Number.MAX_SAFE_INTEGER,
-      }
-    );
-
-    const maxPoint = nodes.reduce<{ x: number; y: number }>(
-      (acc, curr) => ({
-        x: Math.max(curr.x, acc.x),
-        y: Math.max(curr.y, acc.y),
-      }),
-      {
-        x: Number.MIN_SAFE_INTEGER,
-        y: Number.MIN_SAFE_INTEGER,
-      }
-    );
-
-    return new Region(minPoint, maxPoint);
-  };
-  getActiveArea = () => {
-    const { uiState } = this.stateManager.getState();
-    const width = uiState.areaSize.width / uiState.scale;
-    const height = uiState.areaSize.height / uiState.scale;
-    return new Region(
-      {
-        x: 0 - uiState.panX,
-        y: 0 - uiState.panY,
-      },
-      {
-        x: width - uiState.panX,
-        y: height - uiState.panY,
-      }
-    );
-  };
   setCursor(cursor: Cursor) {
     this.contextProvider.context.canvas.style.cursor = cursor;
-  }
-  /**
-   * Render cursor.
-   */
-  renderCursor() {
-    const state = this.stateManager.getState();
-    if (state.drawedConnection) {
-      this.setCursor("grabbing");
-      return;
-    }
-    if (state.hover.node) {
-      this.setCursor("move");
-      if (state.hover.type && state.hover.node.definition.parent) {
-        this.setCursor("pointer");
-        return;
-      }
-      if (state.hover.io) {
-        this.setCursor("pointer");
-        return;
-      }
-      return;
-    }
-    if (state.hover.description) {
-      this.setCursor("text");
-      return;
-    }
-    /*if (state.hover.menu) {
-      this.setCursor("pointer");
-      return;
-    }*/
-    if (state.hover.link) {
-      this.setCursor("col-resize");
-      return;
-    }
-    this.setCursor("grab");
   }
   /**
    * Render nodes.
    */
   renderNodes() {
-    const region = this.stateManager.isScreenShotInProgress()
-      ? this.getAllNodesArea()
-      : this.getActiveArea();
     const state = this.stateManager.getState();
-    const nodes = state.trees.node
-      .queryRange(region)
-      .concat(state.selectedNodes);
-    const { uiState } = this.stateManager.getState();
+    const nodes = state.nodes;
     return nodes
       .filter((n) => !n.outputs || n.outputs.length === 0)
       .map((n) => {
         const isSelected = state.selectedNodes.indexOf(n) !== -1;
-        const isHovered = state.hover.node === n;
         const isRenamed = state.renamed && state.renamed === n;
         const isNodeMenuOpened = state.isNodeMenuOpened;
-        const typeIsHovered = isHovered && state.hover.type;
-        const inputActive = isHovered && state.hover.io == "i";
-        const outputActive = isHovered && state.hover.io == "o";
         const currentScale = state.uiState.scale;
 
         return this.nodeRenderer.render({
           node: n,
-          uiState,
           isRenamed,
           isSelected,
-          isHovered,
           isNodeMenuOpened,
-          typeIsHovered,
-          inputActive,
-          outputActive,
           currentScale,
         });
       })
       .join("");
-  }
-
-  /**
-   * Render active link connection.
-   */
-  renderActiveLink() {
-    const state = this.stateManager.getState();
-
-    if (!state.draw) {
-      return;
-    }
-
-    if (state.drawedConnection) {
-      this.activeLinkRenderer.render({
-        from: state.draw.initialPos,
-        to: state.drawedConnection,
-      });
-    }
   }
 
   /**
@@ -220,19 +101,6 @@ export class Renderer {
     const { width, height } = this.contextProvider.context.canvas;
     this.contextProvider.context.fillStyle = this.theme.colors.background;
     this.contextProvider.context.fillRect(0, 0, width, height);
-  }
-
-  /**
-   * render minimap in top right corner
-   *
-   * @memberof Renderer
-   */
-  renderMinimap() {
-    this.minimapRenderer.render(
-      this.contextProvider.context,
-      this.theme,
-      this.stateManager.getState()
-    );
   }
 
   setScreenTransform() {
@@ -269,6 +137,7 @@ export class Renderer {
   };
 
   render = (timePassed: number) => {
+    console.log("Rend");
     const timeCoefficient = this.calculateTimeDelta(timePassed);
 
     // render loop
@@ -279,11 +148,8 @@ export class Renderer {
 
     // this.context.scale(4, 4)
 
-    this.renderActiveLink();
     this.htmlElement.innerHTML = this.renderNodes();
     this.setScreenTransform();
-    this.renderMinimap();
-    this.renderCursor();
 
     if (this.animate(timeCoefficient)) {
       this.previousFrameTime = timePassed;

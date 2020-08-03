@@ -28,12 +28,6 @@ export const DefaultDiagramTheme: DiagramTheme = {
       y: 350,
     },
   },
-  minimap: {
-    alpha: 0.8,
-    hoverAlpha: 0.9,
-    size: 500,
-    margin: 20,
-  },
   description: {
     width: 200,
     paddingHorizontal: 20,
@@ -83,62 +77,9 @@ export const DefaultDiagramTheme: DiagramTheme = {
     },
   },
   colors: {
-    addNode: {
-      background: Colors.blue[8],
-      color: Colors.grey[0],
-      hover: {
-        borderColor: Colors.blue[2],
-      },
-    },
-    background: Colors.grey[8],
-    node: {
-      background: Colors.grey[6],
-      selected: Colors.green[0],
-      name: Colors.grey[0],
-      type: Colors.grey[0],
-      types: {
-        string: Colors.green[0],
-        type: Colors.main[0],
-      },
-      options: {
-        required: Colors.red[0],
-        array: Colors.yellow[0],
-      },
-      hover: {
-        type: Colors.yellow[0],
-      },
-      menuOpened: Colors.red[0],
-    },
-    minimap: {
-      background: Colors.grey[7],
-      visibleArea: Colors.grey[5],
-      node: Colors.grey[0],
-      borders: Colors.grey[4],
-    },
-    description: {
-      background: Colors.grey[9],
-      text: Colors.grey[1],
-    },
-    port: {
-      background: Colors.grey[5],
-      backgroundActive: Colors.grey[4],
-      button: Colors.grey[0],
-    },
+    background: Colors.main[9],
     link: {
       main: Colors.grey[3],
-      hover: Colors.yellow[0],
-      active: Colors.green[0],
-    },
-    menu: {
-      background: "#151515",
-      text: Colors.grey[3],
-      hover: Colors.grey[1],
-      title: Colors.grey[4],
-    },
-    help: {
-      background: Colors.grey[7],
-      text: Colors.grey[2],
-      title: Colors.main[0],
     },
   },
 };

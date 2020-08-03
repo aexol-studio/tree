@@ -4,17 +4,15 @@ import { DiagramTheme, Category, DiagramState } from "@models";
 import { Utils } from "@utils";
 import { UIManager } from "../uiManager";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
-import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
+import { CSSMiniEngine, css } from "@renderer/CssMiniEngine/index";
+import { Colors } from "@theme/Colors";
 
 const CSS_PREFIX = Utils.getUniquePrefix("MenuManager");
 
 const menuBaseClass = (theme: DiagramTheme) =>
   CSSMiniEngine.createStyle({
     position: "fixed",
-    background: theme.colors.menu.background,
-    border: theme.colors.menu.borders
-      ? `0.5px solid ${theme.colors.menu.borders}`
-      : "",
+    background: Colors.grey[10],
     padding: theme.menu.padding,
     borderRadius: theme.menu.borderRadius,
     width: `${theme.menu.width ? `${theme.menu.width}px` : "auto"}`,
@@ -29,7 +27,7 @@ const menuElementClass = (theme: DiagramTheme) =>
     position: "relative",
     textAlign: "left",
     verticalAlign: "middle",
-    color: theme.colors.menu.text,
+    color: Colors.grey[4],
     fontFamily: theme.fontFamily,
     fontSize: theme.menu.category.fontSize,
     fontWeight: theme.menu.category.fontWeight,
@@ -43,7 +41,7 @@ const menuTitleClass = (theme: DiagramTheme) =>
     position: "relative",
     textTransform: "uppercase",
     verticalAlign: "middle",
-    color: theme.colors.menu.title,
+    color: Colors.grey[6],
     fontFamily: theme.fontFamily,
     fontSize: theme.menu.title.fontSize,
     padding: theme.menu.category.padding,
@@ -54,7 +52,7 @@ const menuTitleClass = (theme: DiagramTheme) =>
 
 const menuElementClassHover = (theme: DiagramTheme) =>
   CSSMiniEngine.createStyle({
-    color: theme.colors.menu.hover,
+    color: Colors.grey[0],
   });
 /**
  * MenuManager:
@@ -81,7 +79,7 @@ export class MenuManager {
     this.eventBus.subscribe("MenuItemClicked", this.clickMenuItem);
     this.eventBus.subscribe("WorldLeftMouseClick", this.closeMenus);
     this.eventBus.subscribe("ScreenRightMouseUp", this.openNewNodeMenu);
-
+    CSSMiniEngine.instance.addCss(css``);
     CSSMiniEngine.instance.addClass(
       menuBaseClass,
       MenuManager.menuBaseClassName
@@ -120,14 +118,20 @@ export class MenuManager {
       this.activeNodeMenu = false;
     }
   };
-  openNewNodeMenu = ({ position }: { position: ScreenPosition }) => {
+  openNewNodeMenu = ({
+    position,
+    nodeId,
+  }: {
+    position: ScreenPosition;
+    nodeId?: string;
+  }) => {
+    const node = this.state.nodes.find((n) => n.id === nodeId);
     if (this.state.isReadOnly || this.state.draw) {
       return;
     }
-    const { node, link } = this.state.hover;
     if (node) {
       this.activeNodeMenu = true;
-    } else if (!node && !link) {
+    } else {
       const createNodePosition: ScreenPosition = this.uiManager.screenToWorld({
         position,
       });

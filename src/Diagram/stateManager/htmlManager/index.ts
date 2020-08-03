@@ -2,6 +2,7 @@ import { DiagramState, Node, DiagramTheme } from "@models";
 import { EventBus } from "@eventBus";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
 import { Utils } from "@utils";
+import { Colors } from "@theme/Colors";
 
 export type DiagramHtmlElementPaddedBy = { x: number; y: number } | "topCenter";
 
@@ -28,24 +29,24 @@ const helpContainerClass = (theme: DiagramTheme) => ({
   position: "absolute",
   left: "10px",
   top: "10px",
-  right: `${theme.minimap.size / 2.0 + 20}px`,
+  right: `20px`,
   height: "auto",
   pointerEvents: "none",
   display: "none",
   fontFamily: theme.fontFamily,
   padding: `${theme.help.padding}px`,
-  background: theme.colors.help.background,
+  background: Colors.grey[9],
 });
 
 const helpTitleClass = (theme: DiagramTheme) => ({
   fontSize: `${theme.help.title.text}px`,
-  color: theme.colors.help.title,
+  color: Colors.yellow[0],
   marginBottom: "10px",
 });
 
 const helpContentClass = (theme: DiagramTheme) => ({
   fontSize: `${theme.help.text}px`,
-  color: theme.colors.help.text,
+  color: Colors.grey[0],
   lineHeight: `${theme.help.lineHeight}px`,
 });
 

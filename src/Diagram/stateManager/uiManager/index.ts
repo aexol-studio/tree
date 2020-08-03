@@ -61,8 +61,6 @@ export class UIManager {
       this.state.panY + position.y / newScale - position.y / this.state.scale;
 
     this.state.scale = newScale;
-
-    this.eventBus.publish("RenderRequested");
     this.eventBus.publish("ViewModelChanged", this.getViewModel());
   };
 
@@ -94,7 +92,7 @@ export class UIManager {
     this.state.panY +=
       deltaY / Math.max(this.autoPanSmoothing / timeCoefficient, 1.0);
 
-    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("ViewModelChanged", this.getViewModel());
     return true;
   };
 
@@ -138,62 +136,22 @@ export class UIManager {
         this.state.areaSize.height / 2 / this.state.scale;
       this.state.animatingPan = true;
     }
-    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("ViewModelChanged", this.getViewModel());
   };
 
-  calculateMinimapPosition = ({ position }: { position: ScreenPosition }) => {
-    const minimapConstraints = {
-      left:
-        this.state.areaSize.width -
-        this.theme.minimap.size -
-        this.theme.minimap.margin,
-      right: this.state.areaSize.width - this.theme.minimap.margin,
-      top: this.theme.minimap.margin,
-      bottom: this.theme.minimap.margin + this.theme.minimap.size,
-    };
-
-    if (
-      position.x > minimapConstraints.left &&
-      position.x < minimapConstraints.right &&
-      position.y > minimapConstraints.top &&
-      position.y < minimapConstraints.bottom
-    ) {
-      return {
-        x: position.x - minimapConstraints.left,
-        y: position.y - minimapConstraints.top,
-      };
-    }
-
-    return null;
-  };
   mouseOverMove = ({ position }: { position: ScreenPosition }) => {
-    const minimapPosition = this.calculateMinimapPosition({ position });
-    if (minimapPosition && !this.state.draggingWorld) {
-      return;
-    }
     this.eventBus.publish("WorldMouseOverMove", {
       position: this.screenToWorld({ position }),
     });
   };
 
   mouseMove = ({ position }: { position: ScreenPosition }) => {
-    const minimapPosition = this.calculateMinimapPosition({ position });
-
-    if (minimapPosition && !this.state.draggingWorld) {
-      this.eventBus.publish("MinimapMouseMove", { position: minimapPosition });
-      return;
-    }
-
     this.eventBus.publish("WorldMouseMove", {
       position: this.screenToWorld({ position }),
     });
   };
 
   mouseDrag = ({ position }: { position: ScreenPosition }) => {
-    const isInsideMinimap = this.calculateMinimapPosition({ position });
-    if (isInsideMinimap && !this.state.draggingElements) {
-      return;
-    }
     const calculated = this.screenToWorld({ position });
     this.eventBus.publish("WorldMouseDrag", {
       withoutPan: {
@@ -231,15 +189,6 @@ export class UIManager {
   };
 
   LMBPressed = ({ position }: { position: ScreenPosition }) => {
-    const coordsInsideMinimap = this.calculateMinimapPosition({ position });
-
-    if (coordsInsideMinimap) {
-      this.eventBus.publish("MinimapLeftMouseClick", {
-        position: coordsInsideMinimap,
-      });
-      return;
-    }
-
     this.state.lastDragPosition = {
       x: position.x / this.state.scale,
       y: position.y / this.state.scale,
@@ -251,6 +200,7 @@ export class UIManager {
   };
 
   panScreen = ({ position }: { position: ScreenPosition }) => {
+    console.log("pan");
     if (!this.state.lastDragPosition) {
       return;
     }
@@ -259,16 +209,16 @@ export class UIManager {
     this.state.panX -= this.state.lastDragPosition.x - position.x;
     this.state.panY -= this.state.lastDragPosition.y - position.y;
     this.state.lastDragPosition = { ...position };
-    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("ViewModelChanged", this.getViewModel());
   };
   panTo = ({ position }: { position: ScreenPosition }) => {
     this.state.panX = -position.x;
     this.state.panY = -position.y;
-    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("ViewModelChanged", this.getViewModel());
   };
   centerPanTo = ({ position }: { position: ScreenPosition }) => {
     this.state.panX = position.x + this.state.areaSize.width / 2.0;
     this.state.panY = position.y + this.state.areaSize.height / 2.0;
-    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish("ViewModelChanged", this.getViewModel());
   };
 }

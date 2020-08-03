@@ -3,6 +3,7 @@ import { EventBus } from "@eventBus";
 import { HtmlManager, HtmlElementRegistration } from "../htmlManager/index";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
 import { Utils } from "@utils";
+import { Colors } from "@theme/Colors";
 
 const CSS_PREFIX = Utils.getUniquePrefix("RenameManager");
 
@@ -14,7 +15,7 @@ const containerClass = (theme: DiagramTheme) => ({
   fontSize: `${theme.node.nameSize / 2.0}px`,
   fontFamily: theme.fontFamily,
   background: "transparent",
-  color: theme.colors.node.name,
+  color: Colors.grey[0],
   textAlign: "center",
   border: "0",
   outline: "0",

@@ -4,6 +4,7 @@ import { HtmlManager, HtmlElementRegistration } from "../htmlManager";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine";
 import { Utils } from "@utils";
 import { ConfigurationManager } from "@configuration";
+import { Colors } from "@theme/Colors";
 
 const CSS_PREFIX = Utils.getUniquePrefix("DescriptionManager");
 
@@ -15,8 +16,8 @@ const containerClass = {
 const descriptionClass = (theme: DiagramTheme) => ({
   borderRadius: "3px",
   padding: "10px",
-  background: theme.colors.description.background,
-  color: theme.colors.description.text,
+  background: Colors.grey[10],
+  color: Colors.grey[1],
   width: `${theme.description.width}px`,
   textAlign: "left",
   outline: "none",
@@ -43,7 +44,7 @@ const descriptionSeparatorClassAfter = (theme: DiagramTheme) => ({
   height: "10px",
   position: "absolute",
   transform: "translate(-5px, -5px) rotate(45deg)",
-  background: theme.colors.description.background,
+  background: Colors.grey[10],
 });
 
 export class DescriptionManager {

@@ -10,7 +10,6 @@ export * from "./MinimapBoundaries";
 export * from "./Node";
 export * from "./NodeDefinition";
 export * from "./NodeOption";
-export * from "./QuadTree";
 export * from "./Size";
 export * from "./Snapshot";
 export * from "./UIState";

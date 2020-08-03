@@ -11,7 +11,6 @@ export interface DiagramEvents {
     selectedNodes: Node[];
   };
   NodeSelected: {
-    e: ScreenPosition;
     selectedNodes: Node[];
   };
   NodeCreated: {
@@ -155,9 +154,6 @@ export interface DiagramEvents {
   WorldMouseDragEnd: { position: ScreenPosition };
   WorldLeftMouseClick: { position: ScreenPosition };
   WorldLeftMouseUp: { position: ScreenPosition };
-
-  MinimapMouseMove: { position: ScreenPosition };
-  MinimapLeftMouseClick: { position: ScreenPosition };
 
   ScreenRightMouseClick: { position: ScreenPosition };
   MPressed: { position: ScreenPosition };

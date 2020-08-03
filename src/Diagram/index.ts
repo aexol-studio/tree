@@ -51,9 +51,6 @@ export class Diagram {
   requestSerialise() {
     this.stateManager.requestSerialise();
   }
-  rebuildTrees() {
-    this.stateManager.rebuildTrees();
-  }
   beautifyDiagram(nodes: Node[]) {
     NodeUtils.beautifyDiagram(nodes, this.configuration.getOption("theme"));
   }
@@ -75,8 +72,8 @@ export class Diagram {
     this.currentHostSize = targetSize;
 
     const areaSize = {
-      width: targetSize.width * 2,
-      height: targetSize.height * 2,
+      width: targetSize.width,
+      height: targetSize.height,
     };
 
     this.canvasElement.width = areaSize.width;
@@ -108,8 +105,8 @@ export class Diagram {
       this.currentHostSize = newHostSize;
 
       const areaSize = {
-        width: newHostSize.width * 2,
-        height: newHostSize.height * 2,
+        width: newHostSize.width,
+        height: newHostSize.height,
       };
 
       this.canvasElement.width = areaSize.width;
@@ -177,8 +174,8 @@ export class Diagram {
       this.configuration.getOption("height") || hostSize.height;
 
     const areaSize = {
-      width: targetWidth * 2,
-      height: targetHeight * 2,
+      width: targetWidth,
+      height: targetHeight,
     };
 
     this.canvasElement.width = areaSize.width;
@@ -200,15 +197,18 @@ export class Diagram {
     // create a main event bus
     this.eventBus = new EventBus();
     window.graphsource = this.eventBus;
+    this.eventBus.subscribe("ViewModelChanged", (args) => {
+      this.htmlElement.style.transform = `scale(${args.scale}) translate(${args.pan.x}px, ${args.pan.y}px)`;
+    });
+
     // initialize IO: mouse/keyboard logic will be there
-    this.io = new IO(this.eventBus, this.canvasElement);
+    this.io = new IO(this.eventBus, this.hostDomElement);
 
     // initialize state manager
     this.stateManager = new StateManager(
       this.eventBus,
       this.configuration.getOption("theme"),
       this.configuration.getOption("connectionFunction"),
-      this.configuration.getOption("disableLinkOperations"),
       this.getHostElement,
       areaSize
     );
@@ -245,10 +245,7 @@ export class Diagram {
 
       const currentNodes = this.stateManager.pureState().nodes;
       const screenShotMargin = this.configuration.getOption("screenShotMargin");
-      const {
-        width: nodeWidth,
-        height: nodeHeight,
-      } = this.configuration.getOption("theme").node;
+      const { width: nodeWidth } = this.configuration.getOption("theme").node;
 
       const rangeX = currentNodes.reduce(
         (acc, cur) => [Math.min(cur.x, acc[0]), Math.max(cur.x, acc[1])],
@@ -265,7 +262,7 @@ export class Diagram {
         rangeX[0] - screenShotMargin,
         rangeX[1] + screenShotMargin + nodeWidth,
         rangeY[0] - screenShotMargin,
-        rangeY[1] + screenShotMargin + nodeHeight
+        rangeY[1] + screenShotMargin
       );
 
       if (savedUiState) {

@@ -3,7 +3,6 @@ import { Link } from "./Link";
 import { ScreenPosition } from "@io";
 import { NodeDefinition } from "./NodeDefinition";
 import { UIState } from "./UIState";
-import { QuadTree } from "@quadTree";
 
 export interface DiagramState {
   links: Link[];
@@ -11,10 +10,6 @@ export interface DiagramState {
   nodeDefinitions: NodeDefinition[];
   selectedLinks: Link[];
   selectedNodes: Node[];
-  trees: {
-    node: QuadTree<Node>;
-    link: QuadTree<Link>;
-  };
   renamed?: Node;
   draw?: {
     node: Node;
@@ -22,14 +17,6 @@ export interface DiagramState {
     initialPos: ScreenPosition;
   };
   hoverMinimap: boolean;
-  hover: {
-    node?: Node;
-    link?: Link;
-    menu?: boolean;
-    io?: "i" | "o";
-    type?: boolean;
-    description?: Node;
-  };
   isReadOnly?: boolean;
   drawedConnection?: ScreenPosition;
   uiState: UIState;

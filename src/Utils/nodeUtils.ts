@@ -4,7 +4,6 @@ import {
   Graph,
   NodeDefinition,
   DiagramTheme,
-  DataObjectInTree,
   AcceptedNodeDefinition,
 } from "@models";
 import { ScreenPosition } from "@io";
@@ -303,20 +302,4 @@ export class NodeUtils {
       theme
     );
   };
-  static createTreeNode = (
-    data: Node,
-    theme: DiagramTheme = DefaultDiagramTheme
-  ): DataObjectInTree<Node> => ({
-    data,
-    bb: {
-      min: {
-        x: data.x - theme.port.width,
-        y: data.y - theme.node.typeSize,
-      },
-      max: {
-        x: data.x + theme.node.width + theme.port.width,
-        y: data.y + theme.node.height,
-      },
-    },
-  });
 }

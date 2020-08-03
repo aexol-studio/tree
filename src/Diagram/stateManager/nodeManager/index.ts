@@ -9,7 +9,6 @@ import {
   AcceptedNodeDefinition,
 } from "@models";
 import { NodeUtils } from "@utils";
-import { QuadTree } from "@quadTree";
 import { UIManager } from "../uiManager/index";
 import { ConnectionManager } from "../connectionManager/index";
 import { RenameManager } from "../renameManager/index";
@@ -33,14 +32,11 @@ export class NodeManager {
     private htmlManager: HtmlManager,
     private descriptionManager: DescriptionManager
   ) {
-    this.eventBus.subscribe("WorldLeftMouseClick", this.selectNode);
-    this.eventBus.subscribe("WorldLeftMouseClick", this.goToNodeType);
     this.eventBus.subscribe("NodeOpenFieldMenu", this.openPortMenu);
-    this.eventBus.subscribe("ScreenRightMouseUp", this.openNodeMenu);
     this.eventBus.subscribe("ScreenMouseLeave", this.handleScreenLeave);
+    this.eventBus.subscribe("ScreenLeftMouseUp", () => this.selectNode({}));
     this.eventBus.subscribe("NodeCreationRequested", this.createNode);
     this.eventBus.subscribe("WorldMouseDragEnd", this.movedNodes);
-    this.eventBus.subscribe("NodeSelected", this.storeNodes);
     this.eventBus.subscribe("BackspacePressed", this.deleteSelectedNodes);
 
     this.renameManager = new RenameManager(
@@ -55,27 +51,9 @@ export class NodeManager {
       this.movedNodes();
     }
   };
-  rebuildTree = () => {
-    this.state.trees.node = new QuadTree<Node>();
-    this.state.nodes
-      .filter((n) => !n.hidden)
-      .forEach((n) =>
-        this.state.trees.node.insert(NodeUtils.createTreeNode(n, this.theme))
-      );
-  };
   loadNodes = (nodes: Node[]) => {
     this.state.nodes = nodes;
     this.state.selectedNodes = [];
-    this.rebuildTree();
-  };
-  storeNodes = ({ e }: { e: ScreenPosition }) => {
-    this.storeSelectedNodesRelativePosition = this.state.selectedNodes.map(
-      (sn) =>
-        ({
-          x: e.x - sn.x,
-          y: e.y - sn.y,
-        } as ScreenPosition)
-    );
   };
   moveNodes = (e: ScreenPosition) => {
     if (this.state.isReadOnly) return;
@@ -102,7 +80,6 @@ export class NodeManager {
     if (!selectedNodes.length) {
       return;
     }
-    this.rebuildTree();
     this.eventBus.publish("NodeMoved", { selectedNodes });
   };
   beautifyNodesInPlace = (node: Node) => {
@@ -125,11 +102,17 @@ export class NodeManager {
   deleteSelectedNodes = () => {
     this.deleteNodes(this.state.selectedNodes);
   };
-  openNodeMenu = ({ position }: { position: ScreenPosition }) => {
+  openNodeMenu = ({
+    position,
+    nodeId,
+  }: {
+    position: ScreenPosition;
+    nodeId: string;
+  }) => {
+    const node = this.findNodeById({ nodeId });
     if (this.state.isReadOnly || this.state.draw) {
       return;
     }
-    const { node, io } = this.state.hover;
     if (node) {
       const menuCategories: Category[] = [];
       menuCategories.push(
@@ -156,14 +139,14 @@ export class NodeManager {
           name: "select graph",
           help: "Select all nodes in graph",
           action: () => {
-            this.graphSelect();
+            this.graphSelect({ nodeId: node.id });
           },
         },
         {
           name: node.hideChildren ? "unfold" : "fold",
           help: (node.hideChildren ? "unfold" : "fold") + " children in graph",
           action: () => {
-            if (!io && node) {
+            if (node) {
               if (node.hideChildren) {
                 this.foldChildren(node, true);
                 return;
@@ -209,9 +192,11 @@ export class NodeManager {
       });
     }
   };
-  graphSelect = () => {
-    const { node, io } = this.state.hover;
-    if (node && !io) {
+  findNodeById = ({ nodeId }: { nodeId: string }) =>
+    this.state.nodes.find((n) => n.id === nodeId);
+  graphSelect = ({ nodeId }: { nodeId: string }) => {
+    const node = this.findNodeById({ nodeId });
+    if (node) {
       const nodeGraph = NodeUtils.graphFromNode(node);
       this.state.selectedNodes = nodeGraph.nodes;
       this.eventBus.publish("RenderRequested");
@@ -233,9 +218,9 @@ export class NodeManager {
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
   };
-  goToNodeType = () => {
-    const { type, node } = this.state.hover;
-    if (type && node && node.definition.parent) {
+  goToNodeType = ({ nodeId }: { nodeId: string }) => {
+    const node = this.findNodeById({ nodeId });
+    if (node && node.definition.parent) {
       const parentNode = this.state.nodes.find(
         (n) =>
           !!n.editsDefinitions &&
@@ -247,32 +232,42 @@ export class NodeManager {
       }
     }
   };
-  selectNode = ({ position }: { position: ScreenPosition }) => {
-    const { node, io, type } = this.state.hover;
-    if (node && !io && !type) {
-      if (position.shiftKey) {
-        const hasIndex = this.state.selectedNodes.indexOf(node);
-        if (hasIndex !== -1) {
-          this.state.selectedNodes.splice(hasIndex);
-          return;
-        }
-        this.state.selectedNodes.push(node);
-      } else {
-        if (
-          this.state.selectedNodes.length === 1 ||
-          this.state.selectedNodes.indexOf(node) === -1
-        ) {
-          this.selectSingleNode(node);
-        }
-      }
-    } else {
+  selectNode = ({
+    nodeId,
+    shiftKey,
+  }: {
+    nodeId?: string;
+    shiftKey?: boolean;
+  }) => {
+    if (!nodeId) {
       this.state.selectedNodes = [];
+      this.eventBus.publish("NodeSelected", {
+        selectedNodes: [...this.state.selectedNodes],
+      });
+      return;
+    }
+    const node = this.findNodeById({ nodeId });
+    if (!node) {
+      return;
+    }
+    if (shiftKey) {
+      const hasIndex = this.state.selectedNodes.indexOf(node);
+      if (hasIndex !== -1) {
+        this.state.selectedNodes.splice(hasIndex);
+        return;
+      }
+      this.state.selectedNodes.push(node);
+    } else {
+      if (
+        this.state.selectedNodes.length === 1 ||
+        this.state.selectedNodes.indexOf(node) === -1
+      ) {
+        this.selectSingleNode(node);
+      }
     }
     this.eventBus.publish("NodeSelected", {
-      e: position,
       selectedNodes: [...this.state.selectedNodes],
     });
-    this.eventBus.publish("RenderRequested");
   };
   placeConnectedNode = (node: Node, io: "i" | "o") => {
     let x = node.x,
@@ -331,7 +326,6 @@ export class NodeManager {
     this.state.nodes = this.state.nodes.filter(
       (node) => !n.find((nn) => nn === node)
     );
-    this.rebuildTree();
     this.descriptionManager.clearDescription();
     this.eventBus.publish("NodeDeleted", { nodes: n });
     this.eventBus.publish("RenderRequested");
@@ -361,9 +355,6 @@ export class NodeManager {
       this.state.nodeDefinitions
     );
     this.state.nodes.push(createdNode);
-    this.state.trees.node.insert(
-      NodeUtils.createTreeNode(createdNode, this.theme)
-    );
     this.selectSingleNode(createdNode);
     this.eventBus.publish("NodeCreated", { node: createdNode });
     if (
@@ -373,7 +364,6 @@ export class NodeManager {
     ) {
       this.renameManager.startRenaming(createdNode);
     }
-    this.state.hover.node = undefined;
     this.eventBus.publish("RenderRequested");
     if (center) {
       this.eventBus.publish("CenterPanRequested", {
@@ -405,7 +395,7 @@ export class NodeManager {
     io: "i" | "o";
     position: ScreenPosition;
   }) => {
-    const node = this.state.nodes.find((n) => n.id === nodeId);
+    const node = this.findNodeById({ nodeId });
     if (this.state.isReadOnly || this.state.drawedConnection || !node) {
       this.state.drawedConnection = undefined;
       return;
@@ -487,7 +477,6 @@ export class NodeManager {
       position,
     });
 
-    this.state.hover = {};
     this.eventBus.publish("MenuRequested", {
       e: NodeScreenPosition,
       title: `Create ${node.name} field`,
