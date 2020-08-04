@@ -37,6 +37,7 @@ export const NodeTheme = css`
     padding: 5px 10px;
     display: flex;
     align-items: center;
+    position: relative;
   }
   .AddNodePlus,
   .NodeFieldPlus {
@@ -72,6 +73,14 @@ export const NodeTheme = css`
     color: ${Colors.grey[0]};
     font-size: 10px;
   }
+  .NodeField:hover > .NodeFieldNode {
+    display: block;
+  }
+  .NodeFieldNode {
+    position: absolute;
+    display: none;
+    margin-left: -180px;
+  }
   .BottomNodeGrid {
     opacity: 0;
     position: absolute;
@@ -79,8 +88,9 @@ export const NodeTheme = css`
     grid-template-columns: 3fr 1fr;
     grid-gap: 10px;
     width: 100%;
-    height: 24px;
-    bottom: -34px;
+    height: 44px;
+    bottom: -44px;
+    padding: 10px 0;
     transition: opacity 0.25s ease-in-out;
   }
   .Node:hover > .BottomNodeGrid {

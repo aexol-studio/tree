@@ -57,6 +57,15 @@ export class Renderer {
     `);
     this.cssMiniEngine.compile();
   }
+  selectNodes() {
+    this.stateManager.getState().selectedNodes;
+    this.htmlElement
+      .querySelectorAll(".Node")
+      .forEach((n) => n.classList.add(".NodeSelected"));
+    this.htmlElement
+      .querySelectorAll(".NodeField")
+      .forEach((n) => n.classList.add(".NodeFieldSelected"));
+  }
 
   setCursor(cursor: Cursor) {
     this.contextProvider.context.canvas.style.cursor = cursor;
@@ -70,7 +79,6 @@ export class Renderer {
     return nodes
       .filter((n) => !n.outputs || n.outputs.length === 0)
       .map((n) => {
-        const isSelected = state.selectedNodes.indexOf(n) !== -1;
         const isRenamed = state.renamed && state.renamed === n;
         const isNodeMenuOpened = state.isNodeMenuOpened;
         const currentScale = state.uiState.scale;
@@ -78,7 +86,6 @@ export class Renderer {
         return this.nodeRenderer.render({
           node: n,
           isRenamed,
-          isSelected,
           isNodeMenuOpened,
           currentScale,
         });

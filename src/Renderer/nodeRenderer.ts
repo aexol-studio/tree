@@ -65,6 +65,21 @@ export class NodeRenderer {
     inputCounter += 1;
     return `
     <div class="NodeField" style="margin-left:${indent * 20}">
+    ${
+      node.inputs
+        ? `
+    <div class="NodeFieldNode">
+        ${this.render({
+          node,
+          position: {
+            x: 0,
+            y: 0,
+          },
+        })}
+    </div>
+    `
+        : ""
+    }
       <div 
         class="NodeFieldPlus"
         onclick='graphsource.publish("NodeOpenFieldMenu", {
@@ -83,31 +98,14 @@ export class NodeRenderer {
       <div class="NodeFieldType">
         ${node.definition.type}
       </div>
-  </div>${
-    node.inputs
-      ?.map((i, index) =>
-        this.renderInput({
-          node: i,
-          indent: indent + 1,
-          inputCounter,
-          position: {
-            x: position.x + indent * 20,
-            y: position.y + inputCounter * 30,
-          },
-        })
-      )
-      .join("") || ""
-  }
-    `;
+  </div>`;
   };
   render = ({
     node,
-    isSelected,
     position,
   }: {
     node: Node;
     position?: ScreenPosition;
-    isSelected?: boolean;
     isRenamed?: boolean;
     isNodeMenuOpened?: boolean;
     currentScale?: number;
@@ -127,8 +125,11 @@ export class NodeRenderer {
 
     const x = pos.x - port.width;
     const y = pos.y;
-    return `<div 
-      data-graphsouce-node="${node.id}"
+    return `<div
+      onClick="graphsource.publish('SelectNode',{
+        id:${node.id}
+      })"
+      data-graphsource-node="${node.id}"
       class="Node Type-${node.definition.type} Name-${node.name}" style="
       transform:  translate(${x}px,${y}px);
       width:${width}px;

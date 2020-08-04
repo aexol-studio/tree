@@ -202,7 +202,7 @@ export class Diagram {
     });
 
     // initialize IO: mouse/keyboard logic will be there
-    this.io = new IO(this.eventBus, this.hostDomElement);
+    this.io = new IO(this.eventBus, this.canvasElement);
 
     // initialize state manager
     this.stateManager = new StateManager(
