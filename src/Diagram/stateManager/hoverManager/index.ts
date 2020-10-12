@@ -12,8 +12,7 @@ export class HoverManager {
   constructor(
     private state: DiagramState,
     private eventBus: EventBus,
-    private theme: DiagramTheme,
-    private disableLinkOperations: boolean
+    private theme: DiagramTheme
   ) {
     this.eventBus.subscribe("WorldMouseOverMove", this.hover);
     this.eventBus.subscribe("PickRequested", this.hover);
@@ -28,9 +27,6 @@ export class HoverManager {
     if (!node) {
       if (this.state.draw) return;
       let link;
-      if (!this.disableLinkOperations) {
-        link = this.state.trees.link.pick(position);
-      }
       this.state.hover = { link };
       this.eventBus.publish("RenderRequested");
       return;

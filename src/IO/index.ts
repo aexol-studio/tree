@@ -82,7 +82,6 @@ export class IO {
       }
     });
     element.addEventListener("keydown", (event) => {
-      const ctrl = event.ctrlKey || event.metaKey;
       if (event.key === "m") {
         this.eventBus.publish("MPressed");
       }
@@ -91,12 +90,6 @@ export class IO {
       }
       if (event.key === "Backspace") {
         this.eventBus.publish("BackspacePressed");
-      }
-      if (event.key === "z" && ctrl && !event.shiftKey) {
-        this.eventBus.publish("UndoRequested");
-      }
-      if (event.key === "z" && ctrl && event.shiftKey) {
-        this.eventBus.publish("RedoRequested");
       }
     });
     element.addEventListener("touchstart", (event) => {

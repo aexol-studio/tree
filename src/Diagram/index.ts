@@ -1,7 +1,7 @@
 import { Renderer } from "@renderer/index";
 import { EventBus } from "@eventBus";
 import { StateManager } from "./stateManager";
-import { IO, ScreenPosition } from "@io";
+import { IO } from "@io";
 import { Node, Size, Link, NodeDefinition } from "@models";
 import { NodeUtils } from "@utils";
 import { DiagramOptions, ConfigurationManager } from "@configuration";
@@ -23,9 +23,6 @@ export class Diagram {
   public eventBus: EventBus;
   public configuration: ConfigurationManager;
 
-  openMenu = (e: ScreenPosition) => {
-    this.stateManager.openMenu(e);
-  };
   setDefinitions(nodeDefinitions: NodeDefinition[]) {
     this.stateManager.setDefinitions(nodeDefinitions);
   }
@@ -133,10 +130,6 @@ export class Diagram {
     }
   }
 
-  private getHostElement = () => {
-    return this.hostDomElement;
-  };
-
   constructor(
     private hostDomElement: HTMLElement,
     options?: Partial<DiagramOptions>
@@ -202,9 +195,6 @@ export class Diagram {
     this.stateManager = new StateManager(
       this.eventBus,
       this.configuration.getOption("theme"),
-      this.configuration.getOption("connectionFunction"),
-      this.configuration.getOption("disableLinkOperations"),
-      this.getHostElement,
       areaSize
     );
 

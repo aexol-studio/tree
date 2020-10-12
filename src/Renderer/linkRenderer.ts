@@ -1,26 +1,13 @@
 import { DiagramTheme, Link } from "@models";
 import { QuadraticPath } from "./Draw/QuadraticPath";
 import { SimplifiedPath } from "./Draw/SimplifiedPath";
-import {
-  DiagramDrawingDistanceOptions,
-  ConfigurationManager,
-} from "@configuration";
 import { ContextProvider } from "./ContextProvider";
 export class LinkRenderer {
-  distances: DiagramDrawingDistanceOptions;
   constructor(
     private contextProvider: ContextProvider,
     private theme: DiagramTheme
-  ) {
-    this.distances = ConfigurationManager.instance.getOption(
-      "drawingDistance"
-    ) as DiagramDrawingDistanceOptions;
-  }
-  render = (
-    l: Link,
-    status: keyof DiagramTheme["colors"]["link"],
-    currentScale = 1.0
-  ) => {
+  ) {}
+  render = (l: Link, status: keyof DiagramTheme["colors"]["link"]) => {
     const {
       node: { width, height },
     } = this.theme;
@@ -29,7 +16,7 @@ export class LinkRenderer {
     if (l.i.hidden || l.o.hidden) {
       return;
     }
-    if (currentScale > this.distances.detailedLinks && !l.i.hidden) {
+    if (!l.i.hidden) {
       return QuadraticPath(
         context,
         l.o.x + width,
@@ -44,7 +31,7 @@ export class LinkRenderer {
       );
     }
 
-    if (currentScale > this.distances.simplifiedLinks && !l.i.hidden) {
+    if (!l.i.hidden) {
       return SimplifiedPath(
         context,
         l.i.x,

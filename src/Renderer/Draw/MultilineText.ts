@@ -5,7 +5,7 @@ export const MultilineText = (
     y,
     lineHeight,
     width,
-    text
+    text,
   }: {
     x: number;
     y: number;
@@ -15,7 +15,9 @@ export const MultilineText = (
   }
 ) => {
   const words = text.split(" ");
-  const wordMeasure = words.map(w => context.measureText(w)).map(w => w.width);
+  const wordMeasure = words
+    .map((w) => context.measureText(w))
+    .map((w) => w.width);
   const spaceSize = context.measureText(" ").width;
   let currentWidth = 0;
   let currentString = "";
@@ -35,7 +37,7 @@ export const MultilineText = (
   if (currentString) {
     lines.push(currentString);
   }
-  for (var i = 0; i < lines.length; i++)
+  for (let i = 0; i < lines.length; i++)
     context.fillText(lines[i], x, y + i * lineHeight);
   return lines;
 };
@@ -43,14 +45,16 @@ export const TextInLines = (
   context: CanvasRenderingContext2D,
   {
     width,
-    text
+    text,
   }: {
     text: string;
     width: number;
   }
 ) => {
   const words = text.split(" ");
-  const wordMeasure = words.map(w => context.measureText(w)).map(w => w.width);
+  const wordMeasure = words
+    .map((w) => context.measureText(w))
+    .map((w) => w.width);
   const spaceSize = context.measureText(" ").width;
   let currentWidth = 0;
   let currentString = "";

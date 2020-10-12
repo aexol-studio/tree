@@ -46,11 +46,7 @@ export class Renderer {
   ) {
     this.contextProvider = new ContextProvider(canvasContext);
 
-    this.nodeRenderer = new NodeRenderer(
-      this.contextProvider,
-      this.theme,
-      this.stateManager
-    );
+    this.nodeRenderer = new NodeRenderer(this.contextProvider, this.theme);
 
     this.activeLinkRenderer = new ActiveLinkRenderer(
       this.contextProvider,
@@ -156,23 +152,13 @@ export class Renderer {
     for (const n of nodes) {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
       const isHovered = state.hover.node === n;
-      const isRenamed = state.renamed && state.renamed === n;
-      const isNodeMenuOpened = state.isNodeMenuOpened;
       const typeIsHovered = isHovered && state.hover.type;
-      const inputActive = isHovered && state.hover.io == "i";
-      const outputActive = isHovered && state.hover.io == "o";
-      const currentScale = state.uiState.scale;
 
       this.nodeRenderer.render({
         node: n,
-        isRenamed,
         isSelected,
         isHovered,
-        isNodeMenuOpened,
         typeIsHovered,
-        inputActive,
-        outputActive,
-        currentScale,
       });
     }
   }
@@ -205,16 +191,11 @@ export class Renderer {
       : this.getActiveArea();
 
     const linksInArea = state.trees.link.queryRange(region);
-    linksInArea.forEach((l) =>
-      this.linkRenderer.render(l, "main", state.uiState.scale)
-    );
+    linksInArea.forEach((l) => this.linkRenderer.render(l, "main"));
     state.links
       .filter((l) => state.selectedNodes.find((n) => n === l.i || n === l.o))
-      .forEach((l) =>
-        this.linkRenderer.render(l, "active", state.uiState.scale)
-      );
-    state.hover.link &&
-      this.linkRenderer.render(state.hover.link, "hover", state.uiState.scale);
+      .forEach((l) => this.linkRenderer.render(l, "active"));
+    state.hover.link && this.linkRenderer.render(state.hover.link, "hover");
   }
 
   /**

@@ -1,6 +1,5 @@
 import { Node } from "./Node";
 import { NodeOption } from "./NodeOption";
-import { Category } from "./Category";
 
 export interface AcceptedNodeDefinition<Data = {}> {
   definition?: NodeDefinition<Data>;
@@ -11,11 +10,6 @@ export interface AcceptedNodeDefinition<Data = {}> {
 }
 export interface NodeDefinition<Data = {}> {
   node: Partial<Node>;
-  categories?: {
-    inputs?: Category[];
-    outputs?: Category[];
-    node?: Category[];
-  };
   type: string;
   acceptsInputs?: (
     incomingDefinition: NodeDefinition<Data>,

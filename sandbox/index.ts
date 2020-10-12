@@ -1,11 +1,7 @@
-import { Diagram } from "../src/index";
-import {
-  NodeDefinition,
-  AcceptedNodeDefinition,
-  NodeOption,
-} from "../src/Models";
-import { DefaultDiagramTheme } from "../src/Theme/DefaultDiagramTheme";
+import { Diagram, Serializer } from "../src/index";
 
+const json = require("./serialized.json");
+const definitions = require("./definitions.json");
 class App {
   diagram?: Diagram = undefined;
   constructor() {
@@ -13,98 +9,32 @@ class App {
     if (!root) {
       throw new Error("No root html element");
     }
-    this.diagram = new Diagram(root, {
-      disableLinkOperations: true,
-      theme: { ...DefaultDiagramTheme, fontFamily: `"Roboto"` },
+    this.diagram = new Diagram(root, {});
+    this.diagram.setReadOnly(true);
+    const links = Serializer.deserialize(json, definitions).links;
+    const nodes = Serializer.deserialize(json, definitions).nodes;
+    const ioNodes = nodes.map((el) => {
+      return {
+        ...el,
+        outputs:
+          links.filter((l) => l.o.id === el.id).map((l) => l.i).length === 0 &&
+          el.definition.type === "type"
+            ? null
+            : links.filter((l) => l.o.id === el.id).map((l) => l.i),
+        inputs: links.filter((l) => l.i.id === el.id).map((l) => l.o),
+      };
     });
-    const helper = document.createElement("div");
-    helper.innerHTML = "Create first Node";
-    helper.style.position = "fixed";
-    helper.style.left = "calc(50vw - 100px)";
-    helper.style.top = "calc(50vh - 20px)";
-    helper.style.width = "200px";
-    (helper.style.display = "flex"),
-      (helper.style.height = "40px"),
-      (helper.style.background = "#153");
-    helper.style.color = "#fff";
-    helper.style.fontSize = "12px";
-    helper.style.alignItems = "center";
-    helper.style.justifyContent = "center";
-    helper.style.cursor = "pointer";
-    document.body.appendChild(helper);
-    const createOND = (name: string): NodeDefinition["node"] => ({
-      name: `${name}`,
-      description: ``,
-      inputs: [],
-      outputs: [],
+    const ioLinks = links.map((el) => {
+      return {
+        ...el,
+        i: ioNodes.find((n) => n.id === el.i.id)!,
+        o: ioNodes.find((n) => n.id === el.o.id)!,
+      };
     });
-    const options: NodeOption[] = [
-      {
-        name: "required",
-        help:
-          "Check this if this node is required for creation of the type or is required in input | interface",
-      },
-      {
-        name: "array",
-        help:
-          "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings",
-      },
-    ];
-    const dummyDef: NodeDefinition = {
-      type: "dummy",
-      help: "Hello I am dummy node this is help I do display",
-      node: {
-        ...createOND("dummy"),
-        notEditable: true,
-      },
-      options,
-      root: true,
-      acceptsInputs: (d, defs) =>
-        defs.map(
-          (def) =>
-            ({
-              definition: def,
-            } as AcceptedNodeDefinition)
-        ),
-      acceptsOutputs: (d, defs) =>
-        defs.map(
-          (def) =>
-            ({
-              definition: def,
-            } as AcceptedNodeDefinition)
-        ),
-    };
-    helper.onclick = () => {
-      this.diagram?.eventBus.publish("NodeCreationRequested", {
-        nodeDefinition: dummyDef,
-        center: true,
-      });
-    };
-    this.diagram.setDefinitions([
-      {
-        type: "www",
-        help: "Hello I am dummy node this is help I do display",
-        node: createOND(""),
-        options,
-        root: true,
-        instances: [{}],
-        acceptsInputs: (d, defs) =>
-          defs.map(
-            (def) =>
-              ({
-                definition: def,
-              } as AcceptedNodeDefinition)
-          ),
-        acceptsOutputs: (d, defs) =>
-          defs.map(
-            (def) =>
-              ({
-                definition: def,
-              } as AcceptedNodeDefinition)
-          ),
-      },
-      dummyDef,
-    ]);
+    this.diagram.setNodes(ioNodes);
+    this.diagram.setLinks(ioLinks);
+    this.diagram.setNodes(ioNodes, true);
+    this.diagram.zeroDiagram();
   }
 }
 new App();

@@ -39,34 +39,10 @@ export interface DiagramTheme {
     triangleDistance: number;
     placeholder?: string;
   };
-  port: {
-    gap: number;
-    width: number;
-  };
   link: {
     strokeWidth: number;
     cornerRadius: number;
     defaultCenterPoint: number;
-  };
-  menu: {
-    width?: number;
-    maxWidth: number;
-    maxHeight: number;
-    padding: string;
-    borderRadius: string;
-    title: {
-      fontSize: string;
-      fontWeight: string;
-    };
-    category: {
-      padding: string;
-      fontSize: string;
-      fontWeight: string;
-    };
-    spacing: {
-      x: number;
-      y: number;
-    };
   };
   help: {
     lineHeight: number;
@@ -83,13 +59,6 @@ export interface DiagramTheme {
       visibleArea: string;
       borders: string;
       node: string;
-    };
-    menu: {
-      background: string;
-      borders?: string;
-      hover: string;
-      text: string;
-      title: string;
     };
     help: {
       background: string;
@@ -111,11 +80,6 @@ export interface DiagramTheme {
         type: string;
       };
       menuOpened: string;
-    };
-    port: {
-      background: string;
-      backgroundActive: string;
-      button: string;
     };
     link: {
       main: string;

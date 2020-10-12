@@ -9,11 +9,7 @@ import { ConnectionManager } from "./connectionManager";
 import { UIManager } from "./uiManager";
 import { MinimapManager } from "./minimapManager";
 import { HoverManager } from "./hoverManager";
-import { MenuManager } from "./menuManager/index";
 import { QuadTree } from "@quadTree";
-import { ChangesManager } from "./changesManager/index";
-import { HtmlManager } from "./htmlManager/index";
-import { DescriptionManager } from "./descriptionManager/index";
 
 /**
  * StateManager:
@@ -30,15 +26,9 @@ export class StateManager {
   private connectionManager: ConnectionManager;
   private uiManager: UIManager;
   private hoverManager: HoverManager;
-  private htmlManager: HtmlManager;
-  private menuManager: MenuManager;
-  private descriptionManager: DescriptionManager;
   constructor(
     private eventBus: EventBus,
     private theme: DiagramTheme,
-    private connectionFunction: (input: Node, output: Node) => boolean,
-    private disableLinkOperations: boolean,
-    private getHostElement: () => HTMLElement,
     areaSize: { width: number; height: number }
   ) {
     this.state = {
@@ -70,59 +60,21 @@ export class StateManager {
       },
       screenShotInProgress: false,
     };
-    this.htmlManager = new HtmlManager(
-      this.state,
-      this.eventBus,
-      this.getHostElement,
-      this.theme
-    );
-    this.descriptionManager = new DescriptionManager(
-      this.state,
-      this.eventBus,
-      this.htmlManager
-    );
     this.uiManager = new UIManager(
       this.state.uiState,
       this.eventBus,
       this.theme
     );
-    this.connectionManager = new ConnectionManager(
-      this.eventBus,
-      this.state,
-      this.theme,
-      this.connectionFunction
-    );
-    this.menuManager = new MenuManager(
-      this.state,
-      this.eventBus,
-      this.uiManager,
-      this.htmlManager
-    );
-    this.nodeManager = new NodeManager(
-      this.state,
-      this.eventBus,
-      this.uiManager,
-      this.theme,
-      this.connectionManager,
-      this.htmlManager,
-      this.descriptionManager
-    );
+    this.connectionManager = new ConnectionManager(this.state, this.theme);
+    this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
     new MinimapManager(this.state, this.eventBus, this.theme);
-    this.hoverManager = new HoverManager(
-      this.state,
-      this.eventBus,
-      this.theme,
-      this.disableLinkOperations
-    );
-    new ChangesManager(this.state, this.eventBus);
-
+    this.hoverManager = new HoverManager(this.state, this.eventBus, this.theme);
     this.eventBus.subscribe("WorldMouseDrag", this.mouseDrag);
     this.eventBus.subscribe("RebuildTreeRequested", this.rebuildTrees);
   }
   getState() {
     return {
       ...this.state,
-      isNodeMenuOpened: this.menuManager.activeNodeMenu,
     };
   }
   pureState = () => this.state;
@@ -185,15 +137,13 @@ export class StateManager {
     }
     const { selectedNodes } = this.state;
     if (selectedNodes.length > 0) {
-      this.nodeManager.moveNodes(calculated);
-    } else if (this.state.draw) {
-      this.hoverManager.hover({ position: calculated });
-      this.connectionManager.drawConnector(calculated);
-    } else if (this.state.hover.link) {
-      this.connectionManager.moveLink(calculated);
-    } else {
-      this.uiManager.panScreen({ position: withoutPan });
+      return;
     }
+    if (this.state.draw) {
+      this.hoverManager.hover({ position: calculated });
+      return;
+    }
+    this.uiManager.panScreen({ position: withoutPan });
   };
   areaResized = (newSize: Size) => {
     this.state.uiState.areaSize = newSize;
@@ -207,7 +157,4 @@ export class StateManager {
   isScreenShotInProgress() {
     return this.state.screenShotInProgress;
   }
-  openMenu = (position: ScreenPosition) => {
-    this.menuManager.openNewNodeMenu({ position });
-  };
 }

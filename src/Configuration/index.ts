@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { DiagramTheme, Node } from "@models";
+import { DiagramTheme } from "@models";
 import { DefaultDiagramTheme } from "@theme/DefaultDiagramTheme";
 
 // We're doing a singleton here, so config can be easily accessible across code files
@@ -18,8 +18,6 @@ export interface DiagramOptions {
   autosizeWatcher: boolean;
   autosizeInterval: number;
   autosizeOnWindowResize: boolean;
-  connectionFunction: (input: Node, output: Node) => boolean;
-  disableLinkOperations: boolean;
   generateIdFn: () => string;
   height: number | undefined;
   theme: DiagramTheme;
@@ -27,15 +25,12 @@ export interface DiagramOptions {
   autoPanSmoothing: number;
   screenShotMargin: number;
   screenShotBackground: boolean;
-  drawingDistance: Partial<DiagramDrawingDistanceOptions>;
 }
 
 const defaultOptions: DiagramOptions = {
   autosizeWatcher: true,
   autosizeInterval: 1000,
   autosizeOnWindowResize: true,
-  disableLinkOperations: false,
-  connectionFunction: () => true,
   generateIdFn: uuidv4,
   height: undefined,
   theme: DefaultDiagramTheme,
@@ -43,14 +38,6 @@ const defaultOptions: DiagramOptions = {
   autoPanSmoothing: 4.0,
   screenShotMargin: 300,
   screenShotBackground: false,
-  drawingDistance: {
-    nodeTitle: 0.0,
-    nodeOptions: 0.0,
-    nodeType: 0.0,
-    nodeArrows: 0.0,
-    detailedLinks: 0.7,
-    simplifiedLinks: 0.0,
-  },
 };
 
 export class ConfigurationManager {
@@ -67,10 +54,6 @@ export class ConfigurationManager {
     this.options = {
       ...this.options,
       ...providedOptions,
-      drawingDistance: {
-        ...this.options.drawingDistance,
-        ...providedOptions.drawingDistance,
-      },
     };
   }
 
@@ -80,15 +63,5 @@ export class ConfigurationManager {
 
   public getOption<T extends keyof DiagramOptions>(fieldName: T) {
     return this.options[fieldName];
-  }
-
-  public getDistance(
-    distanceName: keyof DiagramDrawingDistanceOptions
-  ): number {
-    const { drawingDistance } = this.options;
-    if (typeof drawingDistance[distanceName] === "undefined") {
-      return 0.0;
-    }
-    return drawingDistance[distanceName]!;
   }
 }

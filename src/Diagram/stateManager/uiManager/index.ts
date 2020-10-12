@@ -63,7 +63,6 @@ export class UIManager {
     this.state.scale = newScale;
 
     this.eventBus.publish("RenderRequested");
-    this.eventBus.publish("ViewModelChanged", this.getViewModel());
   };
 
   calculateAnimations = (timeCoefficient: number) => {
@@ -218,9 +217,6 @@ export class UIManager {
   LMBUp = ({ position }: { position: ScreenPosition }) => {
     if (this.state.draggingElements) {
       this.eventBus.publish("WorldMouseDragEnd");
-    }
-    if (this.state.draggingWorld) {
-      this.eventBus.publish("ViewModelChanged", this.getViewModel());
     }
     this.eventBus.publish("WorldLeftMouseUp", {
       position: this.screenToWorld({ position }),

@@ -1,4 +1,3 @@
-export * from "./Category";
 export * from "./Comment";
 export * from "./Coords";
 export * from "./Cursor";
@@ -12,5 +11,4 @@ export * from "./NodeDefinition";
 export * from "./NodeOption";
 export * from "./QuadTree";
 export * from "./Size";
-export * from "./Snapshot";
 export * from "./UIState";

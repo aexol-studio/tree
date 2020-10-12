@@ -6,7 +6,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
   autoBeuatify: true,
   fontFamily: `'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace`,
   node: {
-    width: 200,
+    width: 300,
     height: 110,
     nameSize: 24,
     typeSize: 20,
@@ -42,10 +42,6 @@ export const DefaultDiagramTheme: DiagramTheme = {
     lineHeight: 18,
     placeholder: "Put your description here",
   },
-  port: {
-    width: 50,
-    gap: 2,
-  },
   link: {
     cornerRadius: 5,
     defaultCenterPoint: 0.5,
@@ -57,26 +53,6 @@ export const DefaultDiagramTheme: DiagramTheme = {
     padding: 20,
     title: {
       text: 14,
-    },
-  },
-  menu: {
-    width: 200,
-    maxWidth: 300,
-    maxHeight: 300,
-    padding: `15px`,
-    borderRadius: `0px`,
-    category: {
-      padding: `5px`,
-      fontSize: `11px`,
-      fontWeight: `normal`,
-    },
-    title: {
-      fontSize: "10px",
-      fontWeight: "bold",
-    },
-    spacing: {
-      x: 20,
-      y: 10,
     },
   },
   colors: {
@@ -109,21 +85,10 @@ export const DefaultDiagramTheme: DiagramTheme = {
       background: Colors.grey[9],
       text: Colors.grey[1],
     },
-    port: {
-      background: Colors.grey[5],
-      backgroundActive: Colors.grey[4],
-      button: Colors.grey[0],
-    },
     link: {
       main: Colors.grey[3],
       hover: Colors.yellow[0],
       active: Colors.green[0],
-    },
-    menu: {
-      background: "#151515",
-      text: Colors.grey[3],
-      hover: Colors.grey[1],
-      title: Colors.grey[4],
     },
     help: {
       background: Colors.grey[7],

@@ -232,13 +232,14 @@ export class NodeUtils {
     );
     const levelsKeys = Object.keys(levels).map((k) => parseInt(k));
     levelsKeys.sort((a, b) => a - b);
-    const { node, port } = theme;
-    const width = node.width + node.spacing.x + port.width * 2;
+    const { node } = theme;
+    const width = node.width + node.spacing.x;
     levelsKeys.forEach((x, i) => {
       if (i === 0) {
         levels[x].sort((a, b) => {
-          const aOutput = a.outputs![0].id;
-          const bOutput = b.outputs![0].id;
+          const aOutput = a.outputs?.[0]?.id;
+          const bOutput = b.outputs?.[0]?.id;
+          if (!aOutput || !bOutput) return 0;
           if (aOutput === bOutput) return 0;
           return aOutput > bOutput ? 1 : -1;
         });
@@ -310,11 +311,11 @@ export class NodeUtils {
     data,
     bb: {
       min: {
-        x: data.x - theme.port.width,
+        x: data.x,
         y: data.y - theme.node.typeSize,
       },
       max: {
-        x: data.x + theme.node.width + theme.port.width,
+        x: data.x + theme.node.width,
         y: data.y + theme.node.height,
       },
     },
