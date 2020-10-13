@@ -13,7 +13,6 @@ export class LargeSchema {
     this.diagram = new Diagram(root, {
       disableLinkOperations: true,
     });
-    this.diagram.setReadOnly(true);
     const links = Serializer.deserialize(json, definitions).links;
     const nodes = Serializer.deserialize(json, definitions).nodes;
     const ioNodes = nodes.map((el) => {

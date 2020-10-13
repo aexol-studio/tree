@@ -1,5 +1,5 @@
 import { ScreenPosition } from "@io";
-import { Node, Link, NodeDefinition } from "@models";
+import { Node } from "@models";
 /**
  * DiagramEvents:
  *
@@ -7,39 +7,13 @@ import { Node, Link, NodeDefinition } from "@models";
  * Used possibly to indicate that diagram state have changed
  */
 export interface DiagramEvents {
-  NodeMoved: {
-    selectedNodes: Node[];
-  };
   NodeSelected: {
     e: ScreenPosition;
     selectedNodes: Node[];
   };
-  NodeCreated: {
-    node: Node;
-  };
-  NodeDeleted: {
-    nodes: Node[];
-  };
-  NodeChanged: {
-    node: Node;
-  };
   // not handled yet
   FoldNodes: {
     node: Node;
-  };
-  NodeCreationRequested: {
-    center?: boolean;
-    nodeDefinition: NodeDefinition;
-    position?: ScreenPosition;
-  };
-  LinkCreated: {
-    link: Link;
-  };
-  LinksDeleted: {
-    links: Link[];
-  };
-  LinkMoved: {
-    link: Link;
   };
   PickRequested: {
     position: ScreenPosition;
@@ -48,9 +22,6 @@ export interface DiagramEvents {
     node: Node;
   };
   RenderRequested: {
-    node: Node;
-  };
-  SerialisationRequested: {
     node: Node;
   };
   PanRequested: {
@@ -92,5 +63,4 @@ export interface DiagramEvents {
   MPressed: { position: ScreenPosition };
   DeletePressed: { position: ScreenPosition };
   BackspacePressed: { position: ScreenPosition };
-  RenamerChanged: { position: ScreenPosition };
 }

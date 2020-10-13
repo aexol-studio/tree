@@ -190,7 +190,7 @@ export class UIManager {
 
   mouseDrag = ({ position }: { position: ScreenPosition }) => {
     const isInsideMinimap = this.calculateMinimapPosition({ position });
-    if (isInsideMinimap && !this.state.draggingElements) {
+    if (isInsideMinimap) {
       return;
     }
     const calculated = this.screenToWorld({ position });
@@ -215,14 +215,10 @@ export class UIManager {
   }
 
   LMBUp = ({ position }: { position: ScreenPosition }) => {
-    if (this.state.draggingElements) {
-      this.eventBus.publish("WorldMouseDragEnd");
-    }
     this.eventBus.publish("WorldLeftMouseUp", {
       position: this.screenToWorld({ position }),
     });
     this.state.draggingWorld = false;
-    this.state.draggingElements = false;
     this.state.draggingMinimap = false;
   };
 

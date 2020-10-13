@@ -2,7 +2,7 @@ import { Renderer } from "@renderer/index";
 import { EventBus } from "@eventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "@io";
-import { Node, Size, Link, NodeDefinition } from "@models";
+import { Node, Size, Link, InputNode } from "@models";
 import { NodeUtils } from "@utils";
 import { DiagramOptions, ConfigurationManager } from "@configuration";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
@@ -23,16 +23,38 @@ export class Diagram {
   public eventBus: EventBus;
   public configuration: ConfigurationManager;
 
-  setDefinitions(nodeDefinitions: NodeDefinition[]) {
-    this.stateManager.setDefinitions(nodeDefinitions);
-  }
-  setNodes(nodes: Node[], beautify?: boolean) {
-    if (beautify) {
-      this.beautifyDiagram(nodes);
-    }
-    this.stateManager.setNodes(nodes);
+  setNodes(nodes: InputNode[]) {
+    const positionedGraphs = NodeUtils.beautifyDiagram(
+      nodes,
+      this.configuration.getOption("theme")
+    );
+    const allNodes = positionedGraphs
+      .map((pg) => pg.nodes)
+      .reduce((a, b) => [...a, ...b]);
+    const links: Link[] = [];
+    let rollingIndex = 1;
+    allNodes.forEach((n) => {
+      n.inputs?.forEach((inp) => {
+        const i = allNodes.find((an) => an.id === inp);
+        if (!i) {
+          throw new Error(
+            `Invalid inputs array on node ${n.name} ${JSON.stringify(n.inputs)}`
+          );
+        }
+        links.push({
+          i,
+          o: n,
+          centerPoint: 0.5 + rollingIndex / 100.0,
+        });
+      });
+      rollingIndex = (rollingIndex + 1) % 10;
+    });
+    this.stateManager.setNodes(allNodes);
+    this.stateManager.setLinks(links);
   }
   setLinks(links: Link[]) {
+    // Calculate links
+
     this.stateManager.setLinks(links);
   }
   centerOnNode(node: Node) {
@@ -41,17 +63,14 @@ export class Diagram {
   selectNode(node: Node) {
     this.stateManager.selectNode(node);
   }
-  setReadOnly(isReadOnly: boolean) {
-    this.stateManager.setReadOnly(isReadOnly);
-  }
-  requestSerialise() {
-    this.stateManager.requestSerialise();
-  }
   rebuildTrees() {
     this.stateManager.rebuildTrees();
   }
-  beautifyDiagram(nodes: Node[]) {
-    NodeUtils.beautifyDiagram(nodes, this.configuration.getOption("theme"));
+  beautifyDiagram() {
+    NodeUtils.beautifyDiagram(
+      this.stateManager.getState().nodes,
+      this.configuration.getOption("theme")
+    );
   }
   forceRender() {
     this.eventBus.publish("RenderRequested");

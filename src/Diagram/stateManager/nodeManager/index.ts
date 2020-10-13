@@ -17,13 +17,7 @@ export class NodeManager {
   ) {
     this.eventBus.subscribe("WorldLeftMouseClick", this.selectNode);
     this.eventBus.subscribe("WorldLeftMouseClick", this.goToNodeType);
-    this.eventBus.subscribe("ScreenMouseLeave", this.handleScreenLeave);
   }
-  handleScreenLeave = () => {
-    if (this.state.uiState.draggingElements) {
-      this.state.uiState.draggingElements = false;
-    }
-  };
   rebuildTree = () => {
     this.state.trees.node = new QuadTree<Node>();
     this.state.nodes
@@ -38,7 +32,7 @@ export class NodeManager {
     this.rebuildTree();
   };
   beautifyNodesInPlace = (node: Node) => {
-    const graph = NodeUtils.graphFromNode(node);
+    const graph = NodeUtils.graphFromNode(node, this.state.nodes);
     const {
       center: { x, y },
     } = graph;
@@ -54,18 +48,11 @@ export class NodeManager {
     this.eventBus.publish("RebuildTreeRequested");
     this.eventBus.publish("RenderRequested");
   };
-  graphSelect = () => {
-    const { node, io } = this.state.hover;
-    if (node && !io) {
-      const nodeGraph = NodeUtils.graphFromNode(node);
-      this.state.selectedNodes = nodeGraph.nodes;
-      this.eventBus.publish("RenderRequested");
-    }
-  };
   foldChildren = (node: Node, unfold?: boolean) => {
-    const childrenToFold = NodeUtils.findAllConnectedNodes(node).filter(
-      (n) => n !== node
-    );
+    const childrenToFold = NodeUtils.findAllConnectedNodes(
+      node,
+      this.state.nodes
+    ).filter((n) => n !== node);
     if (childrenToFold.length > 0) {
       childrenToFold.forEach((child) => {
         child.hidden = !unfold;
@@ -80,12 +67,8 @@ export class NodeManager {
   };
   goToNodeType = () => {
     const { type, node } = this.state.hover;
-    if (type && node && node.definition.parent) {
-      const parentNode = this.state.nodes.find(
-        (n) =>
-          !!n.editsDefinitions &&
-          !!n.editsDefinitions.find((e) => e === node.definition)
-      );
+    if (type && node) {
+      const parentNode = this.state.nodes.find((n) => n.name === node.type);
       if (parentNode) {
         this.selectSingleNode(parentNode);
         this.eventBus.publish("CenterOnNode", { node: parentNode });

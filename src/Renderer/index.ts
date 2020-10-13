@@ -5,7 +5,6 @@ import { EventBus } from "@eventBus";
 import { StateManager } from "@diagram/stateManager";
 import { DiagramTheme } from "@models";
 import { NodeRenderer } from "./nodeRenderer";
-import { ActiveLinkRenderer } from "./activeLinkRenderer";
 import { LinkRenderer } from "./linkRenderer";
 import { Cursor } from "@models";
 import { Region } from "@quadTree";
@@ -28,7 +27,6 @@ export class Renderer {
   private linkRenderer: LinkRenderer;
   private zoomPan: ZoomPan = new ZoomPan();
   private cssMiniEngine: CSSMiniEngine = new CSSMiniEngine();
-  private activeLinkRenderer: ActiveLinkRenderer;
   private previousFrameTime = 0;
   private screenShotCanvasContext: CanvasRenderingContext2D | null = null;
   private contextProvider: ContextProvider;
@@ -48,10 +46,6 @@ export class Renderer {
 
     this.nodeRenderer = new NodeRenderer(this.contextProvider, this.theme);
 
-    this.activeLinkRenderer = new ActiveLinkRenderer(
-      this.contextProvider,
-      this.theme
-    );
     this.linkRenderer = new LinkRenderer(this.contextProvider, this.theme);
 
     this.eventBus.subscribe("RenderRequested", this.renderStart);
@@ -108,22 +102,6 @@ export class Renderer {
    */
   renderCursor() {
     const state = this.stateManager.getState();
-    if (state.drawedConnection) {
-      this.setCursor("grabbing");
-      return;
-    }
-    if (state.hover.node) {
-      this.setCursor("move");
-      if (state.hover.type && state.hover.node.definition.parent) {
-        this.setCursor("pointer");
-        return;
-      }
-      if (state.hover.io) {
-        this.setCursor("pointer");
-        return;
-      }
-      return;
-    }
     if (state.hover.description) {
       this.setCursor("text");
       return;
@@ -159,24 +137,6 @@ export class Renderer {
         isSelected,
         isHovered,
         typeIsHovered,
-      });
-    }
-  }
-
-  /**
-   * Render active link connection.
-   */
-  renderActiveLink() {
-    const state = this.stateManager.getState();
-
-    if (!state.draw) {
-      return;
-    }
-
-    if (state.drawedConnection) {
-      this.activeLinkRenderer.render({
-        from: state.draw.initialPos,
-        to: state.drawedConnection,
       });
     }
   }
@@ -273,7 +233,6 @@ export class Renderer {
     // this.context.scale(4, 4)
 
     this.renderLinks();
-    this.renderActiveLink();
     this.renderNodes();
 
     this.setScreenTransform();

@@ -1,18 +1,16 @@
-import { NodeDefinition } from "./NodeDefinition";
-
-export interface Node<Data = {}> {
+export interface InputNode {
   id: string;
   name: string;
   description?: string;
+  options: string[];
+  inputs?: string[] | null;
+  outputs?: string[] | null;
+  type: string;
+}
+
+export interface Node extends InputNode {
   x: number;
   y: number;
-  definition: NodeDefinition<Data>;
-  options: string[];
-  inputs?: Node<Data>[] | null;
-  outputs?: Node<Data>[] | null;
-  editsDefinitions?: NodeDefinition<Data>[];
-  readonly?: boolean;
-  notEditable?: boolean;
   hidden?: boolean;
   hideChildren?: boolean;
 }

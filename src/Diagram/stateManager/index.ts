@@ -2,14 +2,12 @@ import { EventBus } from "@eventBus";
 import { DiagramState } from "@models";
 import { ScreenPosition } from "@io";
 import { DiagramTheme, Node, Size, Link } from "@models";
-import { Utils } from "@utils";
-import { NodeDefinition } from "@models";
 import { NodeManager } from "./nodeManager";
 import { ConnectionManager } from "./connectionManager";
 import { UIManager } from "./uiManager";
 import { MinimapManager } from "./minimapManager";
-import { HoverManager } from "./hoverManager";
 import { QuadTree } from "@quadTree";
+import { HoverManager } from "./hoverManager";
 
 /**
  * StateManager:
@@ -25,7 +23,6 @@ export class StateManager {
   private nodeManager: NodeManager;
   private connectionManager: ConnectionManager;
   private uiManager: UIManager;
-  private hoverManager: HoverManager;
   constructor(
     private eventBus: EventBus,
     private theme: DiagramTheme,
@@ -34,8 +31,6 @@ export class StateManager {
     this.state = {
       links: [],
       nodes: [],
-      nodeDefinitions: [],
-      selectedLinks: [],
       selectedNodes: [],
       hover: {},
       hoverMinimap: false,
@@ -54,7 +49,6 @@ export class StateManager {
         },
         areaSize,
         draggingWorld: false,
-        draggingElements: false,
         draggingMinimap: false,
         animatingPan: false,
       },
@@ -67,8 +61,8 @@ export class StateManager {
     );
     this.connectionManager = new ConnectionManager(this.state, this.theme);
     this.nodeManager = new NodeManager(this.state, this.eventBus, this.theme);
+    new HoverManager(this.state, this.eventBus);
     new MinimapManager(this.state, this.eventBus, this.theme);
-    this.hoverManager = new HoverManager(this.state, this.eventBus, this.theme);
     this.eventBus.subscribe("WorldMouseDrag", this.mouseDrag);
     this.eventBus.subscribe("RebuildTreeRequested", this.rebuildTrees);
   }
@@ -78,26 +72,12 @@ export class StateManager {
     };
   }
   pureState = () => this.state;
-  setDefinitions(nodeDefinitions: NodeDefinition[]) {
-    this.state.nodeDefinitions = nodeDefinitions;
-    for (const nd of this.state.nodeDefinitions) {
-      if (!nd.id) {
-        nd.id = Utils.generateId();
-      }
-    }
-  }
   setNodes(nodes: Node[]) {
     this.nodeManager.loadNodes(nodes);
   }
   setLinks(links: Link[]) {
     this.connectionManager.loadLinks(links);
   }
-  setReadOnly(isReadOnly: boolean) {
-    this.state.isReadOnly = isReadOnly;
-  }
-  requestSerialise = () => {
-    this.eventBus.publish("SerialisationRequested");
-  };
   rebuildTrees = () => {
     this.nodeManager.rebuildTree();
     this.connectionManager.rebuildTree();
@@ -125,22 +105,12 @@ export class StateManager {
       this.eventBus.publish("CenterOnNode", { node });
     }
   };
-  mouseDrag = ({
-    withoutPan,
-    calculated,
-  }: {
-    withoutPan: ScreenPosition;
-    calculated: ScreenPosition;
-  }) => {
+  mouseDrag = ({ withoutPan }: { withoutPan: ScreenPosition }) => {
     if (this.state.uiState.draggingMinimap) {
       return;
     }
     const { selectedNodes } = this.state;
     if (selectedNodes.length > 0) {
-      return;
-    }
-    if (this.state.draw) {
-      this.hoverManager.hover({ position: calculated });
       return;
     }
     this.uiManager.panScreen({ position: withoutPan });

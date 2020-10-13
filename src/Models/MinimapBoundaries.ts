@@ -5,4 +5,4 @@ export interface MinimapBoundaries {
   bottom: number;
   width: number;
   height: number;
-};
+}

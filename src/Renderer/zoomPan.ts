@@ -7,8 +7,6 @@ import { UIState } from "@models";
  * basing on actual zoom, pan, scale etc.
  */
 export class ZoomPan {
-  // ...
-
   setCalculatedMatrix(context: CanvasRenderingContext2D, uiState: UIState) {
     this.setUniformMatrix(context);
     context.scale(uiState.scale, uiState.scale);

@@ -38,10 +38,9 @@ export class NodeRenderer {
         radius: 5,
       });
 
-      this.context.fillStyle =
-        colors.node.types[node.definition.type] || colors.node.type;
-      let typeContent = node.definition.type;
-      if (typeIsHovered && node.definition.parent) {
+      this.context.fillStyle = colors.node.type;
+      let typeContent = node.type;
+      if (typeIsHovered) {
         this.context.fillStyle = colors.node.hover.type;
         typeContent += " >";
       }
@@ -75,8 +74,6 @@ export class NodeRenderer {
           node.y + height / 2.0
         );
       }
-      const radiusRight = node.outputs ? 10 : 0;
-      const radiusLeft = node.inputs ? 10 : 0;
       if (isHovered || isSelected) {
         this.context.strokeStyle = colors.node.selected;
         this.context.lineWidth = 2;
@@ -85,11 +82,7 @@ export class NodeRenderer {
           height,
           x: node.x,
           y: node.y,
-          radius: 0,
-          radiusBottomLeft: radiusLeft,
-          radiusTopLeft: radiusLeft,
-          radiusBottomRight: radiusRight,
-          radiusTopRight: radiusRight,
+          radius: 5,
         });
       }
       if (isSelected) {
@@ -99,10 +92,7 @@ export class NodeRenderer {
           height,
           x: node.x,
           y: node.y,
-          radiusBottomLeft: radiusLeft,
-          radiusTopLeft: radiusLeft,
-          radiusBottomRight: radiusRight,
-          radiusTopRight: radiusRight,
+          radius: 5,
         });
       }
     }
