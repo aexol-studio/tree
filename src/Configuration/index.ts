@@ -64,4 +64,10 @@ export class ConfigurationManager {
   public getOption<T extends keyof DiagramOptions>(fieldName: T) {
     return this.options[fieldName];
   }
+  public setOption<T extends keyof DiagramOptions>(
+    fieldName: T,
+    value: DiagramOptions[T]
+  ) {
+    return (this.options[fieldName] = value);
+  }
 }

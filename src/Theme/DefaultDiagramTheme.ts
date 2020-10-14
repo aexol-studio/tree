@@ -6,23 +6,27 @@ export const DefaultDiagramTheme: DiagramTheme = {
   autoBeuatify: true,
   fontFamily: `'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace`,
   node: {
-    width: 300,
-    height: 110,
+    width: 280,
+    height: 90,
     nameSize: 24,
     typeSize: 20,
     maxCharacters: 12,
+    radius: 10,
+    typeYGap: 5,
+    padding: 50,
     spacing: {
       x: 100,
-      y: 100,
+      y: 80,
     },
     options: {
       fontSize: 18,
+      yGap: 5,
     },
   },
   graph: {
     spacing: {
-      x: 300,
-      y: 350,
+      x: 200,
+      y: 250,
     },
   },
   minimap: {
@@ -43,7 +47,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     placeholder: "Put your description here",
   },
   link: {
-    cornerRadius: 5,
+    cornerRadius: 25,
     defaultCenterPoint: 0.5,
     strokeWidth: 3,
   },
@@ -63,8 +67,12 @@ export const DefaultDiagramTheme: DiagramTheme = {
       name: Colors.grey[0],
       type: Colors.grey[0],
       types: {
-        string: Colors.green[0],
+        String: Colors.green[0],
         type: Colors.main[0],
+      },
+      backgrounds: {
+        String: Colors.green[4],
+        type: Colors.main[4],
       },
       options: {
         required: Colors.red[0],

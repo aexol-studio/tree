@@ -2,7 +2,7 @@ import { Renderer } from "@renderer/index";
 import { EventBus } from "@eventBus";
 import { StateManager } from "./stateManager";
 import { IO } from "@io";
-import { Node, Size, Link, InputNode } from "@models";
+import { Node, Size, Link, InputNode, DiagramTheme } from "@models";
 import { NodeUtils } from "@utils";
 import { DiagramOptions, ConfigurationManager } from "@configuration";
 import { CSSMiniEngine } from "@renderer/CssMiniEngine/index";
@@ -44,10 +44,10 @@ export class Diagram {
         links.push({
           i,
           o: n,
-          centerPoint: 0.5 + rollingIndex / 100.0,
+          centerPoint: 0.35 + rollingIndex / 50.0,
         });
       });
-      rollingIndex = (rollingIndex + 1) % 10;
+      rollingIndex = (rollingIndex + 1) % 20;
     });
     this.stateManager.setNodes(allNodes);
     this.stateManager.setLinks(links);
@@ -107,6 +107,11 @@ export class Diagram {
 
     this.io.calculateClientBoundingRect();
   }
+
+  setTheme = (theme: DiagramTheme) => {
+    this.configuration.setOption("theme", theme);
+    this.eventBus.publish("RenderRequested");
+  };
   private calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
   }

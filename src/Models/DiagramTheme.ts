@@ -7,13 +7,17 @@ export interface DiagramTheme {
     height: number;
     nameSize: number;
     typeSize: number;
+    typeYGap: number;
     maxCharacters: number;
+    radius: number;
+    padding: number;
     spacing: {
       x: number;
       y: number;
     };
     options: {
       fontSize: number;
+      yGap: number;
     };
   };
   graph: {
@@ -74,7 +78,8 @@ export interface DiagramTheme {
       selected: string;
       name: string;
       type: string;
-      types: Record<string, string>;
+      types?: Record<string, string>;
+      backgrounds?: Record<string, string>;
       options: Record<string, string>;
       hover: {
         type: string;

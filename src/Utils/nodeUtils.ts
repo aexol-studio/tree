@@ -5,7 +5,6 @@ import {
   DiagramTheme,
   DataObjectInTree,
   InputNode,
-  InputGraph,
 } from "@models";
 import { ScreenPosition } from "@io";
 import { DefaultDiagramTheme } from "@theme/DefaultDiagramTheme";
@@ -46,57 +45,21 @@ export class NodeUtils {
     spawnConnections(n);
     return graphNodes;
   };
-  static graphFromNode = (n: InputNode, nodes: InputNode[]): InputGraph => {
-    const graphNodes: InputNode[] = NodeUtils.findAllConnectedNodes(n, nodes);
-    const maxDepth = 10;
-    const maxHeight = 10;
-    const graphBB = {
-      min: {
-        x: 0,
-        y: 0,
-      },
-      max: {
-        x: maxDepth,
-        y: maxHeight,
-      },
-    };
-    const width = Math.abs(graphBB.min.x - graphBB.max.x);
-    const height = Math.abs(graphBB.min.y - graphBB.max.y);
-    return {
-      nodes: graphNodes,
-      width,
-      height,
-      center: {
-        x: graphBB.min.x + width / 2.0,
-        y: graphBB.min.y + height / 2.0,
-      },
-    };
-  };
-  static graphsFromNodes = (nodes: InputNode[], allNodes: InputNode[]) => {
-    let usedNodes: InputNode[] = [];
-    const graphs: InputGraph[] = [];
-    for (const node of nodes) {
-      if (usedNodes.find((un) => un.id === node.id)) {
-        continue;
-      }
-      const graph = NodeUtils.graphFromNode(node, allNodes);
-      usedNodes = usedNodes.concat(graph.nodes);
-      graphs.push(graph);
-    }
-    return graphs;
-  };
-  static positionGraph = (
-    graph: InputGraph,
-    theme: DiagramTheme = DefaultDiagramTheme
+  static graphFromNode = (
+    n: InputNode,
+    nodes: InputNode[],
+    theme: DiagramTheme
   ): Graph => {
-    if (graph.nodes.length === 0) {
+    const graphNodes: InputNode[] = NodeUtils.findAllConnectedNodes(n, nodes);
+
+    if (graphNodes.length === 0) {
       throw new Error("Invalid graph");
     }
     const findX = (n: InputNode) => {
       const findOutputDepth = (node: InputNode, depth = 0): number => {
         if (node.outputs?.length) {
           const depths = node.outputs.map((no) =>
-            findOutputDepth(graph.nodes.find((gn) => gn.id === no)!, depth + 1)
+            findOutputDepth(graphNodes.find((gn) => gn.id === no)!, depth + 1)
           );
           return Math.max(...depths);
         }
@@ -105,7 +68,7 @@ export class NodeUtils {
       return findOutputDepth(n);
     };
     const levelised: InputNode[][] = [];
-    graph.nodes.forEach((n) => {
+    graphNodes.forEach((n) => {
       const depth = findX(n);
       if (!levelised[depth]) {
         levelised[depth] = [];
@@ -131,16 +94,49 @@ export class NodeUtils {
       })
       .reduce((a, b) => [...a, ...b]);
 
+    const graphBB = {
+      min: {
+        x: -levelised.length * (theme.node.width + theme.node.spacing.x),
+        y: 0,
+      },
+      max: {
+        x: 0,
+        y: maxY * (theme.node.height + theme.node.spacing.y),
+      },
+    };
+    const width = Math.abs(graphBB.min.x - graphBB.max.x);
+    const height = Math.abs(graphBB.min.y - graphBB.max.y);
     return {
-      ...graph,
       nodes: positionedNodes,
+      width,
+      height,
+      center: {
+        x: graphBB.min.x + width / 2.0,
+        y: graphBB.min.y + height / 2.0,
+      },
     };
   };
+  static graphsFromNodes = (
+    nodes: InputNode[],
+    allNodes: InputNode[],
+    theme: DiagramTheme
+  ) => {
+    let usedNodes: InputNode[] = [];
+    const graphs: Graph[] = [];
+    for (const node of nodes) {
+      if (usedNodes.find((un) => un.id === node.id)) {
+        continue;
+      }
+      const graph = NodeUtils.graphFromNode(node, allNodes, theme);
+      usedNodes = usedNodes.concat(graph.nodes);
+      graphs.push(graph);
+    }
+    return graphs;
+  };
   static beautifyDiagram = (nodes: InputNode[], theme: DiagramTheme) => {
-    const graphs = NodeUtils.graphsFromNodes(nodes, nodes);
-    const positionedGraphs = graphs.map((g) => NodeUtils.positionGraph(g));
-    RectanglePacker.pack(positionedGraphs, theme);
-    return positionedGraphs;
+    const graphs = NodeUtils.graphsFromNodes(nodes, nodes, theme);
+    RectanglePacker.pack(graphs, theme);
+    return graphs;
   };
   static createTreeNode = (
     data: Node,

@@ -31,23 +31,6 @@ export class NodeManager {
     this.state.selectedNodes = [];
     this.rebuildTree();
   };
-  beautifyNodesInPlace = (node: Node) => {
-    const graph = NodeUtils.graphFromNode(node, this.state.nodes);
-    const {
-      center: { x, y },
-    } = graph;
-    const graph2 = NodeUtils.positionGraph(graph, this.theme);
-    const diff = {
-      x: x - graph2.center.x,
-      y: y - graph2.center.y,
-    };
-    graph2.nodes.forEach((n) => {
-      n.x += diff.x;
-      n.y += diff.y;
-    });
-    this.eventBus.publish("RebuildTreeRequested");
-    this.eventBus.publish("RenderRequested");
-  };
   foldChildren = (node: Node, unfold?: boolean) => {
     const childrenToFold = NodeUtils.findAllConnectedNodes(
       node,

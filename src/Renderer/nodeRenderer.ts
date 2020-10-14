@@ -27,18 +27,35 @@ export class NodeRenderer {
     if (!node.hidden) {
       const {
         colors,
-        node: { width, height, nameSize, typeSize, options },
+        node: {
+          width: nodeWidth,
+          height,
+          nameSize,
+          typeSize,
+          options,
+          radius,
+          typeYGap,
+          padding,
+        },
       } = this.theme;
-      this.context.fillStyle = colors.node.background;
+
+      const width = Math.max(
+        nodeWidth,
+        this.context.measureText(node.name).width + padding * 2
+      );
+
+      this.context.fillStyle =
+        colors.node.backgrounds?.[node.type] || colors.node.background;
       RoundedRectangle(this.context, {
         width,
         height,
         x: node.x,
         y: node.y,
-        radius: 5,
+        radius,
       });
 
-      this.context.fillStyle = colors.node.type;
+      this.context.fillStyle =
+        colors.node.types?.[node.type] || colors.node.type;
       let typeContent = node.type;
       if (typeIsHovered) {
         this.context.fillStyle = colors.node.hover.type;
@@ -47,7 +64,7 @@ export class NodeRenderer {
       this.context.font = this.getNodeFont(typeSize, "normal");
       this.context.textBaseline = "bottom";
       this.context.textAlign = "end";
-      this.context.fillText(typeContent, node.x + width, node.y);
+      this.context.fillText(typeContent, node.x + width, node.y - typeYGap);
       if (node.options) {
         let xCounter = 0;
         node.options.forEach((o) => {
@@ -57,7 +74,7 @@ export class NodeRenderer {
           this.context.fillText(
             o,
             node.x + xCounter,
-            node.y + height + options.fontSize,
+            node.y + height + options.fontSize + options.yGap,
             width
           );
           xCounter += this.context.measureText(o).width + options.fontSize / 2;
@@ -82,7 +99,7 @@ export class NodeRenderer {
           height,
           x: node.x,
           y: node.y,
-          radius: 5,
+          radius,
         });
       }
       if (isSelected) {
@@ -92,7 +109,7 @@ export class NodeRenderer {
           height,
           x: node.x,
           y: node.y,
-          radius: 5,
+          radius,
         });
       }
     }
