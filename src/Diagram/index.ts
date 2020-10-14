@@ -51,6 +51,7 @@ export class Diagram {
     });
     this.stateManager.setNodes(allNodes);
     this.stateManager.setLinks(links);
+    this.eventBus.publish("RenderRequested");
   }
   setLinks(links: Link[]) {
     // Calculate links
