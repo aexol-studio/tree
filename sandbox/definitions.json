@@ -20,7 +20,7 @@
         "outputs": [
             "6948c01c-b824-4083-afe2-0e070cc9a7fe"
         ],
-        "description":"get all pizzas",
+        "description":"get all pizzas a a a from the database",
         "options": [
             "array",
             "required"
@@ -30,7 +30,7 @@
         "name": "Pizza",
         "type": "type",
         "id": "9c83cca5-7362-4f43-8570-560ec4d07658",
-        "description": "",
+        "description": "Main type of the schema",
         "inputs": [
             "ab8c597b-8cd0-4671-a1f1-7f065e0bd073",
             "eea5f06a-82c5-4ab6-adfb-7ed3f3ed9f72",

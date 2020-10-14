@@ -41,6 +41,7 @@ export interface DiagramTheme {
     triangleWidth: number;
     triangleHeight: number;
     triangleDistance: number;
+    radius: number;
     placeholder?: string;
   };
   link: {

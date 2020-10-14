@@ -4,6 +4,8 @@ import {
   RoundedRectangleStroke,
 } from "./Draw/RoundedRectangle";
 import { ContextProvider } from "./ContextProvider";
+import { MultilineText } from "./Draw/MultilineText";
+import { Triangle } from "./Draw/Triangle";
 export class NodeRenderer {
   constructor(
     private contextProvider: ContextProvider,
@@ -37,6 +39,7 @@ export class NodeRenderer {
           typeYGap,
           padding,
         },
+        description,
       } = this.theme;
 
       const width = Math.max(
@@ -111,6 +114,50 @@ export class NodeRenderer {
           y: node.y,
           radius,
         });
+        if (node.description) {
+          this.context.font = this.getNodeFont(description.fontSize, "normal");
+          this.context.fillStyle = `${colors.description.background}`;
+          const dWidth = Math.max(description.width, width);
+          const x = node.x - (dWidth - width) / 2.0;
+          const numberOfLines = Math.ceil(
+            this.context.measureText(node.description).width /
+              (dWidth - description.paddingHorizontal * 2)
+          );
+          const lineHeight = description.fontSize * 1.5;
+          const textHeight = lineHeight * numberOfLines;
+          const y =
+            node.y -
+            textHeight -
+            description.paddingVertical * 2 -
+            description.triangleDistance;
+          RoundedRectangle(this.context, {
+            width: dWidth,
+            height: textHeight + description.paddingVertical * 2,
+            x,
+            y,
+            radius: description.radius,
+          });
+          const center = x + dWidth / 2.0;
+          Triangle(
+            this.context,
+            center - description.triangleWidth / 2.0,
+            node.y - description.triangleDistance,
+            center + description.triangleWidth / 2.0,
+            node.y - description.triangleDistance,
+            center,
+            node.y
+          );
+          this.context.fillStyle = colors.description.text;
+          this.context.textAlign = "left";
+          this.context.textBaseline = "top";
+          MultilineText(this.context, {
+            lineHeight,
+            text: node.description,
+            width: dWidth - description.paddingHorizontal * 2,
+            x: x + description.paddingHorizontal,
+            y: y + description.paddingVertical,
+          });
+        }
       }
     }
   };
