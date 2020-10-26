@@ -3,57 +3,77 @@
 
 ![](assets/recorded-diagram.gif)
 
-Diagram is the tool for making node based systems. Define your own behaviour of this react based diagram system and create your tool. Visual programming is trending right now so this is a good basis.
-
-Providing highest level of abstracion and theming `graphsource` is the most powerful package around the ecosystem. This package contains one dependency.
+Diagram is the tool for displaying node based systems. 
+ 
+This package contains one dependency.
 
 ## Getting started
 
 ### Javascript
 ```js
 import { Diagram } from 'graphsource'
-this.diagram = new Diagram(document.getElementById("root"));
-const createOND = (name) => ({
-  name: `${name}Node`,
-  description: `${name} object node`,
-  inputs: [],
-  outputs: []
-});
-const options = [
-  {
-    name: "required",
-    help:
-      "Check this if this node is required for creation of the type or is required in input | interface"
-  },
-  {
-    name: "array",
-    help:
-      "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings"
+class App {
+  constructor() {
+    const root = document.getElementById("root");
+    if (!root) {
+      throw new Error("No root html element");
+    }
+    this.diagram = new Diagram(root, {});
+    this.diagram.setNodes([
+        {
+            "name": "Query",
+            "type": "type",
+            "id": "1",
+            "description": "",
+            "inputs": [
+                "2"
+            ],
+            "outputs": [],
+            "options": [
+                "query"
+            ]
+        },
+        {
+            "name": "pizzas",
+            "type": "Pizza",
+            "id": "2",
+            "inputs": [],
+            "outputs": [
+                "2"
+            ],
+            "description":"get all pizzas a a a from the database",
+            "options": [
+                "array",
+                "required"
+            ]
+        },
+        {
+            "name": "Pizza",
+            "type": "type",
+            "id": "3",
+            "description": "Main type of the schema",
+            "inputs": [
+                "4",
+            ],
+            "outputs": [],
+            "options": []
+        },
+        {
+            "name": "name",
+            "type": "String",
+            "id": "4",
+            "inputs": [],
+            "outputs": [
+                "3"
+            ],
+            "options": [
+                "required"
+            ]
+        }
+    ])
   }
-];
-this.diagram!.setDefinitions([
-  {
-    type: "dummy",
-    help: "Hello I am dummy node this is help I do display",
-    node: createOND("dummy"),
-    options,
-    root: true,
-    acceptsInputs: (d, defs) =>
-      defs.map(
-        def =>
-          ({
-            definition: def
-          })
-      ),
-    acceptsOutputs: (d, defs) =>
-      defs.map(
-        def =>
-          ({
-            definition: def
-          })
-      )
-  }
-]);
+}
+new App()
 ```
 
 ### TypeScript
@@ -61,46 +81,7 @@ this.diagram!.setDefinitions([
 ```ts
 import { Diagram, NodeDefinition, AcceptedNodeDefinition } from 'graphsource'
 this.diagram = new Diagram(document.getElementById("root"));
-const createOND = (name: string): NodeDefinition["node"] => ({
-  name: `${name}Node`,
-  description: `${name} object node`,
-  inputs: [],
-  outputs: []
-});
-const options: NodeOption[] = [
-  {
-    name: "required",
-    help:
-      "Check this if this node is required for creation of the type or is required in input | interface"
-  },
-  {
-    name: "array",
-    help:
-      "Check this if you want a list here for example 'Hello' is a String however ['Hello', 'Me', 'World', 'Sloth'] its an array of strings"
-  }
-];
-this.diagram!.setDefinitions([
-  {
-    type: "dummy",
-    help: "Hello I am dummy node this is help I do display",
-    node: createOND("dummy"),
-    options,
-    root: true,
-    acceptsInputs: (d, defs) =>
-      defs.map(
-        def =>
-          ({
-            definition: def
-          } as AcceptedNodeDefinition)
-      ),
-    acceptsOutputs: (d, defs) =>
-      defs.map(
-        def =>
-          ({
-            definition: def
-          } as AcceptedNodeDefinition)
-      )
-  }
+this.diagram.setNodes
 ]);
 ```
 
@@ -125,10 +106,6 @@ $ npm install
 $ npm run start
 ```
 
-## Creating new nodes
-
-Press RMB to open menu pointing on diagram
-
 ## Add to your project
 
 ```sh
@@ -148,17 +125,10 @@ this.diagram.on(EVENT_NAME, () => {
 ```
 
 Here is the list of all subscribable events:
-* *DataModelChanged* - fires when a data model (nodes, links placement and content) was changed
 * *ViewModelChanged* - fires when a view model (pan, zoom) was changed
 * *NodeMoving* - fires when node is being moved
 * *NodeMoved* - fires when node stops being moved
 * *NodeSelected* - fires when node(s) was selected
-* *NodeCreated* - fires when node was created
-* *NodeDeleted* - fires when node was deleted
-* *NodeChanged* - fires when node was modified
-* *LinkCreated* - fires when a link was created
-* *LinkDeleted* - fires when a link was deleted
-* *LinkMoved* - fires when a link stops being moved
 * *UndoRequested* - fires when undo was requested
 * *RedoRequested* - fires when redo was requested
 
@@ -205,16 +175,10 @@ npm run docs
 
 ### Controls
 
-* Create - press and hold right mouse button and choose node -> Left Mouse Button click
 * Pan - press and hold Left Mouse Button and move mouse
 * Move - press and hold Left Mouse Button on node
-* RIGHT MOUSE CLICK on node - node actions
-* CLICK ON NODE INPUT - open new nodes menu
 * CLICK ON NODE TYPE - if node is a children of other node it centers view on parent node
-* Rename - To rename node simply start typing when one node is selected
-* Rename description - To rename node description clik right mouse button on node and click renameDescription
 * SHIFT + Left Mouse Button Click - select multiple nodes
-* Delete - Click delete button when node/nodes are selected or right click -> delete
 
 ## Contribute
 
