@@ -59,8 +59,8 @@ export class NodeManager {
     }
   };
   selectNode = ({ position }: { position: ScreenPosition }) => {
-    const { node, io, type } = this.state.hover;
-    if (node && !io && !type) {
+    const { node, type } = this.state.hover;
+    if (node && !type) {
       if (position.shiftKey) {
         const hasIndex = this.state.selectedNodes.indexOf(node);
         if (hasIndex !== -1) {

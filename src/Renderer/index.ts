@@ -101,19 +101,6 @@ export class Renderer {
    * Render cursor.
    */
   renderCursor() {
-    const state = this.stateManager.getState();
-    if (state.hover.description) {
-      this.setCursor("text");
-      return;
-    }
-    /*if (state.hover.menu) {
-      this.setCursor("pointer");
-      return;
-    }*/
-    if (state.hover.link) {
-      this.setCursor("col-resize");
-      return;
-    }
     this.setCursor("grab");
   }
   /**
@@ -155,7 +142,6 @@ export class Renderer {
     state.links
       .filter((l) => state.selectedNodes.find((n) => n === l.i || n === l.o))
       .forEach((l) => this.linkRenderer.render(l, "active"));
-    state.hover.link && this.linkRenderer.render(state.hover.link, "hover");
   }
 
   /**
@@ -223,11 +209,8 @@ export class Renderer {
 
   render = (timePassed: number) => {
     const timeCoefficient = this.calculateTimeDelta(timePassed);
-
-    // render loop
     this.setScreenTransform();
     this.renderBackground();
-
     this.setWorldTransform();
 
     // this.context.scale(4, 4)

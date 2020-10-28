@@ -20,9 +20,11 @@ export class HoverManager {
   hover = ({ position }: { position: ScreenPosition }) => {
     const node = this.state.trees.node.pick(position);
     if (!node) {
-      let link;
-      this.state.hover = { link };
-      this.eventBus.publish("RenderRequested");
+      if (this.state.hover.node) {
+        this.state.hover = {};
+        this.eventBus.publish("RenderRequested");
+        return;
+      }
       return;
     }
     const distance = {

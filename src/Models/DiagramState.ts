@@ -15,11 +15,7 @@ export interface DiagramState {
   hoverMinimap: boolean;
   hover: {
     node?: Node;
-    link?: Link;
-    menu?: boolean;
-    io?: "i" | "o";
     type?: boolean;
-    description?: Node;
   };
   drawedConnection?: ScreenPosition;
   uiState: UIState;
