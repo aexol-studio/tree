@@ -30,7 +30,7 @@ export class Diagram {
     );
     const allNodes = positionedGraphs
       .map((pg) => pg.nodes)
-      .reduce((a, b) => [...a, ...b]);
+      .reduce((a, b) => [...a, ...b], []);
     const links: Link[] = [];
     let rollingIndex = 1;
     allNodes.forEach((n) => {
