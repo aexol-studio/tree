@@ -7,6 +7,9 @@ import { Node } from "@models";
  * Used possibly to indicate that diagram state have changed
  */
 export interface DiagramEvents {
+  RequestNodeSelect: {
+    fn: (node: Node) => boolean;
+  };
   NodeSelected: {
     e: ScreenPosition;
     selectedNodes: Node[];

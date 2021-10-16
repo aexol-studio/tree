@@ -15,6 +15,10 @@ export class NodeManager {
     private eventBus: EventBus,
     private theme: DiagramTheme
   ) {
+    this.eventBus.subscribe(
+      "RequestNodeSelect",
+      this.selectSingleNodeByFunction
+    );
     this.eventBus.subscribe("WorldLeftMouseClick", this.selectNode);
     this.eventBus.subscribe("WorldLeftMouseClick", this.goToNodeType);
   }
@@ -44,6 +48,12 @@ export class NodeManager {
     }
     this.eventBus.publish("RebuildTreeRequested");
     this.eventBus.publish("RenderRequested");
+  };
+  selectSingleNodeByFunction = ({ fn }: { fn: (node: Node) => boolean }) => {
+    const node = this.state.nodes.find(fn);
+    if (node) {
+      this.selectSingleNode(node);
+    }
   };
   selectSingleNode = (node: Node) => {
     this.state.selectedNodes = [node];
