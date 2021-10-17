@@ -49,10 +49,12 @@ export class NodeManager {
     this.eventBus.publish("RebuildTreeRequested");
     this.eventBus.publish("RenderRequested");
   };
+  // Center and select node
   selectSingleNodeByFunction = ({ fn }: { fn: (node: Node) => boolean }) => {
     const node = this.state.nodes.find(fn);
     if (node) {
       this.selectSingleNode(node);
+      this.eventBus.publish("CenterOnNode", { node });
     }
   };
   selectSingleNode = (node: Node) => {
