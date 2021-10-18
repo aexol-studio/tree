@@ -1,30 +1,9 @@
 {
-    "env": {
-        "browser": true,
-        "es2020": true,
-        "amd": true
-    },
-    "extends": [
-        "eslint:recommended",
-        "plugin:react/recommended",
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "ecmaVersion": 11,
-        "sourceType": "module"
-    },
-    "plugins": [
-        "react",
-        "@typescript-eslint"
-    ],
-    "rules": {
-        "@typescript-eslint/explicit-module-boundary-types": "off",
-        "@typescript-eslint/no-var-requires":"off",
-        "@typescript-eslint/ban-types":"off"
-    }
+  "parser": "@typescript-eslint/parser", // Specifies the ESLint parser
+  "extends": ["prettier"],
+  "parserOptions": {
+    "ecmaVersion": 2018, // Allows for the parsing of modern ECMAScript features
+    "sourceType": "module" // Allows for the use of imports
+  },
+  "plugins": ["@typescript-eslint"]
 }

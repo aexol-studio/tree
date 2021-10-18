@@ -1,37 +1,17 @@
 {
+  "extends": "./tsconfig.json",
   "include": ["./src/**/*"],
-  "exclude": ["node_modules","sandbox","showcase"],
+  "exclude": ["node_modules", "sandbox", "showcase"],
   "compilerOptions": {
-    "target": "es5",
-    "outDir": "lib",
-    "declaration": true,
-    "module": "commonjs",
-    "lib": ["es6","dom"],
-    "strict": true,
-    "baseUrl": "./",
-    "paths": {
-      "@common/*":["src/common/"],
-      "@configuration":["src/Configuration/index"],
-      "@models":["src/Models/index"],
-      "@eventBus":["src/EventBus/index"],
-      "@events":["src/Events/index"],
-      "@diagram/*":["src/Diagram/*"],
-      "@theme/*":["src/Theme/*"],
-      "@utils":["src/Utils/index"],
-      "@renderer/*":["src/Renderer/*"],
-      "@quadTree":["src/QuadTree/index"],
-      "@rectanglePacker":["src/RectanglePacker/index"],
-      "@io":["src/IO/index"]
-    },
+    "rootDir": "./src",
     "plugins": [
       {
-        "transform": "typescript-transform-paths",
+        "transform": "typescript-transform-paths"
       },
       {
         "transform": "typescript-transform-paths",
         "afterDeclarations": true
       }
-    ],
-    "noUnusedLocals": true
+    ]
   }
 }

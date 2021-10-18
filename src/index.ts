@@ -1,8 +1,8 @@
-export { Diagram } from "@diagram/index";
-export * from "./Utils";
-export * from "@models";
-export * from "./Serialization";
-export * from "./RectanglePacker";
-export * from "@events";
-export * from "./Theme/DefaultDiagramTheme";
-export * from "./Theme/DefaultDiagramThemeLight";
+export { Diagram } from '@/diagram';
+export * from '@/utils';
+export * from '@/models';
+export * from '@/serialization';
+export * from '@/rectanglePacker';
+export * from '@/possibleEvents';
+export * from '@/theme/DefaultDiagramTheme';
+export * from '@/theme/DefaultDiagramThemeLight';

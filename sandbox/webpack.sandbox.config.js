@@ -1,46 +1,53 @@
-/*global __dirname*/
-/*global module*/
+var path = require('path');
+var sourcePath = path.join(__dirname, './');
+var outPath = path.join(__dirname, './');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
-var path = require("path");
-
-var sourcePath = path.resolve(__dirname, "../");
-var outPath = path.resolve(__dirname, "../");
-const TsConfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   context: sourcePath,
   entry: {
-    app: "./sandbox/index.ts",
+    app: './index.ts',
   },
-  mode: "development",
   output: {
     path: outPath,
-    filename: "bundle.js",
-    publicPath: "/",
+    filename: 'bundle.js',
+    chunkFilename: '[chunkhash].js',
+    publicPath: '/',
   },
-  target: "web",
+  target: 'web',
+  mode: 'development',
   resolve: {
-    extensions: [".mjs", ".js", ".jsx", ".ts", ".tsx"],
-    mainFields: ["module", "browser", "main"],
+    extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx'],
+    mainFields: ['module', 'browser', 'main'],
     plugins: [
       new TsConfigPathsPlugin({
-        configFile: path.resolve(__dirname, "../tsconfig.json"),
+        configFile: path.resolve(__dirname, '../tsconfig.json'),
       }),
     ],
-  },
-  devServer: {
-    publicPath: "/",
-    contentBase: "./sandbox",
-    hot: true,
   },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: {
-          loader: "ts-loader",
-        },
+        loader: 'ts-loader',
+        exclude: '/node_modules/',
+        options: { configFile: 'sandbox/tsconfig.json' },
+      },
+      {
+        test: /\.html$/,
+        loader: 'html-loader',
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'assets/index.html',
+    }),
+  ],
 };
