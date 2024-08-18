@@ -1,0 +1,17 @@
+{
+  "name": "@aexol/tree",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tspc --build tsconfig.build.json",
+    "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
+    "lint": "eslint --fix src/**/*.ts"
+  },
+  "dependencies": {
+    "uuid": "^8.3.2"
+  },
+  "workspaces":[
+    "./packages/diagram"
+  ]
+}

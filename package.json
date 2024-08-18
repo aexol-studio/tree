@@ -5,51 +5,36 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "ttsc --build tsconfig.build.json",
-    "start": "webpack serve --config ./sandbox/webpack.sandbox.config.js --port 1567 --hot --open",
     "docs": "typedoc --mode file --out docs --theme minimal src ; open ./docs/index.html",
     "lint": "eslint --fix src/**/*.ts"
   },
   "devDependencies": {
-    "@babel/core": "^7.15.8",
     "@types/jest": "^27.0.2",
-    "@types/node": "^16.11.1",
+    "@types/node": "^18.7.18",
     "@types/query-string": "^6.3.0",
-    "@types/react": "^17.0.30",
-    "@types/react-dom": "^17.0.9",
     "@types/uuid": "^8.3.1",
-    "@types/webpack": "^5.28.0",
-    "@types/webpack-env": "^1.16.3",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.12.0",
+    "@typescript-eslint/parser": "^7.12.0",
+    "autoprefixer": "^10.4.20",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^8.0.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-react": "^7.26.1",
+    "eslint": "^8.23.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.35.0",
     "html-loader": "^2.1.2",
     "html-webpack-plugin": "^5.4.0",
     "jest": "^27.3.0",
-    "prettier": "^2.4.1",
-    "query-string": "^7.0.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "ts-jest": "^27.0.7",
-    "ts-loader": "^9.2.6",
-    "tsconfig-paths-webpack-plugin": "^3.5.1",
-    "ttypescript": "^1.5.12",
-    "typedoc": "^0.22.6",
-    "typescript": "^4.4.4",
-    "typescript-transform-paths": "^3.3.1",
-    "typestyle": "^2.1.0",
-    "webpack": "^5.58.2",
-    "webpack-cli": "^4.9.0",
-    "webpack-dev-server": "^4.3.1"
+    "parcel": "^2.12.0",
+    "postcss": "^8.4.41",
+    "prettier": "^3.3.0",
+    "tailwindcss": "^3.4.10",
+    "ts-patch": "^3.0.0",
+    "typedoc": "^0.26.5",
+    "typescript": "^5.1.3",
+    "typescript-transform-paths": "^3.4.6"
   },
-  "dependencies": {
-    "uuid": "^8.3.2"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  }
+  "workspaces": [
+    "./packages/diagram",
+    "./packages/www"
+  ]
 }

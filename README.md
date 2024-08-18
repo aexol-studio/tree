@@ -1,5 +1,5 @@
 # Graphsource
-[![npm](https://img.shields.io/npm/v/graphsource.svg?style=flat-square)](https://www.npmjs.com/package/graphsource) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)](http://commitizen.github.io/cz-cli/) [![npm downloads](https://img.shields.io/npm/dm/graphsource.svg?style=flat-square)](https://www.npmjs.com/package/graphsource)
+[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/graphsource.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
 
 Diagram is the tool for displaying node based systems. 
  

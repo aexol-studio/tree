@@ -1,9 +1,20 @@
 {
-  "parser": "@typescript-eslint/parser", // Specifies the ESLint parser
-  "extends": ["prettier"],
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended" // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+  ],
   "parserOptions": {
-    "ecmaVersion": 2018, // Allows for the parsing of modern ECMAScript features
-    "sourceType": "module" // Allows for the use of imports
+      "ecmaVersion": 2018,
+      "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint"]
+  "plugins": [
+      "@typescript-eslint",
+      "prettier"
+  ],
+  "rules": {
+      "@typescript-eslint/explicit-function-return-type": 0
+  }
 }

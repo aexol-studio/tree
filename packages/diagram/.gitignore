@@ -1,0 +1,15 @@
+.vscode
+.DS_STORE
+node_modules
+.module-cache
+*.log*
+build
+dist
+docs-dist
+lib
+.idea
+.docz
+.tscache
+tsconfig.tsbuildinfo
+*.tsbuildinfo*
+.python-version
