@@ -1,0 +1,879 @@
+[
+    {
+        "name": "Query",
+        "type": "type",
+        "id": "6948c01c-b824-4083-afe2-0e070cc9a7fe",
+        "description": "",
+        "inputs": [
+            "fdd66b12-5d4f-4ca9-9c7b-b787349939b3"
+        ],
+        "outputs": [],
+        "options": [
+            "query"
+        ]
+    },
+    {
+        "name": "pizzas",
+        "type": "Pizza",
+        "id": "fdd66b12-5d4f-4ca9-9c7b-b787349939b3",
+        "inputs": [],
+        "outputs": [
+            "6948c01c-b824-4083-afe2-0e070cc9a7fe"
+        ],
+        "description":"get all pizzas a a a from the database",
+        "options": [
+            "array",
+            "required"
+        ]
+    },
+    {
+        "name": "Pizza",
+        "type": "type",
+        "id": "9c83cca5-7362-4f43-8570-560ec4d07658",
+        "description": "Main type of the schema",
+        "inputs": [
+            "ab8c597b-8cd0-4671-a1f1-7f065e0bd073",
+            "eea5f06a-82c5-4ab6-adfb-7ed3f3ed9f72",
+            "176cf1f7-4bdb-440a-a15b-4b51a52e842d",
+            "7d3e0b6c-0f4e-442a-bec6-115f015fcec8",
+            "618ccf1e-787f-4270-a689-5d5d90dc40b4",
+            "cca24251-191b-4cfa-8f68-26fb3254a32a"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "Implements",
+        "type": "Implements",
+        "id": "ab8c597b-8cd0-4671-a1f1-7f065e0bd073",
+        "inputs": [
+            "4eb2a6dd-9198-484f-a6dc-01bee56b6869",
+            "5aa435bf-60d0-433b-96f1-8ba36b9d7a6a"
+        ],
+        "outputs": [
+            "9c83cca5-7362-4f43-8570-560ec4d07658"
+        ],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "eea5f06a-82c5-4ab6-adfb-7ed3f3ed9f72",
+        "inputs": [],
+        "outputs": [
+            "9c83cca5-7362-4f43-8570-560ec4d07658"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "ingredients",
+        "type": "Ingredient",
+        "id": "176cf1f7-4bdb-440a-a15b-4b51a52e842d",
+        "inputs": [],
+        "outputs": [
+            "9c83cca5-7362-4f43-8570-560ec4d07658"
+        ],
+        "options": [
+            "array",
+            "required"
+        ]
+    },
+    {
+        "name": "image",
+        "type": "S3Object",
+        "id": "7d3e0b6c-0f4e-442a-bec6-115f015fcec8",
+        "inputs": [],
+        "outputs": [
+            "9c83cca5-7362-4f43-8570-560ec4d07658"
+        ],
+        "options": []
+    },
+    {
+        "name": "data",
+        "type": "DataInfo",
+        "id": "618ccf1e-787f-4270-a689-5d5d90dc40b4",
+        "inputs": [],
+        "outputs": [
+            "9c83cca5-7362-4f43-8570-560ec4d07658"
+        ],
+        "options": []
+    },
+    {
+        "name": "Directives",
+        "type": "Directives",
+        "id": "cca24251-191b-4cfa-8f68-26fb3254a32a",
+        "inputs": [
+            "f40a1df1-7e49-48cb-ae00-2426418f2aff"
+        ],
+        "outputs": [
+            "9c83cca5-7362-4f43-8570-560ec4d07658"
+        ],
+        "options": []
+    },
+    {
+        "name": "Nameable",
+        "type": "Nameable",
+        "id": "4eb2a6dd-9198-484f-a6dc-01bee56b6869",
+        "inputs": [],
+        "outputs": [
+            "ab8c597b-8cd0-4671-a1f1-7f065e0bd073"
+        ],
+        "options": []
+    },
+    {
+        "name": "Imaged",
+        "type": "Imaged",
+        "id": "5aa435bf-60d0-433b-96f1-8ba36b9d7a6a",
+        "inputs": [],
+        "outputs": [
+            "ab8c597b-8cd0-4671-a1f1-7f065e0bd073"
+        ],
+        "options": []
+    },
+    {
+        "name": "auth",
+        "type": "auth",
+        "id": "f40a1df1-7e49-48cb-ae00-2426418f2aff",
+        "inputs": [
+            "c453a957-5b9c-409d-9850-9f2ca46da492",
+            "0274b690-3a4e-440b-b459-9b095b72eaab",
+            "90fa5652-2234-4244-9be6-2b30832e6f1e"
+        ],
+        "outputs": [
+            "cca24251-191b-4cfa-8f68-26fb3254a32a"
+        ],
+        "options": []
+    },
+    {
+        "name": "passwords",
+        "type": "passwords",
+        "id": "c453a957-5b9c-409d-9850-9f2ca46da492",
+        "inputs": [
+            "0c9b1d2a-00ff-4e51-8a2a-61edb7d57d02",
+            "1ebdd4e5-4730-4b62-9f75-42df961b65e6"
+        ],
+        "outputs": [
+            "f40a1df1-7e49-48cb-ae00-2426418f2aff"
+        ],
+        "options": [
+            "array"
+        ]
+    },
+    {
+        "name": "username",
+        "type": "username",
+        "id": "0274b690-3a4e-440b-b459-9b095b72eaab",
+        "inputs": [
+            "639ec157-5ba4-4479-986f-97517301b677"
+        ],
+        "outputs": [
+            "f40a1df1-7e49-48cb-ae00-2426418f2aff"
+        ],
+        "options": []
+    },
+    {
+        "name": "data",
+        "type": "data",
+        "id": "90fa5652-2234-4244-9be6-2b30832e6f1e",
+        "inputs": [
+            "71b39e32-62b8-480e-9a1e-bcac873db854",
+            "1e11d5ab-a4e3-4030-adea-73ba06e6d81b"
+        ],
+        "outputs": [
+            "f40a1df1-7e49-48cb-ae00-2426418f2aff"
+        ],
+        "options": [
+            "array"
+        ]
+    },
+    {
+        "name": "password",
+        "type": "StringValue",
+        "id": "0c9b1d2a-00ff-4e51-8a2a-61edb7d57d02",
+        "inputs": [],
+        "outputs": [
+            "c453a957-5b9c-409d-9850-9f2ca46da492"
+        ],
+        "options": []
+    },
+    {
+        "name": "password2",
+        "type": "StringValue",
+        "id": "1ebdd4e5-4730-4b62-9f75-42df961b65e6",
+        "inputs": [],
+        "outputs": [
+            "c453a957-5b9c-409d-9850-9f2ca46da492"
+        ],
+        "options": []
+    },
+    {
+        "name": "username",
+        "type": "StringValue",
+        "id": "639ec157-5ba4-4479-986f-97517301b677",
+        "inputs": [],
+        "outputs": [
+            "0274b690-3a4e-440b-b459-9b095b72eaab"
+        ],
+        "options": []
+    },
+    {
+        "name": "ObjectValue",
+        "type": "ObjectValue",
+        "id": "71b39e32-62b8-480e-9a1e-bcac873db854",
+        "inputs": [
+            "639fb78f-ecd3-4a15-bbb9-6754c08bd728"
+        ],
+        "outputs": [
+            "90fa5652-2234-4244-9be6-2b30832e6f1e"
+        ],
+        "options": []
+    },
+    {
+        "name": "ObjectValue",
+        "type": "ObjectValue",
+        "id": "1e11d5ab-a4e3-4030-adea-73ba06e6d81b",
+        "inputs": [
+            "37d2ccba-867a-48fb-b15e-73a41da4656e"
+        ],
+        "outputs": [
+            "90fa5652-2234-4244-9be6-2b30832e6f1e"
+        ],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "name",
+        "id": "639fb78f-ecd3-4a15-bbb9-6754c08bd728",
+        "inputs": [
+            "fe688325-6e7c-4ecd-8110-d88b312b1b3a"
+        ],
+        "outputs": [
+            "71b39e32-62b8-480e-9a1e-bcac873db854"
+        ],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "name",
+        "id": "37d2ccba-867a-48fb-b15e-73a41da4656e",
+        "inputs": [
+            "3623b571-d4d8-4f49-8984-18d993eddcf0"
+        ],
+        "outputs": [
+            "1e11d5ab-a4e3-4030-adea-73ba06e6d81b"
+        ],
+        "options": []
+    },
+    {
+        "name": "AAA",
+        "type": "StringValue",
+        "id": "fe688325-6e7c-4ecd-8110-d88b312b1b3a",
+        "inputs": [],
+        "outputs": [
+            "639fb78f-ecd3-4a15-bbb9-6754c08bd728"
+        ],
+        "options": []
+    },
+    {
+        "name": "BBB",
+        "type": "StringValue",
+        "id": "3623b571-d4d8-4f49-8984-18d993eddcf0",
+        "inputs": [],
+        "outputs": [
+            "37d2ccba-867a-48fb-b15e-73a41da4656e"
+        ],
+        "options": []
+    },
+    {
+        "name": "Nameable",
+        "type": "interface",
+        "id": "ee7463de-c5fc-4380-8896-b894e7cb9fe4",
+        "description": "",
+        "inputs": [
+            "7253c100-edaf-4f1e-ad44-b826023f704e"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "7253c100-edaf-4f1e-ad44-b826023f704e",
+        "inputs": [],
+        "outputs": [
+            "ee7463de-c5fc-4380-8896-b894e7cb9fe4"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "Imaged",
+        "type": "interface",
+        "id": "0d0e7413-53bd-4638-9882-7c87c075fc52",
+        "description": "",
+        "inputs": [
+            "d4302bce-5f35-4885-aded-d5ae117e70f1"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "d4302bce-5f35-4885-aded-d5ae117e70f1",
+        "inputs": [],
+        "outputs": [
+            "0d0e7413-53bd-4638-9882-7c87c075fc52"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "Ingredient",
+        "type": "type",
+        "id": "560ae145-b965-4dc8-a60e-c6cfe98a690d",
+        "description": "",
+        "inputs": [
+            "6ccae71b-5301-49bf-a18a-2dced765ce13",
+            "1791a7f0-268e-45c8-b153-561502bca536"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "6ccae71b-5301-49bf-a18a-2dced765ce13",
+        "inputs": [],
+        "outputs": [
+            "560ae145-b965-4dc8-a60e-c6cfe98a690d"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "price",
+        "type": "Int",
+        "id": "1791a7f0-268e-45c8-b153-561502bca536",
+        "inputs": [],
+        "outputs": [
+            "560ae145-b965-4dc8-a60e-c6cfe98a690d"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "Mutation",
+        "type": "type",
+        "id": "18fbbc95-eb69-40ce-939d-7f437e60b868",
+        "description": "",
+        "inputs": [
+            "00ba70b4-f900-4eae-89ff-8b8183329892",
+            "8a694694-e8dd-48d8-957f-2695713f6f5b"
+        ],
+        "outputs": [],
+        "options": [
+            "mutation"
+        ]
+    },
+    {
+        "name": "addPizza",
+        "type": "Pizza",
+        "id": "00ba70b4-f900-4eae-89ff-8b8183329892",
+        "inputs": [
+            "f7dce0fe-5689-416a-bdf0-a3315d1f9b4b"
+        ],
+        "outputs": [
+            "18fbbc95-eb69-40ce-939d-7f437e60b868"
+        ],
+        "options": []
+    },
+    {
+        "name": "addIngredient",
+        "type": "Ingredient",
+        "id": "8a694694-e8dd-48d8-957f-2695713f6f5b",
+        "inputs": [
+            "7845074c-626b-4432-b215-2b3797422060"
+        ],
+        "outputs": [
+            "18fbbc95-eb69-40ce-939d-7f437e60b868"
+        ],
+        "options": []
+    },
+    {
+        "name": "pizza",
+        "type": "CreatePizza",
+        "id": "f7dce0fe-5689-416a-bdf0-a3315d1f9b4b",
+        "inputs": [],
+        "outputs": [
+            "00ba70b4-f900-4eae-89ff-8b8183329892"
+        ],
+        "options": []
+    },
+    {
+        "name": "ingredient",
+        "type": "CreateIngredient",
+        "id": "7845074c-626b-4432-b215-2b3797422060",
+        "inputs": [],
+        "outputs": [
+            "8a694694-e8dd-48d8-957f-2695713f6f5b"
+        ],
+        "options": []
+    },
+    {
+        "name": "CreatePizza",
+        "type": "input",
+        "id": "54dc75cb-068f-4cfe-b8e6-7758b2d1c752",
+        "description": "",
+        "inputs": [
+            "fc1dde13-bef8-40f6-88da-b9d1082b021c",
+            "6288efed-7291-4fc3-91fd-b34618c6eea6",
+            "b60605c5-4f48-4f30-8bf0-aab57cf4da61",
+            "6b1e9c42-2c54-4b94-b1b4-b1fd5120a083"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "fc1dde13-bef8-40f6-88da-b9d1082b021c",
+        "inputs": [
+            "22dd1d65-e366-4476-923f-8baf9c5dac12"
+        ],
+        "outputs": [
+            "54dc75cb-068f-4cfe-b8e6-7758b2d1c752"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "pizzasRelated",
+        "type": "String",
+        "id": "6288efed-7291-4fc3-91fd-b34618c6eea6",
+        "inputs": [],
+        "outputs": [
+            "54dc75cb-068f-4cfe-b8e6-7758b2d1c752"
+        ],
+        "options": [
+            "required",
+            "array"
+        ]
+    },
+    {
+        "name": "pizzasRelated2",
+        "type": "String",
+        "id": "b60605c5-4f48-4f30-8bf0-aab57cf4da61",
+        "inputs": [],
+        "outputs": [
+            "54dc75cb-068f-4cfe-b8e6-7758b2d1c752"
+        ],
+        "options": [
+            "required",
+            "array"
+        ]
+    },
+    {
+        "name": "ingredients",
+        "type": "CreateIngredient",
+        "id": "6b1e9c42-2c54-4b94-b1b4-b1fd5120a083",
+        "inputs": [
+            "acc438e0-5a88-4492-b786-0c359231ca8c",
+            "ba6e00cf-c53c-468f-86f8-97cb2a52d64d"
+        ],
+        "outputs": [
+            "54dc75cb-068f-4cfe-b8e6-7758b2d1c752"
+        ],
+        "options": [
+            "array",
+            "required"
+        ]
+    },
+    {
+        "name": "",
+        "type": "StringValue",
+        "id": "22dd1d65-e366-4476-923f-8baf9c5dac12",
+        "inputs": [],
+        "outputs": [
+            "fc1dde13-bef8-40f6-88da-b9d1082b021c"
+        ],
+        "options": []
+    },
+    {
+        "name": "ObjectValue",
+        "type": "ObjectValue",
+        "id": "acc438e0-5a88-4492-b786-0c359231ca8c",
+        "inputs": [
+            "7b1370ad-fa8e-41e4-85ff-afaf23bbb732",
+            "c3964b09-88db-4b8d-b866-6271e80d6049",
+            "68d01237-b022-4c6e-a2f7-1d5dfd8b13b9"
+        ],
+        "outputs": [
+            "6b1e9c42-2c54-4b94-b1b4-b1fd5120a083"
+        ],
+        "options": []
+    },
+    {
+        "name": "ObjectValue",
+        "type": "ObjectValue",
+        "id": "ba6e00cf-c53c-468f-86f8-97cb2a52d64d",
+        "inputs": [
+            "08256a97-1db3-4a36-8f6a-3ca00a9320d3",
+            "84f8ac5f-a223-4ab2-8424-6c5e86cabcac"
+        ],
+        "outputs": [
+            "6b1e9c42-2c54-4b94-b1b4-b1fd5120a083"
+        ],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "name",
+        "id": "7b1370ad-fa8e-41e4-85ff-afaf23bbb732",
+        "inputs": [
+            "834ab5a5-218e-4454-90f4-c9562ce60cac"
+        ],
+        "outputs": [
+            "acc438e0-5a88-4492-b786-0c359231ca8c"
+        ],
+        "options": []
+    },
+    {
+        "name": "price",
+        "type": "price",
+        "id": "c3964b09-88db-4b8d-b866-6271e80d6049",
+        "inputs": [
+            "94ec029a-2921-49b9-8cab-8eb3f7b1d222"
+        ],
+        "outputs": [
+            "acc438e0-5a88-4492-b786-0c359231ca8c"
+        ],
+        "options": []
+    },
+    {
+        "name": "sku",
+        "type": "sku",
+        "id": "68d01237-b022-4c6e-a2f7-1d5dfd8b13b9",
+        "inputs": [
+            "b25e373d-5750-4426-b07e-4d3c5bac325c"
+        ],
+        "outputs": [
+            "acc438e0-5a88-4492-b786-0c359231ca8c"
+        ],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "name",
+        "id": "08256a97-1db3-4a36-8f6a-3ca00a9320d3",
+        "inputs": [
+            "2bf95f57-01b6-48c6-a6e3-1888588d5da6"
+        ],
+        "outputs": [
+            "ba6e00cf-c53c-468f-86f8-97cb2a52d64d"
+        ],
+        "options": []
+    },
+    {
+        "name": "price",
+        "type": "price",
+        "id": "84f8ac5f-a223-4ab2-8424-6c5e86cabcac",
+        "inputs": [
+            "ac977df9-7279-43da-88aa-7f23b9504fc5"
+        ],
+        "outputs": [
+            "ba6e00cf-c53c-468f-86f8-97cb2a52d64d"
+        ],
+        "options": []
+    },
+    {
+        "name": "",
+        "type": "StringValue",
+        "id": "834ab5a5-218e-4454-90f4-c9562ce60cac",
+        "inputs": [],
+        "outputs": [
+            "7b1370ad-fa8e-41e4-85ff-afaf23bbb732"
+        ],
+        "options": []
+    },
+    {
+        "name": "300",
+        "type": "IntValue",
+        "id": "94ec029a-2921-49b9-8cab-8eb3f7b1d222",
+        "inputs": [],
+        "outputs": [
+            "c3964b09-88db-4b8d-b866-6271e80d6049"
+        ],
+        "options": []
+    },
+    {
+        "name": "ObjectValue",
+        "type": "ObjectValue",
+        "id": "b25e373d-5750-4426-b07e-4d3c5bac325c",
+        "inputs": [
+            "96123675-47b5-4667-b7e6-363115f71e3b"
+        ],
+        "outputs": [
+            "68d01237-b022-4c6e-a2f7-1d5dfd8b13b9"
+        ],
+        "options": []
+    },
+    {
+        "name": "Pineapple",
+        "type": "StringValue",
+        "id": "2bf95f57-01b6-48c6-a6e3-1888588d5da6",
+        "inputs": [],
+        "outputs": [
+            "08256a97-1db3-4a36-8f6a-3ca00a9320d3"
+        ],
+        "options": []
+    },
+    {
+        "name": "200",
+        "type": "IntValue",
+        "id": "ac977df9-7279-43da-88aa-7f23b9504fc5",
+        "inputs": [],
+        "outputs": [
+            "84f8ac5f-a223-4ab2-8424-6c5e86cabcac"
+        ],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "name",
+        "id": "96123675-47b5-4667-b7e6-363115f71e3b",
+        "inputs": [
+            "d6983251-a8c1-4aaf-972d-3a834838ab79"
+        ],
+        "outputs": [
+            "b25e373d-5750-4426-b07e-4d3c5bac325c"
+        ],
+        "options": []
+    },
+    {
+        "name": "13231a",
+        "type": "StringValue",
+        "id": "d6983251-a8c1-4aaf-972d-3a834838ab79",
+        "inputs": [],
+        "outputs": [
+            "96123675-47b5-4667-b7e6-363115f71e3b"
+        ],
+        "options": []
+    },
+    {
+        "name": "CreateSKU",
+        "type": "input",
+        "id": "8525962c-6677-49c1-b68b-6e9b968a387a",
+        "description": "",
+        "inputs": [
+            "47238996-c621-49bb-aa50-7c16f2f7f1b3"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "47238996-c621-49bb-aa50-7c16f2f7f1b3",
+        "inputs": [],
+        "outputs": [
+            "8525962c-6677-49c1-b68b-6e9b968a387a"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "CreateIngredient",
+        "type": "input",
+        "id": "6fe9f7b8-1334-447b-9954-c634e0ae9f32",
+        "description": "",
+        "inputs": [
+            "d909997d-b4a9-4caa-8719-d50a0f02b708",
+            "48a643d5-d929-47b1-98a8-b2af45f8b517",
+            "2a93a01e-d0c7-4dcf-b143-edf278d111de",
+            "66146196-320b-41d9-9ee0-48609d2e200c",
+            "962300ad-83e2-4c71-b418-b749a5089aca"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "d909997d-b4a9-4caa-8719-d50a0f02b708",
+        "inputs": [],
+        "outputs": [
+            "6fe9f7b8-1334-447b-9954-c634e0ae9f32"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "price",
+        "type": "Int",
+        "id": "48a643d5-d929-47b1-98a8-b2af45f8b517",
+        "inputs": [],
+        "outputs": [
+            "6fe9f7b8-1334-447b-9954-c634e0ae9f32"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "sku",
+        "type": "CreateSKU",
+        "id": "2a93a01e-d0c7-4dcf-b143-edf278d111de",
+        "inputs": [],
+        "outputs": [
+            "6fe9f7b8-1334-447b-9954-c634e0ae9f32"
+        ],
+        "options": []
+    },
+    {
+        "name": "status",
+        "type": "Status",
+        "id": "66146196-320b-41d9-9ee0-48609d2e200c",
+        "inputs": [],
+        "outputs": [
+            "6fe9f7b8-1334-447b-9954-c634e0ae9f32"
+        ],
+        "options": [
+            "required"
+        ]
+    },
+    {
+        "name": "statusy",
+        "type": "Status",
+        "id": "962300ad-83e2-4c71-b418-b749a5089aca",
+        "inputs": [],
+        "outputs": [
+            "6fe9f7b8-1334-447b-9954-c634e0ae9f32"
+        ],
+        "options": [
+            "required",
+            "array"
+        ]
+    },
+    {
+        "name": "Extend",
+        "type": "Extend",
+        "id": "2b7f6649-a4cf-47aa-8134-9343a1d5cf6f",
+        "inputs": [
+            "d3d0ba28-07a0-4ebe-98c4-33a628e15716"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "DataInfo",
+        "type": "type",
+        "id": "d3d0ba28-07a0-4ebe-98c4-33a628e15716",
+        "description": "",
+        "inputs": [
+            "1be7739b-1e08-4481-b9aa-84730ec42ad5"
+        ],
+        "outputs": [
+            "2b7f6649-a4cf-47aa-8134-9343a1d5cf6f"
+        ],
+        "options": []
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "id": "1be7739b-1e08-4481-b9aa-84730ec42ad5",
+        "inputs": [],
+        "outputs": [
+            "d3d0ba28-07a0-4ebe-98c4-33a628e15716"
+        ],
+        "options": []
+    },
+    {
+        "name": "Spod",
+        "type": "enum",
+        "id": "5130f042-d07d-4c4f-84e8-eb2bd424f1bb",
+        "description": "",
+        "inputs": [
+            "0ff69e3b-0597-463b-a728-51efbdc8e8cb",
+            "1759d3c8-78f0-4c3f-8bec-af746acffdbf"
+        ],
+        "outputs": [],
+        "options": []
+    },
+    {
+        "name": "bialy",
+        "type": "EnumValueDefinition",
+        "id": "0ff69e3b-0597-463b-a728-51efbdc8e8cb",
+        "inputs": [
+            "11db7f17-f589-45b3-b79f-f8a8a1f6bf54"
+        ],
+        "outputs": [
+            "5130f042-d07d-4c4f-84e8-eb2bd424f1bb"
+        ],
+        "options": []
+    },
+    {
+        "name": "czerwony",
+        "type": "EnumValueDefinition",
+        "id": "1759d3c8-78f0-4c3f-8bec-af746acffdbf",
+        "inputs": [],
+        "outputs": [
+            "5130f042-d07d-4c4f-84e8-eb2bd424f1bb"
+        ],
+        "options": []
+    },
+    {
+        "name": "Directives",
+        "type": "Directives",
+        "id": "11db7f17-f589-45b3-b79f-f8a8a1f6bf54",
+        "inputs": [
+            "1cef9d1a-79da-4e66-a4f7-f05fd0f58e69"
+        ],
+        "outputs": [
+            "0ff69e3b-0597-463b-a728-51efbdc8e8cb"
+        ],
+        "options": []
+    },
+    {
+        "name": "enumas",
+        "type": "enumas",
+        "id": "1cef9d1a-79da-4e66-a4f7-f05fd0f58e69",
+        "inputs": [],
+        "outputs": [
+            "11db7f17-f589-45b3-b79f-f8a8a1f6bf54"
+        ],
+        "options": []
+    },
+    {
+        "name": "enumas",
+        "type": "directive",
+        "id": "21a35b8d-4118-45f7-b3c9-7ed4357488d5",
+        "description": "",
+        "inputs": [
+            "b472cfd8-da03-441d-850c-853b6fecd5d9"
+        ],
+        "outputs": [],
+        "options": [
+            "ENUM_VALUE"
+        ]
+    },
+    {
+        "name": "default",
+        "type": "Boolean",
+        "id": "b472cfd8-da03-441d-850c-853b6fecd5d9",
+        "inputs": [],
+        "outputs": [
+            "21a35b8d-4118-45f7-b3c9-7ed4357488d5"
+        ],
+        "options": []
+    }
+]
