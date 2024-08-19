@@ -1,5 +1,5 @@
-import { Graph, DiagramTheme } from "@/models";
-import { packBoxes, IndexedDimensions } from "./packer";
+import { Graph, DiagramTheme } from '@/models';
+import { packBoxes, IndexedDimensions } from './packer';
 
 export class RectanglePacker {
   static pack(blocks: Graph[], theme: DiagramTheme) {
@@ -7,13 +7,10 @@ export class RectanglePacker {
       blocks.map(
         (b, index) =>
           ({
-            dimensions: [
-              b.width + theme.graph.spacing.x,
-              b.height + theme.graph.spacing.y,
-            ],
+            dimensions: [b.width + theme.graph.spacing.x, b.height + theme.graph.spacing.y],
             index,
-          } as IndexedDimensions)
-      )
+          }) as IndexedDimensions,
+      ),
     );
     boxes.forEach((box) => {
       const block = blocks[box.index];
@@ -26,8 +23,7 @@ export class RectanglePacker {
           x: node.x - block.center.x,
           y: node.y - block.center.y,
         };
-        (node.x = newCenter.x + relativePosition.x),
-          (node.y = newCenter.y + relativePosition.y);
+        (node.x = newCenter.x + relativePosition.x), (node.y = newCenter.y + relativePosition.y);
       });
       block.center = {
         ...newCenter,

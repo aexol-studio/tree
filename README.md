@@ -1,7 +1,7 @@
-# Graphsource
+# Tree - graph visualiser
 [![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/graphsource.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
 
-Diagram is the tool for displaying node based systems. 
+Tree is the tool for displaying node based systems. 
  
 This package contains one dependency.
 
@@ -9,7 +9,7 @@ This package contains one dependency.
 
 ### Javascript
 ```js
-import { Diagram } from 'graphsource'
+import { Diagram } from '@aexol/tree'
 class App {
   constructor() {
     const root = document.getElementById("root");

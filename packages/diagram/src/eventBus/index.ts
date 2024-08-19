@@ -11,10 +11,7 @@ export class EventBus {
   private topics: { [key: string]: Function[] } = {};
   private externalSubscribers: { [key: string]: Function[] } = {};
   private que: Array<{ topic: keyof DiagramEvents; args?: unknown }> = [];
-  subscribe<T extends keyof DiagramEvents>(
-    topic: T,
-    callback: (args: DiagramEvents[T]) => void,
-  ) {
+  subscribe<T extends keyof DiagramEvents>(topic: T, callback: (args: DiagramEvents[T]) => void) {
     if (!this.topics[topic]) {
       this.topics[topic] = [];
     }
@@ -32,19 +29,13 @@ export class EventBus {
     }
     while (this.que.length > 0) {
       const [q] = this.que;
-      const all = [
-        ...(this.topics[q.topic] || []),
-        ...(this.externalSubscribers[q.topic] || []),
-      ];
+      const all = [...(this.topics[q.topic] || []), ...(this.externalSubscribers[q.topic] || [])];
       all.forEach((callback) => callback(q.args));
       this.que.shift();
     }
   }
 
-  on<T extends keyof DiagramEvents>(
-    topic: T,
-    callback: (args: DiagramEvents[T]) => void,
-  ) {
+  on<T extends keyof DiagramEvents>(topic: T, callback: (args: DiagramEvents[T]) => void) {
     if (!this.externalSubscribers[topic]) {
       this.externalSubscribers[topic] = [];
     }
@@ -54,10 +45,7 @@ export class EventBus {
     return () => this.off(topic, callback);
   }
 
-  off<T extends keyof DiagramEvents>(
-    topic: T,
-    callback: (args: DiagramEvents[T]) => void,
-  ) {
+  off<T extends keyof DiagramEvents>(topic: T, callback: (args: DiagramEvents[T]) => void) {
     if (!this.externalSubscribers[topic]) {
       return;
     }

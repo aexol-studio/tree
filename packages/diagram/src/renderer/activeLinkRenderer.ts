@@ -1,11 +1,11 @@
-import { DiagramTheme } from "@/models";
-import { ScreenPosition } from "@/io";
-import { QuadraticPath } from "./Draw/QuadraticPath";
-import { ContextProvider } from "./ContextProvider";
+import { DiagramTheme } from '@/models';
+import { ScreenPosition } from '@/io';
+import { QuadraticPath } from './Draw/QuadraticPath';
+import { ContextProvider } from './ContextProvider';
 export class ActiveLinkRenderer {
   constructor(
     private contextProvider: ContextProvider,
-    private theme: DiagramTheme
+    private theme: DiagramTheme,
   ) {}
   render = ({ from, to }: { from: ScreenPosition; to: ScreenPosition }) => {
     QuadraticPath(
@@ -18,7 +18,7 @@ export class ActiveLinkRenderer {
       this.theme.link.strokeWidth,
       this.theme.colors.link.main,
       this.theme.link.defaultCenterPoint,
-      from.x === to.x && from.y === to.y
+      from.x === to.x && from.y === to.y,
     );
   };
 }

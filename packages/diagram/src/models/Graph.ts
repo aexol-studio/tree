@@ -1,4 +1,4 @@
-import { InputNode, Node } from "./Node";
+import { InputNode, Node } from './Node';
 
 export interface InputGraph {
   nodes: InputNode[];

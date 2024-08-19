@@ -24,10 +24,7 @@ export function packBoxes(sizes: IndexedDimensions[]): IndexedBoxes[] {
   }
 
   order.sort(function (a, b) {
-    return (
-      sizes[b].dimensions[0] * sizes[b].dimensions[1] -
-      sizes[a].dimensions[0] * sizes[a].dimensions[1]
-    );
+    return sizes[b].dimensions[0] * sizes[b].dimensions[1] - sizes[a].dimensions[0] * sizes[a].dimensions[1];
   });
 
   for (let i = 0; i < sizes.length; i++) {
@@ -37,7 +34,7 @@ export function packBoxes(sizes: IndexedDimensions[]): IndexedBoxes[] {
       const box = layout.boxes[j];
       positions.push(
         [box.position[0], box.position[1] + box.size[1]],
-        [box.position[0] + box.size[0], box.position[1]]
+        [box.position[0] + box.size[0], box.position[1]],
       );
     }
 
@@ -81,7 +78,7 @@ export function packBoxes(sizes: IndexedDimensions[]): IndexedBoxes[] {
       ({
         index: order[i],
         box,
-      } as IndexedBoxes)
+      }) as IndexedBoxes,
   );
 }
 

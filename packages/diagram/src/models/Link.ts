@@ -1,4 +1,4 @@
-import { Node } from "./Node";
+import { Node } from './Node';
 
 export interface Link {
   i: Node;

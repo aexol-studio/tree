@@ -1,12 +1,12 @@
-import { DiagramTheme, Link } from "@/models";
-import { QuadraticPath } from "./Draw/QuadraticPath";
-import { ContextProvider } from "./ContextProvider";
+import { DiagramTheme, Link } from '@/models';
+import { QuadraticPath } from './Draw/QuadraticPath';
+import { ContextProvider } from './ContextProvider';
 export class LinkRenderer {
   constructor(
     private contextProvider: ContextProvider,
-    private theme: DiagramTheme
+    private theme: DiagramTheme,
   ) {}
-  render = (l: Link, status: keyof DiagramTheme["colors"]["link"]) => {
+  render = (l: Link, status: keyof DiagramTheme['colors']['link']) => {
     const {
       node: { width, height },
     } = this.theme;
@@ -26,7 +26,7 @@ export class LinkRenderer {
         this.theme.link.strokeWidth,
         this.theme.colors.link[status],
         l.centerPoint || this.theme.link.defaultCenterPoint,
-        l.o.x === l.i.x && l.o.y === l.i.y
+        l.o.x === l.i.x && l.o.y === l.i.y,
       );
     }
   };

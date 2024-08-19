@@ -1,10 +1,4 @@
-import {
-  QuadTreeInterface,
-  Sides,
-  RegionInterface,
-  BoundingBox,
-  DataObjectInTree,
-} from '@/models';
+import { QuadTreeInterface, Sides, RegionInterface, BoundingBox, DataObjectInTree } from '@/models';
 import { Region } from './Region';
 import { Coords } from '@/models';
 export { Region };
@@ -22,10 +16,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
       return false;
     }
 
-    if (
-      (this.objects.length < this.capacity && !this.sides) ||
-      this.depth === this.maxDepth
-    ) {
+    if ((this.objects.length < this.capacity && !this.sides) || this.depth === this.maxDepth) {
       this.objects.push(node);
       return true;
     }
@@ -66,12 +57,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
   subdivide = () => {
     const c = this.bb.center();
     this.sides = {
-      nw: new QuadTree<T>(
-        new Region(this.bb.min, c),
-        this.capacity,
-        this.maxDepth,
-        this.depth + 1,
-      ),
+      nw: new QuadTree<T>(new Region(this.bb.min, c), this.capacity, this.maxDepth, this.depth + 1),
       ne: new QuadTree<T>(
         new Region(
           {
@@ -102,12 +88,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
         this.maxDepth,
         this.depth + 1,
       ),
-      se: new QuadTree<T>(
-        new Region(c, this.bb.max),
-        this.capacity,
-        this.maxDepth,
-        this.depth + 1,
-      ),
+      se: new QuadTree<T>(new Region(c, this.bb.max), this.capacity, this.maxDepth, this.depth + 1),
     };
     for (const object of this.objects) this.insert(object);
   };
@@ -125,17 +106,13 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
       .concat(ne.queryRange(bb))
       .concat(se.queryRange(bb))
       .concat(sw.queryRange(bb));
-    return allObjectsInRange.filter(
-      (o, i) => allObjectsInRange.indexOf(o) === i,
-    );
+    return allObjectsInRange.filter((o, i) => allObjectsInRange.indexOf(o) === i);
   };
   pick = (e: Coords) => {
     const goToTree = this.pickTree(e);
-    const objectInRegion = (o: DataObjectInTree<T>) =>
-      Region.regionContains(o.bb, e);
+    const objectInRegion = (o: DataObjectInTree<T>) => Region.regionContains(o.bb, e);
     const returnedObjects = goToTree?.objects.filter(objectInRegion);
-    if (returnedObjects && returnedObjects.length > 0)
-      return returnedObjects[returnedObjects.length - 1].data;
+    if (returnedObjects && returnedObjects.length > 0) return returnedObjects[returnedObjects.length - 1].data;
   };
   pickTree = (e: Coords): QuadTreeInterface<T> | undefined => {
     if (!this.sides) {
@@ -145,10 +122,7 @@ export class QuadTree<T> implements QuadTreeInterface<T> {
       return;
     }
     const returnedTree =
-      this.sides.ne.pickTree(e) ||
-      this.sides.nw.pickTree(e) ||
-      this.sides.se.pickTree(e) ||
-      this.sides.sw.pickTree(e);
+      this.sides.ne.pickTree(e) || this.sides.nw.pickTree(e) || this.sides.se.pickTree(e) || this.sides.sw.pickTree(e);
     if (!returnedTree) {
       throw new Error(`Cannot find element for coords ${e.x}, ${e.y}`);
     }

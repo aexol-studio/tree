@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from "uuid";
-import { DiagramTheme } from "@/models";
-import { DefaultDiagramTheme } from "@/theme/DefaultDiagramTheme";
+import { v4 as uuidv4 } from 'uuid';
+import { DiagramTheme } from '@/models';
+import { DefaultDiagramTheme } from '@/theme/DefaultDiagramTheme';
 
 // We're doing a singleton here, so config can be easily accessible across code files
 let _instance: ConfigurationManager;
@@ -64,10 +64,7 @@ export class ConfigurationManager {
   public getOption<T extends keyof DiagramOptions>(fieldName: T) {
     return this.options[fieldName];
   }
-  public setOption<T extends keyof DiagramOptions>(
-    fieldName: T,
-    value: DiagramOptions[T]
-  ) {
+  public setOption<T extends keyof DiagramOptions>(fieldName: T, value: DiagramOptions[T]) {
     return (this.options[fieldName] = value);
   }
 }

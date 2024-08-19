@@ -1,5 +1,5 @@
-import { ScreenPosition } from "@/io";
-import { Node } from "@/models";
+import { ScreenPosition } from '@/io';
+import { Node } from '@/models';
 /**
  * DiagramEvents:
  *

@@ -17,7 +17,10 @@ export class IO {
    * @/param eventBus event bus to be used
    * @/param element HTML <canvas> elements to put listeners on
    */
-  constructor(eventBus: EventBus, private element: HTMLCanvasElement) {
+  constructor(
+    eventBus: EventBus,
+    private element: HTMLCanvasElement,
+  ) {
     this.eventBus = eventBus;
     this.calculateClientBoundingRect();
     element.addEventListener('mouseleave', (e) => {

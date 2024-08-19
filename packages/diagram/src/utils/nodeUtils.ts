@@ -1,21 +1,15 @@
-import { Utils } from "./index";
-import {
-  Node,
-  Graph,
-  DiagramTheme,
-  DataObjectInTree,
-  InputNode,
-} from "@/models";
-import { ScreenPosition } from "@/io";
-import { DefaultDiagramTheme } from "@/theme/DefaultDiagramTheme";
-import { RectanglePacker } from "@/rectanglePacker";
+import { Utils } from './index';
+import { Node, Graph, DiagramTheme, DataObjectInTree, InputNode } from '@/models';
+import { ScreenPosition } from '@/io';
+import { DefaultDiagramTheme } from '@/theme/DefaultDiagramTheme';
+import { RectanglePacker } from '@/rectanglePacker';
 export class NodeUtils {
   static createBasicNode(e: ScreenPosition, node: Partial<Node> = {}): Node {
     return {
-      name: "Node",
-      type: "type",
+      name: 'Node',
+      type: 'type',
       id: Utils.generateId(),
-      description: "Enter your description",
+      description: 'Enter your description',
       x: e.x,
       y: e.y,
       inputs: [],
@@ -25,42 +19,27 @@ export class NodeUtils {
     };
   }
 
-  static findAllConnectedNodes = <T extends InputNode>(
-    n: T,
-    nodes: T[]
-  ): T[] => {
+  static findAllConnectedNodes = <T extends InputNode>(n: T, nodes: T[]): T[] => {
     const graphNodes: T[] = [];
     const spawnConnections = (n: T) => {
       if (graphNodes.find((no) => no === n)) return;
       graphNodes.push(n);
-      n.inputs &&
-        n.inputs.map((i) =>
-          spawnConnections(nodes.find((node) => node.id === i)!)
-        );
-      n.outputs &&
-        n.outputs.map((o) =>
-          spawnConnections(nodes.find((node) => node.id === o)!)
-        );
+      n.inputs && n.inputs.map((i) => spawnConnections(nodes.find((node) => node.id === i)!));
+      n.outputs && n.outputs.map((o) => spawnConnections(nodes.find((node) => node.id === o)!));
     };
     spawnConnections(n);
     return graphNodes;
   };
-  static graphFromNode = (
-    n: InputNode,
-    nodes: InputNode[],
-    theme: DiagramTheme
-  ): Graph => {
+  static graphFromNode = (n: InputNode, nodes: InputNode[], theme: DiagramTheme): Graph => {
     const graphNodes: InputNode[] = NodeUtils.findAllConnectedNodes(n, nodes);
 
     if (graphNodes.length === 0) {
-      throw new Error("Invalid graph");
+      throw new Error('Invalid graph');
     }
     const findX = (n: InputNode) => {
       const findOutputDepth = (node: InputNode, depth = 0): number => {
         if (node.outputs?.length) {
-          const depths = node.outputs.map((no) =>
-            findOutputDepth(graphNodes.find((gn) => gn.id === no)!, depth + 1)
-          );
+          const depths = node.outputs.map((no) => findOutputDepth(graphNodes.find((gn) => gn.id === no)!, depth + 1));
           return Math.max(...depths);
         }
         return depth;
@@ -83,8 +62,7 @@ export class NodeUtils {
         const startY = (maxY - heightOfColumn) / 2.0;
         return nodes.map((n, order) => {
           const x = -xOrder * (theme.node.width + theme.node.spacing.x);
-          const y =
-            (startY + order) * (theme.node.height + theme.node.spacing.y);
+          const y = (startY + order) * (theme.node.height + theme.node.spacing.y);
           return {
             ...n,
             x,
@@ -116,11 +94,7 @@ export class NodeUtils {
       },
     };
   };
-  static graphsFromNodes = (
-    nodes: InputNode[],
-    allNodes: InputNode[],
-    theme: DiagramTheme
-  ) => {
+  static graphsFromNodes = (nodes: InputNode[], allNodes: InputNode[], theme: DiagramTheme) => {
     let usedNodes: InputNode[] = [];
     const graphs: Graph[] = [];
     for (const node of nodes) {
@@ -138,10 +112,7 @@ export class NodeUtils {
     RectanglePacker.pack(graphs, theme);
     return graphs;
   };
-  static createTreeNode = (
-    data: Node,
-    theme: DiagramTheme = DefaultDiagramTheme
-  ): DataObjectInTree<Node> => ({
+  static createTreeNode = (data: Node, theme: DiagramTheme = DefaultDiagramTheme): DataObjectInTree<Node> => ({
     data,
     bb: {
       min: {

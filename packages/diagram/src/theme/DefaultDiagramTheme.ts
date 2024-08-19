@@ -1,5 +1,5 @@
-import { DiagramTheme } from "@/models";
-import { Colors } from "./Colors";
+import { DiagramTheme } from '@/models';
+import { Colors } from './Colors';
 
 export const DefaultDiagramTheme: DiagramTheme = {
   snappingGridSize: 20,
@@ -45,7 +45,7 @@ export const DefaultDiagramTheme: DiagramTheme = {
     triangleDistance: 40,
     radius: 10,
     lineHeight: 18,
-    placeholder: "Put your description here",
+    placeholder: 'Put your description here',
   },
   link: {
     cornerRadius: 25,

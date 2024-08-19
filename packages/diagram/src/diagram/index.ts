@@ -1,11 +1,11 @@
-import { Renderer } from "@/renderer/index";
-import { EventBus } from "@/eventBus";
-import { StateManager } from "./stateManager";
-import { IO } from "@/io";
-import { Node, Size, Link, InputNode, DiagramTheme } from "@/models";
-import { NodeUtils } from "@/utils";
-import { DiagramOptions, ConfigurationManager } from "@/configuration";
-import { CSSMiniEngine } from "@/renderer/CssMiniEngine/index";
+import { Renderer } from '@/renderer/index';
+import { EventBus } from '@/eventBus';
+import { StateManager } from './stateManager';
+import { IO } from '@/io';
+import { Node, Size, Link, InputNode, DiagramTheme } from '@/models';
+import { NodeUtils } from '@/utils';
+import { DiagramOptions, ConfigurationManager } from '@/configuration';
+import { CSSMiniEngine } from '@/renderer/CssMiniEngine/index';
 
 /**
  * Diagram:
@@ -24,22 +24,15 @@ export class Diagram {
   public configuration: ConfigurationManager;
 
   setNodes(nodes: InputNode[]) {
-    const positionedGraphs = NodeUtils.beautifyDiagram(
-      nodes,
-      this.configuration.getOption("theme")
-    );
-    const allNodes = positionedGraphs
-      .map((pg) => pg.nodes)
-      .reduce((a, b) => [...a, ...b], []);
+    const positionedGraphs = NodeUtils.beautifyDiagram(nodes, this.configuration.getOption('theme'));
+    const allNodes = positionedGraphs.map((pg) => pg.nodes).reduce((a, b) => [...a, ...b], []);
     const links: Link[] = [];
     let rollingIndex = 1;
     allNodes.forEach((n) => {
       n.inputs?.forEach((inp) => {
         const i = allNodes.find((an) => an.id === inp);
         if (!i) {
-          throw new Error(
-            `Invalid inputs array on node ${n.name} ${JSON.stringify(n.inputs)}`
-          );
+          throw new Error(`Invalid inputs array on node ${n.name} ${JSON.stringify(n.inputs)}`);
         }
         links.push({
           i,
@@ -51,7 +44,7 @@ export class Diagram {
     });
     this.stateManager.setNodes(allNodes);
     this.stateManager.setLinks(links);
-    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish('RenderRequested');
   }
   setLinks(links: Link[]) {
     // Calculate links
@@ -68,13 +61,10 @@ export class Diagram {
     this.stateManager.rebuildTrees();
   }
   beautifyDiagram() {
-    NodeUtils.beautifyDiagram(
-      this.stateManager.getState().nodes,
-      this.configuration.getOption("theme")
-    );
+    NodeUtils.beautifyDiagram(this.stateManager.getState().nodes, this.configuration.getOption('theme'));
   }
   forceRender() {
-    this.eventBus.publish("RenderRequested");
+    this.eventBus.publish('RenderRequested');
   }
   centerDiagram() {
     this.stateManager.centerGraph();
@@ -110,8 +100,8 @@ export class Diagram {
   }
 
   setTheme = (theme: DiagramTheme) => {
-    this.configuration.setOption("theme", theme);
-    this.eventBus.publish("RenderRequested");
+    this.configuration.setOption('theme', theme);
+    this.eventBus.publish('RenderRequested');
   };
   private calculateElementSize(domElement: HTMLElement) {
     return { width: domElement.clientWidth, height: domElement.clientHeight };
@@ -122,10 +112,7 @@ export class Diagram {
     }
 
     const newHostSize = this.calculateElementSize(this.hostDomElement);
-    if (
-      newHostSize.width !== this.currentHostSize.width ||
-      newHostSize.height !== this.currentHostSize.height
-    ) {
+    if (newHostSize.width !== this.currentHostSize.width || newHostSize.height !== this.currentHostSize.height) {
       this.currentHostSize = newHostSize;
 
       const areaSize = {
@@ -148,8 +135,8 @@ export class Diagram {
   };
 
   private wireUpResizer() {
-    if (this.configuration.getOption("autosizeOnWindowResize")) {
-      window.addEventListener("resize", () => {
+    if (this.configuration.getOption('autosizeOnWindowResize')) {
+      window.addEventListener('resize', () => {
         this.autoResize();
       });
     }
@@ -157,28 +144,24 @@ export class Diagram {
 
   constructor(
     private hostDomElement: HTMLElement,
-    options?: Partial<DiagramOptions>
+    options?: Partial<DiagramOptions>,
   ) {
-    if (typeof document === "undefined") {
-      throw new Error(
-        "Diagram can work only in DOM-enabled environment (e.g. browser)!"
-      );
+    if (typeof document === 'undefined') {
+      throw new Error('Diagram can work only in DOM-enabled environment (e.g. browser)!');
     }
 
     this.configuration = new ConfigurationManager(options || {});
 
-    this.canvasElement = document.createElement("canvas");
+    this.canvasElement = document.createElement('canvas');
     this.canvasElement.tabIndex = -1;
-    this.canvasElement.style.outline = "none";
-    const canvasContext = this.canvasElement.getContext("2d");
+    this.canvasElement.style.outline = 'none';
+    const canvasContext = this.canvasElement.getContext('2d');
 
     if (!canvasContext) {
       throw new Error("Can't create canvas context!");
     }
 
-    canvasContext.font = `10px ${
-      this.configuration.getOption("theme").fontFamily
-    }`;
+    canvasContext.font = `10px ${this.configuration.getOption('theme').fontFamily}`;
 
     const hostSize = this.calculateElementSize(hostDomElement);
 
@@ -186,9 +169,8 @@ export class Diagram {
 
     this.canvasElement.oncontextmenu = () => false;
 
-    const targetWidth = this.configuration.getOption("width") || hostSize.width;
-    const targetHeight =
-      this.configuration.getOption("height") || hostSize.height;
+    const targetWidth = this.configuration.getOption('width') || hostSize.width;
+    const targetHeight = this.configuration.getOption('height') || hostSize.height;
 
     const areaSize = {
       width: targetWidth * 2,
@@ -205,8 +187,8 @@ export class Diagram {
       hostDomElement.removeChild(hostDomElement.firstChild);
     }
 
-    if (window.getComputedStyle(hostDomElement).position === "static") {
-      hostDomElement.style.position = "relative";
+    if (window.getComputedStyle(hostDomElement).position === 'static') {
+      hostDomElement.style.position = 'relative';
     }
 
     hostDomElement.appendChild(this.canvasElement);
@@ -217,25 +199,18 @@ export class Diagram {
     this.io = new IO(this.eventBus, this.canvasElement);
 
     // initialize state manager
-    this.stateManager = new StateManager(
-      this.eventBus,
-      this.configuration.getOption("theme"),
-      areaSize
-    );
+    this.stateManager = new StateManager(this.eventBus, this.configuration.getOption('theme'), areaSize);
 
     // initialize renderer
     this.renderer = new Renderer(
       this.eventBus,
       canvasContext,
       this.stateManager,
-      this.configuration.getOption("theme")
+      this.configuration.getOption('theme'),
     );
 
-    if (this.configuration.getOption("autosizeWatcher")) {
-      setInterval(
-        this.autoResize,
-        this.configuration.getOption("autosizeInterval")
-      );
+    if (this.configuration.getOption('autosizeWatcher')) {
+      setInterval(this.autoResize, this.configuration.getOption('autosizeInterval'));
     }
 
     CSSMiniEngine.instance.compile();
@@ -246,25 +221,22 @@ export class Diagram {
     this.renderer.renderStart();
   }
 
-  screenShot = async (
-    type: "image/png" | "image/jpeg" = "image/png"
-  ): Promise<Blob | null> => {
+  screenShot = async (type: 'image/png' | 'image/jpeg' = 'image/png'): Promise<Blob | null> => {
     return new Promise((resolve) => {
       this.stateManager.setScreenShotInProgress(true);
 
       const currentNodes = this.stateManager.pureState().nodes;
-      const screenShotMargin = this.configuration.getOption("screenShotMargin");
-      const { width: nodeWidth, height: nodeHeight } =
-        this.configuration.getOption("theme").node;
+      const screenShotMargin = this.configuration.getOption('screenShotMargin');
+      const { width: nodeWidth, height: nodeHeight } = this.configuration.getOption('theme').node;
 
       const rangeX = currentNodes.reduce(
         (acc, cur) => [Math.min(cur.x, acc[0]), Math.max(cur.x, acc[1])],
-        [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+        [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
       );
 
       const rangeY = currentNodes.reduce(
         (acc, cur) => [Math.min(cur.y, acc[0]), Math.max(cur.y, acc[1])],
-        [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+        [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
       );
 
       const savedUiState = { ...this.stateManager.getState().uiState };
@@ -272,15 +244,11 @@ export class Diagram {
         rangeX[0] - screenShotMargin,
         rangeX[1] + screenShotMargin + nodeWidth,
         rangeY[0] - screenShotMargin,
-        rangeY[1] + screenShotMargin + nodeHeight
+        rangeY[1] + screenShotMargin + nodeHeight,
       );
 
       if (savedUiState) {
-        const screenShotRenderedCallback = ({
-          context,
-        }: {
-          context: CanvasRenderingContext2D;
-        }) => {
+        const screenShotRenderedCallback = ({ context }: { context: CanvasRenderingContext2D }) => {
           context.canvas.toBlob((blob) => {
             resolve(blob);
           }, type);
@@ -291,11 +259,11 @@ export class Diagram {
           this.stateManager.getState().uiState.panY = savedUiState.panY;
           this.stateManager.getState().uiState.scale = savedUiState.scale;
 
-          this.eventBus.off("ScreenShotRendered", screenShotRenderedCallback);
+          this.eventBus.off('ScreenShotRendered', screenShotRenderedCallback);
         };
 
-        this.eventBus.on("ScreenShotRendered", screenShotRenderedCallback);
-        this.eventBus.publish("RenderRequested");
+        this.eventBus.on('ScreenShotRendered', screenShotRenderedCallback);
+        this.eventBus.publish('RenderRequested');
       }
     });
   };

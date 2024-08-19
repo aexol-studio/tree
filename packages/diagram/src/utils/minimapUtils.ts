@@ -1,4 +1,4 @@
-import { MinimapBoundaries, Size, Coords } from "@/models";
+import { MinimapBoundaries, Size, Coords } from '@/models';
 
 const MINIMAP_RANGE = 7000;
 
@@ -10,11 +10,7 @@ interface InternalBoundaries {
 }
 
 export class MinimapUtils {
-  static getBoundingBoxViewport(
-    pan: Coords,
-    scale: number,
-    graphSize: Size
-  ): MinimapBoundaries {
+  static getBoundingBoxViewport(pan: Coords, scale: number, graphSize: Size): MinimapBoundaries {
     return {
       left: -pan.x,
       right: graphSize.width / scale - pan.x,
@@ -25,42 +21,25 @@ export class MinimapUtils {
     };
   }
 
-  static getMiniMapBoundaries(
-    viewportBoundingBox: MinimapBoundaries,
-    graphSize: Size
-  ): InternalBoundaries {
+  static getMiniMapBoundaries(viewportBoundingBox: MinimapBoundaries, graphSize: Size): InternalBoundaries {
     return {
       left: Math.max(
-        Math.min(
-          -MINIMAP_RANGE + graphSize.width / 2,
-          viewportBoundingBox.left
-        ),
-        viewportBoundingBox.right - 2 * MINIMAP_RANGE
+        Math.min(-MINIMAP_RANGE + graphSize.width / 2, viewportBoundingBox.left),
+        viewportBoundingBox.right - 2 * MINIMAP_RANGE,
       ),
       top: Math.max(
-        Math.min(
-          -MINIMAP_RANGE + graphSize.height / 2,
-          viewportBoundingBox.top
-        ),
-        viewportBoundingBox.bottom - 2 * MINIMAP_RANGE
+        Math.min(-MINIMAP_RANGE + graphSize.height / 2, viewportBoundingBox.top),
+        viewportBoundingBox.bottom - 2 * MINIMAP_RANGE,
       ),
       width: 2 * MINIMAP_RANGE,
       height: 2 * MINIMAP_RANGE,
     };
   }
 
-  static mapToWorldPoint(
-    point: Coords,
-    miniMapBoundaries: InternalBoundaries,
-    mapSize: number
-  ) {
+  static mapToWorldPoint(point: Coords, miniMapBoundaries: InternalBoundaries, mapSize: number) {
     const delta = {
-      x:
-        (miniMapBoundaries.left + miniMapBoundaries.width / 2) /
-        (miniMapBoundaries.width / mapSize),
-      y:
-        (miniMapBoundaries.top + miniMapBoundaries.height / 2) /
-        (miniMapBoundaries.width / mapSize),
+      x: (miniMapBoundaries.left + miniMapBoundaries.width / 2) / (miniMapBoundaries.width / mapSize),
+      y: (miniMapBoundaries.top + miniMapBoundaries.height / 2) / (miniMapBoundaries.width / mapSize),
     };
     const ratio = miniMapBoundaries.width / mapSize;
     return {
@@ -69,33 +48,19 @@ export class MinimapUtils {
     };
   }
 
-  static worldToMapWidth = (
-    size: number,
-    miniMapBoundaries: InternalBoundaries,
-    mapSize: number
-  ) => size / (miniMapBoundaries.width / (mapSize - 1));
+  static worldToMapWidth = (size: number, miniMapBoundaries: InternalBoundaries, mapSize: number) =>
+    size / (miniMapBoundaries.width / (mapSize - 1));
 
-  static worldToMapHeight = (
-    size: number,
-    miniMapBoundaries: InternalBoundaries,
-    mapSize: number
-  ) => size / (miniMapBoundaries.height / (mapSize - 1));
+  static worldToMapHeight = (size: number, miniMapBoundaries: InternalBoundaries, mapSize: number) =>
+    size / (miniMapBoundaries.height / (mapSize - 1));
 
-  static worldToMapPoint = (
-    coords: Coords,
-    mapSize: number,
-    miniMapBoundaries: InternalBoundaries
-  ) => {
+  static worldToMapPoint = (coords: Coords, mapSize: number, miniMapBoundaries: InternalBoundaries) => {
     const delta = {
-      x: MinimapUtils.worldToMapWidth(
-        miniMapBoundaries.left + miniMapBoundaries.width / 2,
-        miniMapBoundaries,
-        mapSize
-      ),
+      x: MinimapUtils.worldToMapWidth(miniMapBoundaries.left + miniMapBoundaries.width / 2, miniMapBoundaries, mapSize),
       y: MinimapUtils.worldToMapHeight(
         miniMapBoundaries.top + miniMapBoundaries.height / 2,
         miniMapBoundaries,
-        mapSize
+        mapSize,
       ),
     };
     const ratio = miniMapBoundaries.width / (mapSize - 1);

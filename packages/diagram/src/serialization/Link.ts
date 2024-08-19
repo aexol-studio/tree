@@ -11,10 +11,7 @@ export const serializeLink = ({ centerPoint, i, o }: Link): LinkSerialized => ({
   iId: i.id,
   oId: o.id,
 });
-export const deserializeLink = (
-  { centerPoint, iId, oId }: LinkSerialized,
-  nodes: Node[],
-): Link => ({
+export const deserializeLink = ({ centerPoint, iId, oId }: LinkSerialized, nodes: Node[]): Link => ({
   centerPoint,
   i: nodes.find((n) => n.id === iId)!,
   o: nodes.find((n) => n.id === oId)!,

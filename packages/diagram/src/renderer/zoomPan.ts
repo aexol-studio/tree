@@ -1,4 +1,4 @@
-import { UIState } from "@/models";
+import { UIState } from '@/models';
 
 /**
  * ZoomPan

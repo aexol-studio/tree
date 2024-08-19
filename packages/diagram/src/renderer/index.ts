@@ -107,13 +107,9 @@ export class Renderer {
    * Render nodes.
    */
   renderNodes() {
-    const region = this.stateManager.isScreenShotInProgress()
-      ? this.getAllNodesArea()
-      : this.getActiveArea();
+    const region = this.stateManager.isScreenShotInProgress() ? this.getAllNodesArea() : this.getActiveArea();
     const state = this.stateManager.getState();
-    const nodes = state.trees.node
-      .queryRange(region)
-      .concat(state.selectedNodes);
+    const nodes = state.trees.node.queryRange(region).concat(state.selectedNodes);
     for (const n of nodes) {
       const isSelected = state.selectedNodes.indexOf(n) !== -1;
       const isHovered = state.hover.node === n;
@@ -133,9 +129,7 @@ export class Renderer {
    */
   renderLinks() {
     const state = this.stateManager.getState();
-    const region = this.stateManager.isScreenShotInProgress()
-      ? this.getAllNodesArea()
-      : this.getActiveArea();
+    const region = this.stateManager.isScreenShotInProgress() ? this.getAllNodesArea() : this.getActiveArea();
 
     const linksInArea = state.trees.link.queryRange(region);
     linksInArea.forEach((l) => this.linkRenderer.render(l, 'main'));
@@ -167,11 +161,7 @@ export class Renderer {
    * @/memberof Renderer
    */
   renderMinimap() {
-    this.minimapRenderer.render(
-      this.contextProvider.context,
-      this.theme,
-      this.stateManager.getState(),
-    );
+    this.minimapRenderer.render(this.contextProvider.context, this.theme, this.stateManager.getState());
   }
 
   setScreenTransform() {
@@ -228,22 +218,14 @@ export class Renderer {
       this.resetTimeCounter();
     }
 
-    if (
-      this.stateManager.isScreenShotInProgress() &&
-      this.screenShotCanvasContext
-    ) {
+    if (this.stateManager.isScreenShotInProgress() && this.screenShotCanvasContext) {
       this.eventBus.publish('ScreenShotRendered', {
         context: this.screenShotCanvasContext,
       });
     }
   };
 
-  createScreenShotContext(
-    startX: number,
-    endX: number,
-    startY: number,
-    endY: number,
-  ) {
+  createScreenShotContext(startX: number, endX: number, startY: number, endY: number) {
     const screenShotCanvas = document.createElement('canvas');
     screenShotCanvas.width = Math.abs(endX - startX);
     screenShotCanvas.height = Math.abs(endY - startY);

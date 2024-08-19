@@ -1,6 +1,6 @@
-import { DiagramTheme } from "@/models";
-import { DefaultDiagramTheme } from "./DefaultDiagramTheme";
-import { Colors } from "./Colors";
+import { DiagramTheme } from '@/models';
+import { DefaultDiagramTheme } from './DefaultDiagramTheme';
+import { Colors } from './Colors';
 
 export const DefaultDiagramThemeLight: DiagramTheme = {
   ...JSON.parse(JSON.stringify(DefaultDiagramTheme)),
