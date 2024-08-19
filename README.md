@@ -1,5 +1,5 @@
 # Tree - graph visualiser
-[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/graphsource.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
+[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
 
 Tree is the tool for displaying node based systems. 
  
@@ -74,21 +74,12 @@ class App {
 new App()
 ```
 
-### TypeScript
-
-```ts
-import { Diagram, NodeDefinition, AcceptedNodeDefinition } from 'graphsource'
-this.diagram = new Diagram(document.getElementById("root"));
-this.diagram.setNodes
-]);
-```
-
 ### Light mode
 
 Diagram is in dark mode by defult, but You can easily change the theme to light one. Just add the options while creating Diagram.
 
 ```ts
-import { Diagram, DefaultDiagramThemeLight } from 'graphsource'
+import { Diagram, DefaultDiagramThemeLight } from '@aexol/tree'
 this.diagram = new Diagram(document.getElementById("root"),
 {
   theme: DefaultDiagramThemeLight
@@ -99,7 +90,7 @@ this.diagram = new Diagram(document.getElementById("root"),
 ## Develop & Contribute
 
 ```sh
-$ git clone https://github.com/graphql-editor/diagram
+$ git clone https://github.com/aexol-studio/tree
 $ npm install
 $ npm run start
 ```
@@ -107,7 +98,7 @@ $ npm run start
 ## Add to your project
 
 ```sh
-$ npm install graphsource
+$ npm install @aexol/tree
 ```
 ## Listening to diagram events
 
@@ -180,14 +171,10 @@ npm run docs
 
 ## Contribute
 
-Feel free to contact us and contribute in graphql editor project. artur@graphqleditor.com
+Feel free to contribute.
 
 1.  fork this repo
 2.  Create your feature branch: git checkout -b feature-name
 3.  Commit your changes: git commit -am 'Add some feature'
 4.  Push to the branch: git push origin my-new-feature
 5.  Submit a pull request
-
-## Used by
-
-Here is [Live Demo](https://app.graphqleditor.com) of diagram used to create node based graphql system
