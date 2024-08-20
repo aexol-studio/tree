@@ -1,11 +1,15 @@
-# Tree - graph visualiser
-[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
+# TREE - graph visualiser
+<!--STRONA WIZUALNA: słowo "Tree" w nagłówku można albo wyboldować, albo napisać wielkimi literami aby bardziej go wyróżnić, szczególnie, że występuje tylko raz i w związku z tym nie obciążyłaby taka zmiana wizualnie - alternatywnie można też napisać wielkimi literami całość tekstu; TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "visualiser" - w American English powinno być "visualizer"-->
+[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) <!--STRONA WIZUALNA: obrazy przedstawiają, że npm jest invalid, oraz że "package not found or too new" - czy jest to coś do zaktualizowania bądź wyrzucenia później, kiedy npm już będzie dostępny?-->
 
-Tree is the tool for displaying node based systems. 
- 
-This package contains one dependency.
+Tree is a tool for displaying node based systems. <!--TREŚĆ MERYTORYCZNA: "a tool" zamiast "the tool" ponieważ pojawia się po raz pierwszy na stronie-->
+This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie dodać element Markdowna do tej linijki tak, aby podkreślić, że następuje zależność. TREŚĆ MERYTORYCZNA: można dodać źródło, z którego czerpie ta paczka z nazwy albo z załącznika w postaci linku tak, aby użytkownik był o tym poinformowany bez konieczności przenoszenia wzroku na kod--> 
 
-## Getting started
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia podpisu pod tytułem/wstępu od dalszej treści i podrozdziałów-->
+
+## Getting Started 
+<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
+
 
 ### Javascript
 ```js
@@ -73,8 +77,10 @@ class App {
 }
 new App()
 ```
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od kodu powyżej, który sprawia, że następujący nagłówek nieco mniej przyciąga wzrok-->
 
-### Light mode
+### Light Mode
+<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
 Diagram is in dark mode by defult, but You can easily change the theme to light one. Just add the options while creating Diagram.
 
@@ -86,6 +92,7 @@ this.diagram = new Diagram(document.getElementById("root"),
 });
 ```
 
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
 
 ## Develop & Contribute
 
@@ -95,12 +102,20 @@ $ npm install
 $ npm run start
 ```
 
-## Add to your project
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+
+## Add to Your Own Project
+<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
+<!--TREŚĆ MERYTORYCZNA: dodano "own"-->
 
 ```sh
 $ npm install @aexol/tree
 ```
-## Listening to diagram events
+
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+
+## Listening to Diagram Events
+<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
 It's possible to attach to certain events that occur inside the diagram.
 You can do it by using familiar `.on()` syntax, e.g.:
@@ -112,6 +127,7 @@ this.diagram.on(EVENT_NAME, () => {
   // callback
 });
 ```
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od kodu powyżej, który sprawia, że następująca lista punktowana nieco mniej przyciąga wzrok-->
 
 Here is the list of all subscribable events:
 * *ViewModelChanged* - fires when a view model (pan, zoom) was changed
@@ -121,7 +137,9 @@ Here is the list of all subscribable events:
 * *UndoRequested* - fires when undo was requested
 * *RedoRequested* - fires when redo was requested
 
-You can unsubscribe your listener either by using `.off()`, or by invoking unsubscriber function that is being returned from `.on()`:
+> [!NOTE]
+> You can unsubscribe your listener either by using `.off()`, or by invoking unsubscriber function that is being returned from `.on()`:
+<!--STRONA WIZUALNA: dodanie alertu "NOTE" jako dopisek do kodu, tooltip-->
 
 ```js
 this.diagram = new Diagram(/* ... */);
@@ -143,7 +161,11 @@ const unsubscriber = this.diagram.on('NodeMoving', callback); // callback will b
 unsubscriber(); // callback will not be fired anymore
 ```
 
-## Serialisation of data
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+
+## Serialisation of Data
+<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
+<!--TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "serialisation" - w American English powinno być "serialization", American English w przypadku tego słowa jest też bardziej powszechny-->
 
 ```js
 const diagram = new Diagram(/* ... */);
@@ -154,6 +176,8 @@ this.diagram.on('DataModelChanged', callback); // callback will be fired
 
 ```
 
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+
 ## Docs
 
 To generate docs simply type:
@@ -161,13 +185,14 @@ To generate docs simply type:
 npm run docs
 ```
 
-
 ### Controls
 
 * Pan - press and hold Left Mouse Button and move mouse
 * Move - press and hold Left Mouse Button on node
 * CLICK ON NODE TYPE - if node is a children of other node it centers view on parent node
 * SHIFT + Left Mouse Button Click - select multiple nodes
+  
+<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
 
 ## Contribute
 
