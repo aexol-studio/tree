@@ -1,17 +1,18 @@
-# TREE - graph visualiser
+### TREE - GRAPH VISUALISER
+![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/18e2f31f-a70f-4c3e-b284-3b66c989a15f)
 <!--STRONA WIZUALNA: słowo "Tree" w nagłówku można albo wyboldować, albo napisać wielkimi literami aby bardziej go wyróżnić, szczególnie, że występuje tylko raz i w związku z tym nie obciążyłaby taka zmiana wizualnie - alternatywnie można też napisać wielkimi literami całość tekstu; TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "visualiser" - w American English powinno być "visualizer"-->
-[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) <!--STRONA WIZUALNA: obrazy przedstawiają, że npm jest invalid, oraz że "package not found or too new" - czy jest to coś do zaktualizowania bądź wyrzucenia później, kiedy npm już będzie dostępny?-->
+[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
 
 Tree is a tool for displaying node based systems. <!--TREŚĆ MERYTORYCZNA: "a tool" zamiast "the tool" ponieważ pojawia się po raz pierwszy na stronie-->
 This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie dodać element Markdowna do tej linijki tak, aby podkreślić, że następuje zależność. TREŚĆ MERYTORYCZNA: można dodać źródło, z którego czerpie ta paczka z nazwy albo z załącznika w postaci linku tak, aby użytkownik był o tym poinformowany bez konieczności przenoszenia wzroku na kod--> 
 
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia podpisu pod tytułem/wstępu od dalszej treści i podrozdziałów-->
+<br />
 
 ## Getting Started 
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
 
-### Javascript
+### ![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Javascript
 ```js
 import { Diagram } from '@aexol/tree'
 class App {
@@ -77,9 +78,9 @@ class App {
 }
 new App()
 ```
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od kodu powyżej, który sprawia, że następujący nagłówek nieco mniej przyciąga wzrok-->
+<br />
 
-### Light Mode
+### ![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Light Mode
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
 Diagram is in dark mode by defult, but You can easily change the theme to light one. Just add the options while creating Diagram.
@@ -92,7 +93,7 @@ this.diagram = new Diagram(document.getElementById("root"),
 });
 ```
 
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+<br />
 
 ## Develop & Contribute
 
@@ -102,7 +103,7 @@ $ npm install
 $ npm run start
 ```
 
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+<br />
 
 ## Add to Your Own Project
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
@@ -112,7 +113,7 @@ $ npm run start
 $ npm install @aexol/tree
 ```
 
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+<br />
 
 ## Listening to Diagram Events
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
@@ -127,9 +128,9 @@ this.diagram.on(EVENT_NAME, () => {
   // callback
 });
 ```
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od kodu powyżej, który sprawia, że następująca lista punktowana nieco mniej przyciąga wzrok-->
+<br />
 
-Here is the list of all subscribable events:
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Here is the list of all subscribable events:
 * *ViewModelChanged* - fires when a view model (pan, zoom) was changed
 * *NodeMoving* - fires when node is being moved
 * *NodeMoved* - fires when node stops being moved
@@ -161,7 +162,7 @@ const unsubscriber = this.diagram.on('NodeMoving', callback); // callback will b
 unsubscriber(); // callback will not be fired anymore
 ```
 
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+<br />
 
 ## Serialisation of Data
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
@@ -176,7 +177,7 @@ this.diagram.on('DataModelChanged', callback); // callback will be fired
 
 ```
 
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+<br />
 
 ## Docs
 
@@ -187,19 +188,21 @@ npm run docs
 
 ### Controls
 
-* Pan - press and hold Left Mouse Button and move mouse
-* Move - press and hold Left Mouse Button on node
-* CLICK ON NODE TYPE - if node is a children of other node it centers view on parent node
-* SHIFT + Left Mouse Button Click - select multiple nodes
-  
-<br /><!--STRONA WIZUALNA: przerwa na potrzeby wizualnego oddzielenia od następnego podrozdziału-->
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Pan - press and hold Left Mouse Button and move mouse\
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Move - press and hold Left Mouse Button on node\
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) CLICK ON NODE TYPE - if node is a children of other node it centers view on parent node\
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) SHIFT + Left Mouse Button Click - select multiple nodes
 
-## Contribute
+<!-- ALTERNATIVE ARROW COLOR: ![arrow-top-blue](https://github.com/user-attachments/assets/db67ff9e-fc13-4e43-a48f-0a9182e8093c)-->
 
-Feel free to contribute.
+<br />
 
-1.  fork this repo
-2.  Create your feature branch: git checkout -b feature-name
-3.  Commit your changes: git commit -am 'Add some feature'
+## ♥️ Contribute
+
+Feel free to contribute! Don't hesitate to:
+
+1.  Fork this repo
+2.  Create your own feature branch using: git checkout -b feature-name
+3.  Commit your changes with: git commit -am 'Add some feature'
 4.  Push to the branch: git push origin my-new-feature
 5.  Submit a pull request
