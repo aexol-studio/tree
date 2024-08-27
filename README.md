@@ -82,7 +82,7 @@ new App()
 ### ![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Light Mode
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
-Diagram is in dark mode by defult, but you can easily switch to the light theme. Just add the options while creating Diagram.
+Diagram is in dark mode by defult, but you can easily switch to light theme. Just add the options for that while creating Diagram.
 
 ```ts
 import { Diagram, DefaultDiagramThemeLight } from '@aexol/tree'
@@ -129,8 +129,8 @@ this.diagram.on(EVENT_NAME, () => {
 ```
 <br />
 
-| Here is the list of all subscribable events: ||
-|---|---|
+| The list of all subscribable events: ||
+|:---|---|
 | *ViewModelChanged* | fires when a view model (pan, zoom) was changed |
 | *NodeMoving* | fires when node is being moved |
 | *NodeMoved* | fires when node stops being moved |
@@ -139,7 +139,7 @@ this.diagram.on(EVENT_NAME, () => {
 | *RedoRequested* | fires when redo was requested |
 
 > [!NOTE]
-> You can unsubscribe your listener either by using `.off()`, or by invoking unsubscriber function that is being returned from `.on()`:
+> You can unsubscribe your listener by either using `.off()` or by invoking the unsubscriber function that is returned from `.on()`:
 <!--STRONA WIZUALNA: dodanie alertu "NOTE" jako dopisek do kodu, tooltip-->
 
 ```js
