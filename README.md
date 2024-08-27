@@ -188,8 +188,8 @@ npm run docs
 
 ### Controls
 
-| Here is a list of available controls: ||
-|---|---|
+|Here is a list of available controls: ||
+|:---|---|
 | Press and hold Left Mouse Button and move mouse | pans the view |
 | Press and hold Left Mouse Button on node | moves the node |
 | CLICK ON NODE TYPE | centers view on parent node (if node is a children of other node) |
