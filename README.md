@@ -82,7 +82,7 @@ new App()
 ### ![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Light Mode
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
-Diagram is in dark mode by defult, but you can easily switch to light theme. Just add the options for that while creating Diagram.
+Diagram is in dark mode by defult, but you can easily switch to light theme. Just add the options for that while creating the Diagram.
 
 ```ts
 import { Diagram, DefaultDiagramThemeLight } from '@aexol/tree'
@@ -117,7 +117,7 @@ $ npm install @aexol/tree
 ## Listening to Diagram Events
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
-It's possible to attach to certain events that occur inside the diagram.
+It's possible to attach <!--attach what?--> to certain events that occur inside the diagram.
 You can do it by using familiar `.on()` syntax, e.g.:
 
 ```
@@ -140,7 +140,6 @@ this.diagram.on(EVENT_NAME, () => {
 
 > [!NOTE]
 > You can unsubscribe your listener by either using `.off()` or by invoking the unsubscriber function that is returned from `.on()`:
-<!--STRONA WIZUALNA: dodanie alertu "NOTE" jako dopisek do kodu, tooltip-->
 
 ```js
 this.diagram = new Diagram(/* ... */);
@@ -181,7 +180,7 @@ this.diagram.on('DataModelChanged', callback); // callback will be fired
 
 ## Docs
 
-To generate docs simply type:
+To generate docs <!--what docs, does it need clarification?--> simply type:
 ```
 npm run docs
 ```
@@ -195,8 +194,6 @@ npm run docs
 | CLICK ON NODE TYPE | centers view on parent node (if node is a children of other node) |
 | SHIFT + Left Mouse Button Click | selects multiple nodes |
 
-<!-- ALTERNATIVE ARROW COLOR: ![arrow-top-blue](https://github.com/user-attachments/assets/db67ff9e-fc13-4e43-a48f-0a9182e8093c)-->
-
 <br />
 
 ## ♥️ Contribute
@@ -208,3 +205,5 @@ Feel free to contribute! Don't hesitate to:
 ![image](https://github.com/user-attachments/assets/23b199b7-0683-431a-8521-59bd6fce10e7) Commit your changes with: git commit -am 'Add some feature'\
 ![image](https://github.com/user-attachments/assets/dddea651-ad8e-4377-9d41-95228d434154) Push to the branch: git push origin my-new-feature\
 ![image](https://github.com/user-attachments/assets/6ae8a223-b84e-4ec0-bb5a-2096b4912fa1) Submit a pull request
+
+<!-- ALTERNATIVE ARROW COLOR: ![arrow-top-blue](https://github.com/user-attachments/assets/db67ff9e-fc13-4e43-a48f-0a9182e8093c)-->
