@@ -215,7 +215,7 @@ Here is a list of the available controls:
 
 <br />
 
-## <span>♥️</span>&nbsp;&nbsp;Contribute
+## <span>💚</span>&nbsp;&nbsp;Contribute
 
 Feel free to contribute! Don't hesitate to:
 
