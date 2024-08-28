@@ -15,9 +15,9 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
   - [Getting Started](#Getting-Started)
      - [JavaScript](#Javascript)
      - [Light Mode](#Light-Mode)
-  - [Develop and Grow](#Develop-and-Grow)
-  - [Add to Your Own Project](#Add-to-Your-Own-Project)
   - [Listening to Diagram Events](#Listening-to-Diagram-Events)
+  - [Developing and Growth](#Developing-and-Growth)
+  - [Adding to Your Own Project](#Adding-to-Your-Own-Project)
   - [Serialisation of Data](#Serialisation-of-Data)
   - [Docs](#Docs)
   - [Controls](#Controls)
@@ -112,28 +112,7 @@ this.diagram = new Diagram(document.getElementById("root"),
 
 <br />
 
-## Develop and Grow
-
-```sh
-$ git clone https://github.com/aexol-studio/tree
-$ npm install
-$ npm run start
-```
-
-<br />
-
-## Add to Your Own Project
-<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
-<!--TREŚĆ MERYTORYCZNA: dodano "own"-->
-
-```sh
-$ npm install @aexol/tree
-```
-
-<br />
-
 ## Listening to Diagram Events
-<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
 It's possible to attach <!--attach what?--> to certain events that occur inside the diagram.
 You can do it by using familiar `.on()` syntax, e.g.:
@@ -193,6 +172,24 @@ const callback = ({nodes, links}) => {
 };
 this.diagram.on('DataModelChanged', callback); // callback will be fired
 
+```
+
+<br />
+
+## Developing and Growth
+
+```sh
+$ git clone https://github.com/aexol-studio/tree
+$ npm install
+$ npm run start
+```
+
+<br />
+
+## Adding to Your Own Project
+
+```sh
+$ npm install @aexol/tree
 ```
 
 <br />
