@@ -203,6 +203,9 @@ To generate docs <!--what docs, does it need clarification?--> simply type:
 npm run docs
 ```
 
+<br />
+
+
 ## Controls
 
 Here is a list of the available controls: 
