@@ -130,14 +130,15 @@ this.diagram.on(EVENT_NAME, () => {
 ```
 <br />
 
-| The list of all subscribable events: ||
-|:---|---|
-| *ViewModelChanged* | fires when a view model (pan, zoom) was changed |
-| *NodeMoving* | fires when node is being moved |
-| *NodeMoved* | fires when node stops being moved |
-| *NodeSelected* | fires when node(s) was selected |
-| *UndoRequested* | fires when undo was requested |
-| *RedoRequested* | fires when redo was requested |
+The list of all subscribable events:
+|Event|Description|
+|:---|:---|
+| *ViewModelChanged* | Fires when a view model (pan, zoom) was changed |
+| *NodeMoving* | Fires when node is being moved |
+| *NodeMoved* | Fires when node stops being moved |
+| *NodeSelected* | Fires when node(s) was selected |
+| *UndoRequested* | Fires when undo was requested |
+| *RedoRequested* | Fires when redo was requested |
 
 > [!NOTE]
 > You can unsubscribe your listener by either using `.off()` or by invoking the unsubscriber function that is returned from `.on()`:
@@ -188,12 +189,13 @@ npm run docs
 
 ### Controls
 
-|Here is a list of available controls: ||
-|:---|---|
-| Press and hold Left Mouse Button and move mouse | pans the view |
-| Press and hold Left Mouse Button on node | moves the node |
-| CLICK ON NODE TYPE | centers view on parent node (if node is a children of other node) |
-| SHIFT + Left Mouse Button Click | selects multiple nodes |
+Here is a list of the available controls: 
+|Action| Result|
+|:---|:---|
+| Press and hold Left Mouse Button and move mouse | Pans the view |
+| Press and hold Left Mouse Button on node | Moves the node |
+| CLICK ON NODE TYPE | Centers view on parent node (if node is a children of other node) |
+| SHIFT + Left Mouse Button Click | Selects multiple nodes |
 
 <br />
 
