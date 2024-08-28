@@ -18,7 +18,6 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
   - [Develop & Contribute](#Develop-&-Contribute)
   - [Add to Your Own Project](#Add-to-Your-Own-Project)
   - [Listening to Diagram Events](#Listening-to-Diagram-Events)
-    - [Subscribable Events](#The-list-of-all-subscribable-events:)
   - [Serialisation of Data](#Serialisation-of-Data)
   - [Docs](#Docs)
   - [Controls](#Controls)
@@ -204,7 +203,7 @@ To generate docs <!--what docs, does it need clarification?--> simply type:
 npm run docs
 ```
 
-### Controls
+## Controls
 
 Here is a list of the available controls: 
 |Action| Result|
@@ -216,7 +215,7 @@ Here is a list of the available controls:
 
 <br />
 
-## <span>♥️</span>&nbsp; Contribute
+## <span>♥️</span>&nbsp;&nbsp;Contribute
 
 Feel free to contribute! Don't hesitate to:
 
