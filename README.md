@@ -10,7 +10,7 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
 
 ## Table of Contents
 
-- [Tree Graph Visualiser](#https://github.com/user-attachments/assets/21ea495e-38db-4cf4-8751-8e9c9a0d9556)
+- [Tree Graph Visualiser](#TREE-GRAPH-VISUALISER)
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#Getting-Started)
      - [JavaScript](#Javascript)
