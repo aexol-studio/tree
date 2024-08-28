@@ -23,6 +23,8 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
   - [Controls](#Controls)
   - [Contribute](#Contribute)
 
+<br />
+    
 ## Getting Started 
 
 This section will help you get started with the graph visualizer.
