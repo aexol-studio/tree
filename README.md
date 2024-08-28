@@ -199,7 +199,7 @@ Here is a list of the available controls:
 
 <br />
 
-## ♥️ Contribute
+## ♥️&nbsp; Contribute
 
 Feel free to contribute! Don't hesitate to:
 
