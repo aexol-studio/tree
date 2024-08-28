@@ -96,7 +96,6 @@ class App {
 }
 new App()
 ```
-<br />
 
 ### Light Mode
 <!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
