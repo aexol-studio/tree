@@ -15,7 +15,7 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
   - [Getting Started](#Getting-Started)
      - [JavaScript](#Javascript)
      - [Light Mode](#Light-Mode)
-  - [Develop & Contribute](#Develop-&-Contribute)
+  - [Develop and Grow](#Develop-and-Grow)
   - [Add to Your Own Project](#Add-to-Your-Own-Project)
   - [Listening to Diagram Events](#Listening-to-Diagram-Events)
   - [Serialisation of Data](#Serialisation-of-Data)
@@ -111,7 +111,7 @@ this.diagram = new Diagram(document.getElementById("root"),
 
 <br />
 
-## Develop &amp; Contribute
+## Develop and Grow
 
 ```sh
 $ git clone https://github.com/aexol-studio/tree
