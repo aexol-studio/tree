@@ -9,7 +9,7 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
 
 ## Getting Started 
 
-This section will help you get started with the graph visualizer. Read
+This section will help you get started with the graph visualizer.
 
 
 ### Javascript
