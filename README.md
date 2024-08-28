@@ -200,10 +200,10 @@ npm run docs
 
 Feel free to contribute! Don't hesitate to:
 
-![image](https://github.com/user-attachments/assets/5d17dc11-7235-461f-9947-3a60b834e6d0) Fork this repo\
-![image](https://github.com/user-attachments/assets/8876851b-8be8-4b28-af3f-6a71c84ec653) Create your own feature branch using: git checkout -b feature-name\
-![image](https://github.com/user-attachments/assets/23b199b7-0683-431a-8521-59bd6fce10e7) Commit your changes with: git commit -am 'Add some feature'\
-![image](https://github.com/user-attachments/assets/dddea651-ad8e-4377-9d41-95228d434154) Push to the branch: git push origin my-new-feature\
-![image](https://github.com/user-attachments/assets/6ae8a223-b84e-4ec0-bb5a-2096b4912fa1) Submit a pull request
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Fork this repo\
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Create your own feature branch using: git checkout -b feature-name\
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Commit your changes with: git commit -am 'Add some feature'\
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Push to the branch: git push origin my-new-feature\
+![arrow-top](https://github.com/user-attachments/assets/3632196c-f2f8-46a2-9d3d-4a8071ca1908#gh-dark-mode-only) ![arrow-top-dark](https://github.com/user-attachments/assets/496077a7-85a9-44dc-8770-5a248d63886d#gh-light-mode-only) Submit a pull request
 
 <!-- ALTERNATIVE ARROW COLOR: ![arrow-top-blue](https://github.com/user-attachments/assets/db67ff9e-fc13-4e43-a48f-0a9182e8093c)-->
