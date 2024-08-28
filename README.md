@@ -8,6 +8,22 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
 
 <br />
 
+## Table of Contents
+
+- [Tree Graph Visualiser](#https://github.com/user-attachments/assets/21ea495e-38db-4cf4-8751-8e9c9a0d9556)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#Getting-Started)
+     - [JavaScript](#Javascript)
+     - [Light Mode](#Light-Mode)
+  - [Develop & Contribute](#Develop-&-Contribute)
+  - [Add to Your Own Project](#Add-to-Your-Own-Project)
+  - [Listening to Diagram Events](#Listening-to-Diagram-Events)
+    - [Subscribable Events](#The-list-of-all-subscribable-events:)
+  - [Serialisation of Data](#Serialisation-of-Data)
+  - [Docs](#Docs)
+  - [Controls](#Controls)
+  - [Contribute](#Contribute)
+
 ## Getting Started 
 
 This section will help you get started with the graph visualizer.
@@ -200,7 +216,7 @@ Here is a list of the available controls:
 
 <br />
 
-## ♥️&nbsp; Contribute
+## <span>♥️</span>&nbsp; Contribute
 
 Feel free to contribute! Don't hesitate to:
 
