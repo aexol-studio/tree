@@ -1,16 +1,15 @@
-### ![TREE - GRAPH VISUALISER](https://github.com/user-attachments/assets/9a402a3c-0979-45e1-97e6-98ece5ec0d62) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/93e38773-7467-4374-a9e8-13387aa5b076#gh-dark-mode-only) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/51b16a12-11c3-4b72-8f87-d78afdbe9c83#gh-light-mode-only)
+### ![TREE - GRAPH VISUALIZER](https://github.com/user-attachments/assets/9a402a3c-0979-45e1-97e6-98ece5ec0d62) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/93e38773-7467-4374-a9e8-13387aa5b076#gh-dark-mode-only) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/51b16a12-11c3-4b72-8f87-d78afdbe9c83#gh-light-mode-only)
 
-<!--STRONA WIZUALNA: słowo "Tree" w nagłówku można albo wyboldować, albo napisać wielkimi literami aby bardziej go wyróżnić, szczególnie, że występuje tylko raz i w związku z tym nie obciążyłaby taka zmiana wizualnie - alternatywnie można też napisać wielkimi literami całość tekstu; TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "visualiser" - w American English powinno być "visualizer"-->
-[![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
+<!-- THE NPM IS NOT CURRENTLY AVAILABLE AND THE HYPERLINKS NEED TO BE UPDATED [![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)-->
 
-Tree is a tool for displaying node based systems. <!--TREŚĆ MERYTORYCZNA: "a tool" zamiast "the tool" ponieważ pojawia się po raz pierwszy na stronie-->
+Tree is a tool for displaying node based systems.
 This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie dodać element Markdowna do tej linijki tak, aby podkreślić, że następuje zależność. TREŚĆ MERYTORYCZNA: można dodać źródło, z którego czerpie ta paczka z nazwy albo z załącznika w postaci linku tak, aby użytkownik był o tym poinformowany bez konieczności przenoszenia wzroku na kod--> 
 
 <br />
 
 ## Table of Contents
 
-[Tree Graph Visualiser](#TREE-GRAPH-VISUALISER)
+[Tree Graph Visualizer](#TREE-GRAPH-VISUALIZER)
 - [Table of Contents](#table-of-contents)
 - [Getting Started](#Getting-Started)
     - [JavaScript](#Javascript)
@@ -18,7 +17,7 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
 - [Listening to Diagram Events](#Listening-to-Diagram-Events)
 - [Developing and Growth](#Developing-and-Growth)
 - [Adding to Your Own Project](#Adding-to-Your-Own-Project)
-- [Serialisation of Data](#Serialisation-of-Data)
+- [Serialization of Data](#Serialization-of-Data)
 - [Docs](#Docs)
 - [Controls](#Controls)
 - [Contribute](#Contribute)
@@ -98,7 +97,6 @@ new App()
 ```
 
 ### Light Mode
-<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
 Diagram is in dark mode by defult, but you can easily switch to light theme. Just add the options for that while creating the Diagram.
 
@@ -161,14 +159,12 @@ unsubscriber(); // callback will not be fired anymore
 
 <br />
 
-## Serialisation of Data
-<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
-<!--TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "serialisation" - w American English powinno być "serialization", American English w przypadku tego słowa jest też bardziej powszechny-->
+## Serialization of Data
 
 ```js
 const diagram = new Diagram(/* ... */);
 const callback = ({nodes, links}) => {
-  // Here you receive nodes and links after Serialisation
+  // Here you receive nodes and links after Serialization
 };
 this.diagram.on('DataModelChanged', callback); // callback will be fired
 
