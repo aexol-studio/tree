@@ -1,4 +1,4 @@
-### ![TREE - GRAPH VISUALISER](https://github.com/user-attachments/assets/21ea495e-38db-4cf4-8751-8e9c9a0d9556) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/93e38773-7467-4374-a9e8-13387aa5b076)
+### ![TREE - GRAPH VISUALISER](https://github.com/user-attachments/assets/9a402a3c-0979-45e1-97e6-98ece5ec0d62) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/93e38773-7467-4374-a9e8-13387aa5b076#gh-dark-mode-only) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/51b16a12-11c3-4b72-8f87-d78afdbe9c83#gh-light-mode-only)
 
 <!--STRONA WIZUALNA: słowo "Tree" w nagłówku można albo wyboldować, albo napisać wielkimi literami aby bardziej go wyróżnić, szczególnie, że występuje tylko raz i w związku z tym nie obciążyłaby taka zmiana wizualnie - alternatywnie można też napisać wielkimi literami całość tekstu; TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "visualiser" - w American English powinno być "visualizer"-->
 [![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
@@ -10,18 +10,18 @@ This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie do
 
 ## Table of Contents
 
-- [Tree Graph Visualiser](#TREE-GRAPH-VISUALISER)
-  - [Table of Contents](#table-of-contents)
-  - [Getting Started](#Getting-Started)
-     - [JavaScript](#Javascript)
-     - [Light Mode](#Light-Mode)
-  - [Listening to Diagram Events](#Listening-to-Diagram-Events)
-  - [Developing and Growth](#Developing-and-Growth)
-  - [Adding to Your Own Project](#Adding-to-Your-Own-Project)
-  - [Serialisation of Data](#Serialisation-of-Data)
-  - [Docs](#Docs)
-  - [Controls](#Controls)
-  - [Contribute](#Contribute)
+[Tree Graph Visualiser](#TREE-GRAPH-VISUALISER)
+- [Table of Contents](#table-of-contents)
+- [Getting Started](#Getting-Started)
+    - [JavaScript](#Javascript)
+    - [Light Mode](#Light-Mode)
+- [Listening to Diagram Events](#Listening-to-Diagram-Events)
+- [Developing and Growth](#Developing-and-Growth)
+- [Adding to Your Own Project](#Adding-to-Your-Own-Project)
+- [Serialisation of Data](#Serialisation-of-Data)
+- [Docs](#Docs)
+- [Controls](#Controls)
+- [Contribute](#Contribute)
 
 <br />
     
