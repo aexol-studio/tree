@@ -1,11 +1,34 @@
-# Tree - graph visualiser
+### ![TREE - GRAPH VISUALISER](https://github.com/user-attachments/assets/9a402a3c-0979-45e1-97e6-98ece5ec0d62) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/93e38773-7467-4374-a9e8-13387aa5b076#gh-dark-mode-only) ![Vector 902 (Stroke) (1)](https://github.com/user-attachments/assets/51b16a12-11c3-4b72-8f87-d78afdbe9c83#gh-light-mode-only)
+
+<!--STRONA WIZUALNA: słowo "Tree" w nagłówku można albo wyboldować, albo napisać wielkimi literami aby bardziej go wyróżnić, szczególnie, że występuje tylko raz i w związku z tym nie obciążyłaby taka zmiana wizualnie - alternatywnie można też napisać wielkimi literami całość tekstu; TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "visualiser" - w American English powinno być "visualizer"-->
 [![npm](https://img.shields.io/npm/v/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree) [![npm downloads](https://img.shields.io/npm/dm/@aexol/tree.svg?style=flat-square)](https://www.npmjs.com/package/@aexol/tree)
 
-Tree is the tool for displaying node based systems. 
- 
-This package contains one dependency.
+Tree is a tool for displaying node based systems. <!--TREŚĆ MERYTORYCZNA: "a tool" zamiast "the tool" ponieważ pojawia się po raz pierwszy na stronie-->
+This package contains one dependency. <!--STRONA WIZUALNA: można ewentualnie dodać element Markdowna do tej linijki tak, aby podkreślić, że następuje zależność. TREŚĆ MERYTORYCZNA: można dodać źródło, z którego czerpie ta paczka z nazwy albo z załącznika w postaci linku tak, aby użytkownik był o tym poinformowany bez konieczności przenoszenia wzroku na kod--> 
 
-## Getting started
+<br />
+
+## Table of Contents
+
+[Tree Graph Visualiser](#TREE-GRAPH-VISUALISER)
+- [Table of Contents](#table-of-contents)
+- [Getting Started](#Getting-Started)
+    - [JavaScript](#Javascript)
+    - [Light Mode](#Light-Mode)
+- [Listening to Diagram Events](#Listening-to-Diagram-Events)
+- [Developing and Growth](#Developing-and-Growth)
+- [Adding to Your Own Project](#Adding-to-Your-Own-Project)
+- [Serialisation of Data](#Serialisation-of-Data)
+- [Docs](#Docs)
+- [Controls](#Controls)
+- [Contribute](#Contribute)
+
+<br />
+    
+## Getting Started 
+
+This section will help you get started with the graph visualizer.
+
 
 ### Javascript
 ```js
@@ -74,9 +97,10 @@ class App {
 new App()
 ```
 
-### Light mode
+### Light Mode
+<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
 
-Diagram is in dark mode by defult, but You can easily change the theme to light one. Just add the options while creating Diagram.
+Diagram is in dark mode by defult, but you can easily switch to light theme. Just add the options for that while creating the Diagram.
 
 ```ts
 import { Diagram, DefaultDiagramThemeLight } from '@aexol/tree'
@@ -86,23 +110,11 @@ this.diagram = new Diagram(document.getElementById("root"),
 });
 ```
 
+<br />
 
-## Develop & Contribute
+## Listening to Diagram Events
 
-```sh
-$ git clone https://github.com/aexol-studio/tree
-$ npm install
-$ npm run start
-```
-
-## Add to your project
-
-```sh
-$ npm install @aexol/tree
-```
-## Listening to diagram events
-
-It's possible to attach to certain events that occur inside the diagram.
+It's possible to attach <!--attach what?--> to certain events that occur inside the diagram.
 You can do it by using familiar `.on()` syntax, e.g.:
 
 ```
@@ -112,16 +124,20 @@ this.diagram.on(EVENT_NAME, () => {
   // callback
 });
 ```
+<br />
 
-Here is the list of all subscribable events:
-* *ViewModelChanged* - fires when a view model (pan, zoom) was changed
-* *NodeMoving* - fires when node is being moved
-* *NodeMoved* - fires when node stops being moved
-* *NodeSelected* - fires when node(s) was selected
-* *UndoRequested* - fires when undo was requested
-* *RedoRequested* - fires when redo was requested
+The list of all subscribable events:
+|Event|Description|
+|:---|:---|
+| *ViewModelChanged* | Fires when a view model (pan, zoom) was changed |
+| *NodeMoving* | Fires when node is being moved |
+| *NodeMoved* | Fires when node stops being moved |
+| *NodeSelected* | Fires when node(s) was selected |
+| *UndoRequested* | Fires when undo was requested |
+| *RedoRequested* | Fires when redo was requested |
 
-You can unsubscribe your listener either by using `.off()`, or by invoking unsubscriber function that is being returned from `.on()`:
+> [!NOTE]
+> You can unsubscribe your listener by either using `.off()` or by invoking the unsubscriber function that is returned from `.on()`:
 
 ```js
 this.diagram = new Diagram(/* ... */);
@@ -143,7 +159,11 @@ const unsubscriber = this.diagram.on('NodeMoving', callback); // callback will b
 unsubscriber(); // callback will not be fired anymore
 ```
 
-## Serialisation of data
+<br />
+
+## Serialisation of Data
+<!--STRONA WIZUALNA: zmiana na formatowanie Pierwsza Litera Wyrazu Pisana Wielką Literą-->
+<!--TREŚĆ MERYTORYCZNA: w zależności od tego, czy chcemy przestrzegać British English, czy American English, zmieni to pisownię słowa "serialisation" - w American English powinno być "serialization", American English w przypadku tego słowa jest też bardziej powszechny-->
 
 ```js
 const diagram = new Diagram(/* ... */);
@@ -154,27 +174,56 @@ this.diagram.on('DataModelChanged', callback); // callback will be fired
 
 ```
 
+<br />
+
+## Developing and Growth
+
+```sh
+$ git clone https://github.com/aexol-studio/tree
+$ npm install
+$ npm run start
+```
+
+<br />
+
+## Adding to Your Own Project
+
+```sh
+$ npm install @aexol/tree
+```
+
+<br />
+
 ## Docs
 
-To generate docs simply type:
+To generate docs <!--what docs, does it need clarification?--> simply type:
 ```
 npm run docs
 ```
 
+<br />
 
-### Controls
 
-* Pan - press and hold Left Mouse Button and move mouse
-* Move - press and hold Left Mouse Button on node
-* CLICK ON NODE TYPE - if node is a children of other node it centers view on parent node
-* SHIFT + Left Mouse Button Click - select multiple nodes
+## Controls
 
-## Contribute
+Here is a list of the available controls: 
+|Action| Result|
+|:---|:---|
+| Press and hold Left Mouse Button and move mouse | Pans the view |
+| Press and hold Left Mouse Button on node | Moves the node |
+| CLICK ON NODE TYPE | Centers view on parent node (if node is a children of other node) |
+| SHIFT + Left Mouse Button Click | Selects multiple nodes |
 
-Feel free to contribute.
+<br />
 
-1.  fork this repo
-2.  Create your feature branch: git checkout -b feature-name
-3.  Commit your changes: git commit -am 'Add some feature'
-4.  Push to the branch: git push origin my-new-feature
-5.  Submit a pull request
+## <span>💚</span>&nbsp;&nbsp;Contribute
+
+Feel free to contribute! Don't hesitate to:
+
+- Fork this repo
+- Create your own feature branch using: git checkout -b feature-name
+- Commit your changes with: git commit -am 'Add some feature'
+- Push to the branch: git push origin my-new-feature
+- Submit a pull request
+
+<!-- ALTERNATIVE ARROW COLOR: ![arrow-top-blue](https://github.com/user-attachments/assets/db67ff9e-fc13-4e43-a48f-0a9182e8093c)-->
